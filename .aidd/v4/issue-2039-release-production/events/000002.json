@@ -6,6 +6,7 @@
   "paths": [
     ".github/workflows/deploy_production.yaml",
     ".github/workflows/release_production.yaml",
+    ".github/workflows/draft_production_release.yaml",
     ".github/workflows/production_release_ci.yaml",
     "tools/production-release/",
     "tools/dev-preview/authorize.test.mjs",
@@ -14,15 +15,14 @@
     "docs/workers-migration.md",
     "docs/cloudflare-delivery.md"
   ],
-  "fingerprint": "eed1a07eecc85a71a057bf41852958b86218f34ac88ca8c14b5b234f0c9f9728",
+  "fingerprint": "9d7f94863a10c4e76080dc680859ed6ed873cd2c2ef4d6cbfa900a94fccb2d7a",
   "status": "pass",
   "checks": [
-    "Node tests 56 pass",
-    "actionlint 3 workflows pass",
-    "vp check 10 files pass",
-    "git diff --check pass",
+    "Node tests 82 pass",
+    "actionlint 4 workflows pass",
+    "vp check 13 files pass",
     "Core verify stable"
   ],
-  "summary": "固定 SHA の伝播、正式版以外・タグ移動・API 障害の拒否、DB/Web の結果報告、Dev 回帰テストが成功。整形・lint・型検査・workflow 構文も成功。実 Actions と本番適用は委任外のため未実施。",
+  "summary": "初回・0.x・1.x・混在変更・同一 SHA の手動安定版移行、Draft 更新と追記保持、既存配信・Dev 回帰が成功。workflow 構文、整形・lint・型検査も成功。実 Draft 作成・正式公開・本番反映は未実施。",
   "remaining": []
 }

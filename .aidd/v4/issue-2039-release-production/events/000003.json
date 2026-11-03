@@ -6,6 +6,7 @@
   "paths": [
     ".github/workflows/deploy_production.yaml",
     ".github/workflows/release_production.yaml",
+    ".github/workflows/draft_production_release.yaml",
     ".github/workflows/production_release_ci.yaml",
     "tools/production-release/",
     "tools/dev-preview/authorize.test.mjs",
@@ -14,20 +15,20 @@
     "docs/workers-migration.md",
     "docs/cloudflare-delivery.md"
   ],
-  "fingerprint": "eed1a07eecc85a71a057bf41852958b86218f34ac88ca8c14b5b234f0c9f9728",
+  "fingerprint": "9d7f94863a10c4e76080dc680859ed6ed873cd2c2ef4d6cbfa900a94fccb2d7a",
   "status": "pass",
   "checks": [
     "architecture.overview",
     "documentation.policy",
-    "infrastructure.dev-preview",
     "infrastructure.overview",
-    "policy.audit",
+    "infrastructure.dev-preview",
     "policy.git-workflow",
-    "policy.review-feedback-classification",
     "policy.transaction-boundaries",
+    "policy.review-feedback-classification",
+    "policy.audit",
     "policy.code-review",
-    "Issue #2039 DoD と実装・検証の照合"
+    "採番・Draft→正式公開→固定 SHA 配信の意味照合"
   ],
-  "summary": "正式公開から固定 SHA を DB/Web/Sentry へ渡す経路、DB 失敗時停止、Release への結果追跡、正式版以外の除外、復旧制限、文書同期は pass。既存 Environment・Secret 分離・Dev 運用を維持。未解決指摘・規則競合なし。実配送・本番反映は委任外につき未実施。agent の振る舞いを変えないため行動 eval は対象外。",
+  "summary": "互換性基準と採番規則、手動安定版移行、追記保持、古い run・タグ衝突・API 障害の拒否、公開前承認、既存配信との接続を照合済み。未解決指摘・規則競合なし。実 Draft 作成・イベント配送・本番反映は未確認。agent 制御を変更しないため行動 eval は対象外。",
   "remaining": []
 }

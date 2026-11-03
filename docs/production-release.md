@@ -30,22 +30,80 @@ workflow の成功と、反映後の実機確認は分けて扱う。
 旧 run は新しい concurrency group に参加しないため、先に完了と反映状態を確認し、
 重複配信が起きない状態で新しい方式を開始する。
 
+## バージョンを上げる基準
+
+本番のバージョンは `vMAJOR.MINOR.PATCH` とし、DB・Web 共通で管理する。
+前回正式 Release 以降、今回公開する変更全体のうち、最も影響が大きい変更を一度だけ採用する。
+PR 数や変更行数で番号を増やさない。基準は [SemVer](https://semver.org/lang/ja/) を元に、
+このアプリでは以下の利用者向けの互換性へ適用する。
+
+| 変更       | 判断基準と例                                                                                                                                                             | `1.x` 以降                 | `0.x` の間                                                           |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------- | -------------------------------------------------------------------- |
+| 修正・保守 | 既存の操作・保存データ・API 契約を保った不具合修正、性能・セキュリティ修正、依存更新、内部整理。文書・CI のみの変更も公開する場合はここに含める。                        | PATCH：`v1.2.3` → `v1.2.4` | PATCH：`v0.2.3` → `v0.2.4`                                           |
+| 機能追加   | 既存の操作を使えるまま検索・画面・入力項目等を追加する。旧 API を維持した新 RPC の追加など。                                                                             | MINOR：`v1.2.3` → `v1.3.0` | MINOR：`v0.2.3` → `v0.3.0`                                           |
+| 破壊的変更 | 既存の API/RPC・入力形式を受け付けなくする、保存済みの金額・月・予算等の意味を非互換に変える、既存機能を削除する、データや認証の継続利用に利用者の移行操作を必須にする。 | MAJOR：`v1.2.3` → `v2.0.0` | MINOR：`v0.2.3` → `v0.3.0`。破壊的変更であることをノートに明記する。 |
+
+DB migration の存在や、画面の見た目の変更だけでは破壊的変更としない。
+旧 Web と新 DB が互換な schema 追加は機能追加、振る舞いを保った index 追加は修正・保守に分類する。
+不具合修正でも既存データ・API の互換性を失う場合は破壊的変更を優先する。
+`0.x` は初期開発期間の採番規約であり、データ損失や無断の機能削除を許可するものではない。
+
+初回は `v0.1.0`。`v1.0.0` への移行は自動で行わない。
+主要な家計管理操作・保存データ・認証・API の維持する契約と、今後の破壊的変更の移行方針を確認し、
+安定版としてその互換性を維持することへの承認後に、担当者が明示指定する。
+
+## 次の番号と Draft の自動準備
+
+[Draft Production Release](../.github/workflows/draft_production_release.yaml) が main 更新時に、
+未使用の次の番号・その時点の完全な SHA・GitHub 生成の変更一覧を Draft Release に入れる。
+GitHub 標準 API と既存のコミット形式を使い、新しい公開用 token やラベル登録は要求しない。
+タグ作成・正式公開・本番配信はこの workflow から行わない。
+
+自動採番の入力は、前回の正式版タグから対象 SHA までに入った commit のメッセージとする。
+Draft・プレリリースは採番元にしない。公開済み正式版のうち番号が最大のものを起点にする。
+その commit が対象履歴に含まれない場合や、一覧・ノートを取得できない場合は更新を止める。
+
+- `feat: ...` / `feat(scope): ...`：機能追加。
+- `fix`、`perf`、`refactor`、`build`、`ci`、`chore`、`docs`、`test`、`style`、`revert`：修正・保守。
+- `feat!: ...`、`fix(scope)!: ...`、または本文の `BREAKING CHANGE: ...` / `BREAKING-CHANGE: ...`：type に関係なく破壊的変更。
+
+これは [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) を採番の入力にしたもので、
+意味や互換性をコードから自動判定するものではない。commit の本文・説明は既存規約に従い日本語で書く。
+Squash merge 時は PR title をこの形式にし、通常 merge 時も PR title と各 commit の type を確認する。
+通常 merge の本文先頭にある PR title も採番に使う。範囲に機能追加と修正があれば MINOR、
+破壊的変更があればその分類を優先する。取り消された変更を自動相殺しない。
+形式が不明な commit は PATCH と推測せず停止する。初回は過去全履歴の type で採番せず `v0.1.0` とする。
+
+担当者は PR のレビュー時に上の互換性基準と type・破壊的変更の指定を照合する。
+指定を誤った場合や `v1.0.0` へ移行する場合は、main から Draft Production Release を手動実行し、
+`version` に正しい番号を指定できる。明示指定も公開済みの番号より大きく、初回は `v0.1.0` 以上とする。
+手動指定では自動推論を置き換えるため、担当者が変更全体と採番基準を確認する。
+
+自動生成範囲は Draft 本文の `production-release-draft:start` / `end` コメント間と、
+番号・タイトル・対象 SHA。担当者の影響・復旧方法等の追記はコメントの外へ書くと維持される。
+他の担当者が作った Draft や既存タグと衝突する場合は、勝手に上書きせず停止する。
+main が進めば候補と自動生成部分も更新される。古い main の run の再実行では最新候補を戻さない。
+採番済みの Draft を保存しても、その番号の Release が公開済みになったわけではない。
+
 ## 公開前の準備と承認
 
 1. 必要な CI とレビューを終えて main に merge し、対象の完全な commit SHA を確認する。
    最初の Release は、この仕組みを含む commit 以降を選ぶ。
-2. バージョンは担当者が変更内容から決め、未使用の `vMAJOR.MINOR.PATCH` タグを使う。
-   最初は `v0.1.0` を基本にし、以後は破壊的変更・機能追加・修正に応じて手動で増分を選ぶ。
-   自動採番、自動タグ作成、自動公開は行わない。
-3. GitHub の Releases で Draft を作成する。新しいタグの対象には承認対象の完全な SHA を指定し、
-   既存タグを使う場合も実際の対象 commit を確認する。移動する main の先端を公開対象の代用にしない。
-   Generate release notes を使い、前回との差分、migration、互換性、利用者への影響を確認・補足する。
+2. Draft Production Release の成功と、GitHub Releases の候補番号を上の基準と照合する。
+   変更が文書・保守だけなら、Draft ができても本番公開は必須ではない。
+3. 自動準備された Draft の対象 SHA と生成された変更一覧を確認し、migration、互換性、
+   利用者への影響と復旧方法を自動生成範囲の外へ補足する。
+   手動で Draft を作る場合も、未使用タグと承認対象の完全な SHA を指定する。
+   移動する main の先端を公開対象の代用にしない。
 4. DB と Web の配信は全体で atomic にはならない。新 DB と旧 Web が動く期間と、Web 配信失敗時の
    互換性を確認する。破壊的変更では [配備互換性の方針](harness/policies/transaction-boundaries.md#api契約変更と配備互換性)
    を決め、必要な段階的変更または明示された停止範囲を承認対象に含める。
 5. Release・対象 SHA・変更内容・本番への影響・復旧方法への承認を得る。
    DB を変更する場合は適用済み migration と未適用分、バックアップの実在・復元範囲・許容損失も確認する。
    未確認のバックアップやプランを復旧保証に使わない。
+
+承認後に main が更新されて Draft の対象 SHA・番号・内容が変わったら、公開前に再確認する。
+候補の準備・確認・公開は一件ずつ行い、準備 run の完了を確認してから公開する。
 
 Draft の保存、タグの push、PR の merge だけでは配信しない。
 プレリリースの公開も配信対象外とする。正式 Release として配信する場合は新しい正式版を作り、
@@ -122,10 +180,11 @@ Release の削除・タグの付け替え・Draft 化は、本番からの取り
 
 ```sh
 node --test tools/production-release/*.test.mjs tools/dev-preview/*.test.mjs
-actionlint .github/workflows/release_production.yaml .github/workflows/deploy_production.yaml .github/workflows/production_release_ci.yaml
+actionlint .github/workflows/release_production.yaml .github/workflows/deploy_production.yaml .github/workflows/draft_production_release.yaml .github/workflows/production_release_ci.yaml
 ```
 
 API fixture と workflow の接続検査は、対象 SHA の伝播・拒否条件・結果報告・権限分離を確認する。
+自動採番は初回・`0.x`・`1.x`・混在変更・手動指定、Draft の作成・追記保持・再実行の拒否も確認する。
 実 Actions のイベント配送、Environment 承認、Supabase 適用、Cloudflare 配信の成功は保証しない。
 実反映は承認後に行い、上記の結果確認を別に実施する。
 

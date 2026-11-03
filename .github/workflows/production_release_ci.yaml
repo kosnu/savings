@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/release_production.yaml"
       - ".github/workflows/deploy_production.yaml"
+      - ".github/workflows/draft_production_release.yaml"
       - ".github/workflows/production_release_ci.yaml"
       - "tools/production-release/**"
       - "tools/dev-preview/authorize.test.mjs"

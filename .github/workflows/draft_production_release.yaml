@@ -1,0 +1,39 @@
+name: Draft Production Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "番号を人が決める場合だけ指定（例: v1.0.0）"
+        required: false
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: burneto-production-release-draft
+  cancel-in-progress: false
+
+jobs:
+  draft:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout trusted draft helpers
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Prepare draft release without publishing
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        with:
+          script: |
+            const { draftRelease } = await import(`${process.env.GITHUB_WORKSPACE}/tools/production-release/draft.mjs`);
+            const release = await draftRelease({ github, context, requestedVersion: process.env.REQUESTED_VERSION });
+            await core.summary.addRaw(release ? `Draft: [${release.tag_name}](${release.html_url})\n\n対象 commit: ${release.target_commitish}\n\n公開前に内容と承認を確認してください。` : '変更なし、または main が更新されたため Draft を更新しませんでした。').write();
