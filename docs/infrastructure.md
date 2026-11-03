@@ -219,7 +219,9 @@ HTTP遅延、p95/p99、同時実行、CPU/IO/接続上限、APIエラー率は�
 
 ### Production deployment
 
-`Deploy Production` は手動実行とする。Workers への初回切替は
+本番配信は正式な GitHub Release の公開を起点とし、同じ対象 commit から DB migration、Web の順に適用する。
+公開前の承認、対象 SHA の検証、結果確認・再実行・DB を含む復旧の制限は
+[本番リリース手順](production-release.md)を参照する。Workers への初回切替は
 [#1867](https://github.com/kosnu/savings/issues/1867) と[移管手順](workers-migration.md)に従い、
 対象 commit と実施内容への承認を得てから行う。
 Web ビルドでは従来の Supabase・Sentry 環境変数を維持する。

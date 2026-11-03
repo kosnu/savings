@@ -2,14 +2,60 @@ name: Deploy Production
 
 on:
   workflow_dispatch:
+    inputs:
+      release_id:
+        description: "公開済み正式 Release の ID（再実行用）"
+        required: true
+        type: string
+      expected_sha:
+        description: "Release 公開時の完全な commit SHA"
+        required: true
+        type: string
+
+run-name: Production Release ${{ inputs.release_id }} @ ${{ inputs.expected_sha }}
 
 permissions: {}
 
+# DB と Web を含む実行全体を直列化し、実行中の migration を取り消さない。
+concurrency:
+  group: burneto-production-release
+  cancel-in-progress: false
+
 jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      sha: ${{ steps.release.outputs.sha }}
+      url: ${{ steps.release.outputs.url }}
+    steps:
+      - name: Checkout deployment helpers
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Validate published release
+        id: release
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        with:
+          script: |
+            const { resolveRelease } = await import(`${process.env.GITHUB_WORKSPACE}/tools/production-release/release.mjs`);
+            const release = await resolveRelease({ github, context, releaseId: process.env.RELEASE_ID, expectedSha: process.env.EXPECTED_SHA });
+            core.setOutput('sha', release.sha);
+            core.setOutput('url', release.url);
+
   # --- Backend (Supabase) のデプロイ ---
   deploy-api:
+    needs: release
     runs-on: ubuntu-latest
-    environment: production
+    environment:
+      name: production
+      url: ${{ needs.release.outputs.url }}
     permissions:
       contents: read
     env:
@@ -21,13 +67,30 @@ jobs:
       SUPABASE_GOOGLE_REDIRECT_URL: ${{ secrets.SUPABASE_GOOGLE_REDIRECT_URL }}
       SUPABASE_GOOGLE_SKIP_NONCE_CHECK: ${{ secrets.SUPABASE_GOOGLE_SKIP_NONCE_CHECK }}
     steps:
-      - name: Checkout
+      - name: Checkout deployment helpers
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Recheck release after environment approval
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+          EXPECTED_SHA: ${{ needs.release.outputs.sha }}
+        with:
+          script: |
+            const { resolveRelease } = await import(`${process.env.GITHUB_WORKSPACE}/tools/production-release/release.mjs`);
+            await resolveRelease({ github, context, releaseId: process.env.RELEASE_ID, expectedSha: process.env.EXPECTED_SHA });
+      - name: Checkout release commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release.outputs.sha }}
           persist-credentials: false
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
+        with:
+          version: 2.122.0
 
       - name: Link Supabase Project
         run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
@@ -39,18 +102,34 @@ jobs:
 
   # --- Frontend (React + Vite) のデプロイ ---
   deploy-web:
-    needs: deploy-api
+    needs: [release, deploy-api]
     runs-on: ubuntu-latest
-    environment: production
+    environment:
+      name: production
+      url: ${{ needs.release.outputs.url }}
     permissions:
       contents: read
     env:
       CF_SEND_TELEMETRY: "false"
     steps:
-      - name: Checkout
+      - name: Checkout deployment helpers
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Recheck release after environment approval
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+          EXPECTED_SHA: ${{ needs.release.outputs.sha }}
+        with:
+          script: |
+            const { resolveRelease } = await import(`${process.env.GITHUB_WORKSPACE}/tools/production-release/release.mjs`);
+            await resolveRelease({ github, context, releaseId: process.env.RELEASE_ID, expectedSha: process.env.EXPECTED_SHA });
+      - name: Checkout release commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release.outputs.sha }}
           persist-credentials: false
 
       - name: Setup pnpm
@@ -78,7 +157,7 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_RELEASE: ${{ needs.release.outputs.sha }}
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
           VITE_SENTRY_ENVIRONMENT: ${{ secrets.VITE_SENTRY_ENVIRONMENT }}
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
@@ -92,3 +171,28 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  report:
+    if: always() && needs.release.result == 'success'
+    needs: [release, deploy-api, deploy-web]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # 書き込み token を配信対象のコードへ渡さず main の補助コードだけを実行する。
+      - name: Checkout deployment helpers
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Report deployment result on release
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+          EXPECTED_SHA: ${{ needs.release.outputs.sha }}
+          API_RESULT: ${{ needs.deploy-api.result }}
+          WEB_RESULT: ${{ needs.deploy-web.result }}
+        with:
+          script: |
+            const { reportRelease } = await import(`${process.env.GITHUB_WORKSPACE}/tools/production-release/release.mjs`);
+            await reportRelease({ github, context, core, releaseId: process.env.RELEASE_ID, expectedSha: process.env.EXPECTED_SHA, apiResult: process.env.API_RESULT, webResult: process.env.WEB_RESULT, runAttempt: process.env.GITHUB_RUN_ATTEMPT });

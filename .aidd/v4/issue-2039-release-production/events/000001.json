@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2039",
+  "paths": [
+    ".github/workflows/deploy_production.yaml",
+    ".github/workflows/release_production.yaml",
+    ".github/workflows/production_release_ci.yaml",
+    "tools/production-release/",
+    "tools/dev-preview/authorize.test.mjs",
+    "docs/production-release.md",
+    "docs/infrastructure.md",
+    "docs/workers-migration.md",
+    "docs/cloudflare-delivery.md"
+  ],
+  "fingerprint": "eed1a07eecc85a71a057bf41852958b86218f34ac88ca8c14b5b234f0c9f9728",
+  "status": "pass",
+  "checks": [
+    "Issue #2039 の完了条件・委任範囲",
+    "production の既存ブランチ制約と Secret 参照",
+    "正式公開→main の実行定義→固定 Release SHA"
+  ],
+  "summary": "既存の保護を維持するため Release 公開から main の配信定義を起動し、固定 SHA の DB→Web 配信と結果報告を行う。手動採番・公開前承認・復旧制限を手順に反映。実公開と本番反映は委任外。",
+  "remaining": []
+}

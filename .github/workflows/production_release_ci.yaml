@@ -1,0 +1,28 @@
+name: Production Release CI
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/release_production.yaml"
+      - ".github/workflows/deploy_production.yaml"
+      - ".github/workflows/production_release_ci.yaml"
+      - "tools/production-release/**"
+      - "tools/dev-preview/authorize.test.mjs"
+    types: [opened, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+          package-manager-cache: false
+      - run: node --test tools/production-release/*.test.mjs tools/dev-preview/authorize.test.mjs
