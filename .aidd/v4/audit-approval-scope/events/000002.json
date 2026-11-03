@@ -1,0 +1,29 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "ユーザー依頼: 相づちや直前の質問への肯定をAuditの実行承認に広げないようにルールを修正",
+  "paths": [
+    "docs/harness/policies/audit.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/cases.go",
+    "tools/harness/evals/analysis_test.go",
+    "tools/harness/evals/main_test.go"
+  ],
+  "fingerprint": "464ae05bdbab3a7a16bff4601c7373a85a110dad7b74ec426c39077c075768d0",
+  "status": "unknown",
+  "checks": [
+    "Markdown format check: pass",
+    "evals go test: pass",
+    "evals go vet: pass",
+    "git diff --check: pass",
+    "Core check-changes: pass",
+    "実モデルeval: model_unavailable"
+  ],
+  "summary": "構造検査と評価コード検証は成功。ユーザーの評価実行指示に基づき変更前評価を試みたが、指定モデルが評価用CLIから利用できず2試行が環境エラー、残り2試行は未実行。判断品質の前後比較は確認不能。",
+  "remaining": [
+    "実モデルによる変更前後の判断比較は未確認。モデル利用不可はルールの不合格とは区別し、限定した静的レビュー結果とともにPRで報告する。"
+  ]
+}
