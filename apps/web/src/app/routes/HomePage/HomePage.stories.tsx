@@ -61,6 +61,9 @@ export const Default: Story = {
     await expect(canvas.queryByRole("heading", { level: 1 })).not.toBeInTheDocument()
     await expect(await canvas.findByLabelText("Total spending")).toBeVisible()
     await expect(
+      await canvas.findByRole("figure", { name: "Spending through the month" }),
+    ).toBeVisible()
+    await expect(
       await canvas.findByRole("progressbar", { name: "Food budget progress" }),
     ).toHaveAttribute("aria-valuenow", "1000")
     const recent = await canvas.findByLabelText("Recent payments")
@@ -88,6 +91,9 @@ export const Empty: Story = {
       await canvas.findByText("No payments yet. Use “Create payment” to record one."),
     ).toBeVisible()
     await expect(canvas.getByRole("button", { name: "Create payment" })).toBeEnabled()
+    await expect(
+      await canvas.findByRole("figure", { name: "Spending through the month" }),
+    ).toBeVisible()
   },
 }
 export const Loading: Story = {

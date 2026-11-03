@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { useSelectedBook } from "../../../features/books"
 import { CreatePaymentModal, PaymentCard, RecentPayments } from "../../../features/payments"
-import { Summary } from "../../../features/summaryByMonth"
+import { MonthlySpendingChart, Summary } from "../../../features/summaryByMonth"
 import { useSupabaseSession } from "../../../providers/supabase/useSupabaseSession"
 import { AppLayout } from "../../AppLayout"
 import { useInitializeMonthSearch } from "../../useInitializeMonthSearch"
@@ -63,6 +63,7 @@ function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cache
   return (
     <Flex direction="column" gap="3">
       <Summary cacheScope={cacheScope} monthSelectorTo="/" reserveSpace />
+      <MonthlySpendingChart bookId={book.id} />
       <Flex align="center" justify="between" gap="3" wrap="wrap">
         <Heading as="h2" size="4" weight="medium">
           {t("payments.recent")}
@@ -80,6 +81,7 @@ function HomePageLoading() {
   return (
     <Flex direction="column" gap="3" aria-busy="true" data-testid="home-loading">
       <Summary loading reserveSpace />
+      <MonthlySpendingChart loading />
       <Flex align="center" justify="between" gap="3" wrap="wrap">
         <Heading as="h2" size="4" weight="medium">
           {t("payments.recent")}

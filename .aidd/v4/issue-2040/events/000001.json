@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2040",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/",
+    "apps/web/src/features/payments/monthlySpending/",
+    "apps/web/src/features/payments/queryKeys.ts",
+    "apps/web/src/features/payments/index.ts",
+    "apps/web/src/features/budgets/",
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/test/msw/handlers/payments.ts"
+  ],
+  "fingerprint": "bb4e80248eae2968f9993eadac020cc7236f177559739dfe4538e406bec1c05d",
+  "status": "pass",
+  "checks": [
+    "Issue #2040のIntentと既存の月選択・支払い更新・予算取得境界の照合"
+  ],
+  "summary": "最新main 419d5b58を比較元に月内の累積実績・日平均の月末見込み・月予算をSVGで比較する。未来登録額を見込みの下限とし、過去月は実績、未来月は登録済みのみ。既存Book境界と更新後invalidationを使用しDB変更は行わない。独立queryは同時取得しグラフ内で再試行・月切替復帰する。",
+  "remaining": []
+}

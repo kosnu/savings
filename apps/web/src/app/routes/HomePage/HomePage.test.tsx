@@ -208,8 +208,8 @@ describe("HomePage", () => {
     server.use(
       http.get("*/rest/v1/payments", ({ request }) => {
         const url = new URL(request.url)
-        // 同じendpointの未分類集計は既存handlerに委ねる。
-        if (url.searchParams.get("select") === "amount,date") return
+        // 直近一覧以外の取得は既存handlerに委ねる。
+        if (url.searchParams.get("limit") !== "5") return
         requests.push(url)
         return HttpResponse.json(rows)
       }),
@@ -258,7 +258,7 @@ describe("HomePage", () => {
       vi.spyOn(console, "error").mockImplementation(() => {})
       server.use(
         http.get("*/rest/v1/payments", async ({ request }) => {
-          if (new URL(request.url).searchParams.get("select") === "amount,date") return
+          if (new URL(request.url).searchParams.get("limit") !== "5") return
           if (state === "loading") await delay("infinite")
           return HttpResponse.json({ message: "failed" }, { status: 500 })
         }),
@@ -270,6 +270,9 @@ describe("HomePage", () => {
       expect(
         await screen.findByRole("progressbar", { name: "Food budget progress" }),
       ).toHaveAttribute("aria-valuenow", "1000")
+      expect(
+        await screen.findByRole("figure", { name: "Spending through the month" }),
+      ).toBeInTheDocument()
       if (state === "loading") {
         expect(screen.getAllByLabelText("loading-payment-item")).toHaveLength(5)
       } else {
@@ -500,6 +503,11 @@ describe("HomePage", () => {
     ).not.toBeInTheDocument()
     await waitFor(() => {
       expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥1,080")
+    })
+    await waitFor(() => {
+      expect(screen.getByRole("figure", { name: "Spending through the month" })).toHaveTextContent(
+        "¥1,080",
+      )
     })
   })
 })
