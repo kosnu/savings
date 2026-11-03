@@ -16,13 +16,13 @@
     "docs/cloudflare-delivery.md",
     ".agents/skills/release/SKILL.md"
   ],
-  "fingerprint": "b0d08da04e1fdab1ba211b5296dc97990cfd4decfe96ab16910b00558b77d319",
+  "fingerprint": "90b8b44c9f0d46f5c50b949a90efef81f8d4381f985ff4db192da3b1bd422a1d",
   "status": "pass",
   "checks": [
-    "ユーザー指定の release への改名・リポジトリ配置",
-    "既存スキル本文の維持と root 相対の正本参照",
-    "旧個人用スキルの削除確認"
+    "通常公開手順を冒頭の5ステップへ集約",
+    "スキルを正本参照と実行範囲の判断へ限定",
+    "固定SHA・公開承認・DB復旧制限の維持"
   ],
-  "summary": "検証済みリリース操作スキルを release に改名し .agents/skills/release へ移す。公開承認・固定 SHA・復旧境界を維持し、個人用 savings-release は削除する。アプリ・workflow の動作は変更しない。",
+  "summary": "既存の本番リリース機構は維持し、手順書の順序と重複を整理する。採番・操作・復旧は既存手順書が所有し、スキルは依頼と承認の判断に絞る。指定SHAの手動Draft準備は正本へ明記する。",
   "remaining": []
 }

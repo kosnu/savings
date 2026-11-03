@@ -16,15 +16,15 @@
     "docs/cloudflare-delivery.md",
     ".agents/skills/release/SKILL.md"
   ],
-  "fingerprint": "b0d08da04e1fdab1ba211b5296dc97990cfd4decfe96ab16910b00558b77d319",
+  "fingerprint": "90b8b44c9f0d46f5c50b949a90efef81f8d4381f985ff4db192da3b1bd422a1d",
   "status": "pass",
   "checks": [
-    "skill quick_validate pass",
-    "vp check --no-error-on-unmatched-pattern pass",
-    "git diff --check pass",
-    "配置・参照先・個人用削除確認",
-    "既検証のアプリ/workflow に差分なし"
+    "手順書とスキルの整形・frontmatter検証",
+    "ローカルリンク・anchor・スキル参照先と配置の検査",
+    "候補確認・候補変更・固定SHA・承認済み公開の4入力を再評価",
+    "Coreの差分範囲・規約・内容安定性検査",
+    "既存の配信コード・workflow・82件のテスト対象の内容同一確認"
   ],
-  "summary": "release スキルの形式・整形・配置・正本参照と移動元削除を確認。Markdown のみのため既存 hook と同じ unmatched 設定で検査。移動前の本文と実行境界は同一で、既存4ケースの判定確認を再利用。標準 eval は skill を取り込まないため比較不能。アプリ/workflow は変更なし。",
+  "summary": "文書とスキルの検証に成功。4入力で指定SHA・依頼範囲・承認の扱いを維持し、公開手段の曖昧さを修正して再確認した。標準CLI evalはスキルを取り込まず観測対象外。実Release公開・本番反映は未実施。",
   "remaining": []
 }
