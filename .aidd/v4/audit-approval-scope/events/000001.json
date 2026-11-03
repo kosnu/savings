@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザー依頼: 相づちや直前の質問への肯定をAuditの実行承認に広げないようにルールを修正",
+  "paths": [
+    "docs/harness/policies/audit.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/cases.go",
+    "tools/harness/evals/analysis_test.go"
+  ],
+  "fingerprint": "90b8b44c9f0d46f5c50b949a90efef81f8d4381f985ff4db192da3b1bd422a1d",
+  "status": "pass",
+  "checks": [
+    "承認の対象と操作の境界",
+    "相づち・理解確認と実行承認の対照",
+    "適用規則と検証範囲"
+  ],
+  "summary": "新Task。main 419d5b58を比較元とし、Audit policyを正本に承認対象と操作を限定する。Workflowと仮想事例、評価ケースを同期する。明確な既存承認の継続は維持し、構造検査・eval前後比較・意味レビュー後にShipする。",
+  "remaining": []
+}

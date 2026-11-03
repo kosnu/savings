@@ -32,7 +32,8 @@ when_to_read:
 | 小さな修正の完遂 | 累積値の期間増減を修正し、空・1件・減少を含む動作を満たす。別作業の未コミット変更と対象外のファイルを保持する。      |
 
 [cases.go](../../tools/harness/evals/cases.go)が入力と期待判定を所有する。
-行動evalは判断7ケースと実修正2ケース、分析evalはAudit 2ケースとRetrospective 2ケースを持つ。
+行動evalは判断9ケースと実修正2ケース、分析evalはAudit 2ケースとRetrospective 2ケースを持つ。
+Audit後の承認判断は行動evalの`audit-acknowledgement`と`audit-explicit-approval`で、相づち・理解確認への肯定と具体的な実行承認を区別する。
 各ケースには条件・表現の異なる2入力がある。分析ケースの入力・期待値は[analysis.go](../../tools/harness/evals/analysis.go)が所有する。
 初期状態は、先頭区間を欠落させるJavaScript実装、公開の検証script、別作業の未コミットメモで固定する。
 実修正の評価はローカルの修正・検証・レビュー・報告までを対象とし、実プロダクト全体の開発やShipの評価ではない。
@@ -137,7 +138,7 @@ CLIのJSONLとstdout/stderrはメモリ内で処理し、生出力・回答全�
 対応する手順や判断基準を変更したときに、影響するケースだけを選ぶ。共通指示や規則選択の変更では、影響する領域を合わせる。
 
 - `--case`は関連する個別ケースを指定する。複数指定できる。
-- `--suite behavior`は行動9ケース、`--suite audit`はAudit 2ケース、`--suite retrospective`はRetrospective 2ケース。`--suite`も複数指定できる。
+- `--suite behavior`は行動11ケース、`--suite audit`はAudit 2ケース、`--suite retrospective`はRetrospective 2ケース。`--suite`も複数指定できる。
 - 対象の指定は必須で、`--case`と`--suite`は併用しない。全件は`--suite all`と明示した場合だけ実行する。
 - 標準は各ケース2試行、各入力1回。Auditだけなら片側4試行、前後比較で8回のCodex呼出しになる。両分析領域なら前後計16回。追加の採点用モデルは呼ばない。
 - 新しい悪化や試行間の不一致があり判断材料が足りない場合は、関係するケース・反復数だけ増やす。少数試行は回帰の兆候を調べるもので、統計的な優劣の証明ではない。

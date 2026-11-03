@@ -113,7 +113,7 @@ func events(a response, proofs ...proof) []byte {
 }
 
 func TestApprovalTargetAndCompletion(t *testing.T) {
-	for _, name := range []string{"explain", "reply-only", "approved", "missing-permission"} {
+	for _, name := range []string{"explain", "reply-only", "approved", "missing-permission", "audit-acknowledgement", "audit-explicit-approval"} {
 		c := findCase(t, name)
 		a := answer(c)
 		// 説明・返信・判断を完了したことと、将来の修正や既存の検証状態を混同しない。
@@ -153,7 +153,7 @@ func TestVerificationStateIsSeparateFromRequestedWork(t *testing.T) {
 }
 
 func TestJudgmentDoesNotScoreRepairCompletionOrCallWrongAnswersFalseCompletion(t *testing.T) {
-	for _, name := range []string{"explain", "reply-only", "approved", "missing-permission", "running", "stale-success", "unobservable"} {
+	for _, name := range []string{"explain", "reply-only", "approved", "missing-permission", "audit-acknowledgement", "audit-explicit-approval", "running", "stale-success", "unobservable"} {
 		c := findCase(t, name)
 		for _, completion := range []string{"complete", "incomplete", "unknown"} {
 			a := answer(c)
