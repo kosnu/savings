@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2075",
+  "paths": [
+    "apps/web/src/app/Header/",
+    "apps/web/src/app/AppLayout/",
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/components/feedbacks/Snackbar/Snackbar.module.css"
+  ],
+  "fingerprint": "eb911dc771b0bb9bffb580eb67b8feaeb692583cb51b304a15f54349ec0262fe",
+  "status": "pass",
+  "checks": [
+    "直前のAudit提案1件とIssue成功条件更新へのユーザーApproveを確認",
+    "ログイン後ホームの右上作成・追従、他画面の右側空欄、既存外観設定の利用に範囲を限定",
+    "未提示のPR返信・thread解決・共通規則変更は対象外"
+  ],
+  "summary": "直前のAudit結果へのユーザーApproveにより、ヘッダー右のホーム限定作成操作、他画面の右側空欄、旧固定用CSS撤去、Issue成功条件の同期を承認。Issue2040は承認された成功条件へ更新しread-back済み。次サイクルでは同じTaskとbaselineを維持して実装・検証・レビュー・Shipを行う。",
+  "remaining": []
+}

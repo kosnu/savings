@@ -10,12 +10,18 @@ import { useSidebar } from "../Sidebar/useSidebar"
 
 import styles from "./AppLayout.module.css"
 
-export function AppLayout({ children }: { children?: ReactNode }) {
+interface AppLayoutProps {
+  children?: ReactNode
+  headerAction?: ReactNode
+  stickyHeader?: boolean
+}
+
+export function AppLayout({ children, headerAction, stickyHeader = false }: AppLayoutProps) {
   const { open, openSidebar, closeSidebar } = useSidebar()
   const { t } = useTranslation()
 
   return (
-    <Flex className={styles.layout}>
+    <Flex className={styles.layout} data-sticky-header={stickyHeader}>
       {/* Sidebar */}
       <Sidebar open={open} onClose={closeSidebar}>
         <SidebarButton
@@ -40,7 +46,7 @@ export function AppLayout({ children }: { children?: ReactNode }) {
       </Sidebar>
 
       <Flex direction="column" flexGrow="1">
-        <Header onMenuClick={openSidebar} />
+        <Header onMenuClick={openSidebar} action={headerAction} sticky={stickyHeader} />
         {/* Main Content */}
         <main className={styles.main}>{children ?? <Outlet />}</main>
       </Flex>

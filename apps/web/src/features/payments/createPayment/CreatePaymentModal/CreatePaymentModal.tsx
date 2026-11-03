@@ -1,5 +1,5 @@
 import { Button } from "@radix-ui/themes"
-import { useCallback, useRef, useState } from "react"
+import { type ReactElement, useCallback, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
@@ -9,9 +9,10 @@ import { CreatePaymentForm } from "../CreatePaymentForm"
 interface CreatePaymentModalProps {
   bookId: number
   onSuccess?: () => void
+  trigger?: ReactElement
 }
 
-export function CreatePaymentModal({ bookId, onSuccess }: CreatePaymentModalProps) {
+export function CreatePaymentModal({ bookId, onSuccess, trigger }: CreatePaymentModalProps) {
   const { open, closeDialog, onOpenChange } = useDialog()
   const { t } = useTranslation()
   const [continuousMode, setContinuousMode] = useState(false)
@@ -46,7 +47,7 @@ export function CreatePaymentModal({ bookId, onSuccess }: CreatePaymentModalProp
       open={open}
       onOpenChange={onOpenChange}
       dismissible={false}
-      trigger={<Button>{t("payments.create.trigger")}</Button>}
+      trigger={trigger ?? <Button>{t("payments.create.trigger")}</Button>}
       title={t("payments.create.title")}
       description={t("payments.create.description")}
     >

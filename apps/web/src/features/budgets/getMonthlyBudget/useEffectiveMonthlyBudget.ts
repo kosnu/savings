@@ -9,7 +9,7 @@ interface UseEffectiveMonthlyBudgetReturn {
   data: MonthlyBudgetState
 }
 
-function effectiveMonthlyBudgetQueryOptions(targetMonth: string) {
+export function effectiveMonthlyBudgetQueryOptions(targetMonth: string) {
   return queryOptions({
     queryKey: monthlyBudgetQueryKeys.effective(targetMonth),
     queryFn: async () =>

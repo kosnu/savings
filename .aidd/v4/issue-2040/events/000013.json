@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2040",
+  "paths": [
+    "apps/web/src/app/Header/",
+    "apps/web/src/app/AppLayout/",
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/features/payments/createPayment/CreatePaymentModal/",
+    "apps/web/src/components/feedbacks/Snackbar/Snackbar.module.css",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "12606eb7303de32c83bcf1846430b45cd961d7facd3e29c204e396e2ee42e41b",
+  "status": "pass",
+  "checks": [
+    "直前AuditへのユーザーApproveと更新後Issueを照合",
+    "既存CreatePaymentModal/ResponsiveOverlay・ThemeSelectを再利用",
+    "Header/AppLayoutは任意actionと追従指定。取得境界/認証変更時の復帰を維持"
+  ],
+  "summary": "ホームで取得したBookの既存作成Modalをヘッダーへ渡し、任意triggerでPlusIcon付きButtonを使う。他の利用箇所は既定triggerを維持。Headerの共通ThemeToggleを撤去し他画面はactionなし。トップだけ追従に必要な高さを確保し、Sidebar/Overlayより下の重なり順とテーマ背景を使う。旧右下固定・末尾余白・通知offsetと不要翻訳を撤去。表示境界とPC/mobileのscroll・通知・作成・取消・保存・他画面遷移を検証する。共通規則や設定画面の新設は不要。",
+  "remaining": []
+}

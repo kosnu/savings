@@ -6,6 +6,7 @@ import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/r
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
+import { MonthlySpendingChart } from "../monthlySpending/MonthlySpendingChart"
 import { Summary } from "./Summary"
 
 const meta = {
@@ -81,4 +82,9 @@ export const Error: Story = {
       ],
     },
   },
+}
+
+export const WithChart: Story = {
+  args: { chart: <MonthlySpendingChart bookId={1} /> },
+  parameters: { mockingDate: new Date(2025, 5, 15) },
 }

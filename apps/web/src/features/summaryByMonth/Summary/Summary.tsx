@@ -1,4 +1,5 @@
 import { Box, Card, Flex, Skeleton, Text } from "@radix-ui/themes"
+import type { ReactNode } from "react"
 
 import { CategoryTotals } from "../CategoryTotals"
 import { MonthlyTotals } from "../MonthlyTotals"
@@ -11,6 +12,7 @@ interface SummaryProps {
   monthSelectorTo?: "/" | "/payments"
   loading?: boolean
   reserveSpace?: boolean
+  chart?: ReactNode
 }
 
 export function Summary({
@@ -18,6 +20,7 @@ export function Summary({
   monthSelectorTo,
   loading = false,
   reserveSpace = false,
+  chart,
 }: SummaryProps) {
   return (
     <Flex direction="column" gap="3" width="100%">
@@ -28,6 +31,7 @@ export function Summary({
           </Box>
         </Skeleton>
       </Flex>
+      {chart}
       <Card size="2">
         <Flex direction="column" width="100%" className={reserveSpace ? styles.monthly : undefined}>
           {loading ? <Skeleton height="var(--line-height-6)" width="100%" /> : <MonthlyTotals />}
