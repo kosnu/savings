@@ -61,6 +61,11 @@ export const resources = {
       "theme.light": "Light",
       "theme.dark": "Dark",
       "auth.loading": "Checking authentication status...",
+      "auth.sessionErrorTitle": "Could not verify your sign-in status",
+      "auth.sessionErrorDescription": "Check your connection and try again.",
+      "auth.sessionSignInRequired":
+        "Your sign-in information could not be verified. Please sign in again.",
+      "auth.signInFailed": "Could not start sign-in. Please try again.",
       "auth.title": "Sign in to Burneto",
       "auth.goToAuth": "Go to Auth",
       "auth.startDescription":
@@ -360,6 +365,11 @@ export const resources = {
       "theme.light": "ライト",
       "theme.dark": "ダーク",
       "auth.loading": "認証状態を確認しています...",
+      "auth.sessionErrorTitle": "認証状態を確認できませんでした",
+      "auth.sessionErrorDescription": "接続を確認して、もう一度お試しください。",
+      "auth.sessionSignInRequired":
+        "認証情報を確認できませんでした。もう一度ログインしてください。",
+      "auth.signInFailed": "ログインを開始できませんでした。もう一度お試しください。",
       "auth.title": "Burneto にログイン",
       "auth.goToAuth": "ログインへ進む",
       "auth.startDescription":

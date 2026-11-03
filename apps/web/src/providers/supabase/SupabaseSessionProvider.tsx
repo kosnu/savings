@@ -1,4 +1,4 @@
-import type { Session } from "@supabase/supabase-js"
+import { isAuthApiError, isAuthSessionMissingError, type Session } from "@supabase/supabase-js"
 import { useQueryClient } from "@tanstack/react-query"
 import { createContext, type ReactNode, useEffect, useRef, useState } from "react"
 
@@ -9,12 +9,11 @@ import { captureSupabaseSessionError } from "../../lib/sentry"
 import { getSupabaseClient } from "../../lib/supabase"
 import { ensureAuthenticatedUser } from "./ensureAuthenticatedUser"
 
-export type AuthStatus = "loading" | "unauthenticated" | "authenticated"
+export type AuthStatus = "loading" | "unauthenticated" | "authenticated" | "error"
 
-export interface SupabaseSessionState {
-  status: AuthStatus
-  session: Session | null
-}
+export type SupabaseSessionState =
+  | { status: Exclude<AuthStatus, "error">; session: Session | null }
+  | { status: "error"; session: null; requiresSignIn: boolean; retry: () => void }
 
 export const SupabaseSessionContext = createContext<SupabaseSessionState | undefined>(undefined)
 
@@ -58,8 +57,13 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       if (!isActive) return
       if (sessionGenerationRef.current !== sessionGeneration) return
 
-      if (stateRef.current.status === "loading") {
-        setSessionState(unauthenticatedSessionState)
+      if (stateRef.current.status !== "authenticated") {
+        setSessionState({
+          status: "error",
+          session: null,
+          requiresSignIn: needsSignIn(error),
+          retry,
+        })
       }
     }
 
@@ -90,46 +94,26 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       }
     }
 
-    const signOutCurrentSession = async (): Promise<boolean> => {
-      try {
-        const { error } = await supabase.auth.signOut()
-        if (error) {
-          captureSupabaseSessionError(error)
-          return false
-        }
-
-        return true
-      } catch (signOutError) {
-        captureSupabaseSessionError(signOutError)
-        return false
-      }
-    }
-
-    const handleSessionVerificationError = async (
+    const handleSessionVerificationError = (
       error: unknown,
       sessionGeneration: number,
       shouldKeepCurrentSession: boolean,
     ) => {
       captureSupabaseSessionError(error)
 
-      // signOut は Supabase の現在 session に作用するため、古い handler では実行しない。
       if (!isCurrentSessionHandler(sessionGeneration)) return
       // 同じユーザーの更新失敗では、検証前の有効な session を維持する。
-      if (shouldKeepCurrentSession) return
+      const requiresSignIn = needsSignIn(error)
+      if (shouldKeepCurrentSession && !requiresSignIn) return
 
-      const didSignOut = await signOutCurrentSession()
-      if (!didSignOut) return
-
-      // signOut の待機中に新しい session が来た場合、古い handler で画面状態を戻さない。
-      if (!isCurrentSessionHandler(sessionGeneration)) return
-
-      setSessionState(unauthenticatedSessionState)
+      setSessionState({ status: "error", session: null, requiresSignIn, retry })
     }
 
     const handleSession = async (session: Session | null, sessionGeneration: number) => {
       if (!isCurrentSessionHandler(sessionGeneration)) return
 
       if (!session) {
+        if (stateRef.current.status === "error" && stateRef.current.requiresSignIn) return
         setSessionState(unauthenticatedSessionState)
         return
       }
@@ -150,29 +134,44 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
 
         setSessionState(toAuthenticatedSessionState(session))
       } catch (error) {
-        await handleSessionVerificationError(error, sessionGeneration, shouldKeepCurrentSession)
+        handleSessionVerificationError(error, sessionGeneration, shouldKeepCurrentSession)
       }
     }
 
-    const getSessionGeneration = sessionGenerationRef.current
-
-    supabase.auth
-      .getSession()
-      .then(({ data, error }) => {
+    const loadSession = async (sessionGeneration: number) => {
+      try {
+        const { data, error } = await supabase.auth.getSession()
         if (error) {
-          handleSessionError(error, getSessionGeneration)
+          handleSessionError(error, sessionGeneration)
           return
         }
-        if (sessionGenerationRef.current !== getSessionGeneration) return
+        if (!isCurrentSessionHandler(sessionGeneration)) return
 
-        void handleSession(data.session, getSessionGeneration)
-      })
-      .catch((error: unknown) => handleSessionError(error, getSessionGeneration))
+        await handleSession(data.session, sessionGeneration)
+      } catch (error) {
+        handleSessionError(error, sessionGeneration)
+      }
+    }
+
+    const retry = () => {
+      if (!isActive || stateRef.current.status !== "error") return
+
+      sessionGenerationRef.current += 1
+      setSessionState(initialSessionState)
+      void loadSession(sessionGenerationRef.current)
+    }
+
+    void loadSession(sessionGenerationRef.current)
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       sessionGenerationRef.current += 1
+      // 検証中にSDKが無効なsessionを破棄した場合も、再認証の理由を残す。
+      if (event === "SIGNED_OUT" && stateRef.current.status === "loading") {
+        setSessionState({ status: "error", session: null, requiresSignIn: true, retry })
+        return
+      }
       void handleSession(session, sessionGenerationRef.current)
     })
 
@@ -183,6 +182,13 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
   }, [queryClient])
 
   return <SupabaseSessionContext value={state}>{children}</SupabaseSessionContext>
+}
+
+function needsSignIn(error: unknown): boolean {
+  return (
+    isAuthSessionMissingError(error) ||
+    (isAuthApiError(error) && (error.status === 401 || error.status === 403))
+  )
 }
 
 function isSameAuthenticatedUser(currentState: SupabaseSessionState, session: Session): boolean {
