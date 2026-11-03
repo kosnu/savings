@@ -13,16 +13,18 @@
     "docs/production-release.md",
     "docs/infrastructure.md",
     "docs/workers-migration.md",
-    "docs/cloudflare-delivery.md"
+    "docs/cloudflare-delivery.md",
+    ".agents/skills/release/SKILL.md"
   ],
-  "fingerprint": "9d7f94863a10c4e76080dc680859ed6ed873cd2c2ef4d6cbfa900a94fccb2d7a",
+  "fingerprint": "b0d08da04e1fdab1ba211b5296dc97990cfd4decfe96ab16910b00558b77d319",
   "status": "pass",
   "checks": [
-    "Node tests 82 pass",
-    "actionlint 4 workflows pass",
-    "vp check 13 files pass",
-    "Core verify stable"
+    "skill quick_validate pass",
+    "vp check --no-error-on-unmatched-pattern pass",
+    "git diff --check pass",
+    "配置・参照先・個人用削除確認",
+    "既検証のアプリ/workflow に差分なし"
   ],
-  "summary": "初回・0.x・1.x・混在変更・同一 SHA の手動安定版移行、Draft 更新と追記保持、既存配信・Dev 回帰が成功。workflow 構文、整形・lint・型検査も成功。実 Draft 作成・正式公開・本番反映は未実施。",
+  "summary": "release スキルの形式・整形・配置・正本参照と移動元削除を確認。Markdown のみのため既存 hook と同じ unmatched 設定で検査。移動前の本文と実行境界は同一で、既存4ケースの判定確認を再利用。標準 eval は skill を取り込まないため比較不能。アプリ/workflow は変更なし。",
   "remaining": []
 }

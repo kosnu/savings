@@ -13,15 +13,16 @@
     "docs/production-release.md",
     "docs/infrastructure.md",
     "docs/workers-migration.md",
-    "docs/cloudflare-delivery.md"
+    "docs/cloudflare-delivery.md",
+    ".agents/skills/release/SKILL.md"
   ],
-  "fingerprint": "9d7f94863a10c4e76080dc680859ed6ed873cd2c2ef4d6cbfa900a94fccb2d7a",
+  "fingerprint": "b0d08da04e1fdab1ba211b5296dc97990cfd4decfe96ab16910b00558b77d319",
   "status": "pass",
   "checks": [
-    "会話の採番基準・部分自動化依頼",
-    "SemVer と Conventional Commits",
-    "既存の手動公開・production/Dev 分離"
+    "ユーザー指定の release への改名・リポジトリ配置",
+    "既存スキル本文の維持と root 相対の正本参照",
+    "旧個人用スキルの削除確認"
   ],
-  "summary": "同じ Task の設計を更新。コミットから初回・0.x・1.x の次番号を提案し、main の固定 SHA と GitHub 生成ノートで Draft を準備。互換性基準、手動補正、同一 SHA からの 1.0.0 移行を定義し、正式公開・本番配信は人の確認後に行う。",
+  "summary": "検証済みリリース操作スキルを release に改名し .agents/skills/release へ移す。公開承認・固定 SHA・復旧境界を維持し、個人用 savings-release は削除する。アプリ・workflow の動作は変更しない。",
   "remaining": []
 }
