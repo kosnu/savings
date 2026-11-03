@@ -179,7 +179,7 @@ test("workflow text separates FE/DB secret references and connects checkout SHA 
   const productionWeb = production.split("\n  deploy-web:\n")[1]
   for (const [workflow, build, source] of [
     [frontend, previewBuild, "steps.pr.outputs.sha"],
-    [productionWeb, productionWeb, "github.sha"],
+    [productionWeb, productionWeb, "needs.release.outputs.sha"],
   ]) {
     assert.ok(workflow.includes(`ref: \${{ ${source} }}`))
     assert.ok(build.includes(`SENTRY_RELEASE: \${{ ${source} }}`))

@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2039",
+  "paths": [
+    ".github/workflows/deploy_production.yaml",
+    ".github/workflows/release_production.yaml",
+    ".github/workflows/draft_production_release.yaml",
+    ".github/workflows/production_release_ci.yaml",
+    "tools/production-release/",
+    "tools/dev-preview/authorize.test.mjs",
+    "docs/production-release.md",
+    "docs/infrastructure.md",
+    "docs/workers-migration.md",
+    "docs/cloudflare-delivery.md",
+    ".agents/skills/release/SKILL.md"
+  ],
+  "fingerprint": "90b8b44c9f0d46f5c50b949a90efef81f8d4381f985ff4db192da3b1bd422a1d",
+  "status": "pass",
+  "checks": [
+    "手順書とスキルの整形・frontmatter検証",
+    "ローカルリンク・anchor・スキル参照先と配置の検査",
+    "候補確認・候補変更・固定SHA・承認済み公開の4入力を再評価",
+    "Coreの差分範囲・規約・内容安定性検査",
+    "既存の配信コード・workflow・82件のテスト対象の内容同一確認"
+  ],
+  "summary": "文書とスキルの検証に成功。4入力で指定SHA・依頼範囲・承認の扱いを維持し、公開手段の曖昧さを修正して再確認した。標準CLI evalはスキルを取り込まず観測対象外。実Release公開・本番反映は未実施。",
+  "remaining": []
+}

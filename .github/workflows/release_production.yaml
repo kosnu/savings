@@ -1,0 +1,31 @@
+name: Release Production
+
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+jobs:
+  dispatch:
+    if: github.event.release.draft == false && github.event.release.prerelease == false
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      # production の保護ブランチ制約を維持するため、実行定義は main を使う。
+      # Release のコードをこの書き込み token で checkout・実行しない。
+      - name: Dispatch release commit to production workflow
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const release = context.payload.release;
+            if (!/^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(release.tag_name)) {
+              throw new Error('正式 Release のタグは vMAJOR.MINOR.PATCH で指定してください。');
+            }
+            await github.rest.actions.createWorkflowDispatch({
+              ...context.repo,
+              workflow_id: 'deploy_production.yaml',
+              ref: 'main',
+              inputs: { release_id: String(release.id), expected_sha: context.sha }
+            });
