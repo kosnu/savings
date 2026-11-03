@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2040",
+  "paths": [
+    "apps/web/src/app/Header/",
+    "apps/web/src/app/AppLayout/",
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/features/payments/createPayment/CreatePaymentModal/",
+    "apps/web/src/components/feedbacks/Snackbar/Snackbar.module.css",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "12606eb7303de32c83bcf1846430b45cd961d7facd3e29c204e396e2ee42e41b",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:format",
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration: 158 files / 1093 tests",
+    "pnpm run web:test:storybook: 8 files / 30 tests",
+    "PC1280x900/mobile320x568: header内表示・scroll追従・横はみ出しなし・通知/末尾/Overlayとの非重複・取消focus復帰・保存後再取得",
+    "トップ→支払い一覧→設定→外観→トップの表示境界と既存ThemeSelect",
+    "Chrome日本語320x568 light/dark表示、darkのscroll後作成・取消・focus復帰",
+    "git diff --check、Core check-changes"
+  ],
+  "summary": "最終ソースで必須検証成功。作成はホームだけヘッダー右、他画面の右側は空。loading/error/retryと認証ユーザー変更後の復帰、未認証時非表示も確認。Storyはfullscreenで実画面の幅に揃え、横はみ出しとDialogがheaderより前に出ることを検査。既存URL初期化1件が一度timeoutしたが、ソース・条件を変えない全件再実行は成功。原因未確定。実DB・本番配信・予測精度実測は未実施。",
+  "remaining": []
+}

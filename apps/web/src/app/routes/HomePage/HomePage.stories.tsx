@@ -4,6 +4,7 @@ import { createRoute } from "@tanstack/react-router"
 import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { paymentsSearchSchema } from "../../../features/payments"
+import { AppearanceSettings } from "../../../features/preferences"
 import { useSnackbar } from "../../../providers/snackbar/SnackbarProvider"
 import { SupabaseSessionContext } from "../../../providers/supabase/SupabaseSessionProvider"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
@@ -14,7 +15,10 @@ import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
+import { AppLayout } from "../../AppLayout"
 import { PaymentsPage } from "../PaymentsPage"
+import { SettingsOverview } from "../SettingsOverview"
+import { SettingsPage } from "../SettingsPage"
 import { HomePage } from "./HomePage"
 
 const meta = {
@@ -29,17 +33,44 @@ const meta = {
         component: Story,
         validateSearch: paymentsSearchSchema.pick({ year: true, month: true }),
       })
-      const payments = createRoute({
+      const authenticated = createRoute({
         getParentRoute: () => root,
+        id: "authenticated",
+        component: AppLayout,
+      })
+      const payments = createRoute({
+        getParentRoute: () => authenticated,
         path: "/payments",
         component: PaymentsPage,
         validateSearch: paymentsSearchSchema,
       })
       const details = createRoute({ getParentRoute: () => payments, path: "details/$paymentId" })
-      return [home, payments.addChildren([details])]
+      const settings = createRoute({
+        getParentRoute: () => authenticated,
+        path: "/settings",
+        component: SettingsPage,
+      })
+      const overview = createRoute({
+        getParentRoute: () => settings,
+        path: "/",
+        component: SettingsOverview,
+      })
+      const appearance = createRoute({
+        getParentRoute: () => settings,
+        path: "appearance",
+        component: AppearanceSettings,
+      })
+      return [
+        home,
+        authenticated.addChildren([
+          payments.addChildren([details]),
+          settings.addChildren([overview, appearance]),
+        ]),
+      ]
     }),
   ],
   parameters: {
+    layout: "fullscreen",
     mockingDate: new Date(2025, 5, 15),
     msw: {
       handlers: [
@@ -262,7 +293,7 @@ export const MobileLoadingToFivePayments = loadingTransitionStory(5, true)
 export const MobileLoadingToOnePayment = loadingTransitionStory(1, true)
 export const MobileLoadingToEmpty = loadingTransitionStory(0, true)
 
-function floatingActionStory(mobile: boolean): Story {
+function headerActionStory(mobile: boolean): Story {
   return {
     parameters: {
       msw: {
@@ -301,29 +332,39 @@ function floatingActionStory(mobile: boolean): Story {
       const canvas = within(canvasElement)
       const body = within(canvasElement.ownerDocument.body)
       const create = await canvas.findByRole("button", { name: "Create payment" })
+      const header = canvas.getByRole("banner")
+      expect(within(header).queryByRole("button", { name: "Theme toggle" })).not.toBeInTheDocument()
       const recent = await canvas.findByLabelText("Recent payments")
       await within(recent).findAllByRole("button")
       const initial = create.getBoundingClientRect()
+      const initialHeaderTop = header.getBoundingClientRect().top
       expect(initial.bottom).toBeLessThanOrEqual(window.innerHeight)
       expect(initial.right).toBeLessThanOrEqual(window.innerWidth)
       expect(initial.left).toBeGreaterThanOrEqual(0)
       expect(initial.top).toBeGreaterThanOrEqual(0)
+      expect(initial.top).toBeLessThan(header.getBoundingClientRect().bottom)
+      expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(window.innerWidth)
 
       try {
         await userEvent.click(canvas.getByRole("button", { name: "Show notification" }))
         window.scrollTo(0, document.documentElement.scrollHeight)
         await waitFor(() => {
           expect(window.scrollY).toBeGreaterThan(0)
-          expect(create.getBoundingClientRect().top).toBeCloseTo(initial.top, 0)
+          expect(header.getBoundingClientRect().top).toBeCloseTo(0, 0)
+          expect(create.getBoundingClientRect().top).toBeCloseTo(initial.top - initialHeaderTop, 0)
           const paymentButtons = within(recent).getAllByRole("button")
           const lastPayment = paymentButtons[paymentButtons.length - 1]
-          expect(lastPayment.getBoundingClientRect().bottom).toBeLessThan(initial.top)
+          expect(lastPayment.getBoundingClientRect().top).toBeGreaterThan(
+            header.getBoundingClientRect().bottom,
+          )
         })
         const notification = await body.findByText("Notification for positioning")
         const toast = notification.closest("li")
         if (!toast) throw new globalThis.Error("通知の表示領域がありません")
         await waitFor(() => {
-          expect(toast.getBoundingClientRect().bottom).toBeLessThan(initial.top)
+          expect(toast.getBoundingClientRect().top).toBeGreaterThan(
+            create.getBoundingClientRect().bottom,
+          )
         })
         await userEvent.click(within(toast).getByRole("button"))
 
@@ -331,8 +372,13 @@ function floatingActionStory(mobile: boolean): Story {
         const dialog = await body.findByRole("dialog", { name: "Create payment" })
         const bounds = create.getBoundingClientRect()
         expect(
-          document.elementFromPoint(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2),
-        ).not.toBe(create)
+          create.contains(
+            document.elementFromPoint(
+              bounds.left + bounds.width / 2,
+              bounds.top + bounds.height / 2,
+            ),
+          ),
+        ).toBe(false)
         await userEvent.click(within(dialog).getByRole("button", { name: "Cancel" }))
         await waitFor(async () => expect(body.queryByRole("dialog")).not.toBeInTheDocument())
         await expect(create).toHaveFocus()
@@ -342,11 +388,42 @@ function floatingActionStory(mobile: boolean): Story {
         await userEvent.type(within(reopened).getByLabelText("Amount", { exact: false }), "1080")
         await userEvent.type(
           within(reopened).getByLabelText("Note", { exact: false }),
-          "Floating payment",
+          "Header payment",
         )
         await userEvent.click(within(reopened).getByRole("button", { name: /^Create$/ }))
         await waitFor(async () => expect(body.queryByRole("dialog")).not.toBeInTheDocument())
-        await expect(await within(recent).findByText("Floating payment")).toBeVisible()
+        await expect(await within(recent).findByText("Header payment")).toBeVisible()
+
+        await userEvent.click(within(header).getByRole("button", { name: "Menu button" }))
+        await userEvent.click(canvas.getByRole("link", { name: "Navigate to Payments page" }))
+        await canvas.findByRole("heading", { name: "Payments", level: 1 })
+        let otherHeader = await canvas.findByRole("banner")
+        expect(within(otherHeader).getAllByRole("button")).toHaveLength(1)
+        expect(
+          within(otherHeader).queryByRole("button", { name: "Create payment" }),
+        ).not.toBeInTheDocument()
+        expect(
+          within(otherHeader).queryByRole("button", { name: "Theme toggle" }),
+        ).not.toBeInTheDocument()
+
+        await userEvent.click(within(otherHeader).getByRole("button", { name: "Menu button" }))
+        await userEvent.click(canvas.getByRole("link", { name: "Navigate to Settings page" }))
+        await canvas.findByRole("heading", { name: "Settings", level: 1 })
+        otherHeader = await canvas.findByRole("banner")
+        expect(within(otherHeader).getAllByRole("button")).toHaveLength(1)
+        await userEvent.click(
+          within(canvas.getByRole("navigation", { name: "Settings sections" })).getByRole("link", {
+            name: "Appearance",
+          }),
+        )
+        expect(await canvas.findByRole("combobox", { name: "Theme" })).toBeVisible()
+
+        await userEvent.click(within(otherHeader).getByRole("link", { name: "Burneto — Home" }))
+        expect(
+          await canvas.findByRole("button", {
+            name: "Create payment",
+          }),
+        ).toBeEnabled()
       } finally {
         window.scrollTo(0, 0)
       }
@@ -354,5 +431,5 @@ function floatingActionStory(mobile: boolean): Story {
   }
 }
 
-export const DesktopFloatingCreatePayment = floatingActionStory(false)
-export const MobileFloatingCreatePayment = floatingActionStory(true)
+export const DesktopHeaderCreatePayment = headerActionStory(false)
+export const MobileHeaderCreatePayment = headerActionStory(true)

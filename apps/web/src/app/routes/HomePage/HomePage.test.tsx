@@ -228,7 +228,9 @@ describe("HomePage", () => {
     expect(await screen.findByLabelText("Total spending")).toBeInTheDocument()
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument()
     expect(screen.queryByRole("combobox", { name: /category filter/i })).not.toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /create payment/i })).toBeInTheDocument()
+    const header = screen.getByRole("banner")
+    expect(within(header).getByRole("button", { name: /create payment/i })).toBeEnabled()
+    expect(within(header).queryByRole("button", { name: "Theme toggle" })).not.toBeInTheDocument()
     expect(requests.length).toBeGreaterThan(0)
     for (const request of requests) {
       expect(request.searchParams.get("book_id")).toBe("eq.1")
@@ -250,6 +252,37 @@ describe("HomePage", () => {
       expect(within(recent).getAllByRole("button")).toHaveLength(4)
     })
     expect(within(recent).getByText("Apr 1, 2025")).toBeInTheDocument()
+  })
+
+  test("ヘッダーの作成操作はホームだけに表示し、他画面の右側は空にする", async () => {
+    const { user } = render(<Default />)
+    expect(await screen.findByRole("button", { name: "Create payment" })).toBeEnabled()
+    const header = screen.getByRole("banner")
+
+    await user.click(within(header).getByRole("button", { name: "Menu button" }))
+    await user.click(screen.getByRole("link", { name: "Navigate to Payments page" }))
+    expect(await screen.findByRole("heading", { name: "Payments", level: 1 })).toBeInTheDocument()
+    let otherHeader = screen.getByRole("banner")
+    expect(within(otherHeader).getAllByRole("button")).toHaveLength(1)
+    expect(
+      within(otherHeader).queryByRole("button", { name: "Create payment" }),
+    ).not.toBeInTheDocument()
+    expect(
+      within(otherHeader).queryByRole("button", { name: "Theme toggle" }),
+    ).not.toBeInTheDocument()
+
+    await user.click(within(otherHeader).getByRole("button", { name: "Menu button" }))
+    await user.click(screen.getByRole("link", { name: "Navigate to Settings page" }))
+    expect(await screen.findByRole("heading", { name: "Settings", level: 1 })).toBeInTheDocument()
+    otherHeader = screen.getByRole("banner")
+    expect(within(otherHeader).getAllByRole("button")).toHaveLength(1)
+
+    await user.click(within(otherHeader).getByRole("link", { name: "Burneto — Home" }))
+    expect(
+      await screen.findByRole("button", {
+        name: "Create payment",
+      }),
+    ).toBeEnabled()
   })
 
   test.each(["loading", "error"] as const)(
@@ -441,6 +474,8 @@ describe("HomePage", () => {
     render(<Unauthenticated />)
     expect(await screen.findByText(/Burneto is a budgeting app/)).toBeInTheDocument()
     expect(screen.queryByLabelText("Recent payments")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Create payment" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Theme toggle" })).not.toBeInTheDocument()
   })
 
   test("セッション復元中は紹介画面も支払いも表示しない", async () => {

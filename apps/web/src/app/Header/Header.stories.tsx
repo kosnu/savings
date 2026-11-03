@@ -1,3 +1,5 @@
+import { PlusIcon } from "@radix-ui/react-icons"
+import { Button } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn } from "storybook/test"
 
@@ -17,5 +19,18 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     onMenuClick: fn(),
+  },
+}
+
+export const WithAction: Story = {
+  args: {
+    onMenuClick: fn(),
+    sticky: true,
+    action: (
+      <Button>
+        <PlusIcon aria-hidden />
+        Create payment
+      </Button>
+    ),
   },
 }
