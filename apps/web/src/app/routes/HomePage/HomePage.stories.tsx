@@ -1,8 +1,10 @@
+import { Button } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { createRoute } from "@tanstack/react-router"
-import { expect, waitFor, within } from "storybook/test"
+import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { paymentsSearchSchema } from "../../../features/payments"
+import { useSnackbar } from "../../../providers/snackbar/SnackbarProvider"
 import { SupabaseSessionContext } from "../../../providers/supabase/SupabaseSessionProvider"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { payments as samplePayments } from "../../../test/data/payments"
@@ -259,3 +261,98 @@ export const LoadingToEmpty = loadingTransitionStory(0)
 export const MobileLoadingToFivePayments = loadingTransitionStory(5, true)
 export const MobileLoadingToOnePayment = loadingTransitionStory(1, true)
 export const MobileLoadingToEmpty = loadingTransitionStory(0, true)
+
+function floatingActionStory(mobile: boolean): Story {
+  return {
+    parameters: {
+      msw: {
+        handlers: [
+          ...createBookHandlers(),
+          ...createPaymentHandlers({ persistCreatedRows: true }),
+          ...createCategoryHandlers(),
+          ...createMonthlyBudgetHandlers({
+            get: { response: { ...monthlyBudgets[2], amount: 25000 } },
+          }),
+        ],
+      },
+      viewport: {
+        options: {
+          desktop: { name: "Desktop", styles: { width: "1280px", height: "900px" } },
+          mobile: { name: "Mobile", styles: { width: "320px", height: "568px" } },
+        },
+      },
+    },
+    globals: { viewport: { value: mobile ? "mobile" : "desktop" } },
+    render: () => {
+      const { openSnackbar } = useSnackbar()
+      return (
+        <>
+          <Button
+            variant="soft"
+            onClick={() => openSnackbar("info", "Notification for positioning", 30000)}
+          >
+            Show notification
+          </Button>
+          <HomePage />
+        </>
+      )
+    },
+    play: async ({ canvasElement }) => {
+      const canvas = within(canvasElement)
+      const body = within(canvasElement.ownerDocument.body)
+      const create = await canvas.findByRole("button", { name: "Create payment" })
+      const recent = await canvas.findByLabelText("Recent payments")
+      await within(recent).findAllByRole("button")
+      const initial = create.getBoundingClientRect()
+      expect(initial.bottom).toBeLessThanOrEqual(window.innerHeight)
+      expect(initial.right).toBeLessThanOrEqual(window.innerWidth)
+      expect(initial.left).toBeGreaterThanOrEqual(0)
+      expect(initial.top).toBeGreaterThanOrEqual(0)
+
+      try {
+        await userEvent.click(canvas.getByRole("button", { name: "Show notification" }))
+        window.scrollTo(0, document.documentElement.scrollHeight)
+        await waitFor(() => {
+          expect(window.scrollY).toBeGreaterThan(0)
+          expect(create.getBoundingClientRect().top).toBeCloseTo(initial.top, 0)
+          const paymentButtons = within(recent).getAllByRole("button")
+          const lastPayment = paymentButtons[paymentButtons.length - 1]
+          expect(lastPayment.getBoundingClientRect().bottom).toBeLessThan(initial.top)
+        })
+        const notification = await body.findByText("Notification for positioning")
+        const toast = notification.closest("li")
+        if (!toast) throw new globalThis.Error("通知の表示領域がありません")
+        await waitFor(() => {
+          expect(toast.getBoundingClientRect().bottom).toBeLessThan(initial.top)
+        })
+        await userEvent.click(within(toast).getByRole("button"))
+
+        await userEvent.click(create)
+        const dialog = await body.findByRole("dialog", { name: "Create payment" })
+        const bounds = create.getBoundingClientRect()
+        expect(
+          document.elementFromPoint(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2),
+        ).not.toBe(create)
+        await userEvent.click(within(dialog).getByRole("button", { name: "Cancel" }))
+        await waitFor(async () => expect(body.queryByRole("dialog")).not.toBeInTheDocument())
+        await expect(create).toHaveFocus()
+
+        await userEvent.click(create)
+        const reopened = await body.findByRole("dialog", { name: "Create payment" })
+        await userEvent.type(within(reopened).getByLabelText("Amount", { exact: false }), "1080")
+        await userEvent.type(
+          within(reopened).getByLabelText("Note", { exact: false }),
+          "Floating payment",
+        )
+        await userEvent.click(within(reopened).getByRole("button", { name: /^Create$/ }))
+        await waitFor(async () => expect(body.queryByRole("dialog")).not.toBeInTheDocument())
+        await expect(await within(recent).findByText("Floating payment")).toBeVisible()
+      } finally {
+        window.scrollTo(0, 0)
+      }
+    },
+  }
+}
+
+export const DesktopFloatingCreatePayment = floatingActionStory(false)
+export const MobileFloatingCreatePayment = floatingActionStory(true)

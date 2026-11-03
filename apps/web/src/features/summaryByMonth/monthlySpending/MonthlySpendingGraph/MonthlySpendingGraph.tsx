@@ -37,22 +37,21 @@ export function MonthlySpendingGraph({
   )
   const comparison = series.period === "past" ? series.actualTotal : series.forecastTotal
   const difference = budgetAmount !== null && comparison !== null ? budgetAmount - comparison : null
-  const explanation = t(
+  const explanation =
     series.period === "past"
-      ? "summary.spendingChart.past"
+      ? t("summary.spendingChart.past")
       : series.period === "future"
-        ? "summary.spendingChart.future"
+        ? t("summary.spendingChart.future")
         : series.forecastTotal === null
-          ? "summary.spendingChart.noHistory"
-          : "summary.spendingChart.method",
-  )
+          ? t("summary.spendingChart.noHistory")
+          : null
 
   return (
     <Flex direction="column" gap="3">
       <figure
         className={styles.figure}
         aria-label={t("summary.spendingChart.title")}
-        aria-describedby={descriptionId}
+        aria-describedby={explanation ? descriptionId : undefined}
       >
         <Grid columns="auto 1fr" gap="2">
           <Flex direction="column" justify="between" className={styles.axis} aria-hidden="true">
@@ -139,14 +138,21 @@ export function MonthlySpendingGraph({
       </figure>
       {difference !== null && (
         <Text as="p" size="2" color={difference < 0 ? "yellow" : "green"}>
-          {t(difference < 0 ? "summary.spendingChart.over" : "summary.spendingChart.within", {
-            amount: toCurrency(Math.abs(difference)),
-          })}
+          {t(
+            difference < 0
+              ? series.period === "current"
+                ? "summary.spendingChart.overForecast"
+                : "summary.spendingChart.over"
+              : "summary.spendingChart.within",
+            { amount: toCurrency(Math.abs(difference)) },
+          )}
         </Text>
       )}
-      <Text as="p" size="1" color="gray" id={descriptionId}>
-        {explanation}
-      </Text>
+      {explanation && (
+        <Text as="p" size="1" color="gray" id={descriptionId}>
+          {explanation}
+        </Text>
+      )}
     </Flex>
   )
 }

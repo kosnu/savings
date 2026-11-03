@@ -271,8 +271,6 @@ export const resources = {
         "Cumulative payments: solid line for actual spending, dashed line for estimate, dotted line for budget.",
       "summary.spendingChart.day": "Day {{day}}",
       "summary.spendingChart.start": "Month start",
-      "summary.spendingChart.method":
-        "Estimate adds the remaining days’ spending patterns from recorded months in the previous three completed months. Month ends are aligned; each day uses the higher of the historical average and recorded future payments. Actual spending may differ.",
       "summary.spendingChart.noHistory":
         "No estimate: there are no payment records in the previous three completed months.",
       "summary.spendingChart.past": "Completed month: actual spending only.",
@@ -280,6 +278,7 @@ export const resources = {
         "Future month: recorded payments only. An estimate is available once the month starts.",
       "summary.spendingChart.within": "Within budget · {{amount}} remaining",
       "summary.spendingChart.over": "Over budget · {{amount}}",
+      "summary.spendingChart.overForecast": "Forecast over budget · {{amount}}",
       "summary.categoryBudgetProgress": "{{category}} budget progress",
       "summary.budgetProgressValue": "Spent {{amount}} of {{budget}}. {{difference}}.",
       "summary.loadingCategoryTotals": "loading category totals",
@@ -593,14 +592,13 @@ export const resources = {
       "summary.spendingChart.graphLabel": "支払い累積額。実線は実績、破線は見込み、点線は予算。",
       "summary.spendingChart.day": "{{day}}日",
       "summary.spendingChart.start": "月初",
-      "summary.spendingChart.method":
-        "直近3完了月の履歴がある月の日別平均を残日分だけ加算。月末は月末に合わせ、各日は平均額と登録済みの未来の支払いの大きい方を使います。実際の支出とは異なる場合があります。",
       "summary.spendingChart.noHistory": "直近3完了月に支払い履歴がないため、見込みは未算出です。",
       "summary.spendingChart.past": "終了した月のため、支払い実績のみ表示しています。",
       "summary.spendingChart.future":
         "未来月は登録済みの支払いのみ表示しています。見込みは月の開始後に算出します。",
       "summary.spendingChart.within": "予算内・残り {{amount}}",
       "summary.spendingChart.over": "予算超過・{{amount}}",
+      "summary.spendingChart.overForecast": "超過見込み · {{amount}}",
       "summary.categoryBudgetProgress": "{{category}}の予算進捗",
       "summary.budgetProgressValue": "予算{{budget}}に対して{{amount}}を使用。{{difference}}。",
       "summary.loadingCategoryTotals": "カテゴリ別合計を読み込み中",

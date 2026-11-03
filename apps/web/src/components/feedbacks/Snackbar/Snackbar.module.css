@@ -1,7 +1,7 @@
 .toast-viewport {
   --viewport-padding: var(--space-3);
   position: fixed;
-  bottom: 0;
+  bottom: var(--snackbar-bottom-offset, 0px);
   right: 0;
   display: flex;
   flex-direction: column;

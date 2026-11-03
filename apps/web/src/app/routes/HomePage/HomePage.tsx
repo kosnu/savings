@@ -12,6 +12,8 @@ import { AppLayout } from "../../AppLayout"
 import { useInitializeMonthSearch } from "../../useInitializeMonthSearch"
 import { TopPage } from "../TopPage"
 
+import styles from "./HomePage.module.css"
+
 export function HomePage() {
   useInitializeMonthSearch()
   const { status, session } = useSupabaseSession()
@@ -61,8 +63,8 @@ function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cache
   const { t } = useTranslation()
 
   return (
-    <Flex direction="column" gap="3">
-      <Flex justify="end">
+    <Flex direction="column" gap="3" className={styles.content}>
+      <Flex className={styles.createPaymentAction}>
         <CreatePaymentModal bookId={book.id} />
       </Flex>
       <Summary
@@ -83,8 +85,14 @@ function HomePageLoading() {
   const { t } = useTranslation()
 
   return (
-    <Flex direction="column" gap="3" aria-busy="true" data-testid="home-loading">
-      <Flex justify="end">
+    <Flex
+      direction="column"
+      gap="3"
+      aria-busy="true"
+      data-testid="home-loading"
+      className={styles.content}
+    >
+      <Flex className={styles.createPaymentAction}>
         <Skeleton>
           <Button disabled aria-hidden tabIndex={-1}>
             {t("payments.create.trigger")}

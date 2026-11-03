@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2040",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/features/summaryByMonth/monthlySpending/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/components/feedbacks/Snackbar/Snackbar.module.css"
+  ],
+  "fingerprint": "eb911dc771b0bb9bffb580eb67b8feaeb692583cb51b304a15f54349ec0262fe",
+  "status": "pass",
+  "checks": [
+    "明示Approveの全3件とIssue更新への適合: pass",
+    "既存Issueの8条件と会話の3件を実装・表示/操作テストで照合: pass",
+    "PC/mobile固定位置・safe-area・本文末尾・通知・Modalを照合: pass",
+    "説明文と翻訳キーを削除し、必要な状態説明とARIA参照を同期: pass",
+    "予測と実績の差分ラベル・日英表記・予測計算保持: pass",
+    "既存Modal/Overlay/Snackbarを比較・再利用、ホームだけ通知位置調整",
+    "未解決findingなし。共通規則変更・Bot返信・追加Auditは対象外"
+  ],
+  "summary": "3件すべて承認範囲と一致しpass。初期画面だけの位置検査をscroll・通知・取消/保存へ拡張。既存CreatePaymentModalと同じ操作を局所CSSで固定し、SnackbarはCSS変数の既定値を保つ。旧cycleとカテゴリ余白CSSを保持。Coverage: ai-driven.workflow, policy.audit, policy.code-review, policy.git-workflow, web.component-structure, web.design-rules, web.design-system-brand, web.domain-ui-rules, domain.amount, domain.date, web.test-policy, web.storybook-browser-tests, web.query-cache, web.suspense-boundaries。全PRの既存規約確認も継続。実DB・本番配信と予測精度は未確認。既存URL待機の一時timeoutは最終再検証で再現せず原因未確定。",
+  "remaining": []
+}

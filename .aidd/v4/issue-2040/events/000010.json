@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2040",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/features/summaryByMonth/monthlySpending/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/components/feedbacks/Snackbar/Snackbar.module.css"
+  ],
+  "fingerprint": "eb911dc771b0bb9bffb580eb67b8feaeb692583cb51b304a15f54349ec0262fe",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:format",
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration: 158 files / 1092 tests",
+    "pnpm run web:test:storybook: 8 files / 30 tests",
+    "Chrome日本語320x568のlight/dark・scroll後固定・取消とfocus復帰",
+    "git diff --check、Core check-changes"
+  ],
+  "summary": "最終対象で必須検証成功。PC1280x900とmobile320x568で初期表示・scroll後固定、末尾明細と通知の非重複、Modal取消・再表示・保存後の再取得を確認。日英の超過見込みと過去月実績、補足削除と状態説明の保持を表示テストで確認。既存URL初期化が一度timeoutしたが、変更なしの該当34ケースと全件再実行は成功。timeout原因は未確定。実DB・本番配信・予測精度実測は未実施。",
+  "remaining": []
+}
