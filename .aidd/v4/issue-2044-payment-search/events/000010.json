@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/2081",
+  "paths": [
+    ".github/workflows/harness_checker_ci.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs"
+  ],
+  "fingerprint": "89ca487f89cc20345951669c1a2253ea6c55d5057229902948b9b1c26f8bd994",
+  "status": "pass",
+  "checks": [
+    "Node同期workflowテスト66件成功。取消条件16件を含み旧設定では取消8件の失敗を観測",
+    "対象2ファイルのvp check成功",
+    "Harness workflowのactionlint成功",
+    "Core rules・check-changesとgit diff --check成功"
+  ],
+  "summary": "取消・非取消の実job条件と、依存4状態の集約shell失敗維持を確認。外部APIはfixtureであり実Actions取消の再現ではない。エージェント指示・規則選択・実行制御は不変なのでLLM eval対象外。アプリ内容とmodeは前回Web検証時と同一で再実行を省略。新head CIと実Actionsの取消動作は未観測。",
+  "remaining": []
+}

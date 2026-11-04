@@ -159,7 +159,7 @@ jobs:
 
   verify:
     needs: [context, candidate, integration]
-    if: always()
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - name: Require candidate and integration success
@@ -171,7 +171,7 @@ jobs:
           test "$INTEGRATION_RESULT" = success
 
   report-dispatched-result:
-    if: always() && github.event_name == 'workflow_dispatch'
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' }}
     needs: [context, candidate, integration, verify]
     runs-on: ubuntu-latest
     permissions:
