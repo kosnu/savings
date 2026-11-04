@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, within } from "storybook/test"
+import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { payments } from "../../../test/data/payments"
@@ -82,3 +82,76 @@ export const OpenDetails: Story = {
     expect(await within(detailDialog).findByRole("button", { name: /delete/i })).toBeInTheDocument()
   },
 }
+
+function searchFormStory(mobile: boolean): Story {
+  return {
+    decorators: [createStoryRouter("/payments?year=2025&month=6", paymentsRouteBuilder)],
+    parameters: {
+      viewport: {
+        options: {
+          mobile: { name: "Mobile", styles: { width: "320px", height: "568px" } },
+          desktop: { name: "Desktop", styles: { width: "1280px", height: "900px" } },
+        },
+      },
+    },
+    globals: { viewport: { value: mobile ? "mobile" : "desktop" } },
+    play: async ({ canvasElement }) => {
+      const canvas = within(canvasElement)
+      const body = within(canvasElement.ownerDocument.body)
+      const search = await canvas.findByLabelText("Search filters")
+      const filters = within(search)
+      const year = filters.getByRole("combobox", { name: "Year" })
+      const month = filters.getByRole("combobox", { name: "Month" })
+      const category = filters.getByRole("combobox", { name: "Category filter" })
+
+      await expect(year).toHaveTextContent("2025")
+      await expect(month).toHaveTextContent("June")
+      await expect(category).toHaveTextContent("All categories")
+      for (const control of [year, month, category]) {
+        const bounds = control.getBoundingClientRect()
+        expect(bounds.left).toBeGreaterThanOrEqual(0)
+        expect(bounds.right).toBeLessThanOrEqual(window.innerWidth)
+      }
+      const monthBounds = month.getBoundingClientRect()
+      const categoryBounds = category.getBoundingClientRect()
+      if (mobile) {
+        expect(categoryBounds.top).toBeGreaterThanOrEqual(monthBounds.bottom)
+      } else {
+        expect(categoryBounds.top).toBeCloseTo(monthBounds.top, 0)
+      }
+      expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(window.innerWidth)
+
+      // 選択せず閉じても条件を保持し、再び選択できることを利用箇所で確認する。
+      await userEvent.click(month)
+      await body.findByRole("listbox")
+      await userEvent.keyboard("{Escape}")
+      await waitFor(async () => {
+        await expect(body.queryByRole("listbox")).not.toBeInTheDocument()
+      })
+      await expect(month).toHaveTextContent("June")
+      await expect(month).toHaveFocus()
+
+      await userEvent.click(month)
+      await userEvent.click(await body.findByRole("option", { name: "April" }))
+      await expect(await canvas.findByRole("button", { name: /スーパー/ })).toBeInTheDocument()
+      await userEvent.click(category)
+      await userEvent.click(await body.findByRole("option", { name: "Food" }))
+      await userEvent.click(year)
+      await userEvent.click(await body.findByRole("option", { name: "2024" }))
+      await expect(await canvas.findByText("No payments found.")).toBeInTheDocument()
+      await expect(month).toHaveTextContent("April")
+      await expect(category).toHaveTextContent("Food")
+
+      await userEvent.click(canvas.getByRole("button", { name: "Clear filter" }))
+      await expect(category).toHaveTextContent("All categories")
+      await expect(year).toHaveTextContent("2024")
+      await expect(month).toHaveTextContent("April")
+      await userEvent.click(year)
+      await userEvent.click(await body.findByRole("option", { name: "2025" }))
+      await expect(await canvas.findByRole("button", { name: /スーパー/ })).toBeInTheDocument()
+    },
+  }
+}
+
+export const MobileSearch: Story = searchFormStory(true)
+export const DesktopSearch: Story = searchFormStory(false)

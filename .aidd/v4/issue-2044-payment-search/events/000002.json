@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2044",
+  "paths": [
+    "apps/web/src/app/routes/PaymentsPage/",
+    "apps/web/src/features/payments/",
+    "apps/web/src/i18n/",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "158ff013420ecf152caa9387d1996db8659a41cf0425a598d1ca48b80320ba59",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration",
+    "web:test:storybook",
+    "git diff --check",
+    "check-changes"
+  ],
+  "summary": "lint・整形・型検査成功。単体/統合158ファイル1094件、Chromium 8ファイル32件成功。320px/1280pxの配置、取消とfocus復帰、年月/カテゴリのAPI条件保持を確認。ブラウザ成功後のアプリ差分変更なし。",
+  "remaining": []
+}

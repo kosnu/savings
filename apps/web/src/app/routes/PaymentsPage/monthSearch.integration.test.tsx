@@ -60,10 +60,11 @@ test.each([
     render(<RouterProvider router={router} />, { queryClient })
 
     await waitFor(() => expect(requests.length).toBeGreaterThan(0))
-    const label = new Intl.DateTimeFormat("en", { year: "numeric", month: "long" }).format(
+    const monthLabel = new Intl.DateTimeFormat("en", { month: "long" }).format(
       new Date(Number(year), Number(month) - 1, 1),
     )
-    expect(await screen.findByRole("button", { name: label })).toBeInTheDocument()
+    expect(await screen.findByRole("combobox", { name: "Year" })).toHaveTextContent(year)
+    expect(screen.getByRole("combobox", { name: "Month" })).toHaveTextContent(monthLabel)
     await waitFor(() => expect(queryClient.isFetching()).toBe(0))
     expect(router.state.location.search).toMatchObject({ year, month })
     const lastDay = new Date(Number(year), Number(month), 0).getDate()

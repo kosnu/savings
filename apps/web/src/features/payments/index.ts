@@ -4,6 +4,7 @@ export { ExportPayments } from "./exportPayments/ExportPayments"
 export { PaymentCategoryFilter } from "./listPayment/PaymentCategoryFilter"
 export { PaymentCard } from "./listPayment/PaymentCard"
 export { PaymentList } from "./listPayment/PaymentList"
+export { PaymentSearchForm } from "./listPayment/PaymentSearchForm"
 export {
   PAYMENT_SEARCH_CATEGORY_NONE_VALUE,
   paymentsSearchSchema,

@@ -182,6 +182,8 @@ export const resources = {
       "payments.create.frequent.select":
         "Use frequent payment: Note {{note}}, Amount {{amount}}, Category {{category}}",
       "payments.category.label": "Category",
+      "payments.search.title": "Search filters",
+      "payments.search.month": "Payment month",
       "payments.category.none": "None",
       "payments.category.error": "Error",
       "payments.category.loading": "Loading",
@@ -503,6 +505,8 @@ export const resources = {
       "payments.create.frequent.select":
         "よくある支払いを使用: メモ {{note}}、金額 {{amount}}、カテゴリ {{category}}",
       "payments.category.label": "カテゴリ",
+      "payments.search.title": "検索条件",
+      "payments.search.month": "支払い年月",
       "payments.category.none": "なし",
       "payments.category.error": "エラー",
       "payments.category.loading": "読み込み中",

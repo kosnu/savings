@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2044",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/PaymentsPage/PaymentsPage.test.tsx"
+  ],
+  "fingerprint": "a6c54d43b36c51fbb8dc82e3cd9302167100010c04b6bba5fb2c4adb9dffc779",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration",
+    "web:test:storybook",
+    "git diff --check",
+    "check-changes"
+  ],
+  "summary": "変更後のlint・整形・型検査が成功。単体/統合158ファイル1094件、Chromium8ファイル32件が成功。Payment monthのグループ名と既存の条件保持・320px配置を確認。",
+  "remaining": []
+}

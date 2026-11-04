@@ -17,7 +17,7 @@ import styles from "./PaymentCategoryFilter.module.css"
 
 const PAYMENT_SEARCH_CATEGORY_ALL_VALUE = "all"
 
-export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
+export const PaymentCategoryFilter = memo(function PaymentCategoryFilter({ id }: { id?: string }) {
   const { t } = useTranslation()
   const categorySearch = useLocation({
     select: (location) => location.search.category,
@@ -46,6 +46,7 @@ export const PaymentCategoryFilter = memo(function PaymentCategoryFilter() {
   return (
     <Select.Root name="category-filter" value={value} onValueChange={handleChange}>
       <Select.Trigger
+        id={id}
         aria-label={t("payments.category.filter")}
         className={categoryId === null ? styles.systemLabel : undefined}
         style={{ width: "100%" }}

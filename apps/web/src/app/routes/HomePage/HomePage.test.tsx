@@ -489,9 +489,10 @@ describe("HomePage", () => {
     const { user } = render(<Default />)
     const recent = await screen.findByLabelText("Recent payments")
     await user.click(await within(recent).findByRole("button", { name: /Apr 1, 2025/ }))
-    expect(
-      await screen.findByRole("button", { name: "April 2025", hidden: true }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole("combobox", { name: "Year", hidden: true })).toHaveTextContent(
+      "2025",
+    )
+    expect(screen.getByRole("combobox", { name: "Month", hidden: true })).toHaveTextContent("April")
     expect(await screen.findByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
   })
 

@@ -215,6 +215,29 @@ void test("Checkerは旧受付・別イベント・別PRと競合せず、同じ
 const aggregate = shellStep("Require candidate and integration success")
 const report = shellStep("Report dispatched CI on the PR commit")
 
+// 実際のjob条件を評価する。Actions側の取消処理自体は再現しない。
+for (const event of ["pull_request", "workflow_dispatch"]) {
+  for (const cancelled of [false, true]) {
+    for (const result of ["success", "failure", "cancelled", "skipped"]) {
+      void test(`Harness ${event}・取消=${cancelled}・依存=${result}のjob実行条件`, () => {
+        for (const job of ["verify", "report-dispatched-result"]) {
+          const condition = harness
+            .match(new RegExp(`^  ${job}:\\n(?:    .*\\n)*?    if: (.+)$`, "m"))[1]
+            .replace(/^\$\{\{(.*)\}\}$/, "$1")
+          const runs = vm.runInNewContext(condition, {
+            github: { event_name: event },
+            always: () => true,
+            cancelled: () => cancelled,
+            success: () => result === "success",
+            failure: () => result === "failure",
+          })
+          assert.equal(runs, !cancelled && (job === "verify" || event === "workflow_dispatch"), job)
+        }
+      })
+    }
+  }
+}
+
 for (const job of ["context", "candidate", "integration", "verify"]) {
   for (const result of ["success", "failure", "cancelled", "skipped"]) {
     void test(`Harness ${job}=${result}の集約・投稿は未完了を成功にしない`, () => {
@@ -348,7 +371,9 @@ for (const name of ["frontend_ci.yaml", "harness_checker_ci.yaml"]) {
     )
     assert.match(
       yaml,
-      /report-dispatched-result:\n    if: always\(\) && github.event_name == 'workflow_dispatch'/,
+      name === "harness_checker_ci.yaml"
+        ? /report-dispatched-result:\n    if: \$\{\{ !cancelled\(\) && github.event_name == 'workflow_dispatch' \}\}/
+        : /report-dispatched-result:\n    if: always\(\) && github.event_name == 'workflow_dispatch'/,
     )
     assert.doesNotMatch(
       yaml.split("\n  report-dispatched-result:")[0],
