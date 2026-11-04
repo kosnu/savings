@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2044",
+  "paths": [
+    "apps/web/src/app/routes/PaymentsPage/",
+    "apps/web/src/features/payments/",
+    "apps/web/src/i18n/",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "158ff013420ecf152caa9387d1996db8659a41cf0425a598d1ca48b80320ba59",
+  "status": "pass",
+  "checks": [
+    "Issue #2044と検索URL・年月範囲・既存MonthPickerの照合"
+  ],
+  "summary": "baselineはorigin/mainの70fe11a9。年月を共通MonthPickerで直接選択し、カテゴリと検索領域へ統合。initialは1列、sm以上は2列。登録はページ見出し側へ分離。条件の正本はURLとし他条件を保持。既存の一覧・カテゴリ取得境界は変更しない。",
+  "remaining": []
+}
