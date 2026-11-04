@@ -196,7 +196,7 @@ describe("PaymentsPage", () => {
     const { user } = renderStory()
     const search = await screen.findByLabelText("Search filters")
 
-    expect(within(search).getByRole("group", { name: "Year and month" })).toBeInTheDocument()
+    expect(within(search).getByRole("group", { name: "Payment month" })).toBeInTheDocument()
     expect(within(search).getByRole("combobox", { name: "Year" })).toHaveTextContent("2025")
     await selectCategoryFilterOption(user, "Food")
     await waitFor(() =>
