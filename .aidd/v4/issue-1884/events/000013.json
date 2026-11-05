@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000011.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/1999",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "e746e46faf5c8c9491b7b8a757305f2b907afdaffe8a9b0d78afd0ab80f3abd4",
+  "status": "pass",
+  "checks": [
+    "本人照会と再有効化の入出力・再申請時の旧ID拒否",
+    "失敗した一時sessionと他端末のrefreshの分離",
+    "先頭要求の延期・残件進行・原因解消後の再開"
+  ],
+  "summary": "3件の設計変更を両文書で照合。匿名照会の公開範囲、復帰締切、削除開始予定、原子性を保つ。",
+  "remaining": []
+}

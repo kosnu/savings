@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1884",
+  "paths": [
+    "docs/design/account-deletion.md"
+  ],
+  "fingerprint": "ad8b8eb3ad26e29ea17a9a756186b5ff9375f5ce466966a9086a45c796ae6fa4",
+  "status": "pass",
+  "checks": [
+    "Intentと削除範囲・原子性・復旧条件の設計照合",
+    "front matter・ローカル参照確認"
+  ],
+  "summary": "機能未実装の設計として削除境界・本人確認・結果照会・運用・後続検証を定義。",
+  "remaining": []
+}

@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000011.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/1999",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "e746e46faf5c8c9491b7b8a757305f2b907afdaffe8a9b0d78afd0ab80f3abd4",
+  "status": "pass",
+  "checks": [
+    "Markdown整形・差分検査"
+  ],
+  "summary": "設計書・実装Issue案の文書検査に合格。Hostedの動作試験は実装時の受入条件。",
+  "remaining": []
+}

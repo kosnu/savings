@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000004.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1884",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "91066453fd2e7747fb871e54d27bb845ffadafa0b79a34f0591d115292a59d9b",
+  "status": "pass",
+  "checks": [
+    "code-reviewと適用規則に基づく独立レビュー",
+    "文意・文境界・初期表示と操作後の文言の整合",
+    "CSS一致・状態遷移と操作可否の前回実装との一致"
+  ],
+  "summary": "HTMLの句読点整理に未解決の指摘なし。設計判断とシミュレーションの動作に変更なし。",
+  "remaining": []
+}

@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000011.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/1999",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "e746e46faf5c8c9491b7b8a757305f2b907afdaffe8a9b0d78afd0ab80f3abd4",
+  "status": "pass",
+  "checks": [
+    "Audit提案1–3と承認範囲"
+  ],
+  "summary": "本人の予約IDの受渡し、一時sessionだけの失効、連続timeoutの単件切り分けと復旧を具体化する。",
+  "remaining": []
+}

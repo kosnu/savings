@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1884",
+  "paths": [
+    "docs/design/account-deletion.md"
+  ],
+  "fingerprint": "ad8b8eb3ad26e29ea17a9a756186b5ff9375f5ce466966a9086a45c796ae6fa4",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "vp fmt check",
+    "front matter・ローカル参照・rule graph照合"
+  ],
+  "summary": "文書のみの差分に必要な整形・参照・Core範囲検査が成功。機能検証は後続実装の条件。",
+  "remaining": []
+}

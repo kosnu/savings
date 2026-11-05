@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000007.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1884",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "7daaa3755c225a3f48c23890c08a4153a0acaad68b811d18bb59eea209bfb4c9",
+  "status": "pass",
+  "checks": [
+    "Markdown整形・git diff --check",
+    "front matter・ローカル参照17件・共通検証コマンドの削除",
+    "HTMLとアプリコードの差分なしを確認"
+  ],
+  "summary": "設計書と実装Issue案の重複を整理し、共通Web/DB検証コマンドを削除。文書の構造・参照検査が成功。HTMLは変更していない。",
+  "remaining": []
+}

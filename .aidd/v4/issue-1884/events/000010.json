@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000007.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1999",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "523bcac5062f7914a1277e74c9693dc3995ca6cd0ce36f64e98e99c7b9ea9735",
+  "status": "pass",
+  "checks": [
+    "PR head・CI・5スレッドの実状態と成果物同一性",
+    "SDK signOut既定値・別端末のRPC入出力・バッチ中断時の再選択",
+    "原因の根拠・対策の範囲・適用先の再評価"
+  ],
+  "summary": "PR #1999 head 666f38eaの再レビューとAudit完了。168時間/次のJST03:00/最大10件の方針は採用可。マージ前に本人向けrequest_id返却と一時sessionのlocal sign-outを明記し、連続バッチtimeout時の進行回復手順を追記する案。OAuth隔離・照合不能は反映済み、工程結果削除は不要。5スレッドは未解決。修正・返信・解決は承認待ち。",
+  "remaining": []
+}

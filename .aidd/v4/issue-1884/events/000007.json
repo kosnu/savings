@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000007.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1884",
+  "paths": [
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "a9c1f61dc8318fcbc2300b01810348657a8f2df7a682f63fb2a6e829b537b580",
+  "status": "pass",
+  "checks": [
+    "最新の明示指示と復帰期限・物理削除開始予定の分離",
+    "日本時間03:00の算出・毎分10件・再試行/復旧時の元時刻維持",
+    "設計書・実装Issue案・HTMLの同期"
+  ],
+  "summary": "168時間の復帰猶予を維持し、その期限以降で最初の日本時間03:00から毎分最大10件ずつ削除する方針へ更新。開始後は残件・失敗分を継続処理する。",
+  "remaining": []
+}
