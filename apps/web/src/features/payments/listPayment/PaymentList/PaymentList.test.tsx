@@ -11,6 +11,7 @@ import { server } from "../../../../test/msw/server"
 import { createTestQueryClient, render, screen, waitFor, within } from "../../../../test/test-utils"
 import { mapPaymentToRow } from "../../../../test/utils/mapPaymentToRow"
 import { paymentsSearchSchema } from "../paymentsSearchSchema"
+import { RecentPayments } from "../RecentPayments"
 import { PaymentList } from "./PaymentList"
 import * as stories from "./PaymentList.stories"
 
@@ -43,7 +44,18 @@ function renderPaymentList(initialEntry: string) {
         path: "details/$paymentId",
       })
 
-      return [authenticatedRoute.addChildren([paymentsRoute.addChildren([paymentDetailsRoute])])]
+      // 画面間の履歴復帰は固定routerのStoryでは表せないため、実際の遷移元と詳細をつなぐ。
+      const homeRoute = createRoute({
+        getParentRoute: () => root,
+        path: "/",
+        component: () => <RecentPayments bookId={1} cacheScope="home-return-test" />,
+        validateSearch: paymentsSearchSchema.pick({ year: true, month: true }),
+      })
+
+      return [
+        homeRoute,
+        authenticatedRoute.addChildren([paymentsRoute.addChildren([paymentDetailsRoute])]),
+      ]
     },
     { queryClient: createTestQueryClient() },
   )
@@ -263,7 +275,7 @@ describe("PaymentList", () => {
 
   test("一覧から開いた詳細を閉じると履歴を戻して一覧URLへ戻る", async () => {
     server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
-    const { router, user } = renderPaymentList("/payments?year=2025&month=6")
+    const { router, user } = renderPaymentList("/payments?year=2025&month=6&category=10")
 
     const paymentButton = (await screen.findAllByRole("button", { name: /コンビニ/ }))[0]
     await user.click(paymentButton)
@@ -272,7 +284,49 @@ describe("PaymentList", () => {
     await user.click(within(dialog).getByRole("button", { name: /close payment details/i }))
 
     await waitFor(() => {
-      expect(router.state.location.href).toBe("/payments?year=2025&month=6")
+      expect(router.state.location.href).toBe("/payments?year=2025&month=6&category=10")
+      expect(router.state.location.state.__TSR_index).toBe(0)
+      expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
+    })
+  })
+
+  test.each(["閉じるボタン", "Escape"])(
+    "ホームから開いた詳細を%sで閉じると元のホームの年月へ戻る",
+    async (closeMethod) => {
+      server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
+      const { router, user } = renderPaymentList("/?year=2025&month=5")
+
+      await user.click((await screen.findAllByRole("button", { name: /コンビニ/ }))[0])
+
+      const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+      await within(dialog).findByText("Daily Necessities")
+      expect(router.state.location.pathname).toMatch(/^\/payments\/details\/\d+$/)
+      expect(router.state.location.search).toEqual({ year: "2025", month: "6" })
+
+      if (closeMethod === "Escape") {
+        await user.keyboard("{Escape}")
+      } else {
+        await user.click(within(dialog).getByRole("button", { name: /close payment details/i }))
+      }
+
+      await waitFor(() => {
+        expect(router.state.location.href).toBe("/?year=2025&month=5")
+        expect(router.state.location.state.__TSR_index).toBe(0)
+        expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
+      })
+      expect(await screen.findByLabelText("Recent payments")).toBeInTheDocument()
+    },
+  )
+
+  test("詳細URLを直接開いて閉じると同じ検索条件の一覧へ置き換える", async () => {
+    server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
+    const { router, user } = renderPaymentList("/payments/details/2?year=2025&month=6&category=10")
+
+    const dialog = await screen.findByRole("dialog", { name: /payment details/i })
+    await user.click(within(dialog).getByRole("button", { name: /close payment details/i }))
+
+    await waitFor(() => {
+      expect(router.state.location.href).toBe("/payments?year=2025&month=6&category=10")
       expect(router.state.location.state.__TSR_index).toBe(0)
       expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
     })
