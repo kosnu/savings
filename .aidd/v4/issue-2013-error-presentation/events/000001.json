@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2013",
+  "paths": [
+    "apps/web/docs/policies/error-presentation.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/docs/policies/suspense-boundaries.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "9ff57b381a96028a36e31f043647895e94e26fb0bd691d89b73d404d3adc65cc",
+  "status": "pass",
+  "checks": [
+    "同じTaskとサイクルの継続",
+    "最新mainとのマージ競合なし",
+    "元の文書整理とPR差分の範囲"
+  ],
+  "summary": "main 5332a93fを取り込み、元の文書整理を保持。main比の差分は文書4件と同サイクルの工程結果のみで、UI実装を追加しない。",
+  "remaining": []
+}

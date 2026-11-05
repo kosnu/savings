@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1973",
+  "paths": [
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/authRedirect.test.tsx"
+  ],
+  "fingerprint": "0d3aaf5425a20499ff6b4261c58f9fd915f266d0fa0c8a473637519fc0758526",
+  "status": "pass",
+  "checks": [
+    "Issue #1973 Intent・実行権限・baseline",
+    "Sidebarと認証更新・ホームの遷移経路"
+  ],
+  "summary": "baseline 8be0e13784e6bdcedf7bce3af53e11b441950e5b。未認証確定時にホームガードで全検索パラメータを消す。認証済みの年月補完・ログアウト失敗時の再試行は維持する。",
+  "remaining": []
+}

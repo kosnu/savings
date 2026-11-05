@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/2009",
+  "paths": [
+    "docs/harness/policies/documentation-policy.md",
+    "docs/ai-driven-development/semantic-review-cases.md",
+    "docs/ai-driven-development/workflow.md"
+  ],
+  "fingerprint": "bbbea4e6c0d383c802c20127ab97ae2719e7a586034c5d1225df9777b12a585e",
+  "status": "pass",
+  "checks": [
+    "独立レビュー: 元PR節・main節・確認結果の保持",
+    "main比較で対象2文書と既存工程結果3件のみ",
+    "元IssueのDoD全5件",
+    "元PRの12規則とmain統合に伴うRetrospective規則"
+  ],
+  "summary": "独立レビューは内容保持・担当範囲とも指摘なし。親agentが統合時の適用13規則と既存Intentを照合し、同じcycleの競合修正として適合。main由来の参照不一致は元PRの到達経路に影響せず対象外として報告する。",
+  "remaining": []
+}

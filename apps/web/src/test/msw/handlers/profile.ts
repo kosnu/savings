@@ -66,3 +66,20 @@ export function createProfileHandlers({
 }
 
 export const profileHandlers = createProfileHandlers()
+
+export function accountLanguageUpdateHandler({
+  authUserId,
+  error = false,
+  durationOrMode,
+}: {
+  authUserId: string
+  error?: boolean
+  durationOrMode?: number | DelayMode
+}) {
+  return http.patch(USERS_REST_URL, async () => {
+    await delay(durationOrMode)
+    return error
+      ? HttpResponse.json({ message: "Failed to save account language." }, { status: 500 })
+      : HttpResponse.json({ auth_user_id: authUserId })
+  })
+}

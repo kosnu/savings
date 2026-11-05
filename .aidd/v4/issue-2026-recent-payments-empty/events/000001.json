@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2026",
+  "paths": [
+    "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.tsx",
+    "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.test.tsx",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "ebef32ec81fe778810896ddbef03ed3e55d494b101daeb30b74aa3da1a5d3716",
+  "status": "pass",
+  "checks": [
+    "Issue #2026 scope and acceptance criteria",
+    "PaymentList and HomePage comparison"
+  ],
+  "summary": "最新main 00a9a025をbaselineとする新規Task。RecentPaymentsの空表示だけ専用の英日翻訳へ変更し、既存のgray Text・登録ボタン・取得境界を維持する。既存テストとHome Empty Storyで条件と登録後の表示を確認する。",
+  "remaining": []
+}

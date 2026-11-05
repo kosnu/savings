@@ -1,0 +1,28 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2061",
+  "paths": [
+    "tools/harness/",
+    "tools/aidd/",
+    "docs/",
+    "AGENTS.md",
+    ".agents/",
+    ".github/",
+    "vite.config.ts",
+    "README.md"
+  ],
+  "fingerprint": "b41e3f6b8ad5a97fd390b89925e2c7565d8c46b77d39a7262de08e94f25bb2f5",
+  "status": "pass",
+  "checks": [
+    "Web lint/format/typecheckと1046テスト成功",
+    "Go 3モジュールtest/vet成功",
+    "共有Git gate 8件とCI同期50件成功",
+    "リンク・規約graph・ADR履歴・skills検証成功",
+    "eval代表4ケースを変更前後各8試行で比較",
+    "CI同期50件再検証と全staged対象vp check成功"
+  ],
+  "summary": "通常検証成功。gpt-5.6-sol/high、各入力1回、180秒、並列2でexplain/fix/audit-rule-gap/retro-restraintを比較し前後各8試行pass、全8比較はpassからpass。対象文書とsuiteは安定。権限判断・実修正・分析を代表ケースで確認し、変更しない回復判定・他の分析ケースは対象外。 CIテストの登録Promise明示後、対象50件とhook同条件の型付きlintを再検証。eval入力文書とsuiteは同一のため比較結果の有効性を再確認。",
+  "remaining": []
+}

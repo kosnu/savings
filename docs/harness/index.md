@@ -23,7 +23,9 @@ when_to_read:
 
 `docs/harness/` は、AI agent が作業時に参照するガードレール文書と索引を置きます。
 
-ここには、ハーネスエンジニアリングの説明文書ではなく、agent が実際に参照する policy、domain rule、探索メタデータ、ルールマップを置きます。
+ここには、agent が実際に参照するpolicy、domain rule、探索メタデータ、ルールマップを置きます。
+開発方法と基盤・改善活動の呼び分けは[用語と命名指針](../ai-driven-development/glossary.md)を参照します。
+実行基盤のツールは`tools/harness/`に配置します。
 
 ハーネスエンジニアリングの採用判断は [../adr/0001-adopt-harness-engineering.md](../adr/0001-adopt-harness-engineering.md) に、ルールグラフと関連参照 edge の採用判断は [../adr/0002-adopt-agent-rule-graph.md](../adr/0002-adopt-agent-rule-graph.md) に置きます。
 

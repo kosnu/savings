@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2040",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/features/summaryByMonth/monthlySpending/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/components/feedbacks/Snackbar/Snackbar.module.css"
+  ],
+  "fingerprint": "eb911dc771b0bb9bffb580eb67b8feaeb692583cb51b304a15f54349ec0262fe",
+  "status": "pass",
+  "checks": [
+    "3件すべてとIssue更新への明示Approveを照合",
+    "既存CreatePaymentModal・ResponsiveOverlay・Snackbarを再利用"
+  ],
+  "summary": "算出根拠文と翻訳キーを削除し、必要な状態説明だけを保持する。図の説明参照も説明がある場合だけ付ける。当月の予測超過は短い専用ラベル、過去月は実績ラベルを使う。作成操作は既存Modalのまま全幅で右下固定。safe-areaと本文末尾の余白を確保し、ホームのTheme配下だけ通知の下端をずらす。固定位置を表す公式propがないため局所CSSを使い、他画面の通知位置は既定のまま。全幅のスクロール・通知・開閉・保存をブラウザテストで検証する。",
+  "remaining": []
+}

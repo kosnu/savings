@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2013",
+  "paths": [
+    "DESIGN.md",
+    "apps/web/docs/policies/error-presentation.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/docs/policies/suspense-boundaries.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "c01a970d0c978d3942be6281c56e25d597f8448f468958882a65098e025fdb0a",
+  "status": "pass",
+  "checks": [
+    "文書と索引5件の整形",
+    "相対リンク41件",
+    "Core rules",
+    "git diff --cached --check",
+    "元の5文書との一致とPR範囲12件"
+  ],
+  "summary": "main取り込み後も元の5文書は同一。整形・リンク・規約検査を通過し、main比の担当差分は文書と工程結果のみ。Web実装検証は対象外。",
+  "remaining": []
+}

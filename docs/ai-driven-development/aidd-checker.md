@@ -1,18 +1,18 @@
 ---
-title: AIDD v4 Core
+title: Harness Checker
 doc_type: policy
 status: accepted
 area: repository
 applies_to:
-  - tools/aidd
+  - tools/harness
   - docs/ai-driven-development
 topics:
   - aidd-v4
 when_to_read:
-  - AIDD v4 Coreを実行または変更するとき
+  - Harness Checkerを実行または変更するとき
 ---
 
-# AIDD Go Core
+# Harness Checker
 
 [Workflow](workflow.md)のうち、その場で判定できる状態をGoで検査する。
 操作イベント・全ファイルsnapshot・コマンド生出力は永続保存せず、工程ごとの最新結果だけを保持する。旧Task台帳を実行条件にしない。
@@ -41,8 +41,13 @@ snapshotは検査中のメモリ内だけで使用する。検証結果はcomman
 ## 記録
 
 Intentと実行権限は既存Issue・PR・ユーザー発言を正本として確認し、本文を複製しない。
-`.aidd/v4/<既存の作業名>/events/000001.json`の配置・連番を使う。これは操作eventではなく工程結果であり、formatは`aidd-phase-result-v1`とする。
+`.aidd/v4/<作業名>/events/000001.json`の配置・連番を使う。これは操作eventではなく工程結果であり、formatは`aidd-phase-result-v1`とする。
 記録対象はdesign・verify・review・手動開始されたauditだけ。実際に行わない工程の空記録、Task本文、承認・復帰event、Ship記録は作らない。
+
+記録前に[WorkflowのTask判断](workflow.md#taskの開始と継続)を行い、そのTaskに対応する作業名を`--task`へ指定する。
+Coreは作業名・cycle・kindに従って保存先を選ぶが、Issue・PR・`source`からTaskの同一性や継続権限を判定しない。
+新しいTaskは別の作業名で開始し、既存Taskと同じ名前を使って結果を置き換えない。Taskの判定がunknownなら記録操作を行わない。
+Task内のcycle・工程の追加と更新は以下の契約に従う。[操作例](aidd-checker-operations.md#taskと記録先の選択)で具体的な保存先を確認する。
 
 Coreと任意計測CLIが扱う作業名は、先頭がASCII英数字、以降がASCII英数字・`_`・`-`の1〜128文字とする（`^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$`）。空値、先頭の`_`・`-`、空白、`.`やpath区切り、129文字以上は受け付けない。この節を共通の受理条件の正本とし、両CLIで同じ境界値の受理・拒否を確認する。
 
@@ -73,9 +78,17 @@ Coreは人間の承認を記録から証明せず、`ship-check`や記録のpass
 
 ## CIの起動と権限
 
-Frontend・AIDD CIとVite+同期のPRイベントは、PRコードを実行しない`pull_request_target`の受付で扱う。
-通常PR・fork PRのCIは信頼されたmainのworkflowを`workflow_dispatch`で起動し、PR headとmerge結果を検証する。
-PRコードを実行するjobのtokenはread権限に限定し、mainスコープのcacheへ保存しない。
-結果投稿のwrite権限は、checkoutもPRコード実行もしない別jobだけに与える。
-Vite+の依存同期は署名付きRenovate候補を確認して別runへdispatchする。同期後もCIをdispatchし、
-結果を対象PR head SHAのcommit statusへ返す。`pull_request`の重複購読による承認待ちrunを生成しない。
+Frontend・AIDD CIは通常PR・fork PRとも`pull_request`で直接起動し、PR headとmerge結果を検証する。
+workflow・テスト・Checkerの変更もPRの検証とレビュー対象に含め、mainのworkflow定義への固定は行わない。
+PRコードを実行する検証jobのtokenはread権限に限定し、cacheへの保存は行わない。
+Vite+依存同期の受付も`pull_request`を使い、同一repositoryのRenovate候補だけを別runへdispatchする。
+同期処理は署名・変更範囲・現在headを確認してから依存を更新する。同期commitは`GITHUB_TOKEN`で作成するため、
+通常のPRイベントに頼らず、更新後のPRブランチへFrontend・AIDD CIをdispatchする。
+このdispatchの結果だけを、checkoutもPRコード実行もしない別jobから対象PR head SHAのcommit statusへ返す。
+Checkerのconcurrency groupはPR番号と起動イベントで分離し、旧受付のdispatchと新しいPR起動を競合させない。
+同じPR・同じイベントの再実行は同じgroupで古い実行を取り消す。
+fork PRの検証に書き込みtokenやSecretsは渡さない。PR作成者の自動アサインはforkへの書き込みが必要なため、
+PRコードを取得・実行しない`pull_request_target`を維持する。
+Previewの配信要求は同一repository限定の`pull_request`を使う。
+競合PRでも終了時の削除要求を届けるため、終了通知だけは`pull_request_target`の`closed`を使う。
+この経路ではforkを拒否し、mainの補助コードだけを実行する。PRコードの取得・実行や配信は行わない。

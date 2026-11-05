@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1970",
+  "paths": [
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "2308f54251c72a5e3b4f21a531dfadd1695dbc11295134bc0d28cae630443d88",
+  "status": "pass",
+  "checks": [
+    "Issue #1970 DoD1-5は全件pass・禁止3条件",
+    "適用規約10件と仮想7例の照合",
+    "独立レビュー・修正後の再レビュー"
+  ],
+  "summary": "継続・ブランチのみ・main新規の区別、不要旧差分の除外、再利用の要件対応と根拠、終了時の由来・権限別判断、A破棄とB保全は適合。採用・commit権限と破棄権限の分離、承認済み破棄の継続も整合。指摘・未解決の矛盾なし。有限の文書事例評価であり実運用の再発率低下は未検証。",
+  "remaining": []
+}

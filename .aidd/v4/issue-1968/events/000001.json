@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1968",
+  "paths": [
+    "docs/harness/policies/code-review.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "c921325f472bd5861448c2e1e097ca1f3558b16ddbef72294ceadeb2f166f285",
+  "status": "pass",
+  "checks": [
+    "同Task・同cycleの継続",
+    "最新mainの追記と担当方針の併存"
+  ],
+  "summary": "PR #2010の競合修正を継続し元のIntent・baseline・担当範囲を維持。最新mainのテスト保証範囲基準と#1968の整合基準を両方保持する。その他のmain由来変更は修正せず、新たな仕様・権限・工程は追加しない。文書/Core検査と保持内容を再レビューする。",
+  "remaining": []
+}

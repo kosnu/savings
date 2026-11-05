@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "conversation:current/approve-audit-2022",
+  "paths": [
+    ".github/workflows/aidd_checker_ci.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs",
+    "docs/development-preview.md",
+    "docs/ai-driven-development/aidd-checker.md"
+  ],
+  "fingerprint": "f1e36319fd1ade62393eb14f068ea1b5542afdaa33d65d6572a58fa070d1f2b2",
+  "status": "pass",
+  "checks": [
+    "Node tests 86件・vp check・actionlint・zizmor",
+    "rule graph・変更範囲・git diff --check",
+    "development実設定読戻し・確認run 40059890359"
+  ],
+  "summary": "86件と静的検査が成功。reviewer=kosnu、bypass禁止、main/PR merge ref制限を確認。実runはdevelopment承認待ちとなり、配信・削除・通知jobのstep未実行でcancel完了。実配信はしていない。",
+  "remaining": []
+}

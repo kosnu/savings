@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2014",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "80b3e92698d11094ad7492f5662a9039307e0abb6abfcbb1db6b48b114df030b",
+  "status": "pass",
+  "checks": [
+    "担当差分・必須規約・安定性",
+    "2文書のformatter",
+    "worktreeとstageの空白検査",
+    "両追加節の完全保持"
+  ],
+  "summary": "main取込後のCore verifyは3コマンドとも終了コード0、stable=true。文書整形・worktreeとstageの空白検査成功。両branchの追加節を内容変更なしで保持したことを照合。アプリ変更なし。",
+  "remaining": []
+}

@@ -209,6 +209,9 @@ export function createPaymentHandlers({
     }
 
     const filteredRows = filterAndSortPayments(rows, request)
+    const headers = {
+      "Content-Range": `0-${Math.max(0, filteredRows.length - 1)}/${filteredRows.length}`,
+    }
 
     if (shouldIncludeCategory(request)) {
       const detailsRows = filteredRows.map((row) => toPaymentDetailsRow(row, categoryRows))
@@ -224,7 +227,7 @@ export function createPaymentHandlers({
       return HttpResponse.json(filteredRows[0] ?? null)
     }
 
-    return HttpResponse.json(filteredRows)
+    return HttpResponse.json(filteredRows, { headers })
   })
 
   const createPaymentHandler = http.post(REST_URL, async ({ request }) => {

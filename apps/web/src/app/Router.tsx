@@ -1,16 +1,31 @@
 import { Flex, Spinner, Text } from "@radix-ui/themes"
 import { RouterProvider } from "@tanstack/react-router"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useSupabaseSession } from "../providers/supabase/useSupabaseSession"
 import { router } from "./routes"
+import { SessionError } from "./SessionError"
+import { usePageMetadata } from "./usePageMetadata"
 
 export function Router() {
-  const { session: supabaseSession, status: authStatus } = useSupabaseSession()
+  const auth = useSupabaseSession()
+  const { session: supabaseSession, status: authStatus } = auth
+  const contentRef = useRef<HTMLDivElement>(null)
+  const recoveringRef = useRef(false)
+  usePageMetadata(router, authStatus === "authenticated")
 
   useEffect(() => {
-    if (authStatus === "loading") return
+    if (authStatus === "error") {
+      recoveringRef.current = true
+    } else if (authStatus !== "loading" && recoveringRef.current) {
+      recoveringRef.current = false
+      contentRef.current?.focus({ preventScroll: true })
+    }
+  }, [authStatus])
+
+  useEffect(() => {
+    if (authStatus === "loading" || authStatus === "error") return
     void router.invalidate()
   }, [authStatus, supabaseSession?.user?.id])
 
@@ -18,7 +33,15 @@ export function Router() {
     return <AuthLoadingScreen />
   }
 
-  return <RouterProvider router={router} context={{ supabaseSession, authStatus }} />
+  if (auth.status === "error") {
+    return <SessionError onRetry={auth.retry} requiresSignIn={auth.requiresSignIn} />
+  }
+
+  return (
+    <div ref={contentRef} tabIndex={-1}>
+      <RouterProvider router={router} context={{ supabaseSession, authStatus }} />
+    </div>
+  )
 }
 
 function AuthLoadingScreen() {

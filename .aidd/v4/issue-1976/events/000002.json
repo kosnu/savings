@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1976",
+  "paths": [
+    "apps/web/src/app/Sidebar/",
+    "apps/web/.storybook-test/main.ts",
+    "apps/web/docs/policies/storybook-browser-tests.md"
+  ],
+  "fingerprint": "dfe5fd720f902df4e95e5b31f13c9847aaaeb7c07c6adb345eb03a383c92fc74",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:format",
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration",
+    "単体・統合の残存失敗2ファイルをmaxWorkers=1で再確認",
+    "pnpm run web:test:storybook",
+    "Core rules/check-changes",
+    "git diff --check"
+  ],
+  "summary": "lint・整形・型チェック成功。単体・統合は全149ファイル872件中868件成功後、残存失敗を含む2ファイル20件が差分変更なしの再実行で全成功。browser suiteは9ファイル23件成功。320x240/320x568/568x320でlogoutのviewport境界・hit test・実操作とSettingsへの到達を確認。修正前320x240では下端257\u003e224で回帰テスト失敗を確認した。",
+  "remaining": []
+}

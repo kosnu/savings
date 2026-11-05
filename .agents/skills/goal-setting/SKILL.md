@@ -1,6 +1,6 @@
 ---
 name: goal-setting
-description: Create or continue a Codex Goal for an authorized AIDD Task when host conditions permit; handle explicit Goal-use requests.
+description: Create or continue a Codex Goal for an authorized development Task when host conditions permit; handle explicit Goal-use requests.
 ---
 
 # Goal setting

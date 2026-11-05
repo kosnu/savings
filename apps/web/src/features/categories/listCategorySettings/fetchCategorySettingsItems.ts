@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 import { toCategoryBudgetMap, type CategoryBudgetState } from "../../../domain/categoryBudget"
-import { toDateOnlyString } from "../../../domain/date"
+import { clampDateToSupportedRange, toDateOnlyString, toMonthStartDate } from "../../../domain/date"
 import { getSupabaseClient } from "../../../lib/supabase"
 import type { CategorySettingsItem } from "./types"
 
@@ -38,7 +38,7 @@ export async function fetchCategorySettingsItems(): Promise<CategorySettingsItem
     .limit(1, { referencedTable: "category_pins" })
 
   const categoryBudgetsQuery = supabase.rpc("get_effective_category_budgets", {
-    p_target_month: toDateOnlyString(new Date()),
+    p_target_month: toDateOnlyString(toMonthStartDate(clampDateToSupportedRange(new Date()))),
   })
 
   const [categorySettingsResponse, categoryBudgetsResponse] = await Promise.all([

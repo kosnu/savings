@@ -1,4 +1,5 @@
 import { toDateOnlyString, toMonthStartDate } from "../../../domain/date"
+import { targetMonthFieldSchema } from "./monthlyBudgetFormSchema"
 
 export interface MonthlyBudgetWriteInput {
   targetMonth: Date
@@ -13,6 +14,8 @@ export interface MonthlyBudgetCreateArgs {
 export function toMonthlyBudgetCreateArgs(value: MonthlyBudgetWriteInput): MonthlyBudgetCreateArgs {
   return {
     p_amount: value.amount,
-    p_effective_month: toDateOnlyString(toMonthStartDate(value.targetMonth)),
+    p_effective_month: toDateOnlyString(
+      toMonthStartDate(targetMonthFieldSchema.parse(value.targetMonth)),
+    ),
   }
 }

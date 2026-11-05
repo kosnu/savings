@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1975",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/src/assets/global.css",
+    "apps/web/src/providers/theme/"
+  ],
+  "fingerprint": "236ca9a4700224926c5c2fd94252a15c8387d50839e5209d66b6b164ba6b1151",
+  "status": "pass",
+  "checks": [
+    "Web整形",
+    "Web lint",
+    "Web整形検査",
+    "Web型検査",
+    "Web unit/integration",
+    "Chromium背景・ページ末尾確認",
+    "Git空白検査"
+  ],
+  "summary": "lint・整形・型検査が成功。unit/integrationは並列数2・再試行1回の条件で149ファイル875件が成功。ChromiumでdocumentとRadix背景がrgb(17,17,17)、theme-colorが#111に一致し、ページ末尾へ到達することを確認した。",
+  "remaining": []
+}

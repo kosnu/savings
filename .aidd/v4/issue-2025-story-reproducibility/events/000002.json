@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2025",
+  "paths": [
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx",
+    "apps/web/src/app/Sidebar/Sidebar.test.tsx",
+    "docs/ai-driven-development/workflow.md"
+  ],
+  "fingerprint": "790cdf82958fcee8ee23c544f2c192931f2caadc2a3355ed847ed80ad5ec4d83",
+  "status": "pass",
+  "checks": [
+    "Web lint・format-check・typecheck",
+    "Web unit/integration 150ファイル1033件",
+    "日英Storyと終了後の独立性4ケース",
+    "workflow整形・Core規約選択・差分検査"
+  ],
+  "summary": "日英の自動再現とSDK復元を確認。全体テスト初回は既存2箇所が読込中に失敗、個別75件と環境・設定・範囲を変えない全体再実行は成功。初回失敗の根因は未特定。browser-test対象と共有設定は変更せずbrowser suiteは対象外。",
+  "remaining": []
+}

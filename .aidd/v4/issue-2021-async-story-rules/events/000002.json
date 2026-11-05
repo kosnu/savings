@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2021",
+  "paths": [
+    "apps/web/docs/policies/component-structure.md",
+    "apps/web/src/features/",
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx"
+  ],
+  "fingerprint": "4ead65c19edbdfafe5459c777c06592ce1b7bc7b1e151ff153a0cf839bc0ddbf",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration 1021 tests",
+    "web:test:storybook 22 tests",
+    "changed catalog 87 stories in Chromium",
+    "Storybook build and normal UI smoke",
+    "git diff --check"
+  ],
+  "summary": "Web必須検証、変更した22ファイルの87 Story、既存browser suite 22件が成功。通常Storybookでも予算取得失敗とログアウト処理中から失敗への切替を確認。",
+  "remaining": []
+}

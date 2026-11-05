@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1976",
+  "paths": [
+    "apps/web/src/app/Sidebar/",
+    "apps/web/.storybook-test/main.ts",
+    "apps/web/docs/policies/storybook-browser-tests.md"
+  ],
+  "fingerprint": "dfe5fd720f902df4e95e5b31f13c9847aaaeb7c07c6adb345eb03a383c92fc74",
+  "status": "pass",
+  "checks": [
+    "Issue #1976 の最新Intentと関連PR",
+    "SidebarとAppLayoutの高さ・スクロール境界",
+    "ResponsiveOverlayとの比較"
+  ],
+  "summary": "baseline 8be0e137。Sidebarをfixed/100dvhで表示領域に追従させ、内容スクロールとfooter縮小禁止で操作領域を確保する。ResponsiveOverlayと同じsafe-area token方式を採用し、CSS名をJSX参照と統一する。開閉・認証処理は変更しない。SidebarのStoryのみ限定収集し、収集範囲の説明も同期する。",
+  "remaining": []
+}

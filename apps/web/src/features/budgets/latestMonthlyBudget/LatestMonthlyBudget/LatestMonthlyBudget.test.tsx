@@ -1,4 +1,5 @@
 import { composeStories } from "@storybook/react-vite"
+import { HttpResponse, http } from "msw"
 import type { ReactElement } from "react"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
@@ -13,7 +14,7 @@ import {
 } from "../../test/utils/budgetCreationForm"
 import * as stories from "./LatestMonthlyBudget.stories"
 
-const { Default, Empty, FetchError, Loading } = composeStories(stories)
+const { Default, Empty, FetchError, Loading, OutOfRange } = composeStories(stories)
 const currentBudgetMonth = getCurrentBudgetMonth()
 const createdMonthlyBudget = {
   id: 999,
@@ -34,6 +35,7 @@ async function renderLatestMonthlyBudget(story: ReactElement) {
 }
 
 afterEach(() => {
+  vi.useRealTimers()
   vi.restoreAllMocks()
 })
 
@@ -65,6 +67,51 @@ describe("LatestMonthlyBudget", () => {
     expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
     expect(await screen.findByRole("button", { name: "Create budget" })).toBeInTheDocument()
   })
+
+  test.each([
+    [new Date(2026, 2, 20), "2026-03-01"],
+    [new Date(2022, 0, 1), "2022-01-01"],
+    [new Date(2032, 11, 31), "2032-12-01"],
+  ])("現在日付が%sのときは許容範囲内の対象月%sの最新予算を読む", async (now, targetMonth) => {
+    vi.useFakeTimers({ toFake: ["Date"] })
+    vi.setSystemTime(now)
+    let requestBody: unknown
+    server.use(
+      http.post("*/rest/v1/rpc/get_effective_monthly_budget", async ({ request }) => {
+        requestBody = await request.json()
+        return HttpResponse.json({ status: "unset", monthly_budget: null })
+      }),
+    )
+
+    await renderLatestMonthlyBudget(<Empty />)
+
+    expect(await screen.findByRole("button", { name: "Create budget" })).toBeInTheDocument()
+    expect(requestBody).toEqual({ p_target_month: targetMonth })
+  })
+
+  test.each([new Date(2021, 11, 31), new Date(2033, 0, 1)])(
+    "現在日付が範囲外の%sのときは予算を読まず操作を表示しない",
+    async (now) => {
+      vi.useFakeTimers({ toFake: ["Date"] })
+      vi.setSystemTime(now)
+      const rpcRequest = vi.fn()
+      server.use(
+        http.post("*/rest/v1/rpc/*", () => {
+          rpcRequest()
+          return HttpResponse.json(null)
+        }),
+      )
+
+      await renderLatestMonthlyBudget(<OutOfRange />)
+
+      expect(screen.getByRole("alert")).toHaveTextContent("2022-01-01")
+      expect(screen.getByRole("alert")).toHaveTextContent("2032-12-31")
+      expect(screen.queryByRole("button", { name: "Create budget" })).not.toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: "Edit budget" })).not.toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: "Remove budget" })).not.toBeInTheDocument()
+      expect(rpcRequest).not.toHaveBeenCalled()
+    },
+  )
 
   test("作成成功後に最新の月予算として表示する", async () => {
     server.resetHandlers(

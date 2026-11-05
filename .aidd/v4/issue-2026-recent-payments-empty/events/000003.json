@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2026",
+  "paths": [
+    "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.tsx",
+    "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.test.tsx",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "ebef32ec81fe778810896ddbef03ed3e55d494b101daeb30b74aa3da1a5d3716",
+  "status": "pass",
+  "checks": [
+    "Issue #2026 acceptance criteria 4/4",
+    "Applicable rule closure and UI comparison",
+    "Final diff and verification evidence"
+  ],
+  "summary": "成功条件4件はpass。空時のみ既存ボタンを案内し、通常時・取得中・失敗時は非表示、MSW境界で空から登録後の通常表示を確認。比較元PaymentListと同じgray Textを維持し、ホーム限定文言が必要なため専用翻訳を採用。初回判定・導線追加・一覧変更なし。適用30規則に矛盾・指摘なし。",
+  "remaining": []
+}

@@ -14,7 +14,16 @@ const meta = {
   render: (args) => {
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(args.value)
 
-    return <DatePicker {...args} value={selectedDate} onChange={(date) => setSelectedDate(date)} />
+    return (
+      <DatePicker
+        {...args}
+        value={selectedDate}
+        onChange={(date) => {
+          setSelectedDate(date)
+          args.onChange?.(date)
+        }}
+      />
+    )
   },
 } satisfies Meta<typeof DatePicker>
 
@@ -35,5 +44,11 @@ export const Disabled: Story = {
   args: {
     value: new Date(2025, 4, 10),
     disabled: true,
+  },
+}
+
+export const LegacyDate: Story = {
+  args: {
+    value: new Date(2021, 11, 31),
   },
 }

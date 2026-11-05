@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1885",
+  "paths": [
+    "docs/supabase-dev-verification.md",
+    "tools/supabase-check/README.md"
+  ],
+  "fingerprint": "7ce5612230cb19eaaf57f8d10522b76a14f4e988655a0cb95bb85167407fc774",
+  "status": "pass",
+  "checks": [
+    "除外項目とIssue・手順・READMEの整合",
+    "Dev構成・CIコードとの比較基準照合",
+    "既存チェック状態・閉じたIssueの保護",
+    "documentation.policyと必須規約closure"
+  ],
+  "summary": "対象外の手動確認・運用決定を再要求しない。CIが検査する範囲と人の確認を区別し、既存Dev値・DB権限境界を明記。未確認を完了へ変更せず、閉じたIssueと実設定は未変更。",
+  "remaining": []
+}

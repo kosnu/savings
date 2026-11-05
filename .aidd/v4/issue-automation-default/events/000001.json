@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "conversation: issue Automation default; user approval 2026-11-01",
+  "paths": [
+    "AGENTS.md",
+    "docs/harness/policies/github-issue-workflow.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "5e7fe21a0499ba49c71ef199bfe5b975ffbf22e16dccc8be882b425060f9b581",
+  "status": "pass",
+  "checks": [
+    "配置・適用範囲・最終差分の照合"
+  ],
+  "summary": "会話で承認されたsavings新規IssueのAutomation既定値を、リポジトリ内policyとAGENTS入口・索引の同期で実現する。未設定のみEnabled、設定済み値保持、他project対象外。共有スキルに差分なし。",
+  "remaining": []
+}

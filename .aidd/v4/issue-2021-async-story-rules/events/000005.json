@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2021",
+  "paths": [
+    "apps/web/docs/policies/component-structure.md",
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx",
+    "apps/web/src/app/Sidebar/Sidebar.test.tsx",
+    "apps/web/src/test/msw/handlers/auth.ts"
+  ],
+  "fingerprint": "a37b0d50d1b6547a21824d780967efe1934e9e0d0d15003ca161cded95592067",
+  "status": "pass",
+  "checks": [
+    "承認済みAudit案とIssue2021の成果・制約を照合",
+    "UI状態はsignOutをmockし実sessionを作らず、API連携検証を代替しない",
+    "既存Story規約に境界・永続状態回避・終了時復元を統合"
+  ],
+  "summary": "ユーザーのApproveで直前のAudit案・PR返信とBot解決を承認。同じTask・baselineで継続。LoggingOut/LogoutErrorはbeforeEachでsignOutをmockしcleanupで復元する。未使用logout optionを削除し、Storyを再利用した状態表示と次の通常Storyへの復元を回帰検証する。本番UI・Issue Intentは変更しない。",
+  "remaining": []
+}

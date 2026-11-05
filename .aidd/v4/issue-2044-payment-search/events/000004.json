@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/issues/2044",
+  "paths": [
+    "apps/web/src/features/payments/listPayment/PaymentSearchForm/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/PaymentsPage/"
+  ],
+  "fingerprint": "158ff013420ecf152caa9387d1996db8659a41cf0425a598d1ca48b80320ba59",
+  "status": "pass",
+  "checks": [
+    "正確性・再発対策の範囲・反映先の分析レビュー",
+    "ユーザーのapprove発言が直前提案1の実行承認であることを照合",
+    "承認対象のIssue成功条件を更新して読み戻し確認"
+  ],
+  "summary": "PR #2081の年月ラベルについて、支払い年月/Payment monthと既存テスト同期、Issue成功条件明確化を提案し、会話のユーザー発言approveで承認を確認。Issueへの明確化を反映。共通部品/規則は変更不要。製品修正と再検証は同Taskの次サイクルで扱う。返信・resolve対象なし。",
+  "remaining": []
+}

@@ -1,0 +1,39 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "review",
+  "source": "Issue https://github.com/kosnu/savings/issues/2041; PR #2065; 2026-11-01元ユーザー発言approve。直前Auditのキャッチコピー日英削除・既存サービス名h1・専用資産と既存テスト同期・Issue成功条件6を承認",
+  "paths": [
+    "apps/web/src/app/routes/TopPage/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "8c16b8509fd7cff5b9ed47ab3f75094fbe93d3111e53caa0b129ce4d3274ff9c",
+  "status": "pass",
+  "checks": [
+    "Coverage / Checked rules: ai-driven.glossary, ai-driven.overview, ai-driven.workflow, ai-driven.checker, architecture.overview, infrastructure.overview, documentation.policy",
+    "Checked rules: domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, policy.temporal-data, policy.transaction-boundaries",
+    "Checked rules: policy.code-review, policy.git-workflow, policy.audit, policy.review-feedback-classification",
+    "Checked rules: web.component-structure, web.feature-directory, web.design-rules, web.design-system-brand, web.domain-ui-rules, web.error-presentation, web.landing-page-rules",
+    "Checked rules: web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy",
+    "Unresolved: なし。元ユーザーapprove、Issue最新6条件、PR全差分と今回5ファイルを照合。共有規則の矛盾なし",
+    "条件1 pass: キャッチコピーを除き、冒頭の本文から家計簿の用途と買い物/外食前の確認を伝える。新しい宣伝文句はない",
+    "条件2 pass: 予算の画面例と使い方から手入力とシンプルなUIを示し、銀行/カード非連携・広告なしを具体的に説明",
+    "条件3 pass: 節約や貯蓄の強制、使うことへの評価はない。用途説明の買い物/外食という場面を維持",
+    "条件4 pass: 登録不要の対象は金融情報に限定し、安全性や金銭的余裕の保証は追加しない。金額例はサンプルと明記",
+    "条件5 pass: 重複する導入・まとめ・励ましを整理。日本語の非連携と登録不要は一文、広告は別文。句読点と意味のまとまりを照合",
+    "条件6 pass: 日英のコピー枠がなく、用途本文の買い物/外食前の確認と残り¥32000の画面例が直接つながる。改訂Intentに一致",
+    "UI比較元は既存TopPage。ヘッダーBurnetoを同じサイズ4のh1へ変更し、h2使い方/h3各操作の構造・色・余白・金額例・導線を維持",
+    "既存の日英Storyは一つのh1 Burnetoを確認し、旧コピーをh1で戻すと複数見出しで失敗する。表示契約を同期し新テストを増やさない",
+    "HomePageの未認証時テストは紹介本文の存在と支払い一覧の不在を検査。ログイン/セッション復元の経路を区別する",
+    "既存TopPageテストは認証画面への遷移、日英用途・サンプル・全CTA hrefを確認。SDK/OAuthの実認証完了は保証しない",
+    "日本語Light・英語Darkの390/1440画面で、用途→残額例→使い方→開始を観察。コピー削除後も利用場面と行動を判断できる",
+    "削除した翻訳キー・headline/accent/previewCheckと旧導入文の参照残りなし。共通コンポーネントや状態、Query、認証、DBの変更なし",
+    "必須Web検証成功: 整形・lint・format-check・typecheck、単体統合1046件、Storybook22件。git diff --check/check-changesも成功",
+    "Issue条件6のread-back一致。承認対象のUI・資産・既存テスト同期だけを変更。別Task・共通規則・PR返信・thread解決・merge/deployへ広げない",
+    "未測定: 実ユーザーの読後感・利用意欲・転換率・将来の再挿入率。過去のコピー維持判断は履歴として保持し現在の合格へ流用しない",
+    "ハーネス挙動や分析手順の変更はなく追加eval対象外。今回の000013/14/15を現在の判断・検証・レビューに使用"
+  ],
+  "summary": "承認済みのキャッチコピー削除と改訂Issueの6成功条件を、PR全差分・現行ソース・日英の実画面で照合してpass。サービス名を既存位置のh1とし、用途本文と予算例から利用場面を伝える。専用資産と既存期待値のみ同期し、認証導線と金額例を維持。規則競合・指摘なし。実ユーザー効果や将来の再発率の実証へは広げない。",
+  "remaining": []
+}

@@ -1,0 +1,34 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2014",
+  "paths": [
+    "docs/harness/policies/learning-extraction.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "80b3e92698d11094ad7492f5662a9039307e0abb6abfcbb1db6b48b114df030b",
+  "status": "pass",
+  "checks": [
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "policy.retrospective",
+    "原IntentとIssue差分の維持",
+    "main追加事例との共存",
+    "全適用規則・既存参照経路",
+    "未見4例と過大合格反例の内容完全保持"
+  ],
+  "summary": "全適用規則と元Intentを最終差分へ再照合。主変更は前回と同一で、未見4例の判定範囲・親の不採用・判断更新の境界を完全保持。main側CI事例も完全保持し、既存正本から双方の見出しへ到達する。指摘・規則競合なし。実運用の再発率低下は未検証。",
+  "remaining": []
+}

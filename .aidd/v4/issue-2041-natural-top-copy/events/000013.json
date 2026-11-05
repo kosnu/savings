@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "design",
+  "source": "Issue https://github.com/kosnu/savings/issues/2041; PR #2065; 2026-11-01元ユーザー発言approve。直前Auditのキャッチコピー日英削除・既存サービス名h1・専用資産と既存テスト同期・Issue成功条件6を承認",
+  "paths": [
+    "apps/web/src/app/routes/TopPage/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "8c16b8509fd7cff5b9ed47ab3f75094fbe93d3111e53caa0b129ce4d3274ff9c",
+  "status": "pass",
+  "checks": [
+    "元ユーザーapproveを直前Auditの有限提案と照合。同じTask・baseline ecceb905起点を維持し、成功条件6を反映済みのIssueをread-back",
+    "独立したキャッチコピーを日英とも削除し、本文の用途・買い物/外食の場面と予算例から利用を想像できる構成を採用",
+    "既存ヘッダーのBurnetoをHeading h1にし、文字サイズ4と見た目を維持。新しい文言・コンポーネント・状態は作らない",
+    "TopPage.tsx、専用CSS、日英title/titleAccent、既存StoryとHomePage未認証時期待値の5ファイルへ限定",
+    "既存TopPageの利用開始CTA、Google案内、サンプル値、使い方と見出し構造を維持。全体デザイン刷新や機能変更は不要",
+    "完了条件: コピー枠のない日英・明暗の390/1440画面で用途とコンセプト・読み順・導線を確認し、必須検証・レビュー・PR反映を完了",
+    "検証: web:format後にlint/format-check/typecheck/test:unit-integration/test:storybook。削除専用資産の参照残りと最終差分を確認"
+  ],
+  "summary": "承認済みのキャッチコピー削除を最小の5ファイルで実装。サービス名を既存位置のh1にし、紹介本文・予算例・使い方・認証導線から価値を伝える。日英の専用翻訳とCSS、既存表示契約を同期。更新したIssueを根拠に検証・画面評価・レビュー後に同じPRへShipする。",
+  "remaining": []
+}

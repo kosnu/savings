@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/1998#discussion_r4347913223",
+  "paths": [
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "f1c65cdc907bc649671dccc554685e88ec0216a0f94412daf71ad591221c5009",
+  "status": "unknown",
+  "checks": [
+    "最新PRと未解決threadの再取得",
+    "同一HEADで確認済みの実測・反例の再評価",
+    "原因・再利用性・適用先の最終文案レビュー"
+  ],
+  "summary": "P2の課題は比較範囲の曖昧さ。通常の作業状態で古いmainは他PR依存更新を含む2コミット6ファイル、実PRは1コミット4ファイルと実測済み。PRに実際に含まれる全コミット・最終差分と一致する範囲を使うとPR節へ明記する最小案。GitHub上の対象PRのコミット一覧・差分または一致確認済みローカル比較で足り、毎回fetch・最新main取得・新gateは不要。元Intentは十分で追加改訂不要。今回公開本文の誤り・再発抑止効果は未観測。改善・返信・解決は承認待ち。",
+  "remaining": [
+    "Git WorkflowのPR節の明確化・文書検証・同PR更新は未実施、承認待ち",
+    "修正後のBot返信・元thread解決は未実施、承認待ち"
+  ]
+}

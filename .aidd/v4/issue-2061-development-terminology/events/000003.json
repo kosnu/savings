@@ -1,0 +1,40 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2061",
+  "paths": [
+    "tools/harness/",
+    "tools/aidd/",
+    "docs/",
+    "AGENTS.md",
+    ".agents/",
+    ".github/",
+    "vite.config.ts",
+    "README.md"
+  ],
+  "fingerprint": "b41e3f6b8ad5a97fd390b89925e2c7565d8c46b77d39a7262de08e94f25bb2f5",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.goal-templates",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "policy.audit",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.retrospective",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries"
+  ],
+  "summary": "Issueの全5完了条件と18規約を照合し、用語・改名維持理由・配置・CLI/import/hook/CI・規約closureの整合を確認。保存形式と承認境界、過去履歴、アプリ機能を維持。通常検証と代表4ケースの前後各8試行が成功し、選択ケースに悪化なし。未解決の指摘・競合なし。 テスト登録Promiseのvoid明示は動作を変えず、hook同条件とCI同期50件で確認。",
+  "remaining": []
+}

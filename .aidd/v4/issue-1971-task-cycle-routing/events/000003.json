@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1971",
+  "paths": [
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/ai-driven-development/aidd-checker-operations.md"
+  ],
+  "fingerprint": "2f2033cfcb391d42c9d8f2cc4a9c3b3dd612be64175e54197aa5ba365bbe6988",
+  "status": "pass",
+  "checks": [
+    "Code Review Policyと全選択規則",
+    "Issue #1971の完了条件5件と制約3件",
+    "独立レビューとCore実挙動の照合"
+  ],
+  "summary": "Intent・成果・既存境界からのTask判定、同Issue別Task・複数PR同Task・次cycleの区別、判定と記録先の一致、過去結果保持、根拠不足unknownが全て適合。新台帳・旧記録修正はなく、既存rule-mapで到達可能。指摘・未解決矛盾なし。",
+  "remaining": []
+}

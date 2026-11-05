@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/2081",
+  "paths": [
+    ".github/workflows/harness_checker_ci.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs"
+  ],
+  "fingerprint": "89ca487f89cc20345951669c1a2253ea6c55d5057229902948b9b1c26f8bd994",
+  "status": "pass",
+  "checks": [
+    "最新Issue Intent・PR・Approveと具体案1の対象を照合",
+    "取消判定はActionsのcancelled関数、依存失敗の判定は既存集約shellを維持",
+    "実workflowのjob条件をPR/dispatch・取消有無・依存4状態で検査し、旧条件で取消8件の失敗を再現"
+  ],
+  "summary": "verifyを!cancelled、dispatch投稿を!cancelledかつdispatchイベントへ限定する。通常失敗・skipのfail-closed、権限・SHA照合・concurrencyは保持。既存shellテストに実job条件の16ケースを追加。検証はNode同期テスト、対象のvp check、Core graph/実差分検査。アプリ差分は前回検証と同一のため再実行不要。エージェントの判断文書・制御を変えずLLM eval対象外。新head CIはShip時取得し、未完了を成功扱いしない。",
+  "remaining": []
+}

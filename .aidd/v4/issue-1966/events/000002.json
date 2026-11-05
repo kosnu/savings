@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1966",
+  "paths": [
+    "docs/harness/policies/code-review.md",
+    "apps/web/docs/policies/test-policy.md",
+    "apps/web/src/test/viteSentry.test.ts",
+    "tools/dev-preview/authorize.test.mjs",
+    "tools/dev-preview/lifecycle.test.mjs",
+    "tools/dev-preview/report.test.mjs"
+  ],
+  "fingerprint": "14713afdfbbb050ec1117a02bc8b050c8ecdb6ca75c51d3d7ddc54316de95099",
+  "status": "pass",
+  "checks": [
+    "Web lint・format-check・typecheck",
+    "Web unit/integration 150ファイル1006件",
+    "Preview Node 36件",
+    "変更文書/JS整形・文書参照先7件・空白検査",
+    "Core check-changesと規約選択"
+  ],
+  "summary": "必須検証は全て終了コード0。WebとPreviewの必要な回帰検知を維持した。Storybook browser-testは対象変更なし。実ビルド・外部API・配信・受信の検証は対象外。",
+  "remaining": []
+}

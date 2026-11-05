@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "conversation:current/approve-audit-2022",
+  "paths": [
+    ".github/workflows/aidd_checker_ci.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs",
+    "docs/development-preview.md",
+    "docs/ai-driven-development/aidd-checker.md"
+  ],
+  "fingerprint": "f1e36319fd1ade62393eb14f068ea1b5542afdaa33d65d6572a58fa070d1f2b2",
+  "status": "pass",
+  "checks": [
+    "ユーザーApproveとAuditの2件・返信/解決範囲の照合",
+    "Environment実設定と未承認jobの停止確認",
+    "旧新CIのgroup分離と同event再実行の設計"
+  ],
+  "summary": "会話のApproveに基づく同Taskの次サイクル。pull_requestは維持しdevelopmentにkosnuの承認・bypass禁止・main/PR merge ref制限を設定。確認runは承認待ちでstep未実行のまま取消済み。Checkerのgroupを起動event別に分け、旧受付/別event/別PRとの分離と同eventの再実行を回帰testで検査する。",
+  "remaining": []
+}

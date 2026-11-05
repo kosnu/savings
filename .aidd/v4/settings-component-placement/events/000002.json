@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "codex://threads/01a16474-01c6-7eb3-9558-97a1b292b046",
+  "paths": [
+    "apps/web/docs/policies/component-structure.md",
+    "docs/harness/rule-map.json",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/DataManagementSettings/",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.stories.tsx",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.test.tsx",
+    "apps/web/src/features/payments/exportPayments/DataManagementSettings/",
+    "apps/web/src/features/payments/index.ts"
+  ],
+  "fingerprint": "4af49e12bdd51e0965253f65ebbf92f615b1f23e49fcbf459c35c5e9f0f7a079",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:format",
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration",
+    "pnpm run web:test:storybook",
+    "文書整形・Core check-changes・代表5パスの必須選択",
+    "移動前後の表示内容一致・旧参照の残存確認"
+  ],
+  "summary": "静的検査、unit/integration 1021件、Storybook 22件が成功。Storybook初回はChromium起動権限で失敗し、batch終了後の権限付き再実行で成功。配置規則の必須経路、表示・URLと既存の設定統合検証の維持を確認。",
+  "remaining": []
+}

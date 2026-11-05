@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2027",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/CategoryTotals/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "ab3b529824eed6472cc2111ece928d90c150f54a9d2a8367755a5977ca28a183",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration",
+    "web:test:storybook",
+    "Core rules/check-changes・git diff --check",
+    "Chrome: 日英375px/1149pxの表示・設定遷移"
+  ],
+  "summary": "整形・lint・型検査成功。150ファイル1031テスト、Storybook8ファイル22テスト成功。ローカルStorybookで日英・375/1149pxの文言と折り返しを目視確認し、既存Book設定への遷移を確認。",
+  "remaining": []
+}

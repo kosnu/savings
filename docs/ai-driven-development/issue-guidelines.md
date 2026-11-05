@@ -4,7 +4,7 @@ doc_type: policy
 status: accepted
 area: repository
 applies_to:
-  - tools/aidd
+  - tools/harness
   - docs/ai-driven-development
 topics:
   - ai-driven-development

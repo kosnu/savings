@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2021",
+  "paths": [
+    "apps/web/docs/policies/component-structure.md",
+    "apps/web/src/features/",
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx"
+  ],
+  "fingerprint": "4ead65c19edbdfafe5459c777c06592ce1b7bc7b1e151ff153a0cf839bc0ddbf",
+  "status": "pass",
+  "checks": [
+    "Issue 2021の全完了条件と本番UI変更なし",
+    "rules closure: 31 rules",
+    "既存正本への統合と例の対象・対象外",
+    "取得境界・保存・表示部品の状態所有者とStory対応",
+    "独立取得・Portal操作・失敗時の入力保持",
+    "ブラウザ87 StoryとWeb必須検証の証拠"
+  ],
+  "summary": "Issueの3完了条件はpass。既存の境界に不足Storyを追加し、配置だけの親へ重複追加なし。component-structureの既存選択経路で届くため索引変更不要。未解決の差分指摘なし。 支払い作成の既存エラーUI不足は対象外とし、callbackと入力保持をStoryで再現。",
+  "remaining": []
+}

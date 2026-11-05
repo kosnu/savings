@@ -1,0 +1,36 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/2003",
+  "paths": [
+    "apps/web/src/domain/date.ts",
+    "apps/web/src/domain/date.test.ts",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/useInitializeMonthSearch.ts",
+    "apps/web/src/app/routes/PaymentsPage/monthSearch.integration.test.tsx",
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/components/inputs/MonthPicker/",
+    "apps/web/src/features/budgets/",
+    "apps/web/src/features/categories/createCategory/",
+    "apps/web/src/features/categories/updateCategoryName/",
+    "apps/web/src/features/categories/listCategorySettings/",
+    "apps/web/src/features/payments/",
+    "apps/web/src/features/summaryByMonth/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/utils/useDateRange.tsx",
+    "apps/web/src/utils/useDateRange.test.tsx",
+    "docs/harness/domain/date.md",
+    "apps/web/src/app/routes/authRedirect.test.tsx"
+  ],
+  "fingerprint": "9595ff3ddc8aa00b77a82f5b1786860e208a9355e02d562b4776955fe6e5a6c8",
+  "status": "pass",
+  "checks": [
+    "既存Intentの年月範囲・共通判定・境界の整合",
+    "ログアウト時の全クエリ除去と認証復元中の保持",
+    "本番ルート・URL変換を用いた回帰境界",
+    "適用規則と独立レビュー"
+  ],
+  "summary": "既存の年月範囲・正規化・詳細IDとカテゴリ保持を維持。未認証確定後のホームではrawクエリを除去し、復元中は保持する。既存UIの変更なし。実差分と独立レビューで規則競合・未解決指摘なし。",
+  "remaining": []
+}

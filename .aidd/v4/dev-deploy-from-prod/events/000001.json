@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザー依頼（2026-10-26）: ProdベースのDev workflow再構成。preview/dev-dbラベルとDB・Webの個別実行を維持。関連PR https://github.com/kosnu/savings/pull/2029",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/deploy_dev_database.yaml",
+    "tools/dev-preview/lifecycle.mjs",
+    "tools/dev-preview/authorize.test.mjs",
+    "tools/dev-preview/lifecycle.test.mjs",
+    "tools/dev-preview/cleanup.test.mjs",
+    "tools/dev-preview/report.test.mjs",
+    "docs/development-preview.md",
+    "docs/infrastructure.md"
+  ],
+  "fingerprint": "0eedffa23189a953c70eebc7ecde391faa3f9ec80c1994388e7e9f79f2d190e8",
+  "status": "pass",
+  "checks": [
+    "Intent・ユーザー選択・最終構成",
+    "Prod・Devと旧PRの呼び出し経路"
+  ],
+  "summary": "baseline 00a9a0254ba2342e9c9b034d9587492075d59363からの新Task。Prodのdeploy-web/deploy-apiを基準に、ラベル・個別実行を維持して同じjobでPR確認から配信まで進める。Webの状態確認と削除は統合し、通知権限を分離。旧PR向け補助CLIの互換性、ProdとEnvironment設定を維持する。",
+  "remaining": []
+}

@@ -6,7 +6,7 @@ import { afterEach, beforeEach, expect, test, vi } from "vite-plus/test"
 import { render, screen, waitFor } from "../../../test/test-utils"
 import * as stories from "./DatePicker.stories"
 
-const { SelectToday } = composeStories(stories)
+const { Default, SelectToday } = composeStories(stories)
 
 beforeEach(() => {
   // NOTE: `vi.useFakeTimers()` を使うとPlay Functionを使ったストーリーのテストがタイムアウトしてしまうので、その対応を行なっている
@@ -131,3 +131,80 @@ test("autoFocus のときは初期表示でカレンダーを開く", async () =
   expect(screen.getByRole("textbox")).toBeInTheDocument()
   expect(await screen.findByRole("button", { name: /today/i })).toBeInTheDocument()
 })
+
+test.each([
+  {
+    value: new Date(2021, 11, 31),
+    now: new Date(2025, 4, 1),
+    displayedValue: "Dec 31, 2021",
+    calendarMonth: "January 2022",
+    blockedNavigation: /previous month/i,
+    boundaryDay: /January 1st, 2022/,
+    selectedDate: new Date(2022, 0, 1),
+    selectedValue: "Jan 1, 2022",
+  },
+  {
+    value: new Date(2033, 0, 1),
+    now: new Date(2025, 4, 1),
+    displayedValue: "Jan 1, 2033",
+    calendarMonth: "December 2032",
+    blockedNavigation: /next month/i,
+    boundaryDay: /December 31st, 2032/,
+    selectedDate: new Date(2032, 11, 31),
+    selectedValue: "Dec 31, 2032",
+  },
+  {
+    value: undefined,
+    now: new Date(2021, 11, 31),
+    displayedValue: "",
+    calendarMonth: "January 2022",
+    blockedNavigation: /previous month/i,
+    boundaryDay: /January 1st, 2022/,
+    selectedDate: new Date(2022, 0, 1),
+    selectedValue: "Jan 1, 2022",
+  },
+  {
+    value: undefined,
+    now: new Date(2033, 0, 1),
+    displayedValue: "",
+    calendarMonth: "December 2032",
+    blockedNavigation: /next month/i,
+    boundaryDay: /December 31st, 2032/,
+    selectedDate: new Date(2032, 11, 31),
+    selectedValue: "Dec 31, 2032",
+  },
+])(
+  "範囲外の既存値・現在時刻から $calendarMonth を開き、境界内の日付だけ選択できる（$displayedValue）",
+  async ({
+    value,
+    now,
+    displayedValue,
+    calendarMonth,
+    blockedNavigation,
+    boundaryDay,
+    selectedDate,
+    selectedValue,
+  }) => {
+    vi.setSystemTime(now)
+    const onChange = vi.fn()
+    const { user } = render(<Default value={value} onChange={onChange} />, {
+      userOptions: { delay: null },
+    })
+    const input = screen.getByRole("textbox")
+    expect(input).toHaveValue(displayedValue)
+
+    await user.click(input)
+    expect(await screen.findByRole("grid", { name: calendarMonth })).toBeInTheDocument()
+    const blockedButton = screen.getByRole("button", { name: blockedNavigation })
+    expect(blockedButton).toHaveAttribute("aria-disabled", "true")
+    await user.click(blockedButton)
+    expect(screen.getByRole("grid", { name: calendarMonth })).toBeInTheDocument()
+    expect(input).toHaveValue(displayedValue)
+    expect(onChange).not.toHaveBeenCalled()
+
+    await user.click(screen.getByRole("button", { name: boundaryDay }))
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(selectedDate)
+    expect(input).toHaveValue(selectedValue)
+    expect(screen.queryByRole("grid")).not.toBeInTheDocument()
+  },
+)

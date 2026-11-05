@@ -1,0 +1,29 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1968",
+  "paths": [
+    "docs/harness/policies/code-review.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "c921325f472bd5861448c2e1e097ca1f3558b16ddbef72294ceadeb2f166f285",
+  "status": "pass",
+  "checks": [
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "競合解消の独立レビューと統合"
+  ],
+  "summary": "指摘・未解決の矛盾なし。両文書は一方の追記を除くと他方の元文書と完全一致し、両側の方針・事例は各1回。#1968のDoD5件を維持。未解決index0件、main由来の他ファイルはworktree/indexとも一致。",
+  "remaining": []
+}

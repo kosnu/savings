@@ -26,4 +26,20 @@ describe("toMonthlyBudgetCreateArgs", () => {
       p_effective_month: "2025-07-01",
     })
   })
+
+  test.each([
+    { targetMonth: new Date(2022, 0, 1), effectiveMonth: "2022-01-01" },
+    { targetMonth: new Date(2032, 11, 31), effectiveMonth: "2032-12-01" },
+  ])("許容範囲の端点の月 $effectiveMonth を変換できる", ({ targetMonth, effectiveMonth }) => {
+    expect(toMonthlyBudgetCreateArgs({ targetMonth, amount: 0 }).p_effective_month).toBe(
+      effectiveMonth,
+    )
+  })
+
+  test.each([new Date(2021, 11, 31), new Date(2033, 0, 1), new Date(NaN)])(
+    "範囲外または不正な月 %s の書き込みは拒否する",
+    (targetMonth) => {
+      expect(() => toMonthlyBudgetCreateArgs({ targetMonth, amount: 0 })).toThrow()
+    },
+  )
 })

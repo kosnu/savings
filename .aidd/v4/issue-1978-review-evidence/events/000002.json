@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1978",
+  "paths": [
+    "docs/harness/policies/code-review.md",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "9c3564f1f2bda2fa1aa26ebdd95a017d2a2cc3ba3fa852374f739f380243b6ff",
+  "status": "pass",
+  "checks": [
+    "git diff --check / git diff --cached --check",
+    "vp fmt: 結合後3文書の整形検査",
+    "Core verify: 規約・範囲・内容安定性",
+    "追加リンク5件とmain側記述保持の照合"
+  ],
+  "summary": "最新mainとの結合後、文書の整形・空白・追加リンク5件・Core規約/範囲検査が成功。#1978事例は初回のまま、残りの事例本文はmainと全文一致。文書のみの担当差分につきWeb/API検証は対象外。",
+  "remaining": []
+}

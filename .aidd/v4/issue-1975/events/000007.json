@@ -1,0 +1,29 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/2005",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/src/main.tsx",
+    "apps/web/src/assets/global.css",
+    "apps/web/src/providers/theme/usePreferredTheme.tsx",
+    "apps/web/src/providers/theme/usePreferredTheme.test.tsx",
+    "apps/web/package.json",
+    "package.json",
+    "pnpm-lock.yaml",
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/dev_preview_ci.yaml",
+    ".github/workflows/github_actions_security.yaml"
+  ],
+  "fingerprint": "2091e1ab6d0a8242ebe1627e00770736e976070b71e35f70efabff0a749322c4",
+  "status": "pass",
+  "checks": [
+    "main統合3行とPreview生成・検査経路の確認",
+    "同期対象のCIと配信workflow両方がCLOUDFLARE_PREVIEW_BUILD",
+    "固定SHA・権限・main-only配信境界の保持",
+    "既存アプリ差分と検証結果の再利用条件"
+  ],
+  "summary": "追加差分は環境変数名2箇所とzizmor action固定SHA更新のみ。新pluginの参照名と一致し、実Preview buildからvalidatorまで正常。承認済みNo.1の実装を保持し、No.2・Pixel実機の未確認範囲を拡張しない。Checked rules: policy.code-review, policy.git-workflow, infrastructure.dev-preview, infrastructure.overview, documentation.policy, ai-driven.workflow, ai-driven.checkerおよび既存Web適用規則。Unresolved:今回追加差分の指摘・規則矛盾なし。",
+  "remaining": []
+}

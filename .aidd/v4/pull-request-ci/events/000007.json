@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "conversation:current/approve-audit-2022",
+  "paths": [
+    ".github/workflows/aidd_checker_ci.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs",
+    "docs/development-preview.md",
+    "docs/ai-driven-development/aidd-checker.md"
+  ],
+  "fingerprint": "f1e36319fd1ade62393eb14f068ea1b5542afdaa33d65d6572a58fa070d1f2b2",
+  "status": "pass",
+  "checks": [
+    "承認済み2件と最小差分・実設定の一致",
+    "別event/別PR/旧groupとの分離と同event再実行",
+    "Environment承認待ち・step未実行・取消完了"
+  ],
+  "summary": "承認範囲内。pull_request移行を維持し、Secretは所有者のEnvironment承認で保護。設定のAPI読戻しと確認runで未承認時の配信step未実行を確認。concurrencyの分離と既存取消動作を回帰testで検査。Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, infrastructure.dev-preview, infrastructure.overview, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification, policy.transaction-boundaries. Unresolved: none. 実配信は実行していない。",
+  "remaining": []
+}

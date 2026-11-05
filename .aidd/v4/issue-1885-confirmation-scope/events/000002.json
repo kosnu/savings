@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1885",
+  "paths": [
+    "docs/supabase-dev-verification.md",
+    "tools/supabase-check/README.md"
+  ],
+  "fingerprint": "7ce5612230cb19eaaf57f8d10522b76a14f4e988655a0cb95bb85167407fc774",
+  "status": "pass",
+  "checks": [
+    "Markdown整形検査",
+    "差分の空白検査",
+    "相対リンク・見出し参照"
+  ],
+  "summary": "文書2件の整形・差分・参照先を確認。アプリコード・DB・workflowに差分がないためアプリ検証と実環境試験は対象外。",
+  "remaining": []
+}

@@ -1,4 +1,4 @@
-import type { Session } from "@supabase/supabase-js"
+import { AuthApiError, type Session } from "@supabase/supabase-js"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { renderHook } from "@testing-library/react"
 import type { PropsWithChildren } from "react"
@@ -75,8 +75,7 @@ function createSession(userId = "user-id", accessToken = `token-${userId}`): Ses
   }
 }
 
-function renderSessionHook() {
-  const queryClient = createTestQueryClient()
+function renderSessionHook(queryClient = createTestQueryClient()) {
   return renderHook(() => useSupabaseSession(), {
     wrapper: ({ children }: PropsWithChildren) => (
       <QueryClientProvider client={queryClient}>
@@ -153,7 +152,7 @@ beforeEach(async () => {
   }))
 })
 
-testCase("getSession が reject した場合は unauthenticated にフォールバックする", async () => {
+testCase("getSession が reject した場合は 再試行できるエラーにする", async () => {
   mockGetSession.mockRejectedValueOnce(new Error("network error"))
 
   const { result } = renderSessionHook()
@@ -161,7 +160,7 @@ testCase("getSession が reject した場合は unauthenticated にフォール�
   expectSession(result, "loading", null)
 
   await waitFor(() => {
-    expectSession(result, "unauthenticated", null)
+    expectSession(result, "error", null)
   })
 
   expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(expect.any(Error))
@@ -252,7 +251,7 @@ testCase("unmount後にgetSessionが解決してもユーザー作成を実行�
   expect(mockEnsureAuthenticatedUser).not.toHaveBeenCalled()
 })
 
-testCase("ユーザー作成に失敗した場合は unauthenticated にフォールバックする", async () => {
+testCase("ユーザー作成に失敗した場合は 再試行できるエラーにする", async () => {
   const error = new Error("failed to ensure user")
   mockEnsureAuthenticatedUser.mockRejectedValueOnce(error)
   mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
@@ -260,49 +259,45 @@ testCase("ユーザー作成に失敗した場合は unauthenticated にフォ�
   const { result } = renderSessionHook()
 
   await waitFor(() => {
-    expectSession(result, "unauthenticated", null)
+    expectSession(result, "error", null)
   })
 
   expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
-  expect(mockSignOut).toHaveBeenCalledWith()
+  expect(mockSignOut).not.toHaveBeenCalled()
 })
 
-testCase("ユーザー作成失敗後のサインアウトに失敗した場合は未認証へ遷移しない", async () => {
-  const ensureError = new Error("failed to ensure user")
-  const signOutError = new Error("failed to sign out")
-  mockEnsureAuthenticatedUser.mockRejectedValueOnce(ensureError)
-  mockSignOut.mockResolvedValueOnce({ error: signOutError })
+testCase("ユーザー検証失敗後の再試行で認証確認をやり直す", async () => {
+  const error = new TypeError("Failed to fetch")
+  mockGetUser.mockRejectedValueOnce(error)
+  mockGetSession.mockResolvedValue({ data: { session: createSession() }, error: null })
+  const { result } = renderSessionHook()
+  await waitFor(() => expectSession(result, "error", null))
+  const state = result.current
+  if (state.status !== "error") throw new Error("Expected retryable error")
+  expect(state.requiresSignIn).toBe(false)
+  expect(mockSignOut).not.toHaveBeenCalled()
+  act(() => state.retry())
+  await waitFor(() => expectSession(result, "authenticated", "user-id"))
+  expect(mockGetSession).toHaveBeenCalledTimes(2)
+  expect(mockEnsureAuthenticatedUser).toHaveBeenCalledTimes(1)
+})
+
+testCase("保存済みsessionがAuth側で無効な場合はユーザー作成せず再認証を求める", async () => {
+  const error = new AuthApiError("user not found", 403, "user_not_found")
+  mockGetUser.mockResolvedValueOnce({ data: { user: null }, error })
   mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
 
   const { result } = renderSessionHook()
 
   await waitFor(() => {
-    expect(mockSignOut).toHaveBeenCalledWith()
+    expectSession(result, "error", null)
   })
 
-  expectSession(result, "loading", null)
-  expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(ensureError)
-  expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(signOutError)
+  expect(mockEnsureAuthenticatedUser).not.toHaveBeenCalled()
+  expect(mockSignOut).not.toHaveBeenCalled()
+  expect(result.current).toMatchObject({ requiresSignIn: true })
+  expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
 })
-
-testCase(
-  "保存済みsessionがAuth側で無効な場合はユーザー作成を実行せずサインアウトする",
-  async () => {
-    const error = new Error("user not found")
-    mockGetUser.mockResolvedValueOnce({ data: { user: null }, error })
-    mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
-
-    const { result } = renderSessionHook()
-
-    await waitFor(() => {
-      expectSession(result, "unauthenticated", null)
-    })
-
-    expect(mockEnsureAuthenticatedUser).not.toHaveBeenCalled()
-    expect(mockSignOut).toHaveBeenCalledWith()
-    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
-  },
-)
 
 testCase(
   "認証購読でサインアウト済みなら遅れて返った getSession の古いsessionを破棄する",
@@ -321,7 +316,7 @@ testCase(
     })
 
     await waitFor(() => {
-      expectSession(result, "unauthenticated", null)
+      expectSession(result, "error", null)
     })
 
     await act(async () => {
@@ -329,7 +324,7 @@ testCase(
       await getSessionDeferred.promise
     })
 
-    expectSession(result, "unauthenticated", null)
+    expectSession(result, "error", null)
     expect(mockEnsureAuthenticatedUser).not.toHaveBeenCalled()
   },
 )
@@ -374,11 +369,13 @@ testCase("認証済み状態から同じユーザーのsession更新に失敗し
   })
   const emitAuthStateChange = captureAuthCallback()
 
-  const { result } = renderSessionHook()
+  const queryClient = createTestQueryClient()
+  const { result } = renderSessionHook(queryClient)
 
   await waitFor(() => {
     expectSession(result, "authenticated", "old-user", "old-token")
   })
+  queryClient.setQueryData(["private-data"], "old-user-data")
 
   const error = new Error("failed to ensure refreshed user")
   mockEnsureAuthenticatedUser.mockReturnValueOnce(ensureDeferred.promise)
@@ -397,6 +394,7 @@ testCase("認証済み状態から同じユーザーのsession更新に失敗し
   expectSession(result, "authenticated", "old-user", "old-token")
   expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
   expect(mockSignOut).not.toHaveBeenCalled()
+  expect(queryClient.getQueryData(["private-data"])).toBe("old-user-data")
 })
 
 testCase(
@@ -409,11 +407,13 @@ testCase(
     })
     const emitAuthStateChange = captureAuthCallback()
 
-    const { result } = renderSessionHook()
+    const queryClient = createTestQueryClient()
+    const { result } = renderSessionHook(queryClient)
 
     await waitFor(() => {
       expectSession(result, "authenticated", "old-user")
     })
+    queryClient.setQueryData(["private-data"], "old-user-data")
 
     const error = new Error("failed to ensure new user")
     mockEnsureAuthenticatedUser.mockReturnValueOnce(ensureDeferred.promise)
@@ -423,6 +423,7 @@ testCase(
     })
 
     expectSession(result, "loading", null)
+    expect(queryClient.getQueryData(["private-data"])).toBeUndefined()
 
     await act(async () => {
       ensureDeferred.reject(error)
@@ -430,10 +431,32 @@ testCase(
     })
 
     await waitFor(() => {
-      expectSession(result, "unauthenticated", null)
+      expectSession(result, "error", null)
     })
 
     expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
+    expect(queryClient.getQueryData(["private-data"])).toBeUndefined()
+  },
+)
+
+testCase(
+  "同じユーザーでも認証情報の無効を確認した場合は旧sessionとキャッシュを破棄する",
+  async () => {
+    mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
+    const emitAuthStateChange = captureAuthCallback()
+    const queryClient = createTestQueryClient()
+    const { result } = renderSessionHook(queryClient)
+    await waitFor(() => expectSession(result, "authenticated", "user-id"))
+    queryClient.setQueryData(["private-data"], "old-user-data")
+    mockGetUser.mockResolvedValueOnce({
+      data: { user: null },
+      error: new AuthApiError("Synthetic invalid session", 401, "bad_jwt"),
+    })
+    act(() => emitAuthStateChange("TOKEN_REFRESHED", createSession()))
+    await waitFor(() => expectSession(result, "error", null))
+    expect(result.current).toMatchObject({ requiresSignIn: true })
+    expect(queryClient.getQueryData(["private-data"])).toBeUndefined()
+    expect(mockSignOut).not.toHaveBeenCalled()
   },
 )
 
@@ -520,4 +543,44 @@ testCase("認証購読で新sessionのensure中なら getSession の reject で�
   await waitFor(() => {
     expectSession(result, "authenticated", "event-user")
   })
+})
+
+testCase("getSessionのerror応答から再試行しsessionなしなら未ログインになる", async () => {
+  mockGetSession.mockResolvedValueOnce({ data: { session: null }, error: new Error("offline") })
+  const { result } = renderSessionHook()
+  await waitFor(() => expectSession(result, "error", null))
+  const state = result.current
+  if (state.status !== "error") throw new Error("Expected retryable error")
+  const pending = createDeferred<{ data: { session: Session | null }; error: null }>()
+  mockGetSession.mockReturnValueOnce(pending.promise)
+  act(() => {
+    state.retry()
+    state.retry()
+  })
+  expectSession(result, "loading", null)
+  expect(mockGetSession).toHaveBeenCalledTimes(2)
+  await act(async () => {
+    pending.resolve({ data: { session: null }, error: null })
+    await pending.promise
+  })
+  await waitFor(() => expectSession(result, "unauthenticated", null))
+})
+
+testCase("再試行が再び失敗しても再試行でき、成功後の古いretryは無視する", async () => {
+  mockGetSession
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockRejectedValueOnce(new Error("still offline"))
+  const { result } = renderSessionHook()
+  await waitFor(() => expectSession(result, "error", null))
+  const first = result.current
+  if (first.status !== "error") throw new Error("Expected error")
+  await act(async () => first.retry())
+  await waitFor(() => expectSession(result, "error", null))
+  const second = result.current
+  if (second.status !== "error") throw new Error("Expected error")
+  mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
+  await act(async () => second.retry())
+  await waitFor(() => expectSession(result, "authenticated", "user-id"))
+  act(() => first.retry())
+  expect(mockGetSession).toHaveBeenCalledTimes(3)
 })

@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
 
+import { resolveTargetMonth } from "../domain/date"
 import { useSupabaseSession } from "../providers/supabase/useSupabaseSession"
 
 export function useInitializeMonthSearch() {
@@ -22,18 +23,17 @@ export function useInitializeMonthSearch() {
     if (!isPaymentsRoute) return
     // NOTE: セッションがない場合はリダイレクト処理を行わないようにしないと、その後のセッション取得で null になってしまう
     if (!session) return
-    if (yearParam && monthParam) return
-
-    const now = new Date()
-    const year = now.getFullYear().toString()
-    const month = (now.getMonth() + 1).toString()
+    const targetMonth = resolveTargetMonth(yearParam, monthParam)
+    const year = String(targetMonth.year)
+    const month = String(targetMonth.month)
+    if (yearParam === year && monthParam === month) return
 
     void navigate({
       to: pathname,
       search: (prev) => ({
         ...prev,
-        year: prev.year ?? year,
-        month: prev.month ?? month,
+        year,
+        month,
       }),
       replace: true,
     })

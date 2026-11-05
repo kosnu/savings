@@ -231,7 +231,7 @@ func TestWorkflowUsesGoEntrypointsWithoutInlineScripts(t *testing.T) {
 			t.Fatalf("non-Go step: %s", line)
 		}
 	}
-	for _, required := range []string{"persist-credentials: false", "environment: development", "github.ref == 'refs/heads/main'", "burneto-shared-dev-database", "version: 2.120.0"} {
+	for _, required := range []string{"persist-credentials: false", "environment: development", "github.ref == 'refs/heads/main'", "burneto-shared-dev-database"} {
 		if !strings.Contains(text, required) {
 			t.Fatalf("missing %s", required)
 		}

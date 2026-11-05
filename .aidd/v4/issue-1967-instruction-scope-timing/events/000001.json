@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1967",
+  "paths": [
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "8043b144720e761475f16b9251b5c9de178cd9f3e8945ebf7e0c5e20f5eabca0",
+  "status": "pass",
+  "checks": [
+    "Issue #1967 scope and authority",
+    "existing Audit and Retro boundaries"
+  ],
+  "summary": "baseline 08a06872。共通workflowに対象・操作・実施時点の解釈基準を補い、意味レビュー事例で将来Retro、対象未指定Audit、修正除外と分析・理由返信を照合する。既存承認を維持し、新しい工程や仕組みは設けない。",
+  "remaining": []
+}

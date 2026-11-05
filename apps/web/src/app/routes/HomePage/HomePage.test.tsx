@@ -208,8 +208,8 @@ describe("HomePage", () => {
     server.use(
       http.get("*/rest/v1/payments", ({ request }) => {
         const url = new URL(request.url)
-        // 同じendpointの未分類集計は既存handlerに委ねる。
-        if (url.searchParams.get("select") === "amount,date") return
+        // 直近一覧以外の取得は既存handlerに委ねる。
+        if (url.searchParams.get("limit") !== "5") return
         requests.push(url)
         return HttpResponse.json(rows)
       }),
@@ -221,11 +221,16 @@ describe("HomePage", () => {
       expect(within(recent).getAllByRole("button")).toHaveLength(5)
     })
     expect(within(recent).getByText("支払い5")).toBeInTheDocument()
+    expect(
+      within(recent).queryByText("No payments yet. Use “Create payment” to record one."),
+    ).not.toBeInTheDocument()
     expect(within(recent).queryByText("支払い6")).not.toBeInTheDocument()
     expect(await screen.findByLabelText("Total spending")).toBeInTheDocument()
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument()
     expect(screen.queryByRole("combobox", { name: /category filter/i })).not.toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /create payment/i })).toBeInTheDocument()
+    const header = screen.getByRole("banner")
+    expect(within(header).getByRole("button", { name: /create payment/i })).toBeEnabled()
+    expect(within(header).queryByRole("button", { name: "Theme toggle" })).not.toBeInTheDocument()
     expect(requests.length).toBeGreaterThan(0)
     for (const request of requests) {
       expect(request.searchParams.get("book_id")).toBe("eq.1")
@@ -249,13 +254,44 @@ describe("HomePage", () => {
     expect(within(recent).getByText("Apr 1, 2025")).toBeInTheDocument()
   })
 
+  test("ヘッダーの作成操作はホームだけに表示し、他画面の右側は空にする", async () => {
+    const { user } = render(<Default />)
+    expect(await screen.findByRole("button", { name: "Create payment" })).toBeEnabled()
+    const header = screen.getByRole("banner")
+
+    await user.click(within(header).getByRole("button", { name: "Menu button" }))
+    await user.click(screen.getByRole("link", { name: "Navigate to Payments page" }))
+    expect(await screen.findByRole("heading", { name: "Payments", level: 1 })).toBeInTheDocument()
+    let otherHeader = screen.getByRole("banner")
+    expect(within(otherHeader).getAllByRole("button")).toHaveLength(1)
+    expect(
+      within(otherHeader).queryByRole("button", { name: "Create payment" }),
+    ).not.toBeInTheDocument()
+    expect(
+      within(otherHeader).queryByRole("button", { name: "Theme toggle" }),
+    ).not.toBeInTheDocument()
+
+    await user.click(within(otherHeader).getByRole("button", { name: "Menu button" }))
+    await user.click(screen.getByRole("link", { name: "Navigate to Settings page" }))
+    expect(await screen.findByRole("heading", { name: "Settings", level: 1 })).toBeInTheDocument()
+    otherHeader = screen.getByRole("banner")
+    expect(within(otherHeader).getAllByRole("button")).toHaveLength(1)
+
+    await user.click(within(otherHeader).getByRole("link", { name: "Burneto — Home" }))
+    expect(
+      await screen.findByRole("button", {
+        name: "Create payment",
+      }),
+    ).toBeEnabled()
+  })
+
   test.each(["loading", "error"] as const)(
     "直近一覧が%sでも月次・カテゴリ別集計を表示する",
     async (state) => {
       vi.spyOn(console, "error").mockImplementation(() => {})
       server.use(
         http.get("*/rest/v1/payments", async ({ request }) => {
-          if (new URL(request.url).searchParams.get("select") === "amount,date") return
+          if (new URL(request.url).searchParams.get("limit") !== "5") return
           if (state === "loading") await delay("infinite")
           return HttpResponse.json({ message: "failed" }, { status: 500 })
         }),
@@ -267,11 +303,18 @@ describe("HomePage", () => {
       expect(
         await screen.findByRole("progressbar", { name: "Food budget progress" }),
       ).toHaveAttribute("aria-valuenow", "1000")
+      expect(
+        await screen.findByRole("figure", { name: "Spending through the month" }),
+      ).toBeInTheDocument()
       if (state === "loading") {
-        expect(screen.getAllByLabelText("loading-payment-item")).toHaveLength(3)
+        expect(screen.getAllByLabelText("loading-payment-item")).toHaveLength(5)
       } else {
         expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
       }
+      expect(
+        screen.queryByText("No payments yet. Use “Create payment” to record one."),
+      ).not.toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /create payment/i })).toBeEnabled()
     },
   )
 
@@ -283,7 +326,10 @@ describe("HomePage", () => {
       ...createMonthlyBudgetHandlers(),
     )
     render(<Empty />)
-    expect(await screen.findByText("No payments found.")).toBeInTheDocument()
+    expect(
+      await screen.findByText("No payments yet. Use “Create payment” to record one."),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /create payment/i })).toBeEnabled()
     const total = await screen.findByLabelText("Total spending")
     expect(total).toHaveTextContent("¥0")
   })
@@ -308,7 +354,9 @@ describe("HomePage", () => {
     server.resetHandlers(...createBookHandlers({ error: true }))
     render(<ErrorStory />)
     expect(await screen.findByRole("alert")).toHaveTextContent("Failed")
-    expect(screen.queryByText("No payments found.")).not.toBeInTheDocument()
+    expect(
+      screen.queryByText("No payments yet. Use “Create payment” to record one."),
+    ).not.toBeInTheDocument()
   })
 
   test("Book取得失敗後に同じ認証ユーザーのまま再試行してトップへ復帰できる", async () => {
@@ -424,8 +472,10 @@ describe("HomePage", () => {
 
   test("未認証時には紹介画面を表示する", async () => {
     render(<Unauthenticated />)
-    expect(await screen.findByRole("heading", { level: 1 })).toHaveTextContent("Know what’s left.")
+    expect(await screen.findByText(/Burneto is a budgeting app/)).toBeInTheDocument()
     expect(screen.queryByLabelText("Recent payments")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Create payment" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Theme toggle" })).not.toBeInTheDocument()
   })
 
   test("セッション復元中は紹介画面も支払いも表示しない", async () => {
@@ -439,13 +489,14 @@ describe("HomePage", () => {
     const { user } = render(<Default />)
     const recent = await screen.findByLabelText("Recent payments")
     await user.click(await within(recent).findByRole("button", { name: /Apr 1, 2025/ }))
-    expect(
-      await screen.findByRole("button", { name: "April 2025", hidden: true }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole("combobox", { name: "Year", hidden: true })).toHaveTextContent(
+      "2025",
+    )
+    expect(screen.getByRole("combobox", { name: "Month", hidden: true })).toHaveTextContent("April")
     expect(await screen.findByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
   })
 
-  test("トップから追加すると直近一覧と月次集計が再取得される", async () => {
+  test("空状態から追加すると案内が消え、直近一覧と月次集計が再取得される", async () => {
     const created = {
       ...mapPaymentToRow(payments[0]),
       id: 999,
@@ -455,24 +506,26 @@ describe("HomePage", () => {
     }
     server.resetHandlers(
       ...createBookHandlers(),
-      ...createPaymentHandlers({ create: { response: created } }),
-      ...createCategoryHandlers(),
+      ...createPaymentHandlers({ initialRows: [], create: { response: created } }),
+      ...createCategoryHandlers({ get: { paymentRows: [] } }),
       ...createMonthlyBudgetHandlers(),
     )
     const { user } = render(<Default />)
     const recent = await screen.findByLabelText("Recent payments")
-    await within(recent).findByText("スーパー")
+    expect(
+      await within(recent).findByText("No payments yet. Use “Create payment” to record one."),
+    ).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: /create payment/i }))
     const dialog = await screen.findByRole("dialog", { name: /create payment/i })
     await user.type(within(dialog).getByLabelText(/amount/i), "1080")
     server.resetHandlers(
       ...createBookHandlers(),
       ...createPaymentHandlers({
-        initialRows: [...payments.map(mapPaymentToRow), created],
+        initialRows: [created],
         create: { response: created },
       }),
       ...createCategoryHandlers({
-        get: { paymentRows: [...payments.map(mapPaymentToRow), created] },
+        get: { paymentRows: [created] },
       }),
       ...createMonthlyBudgetHandlers(),
     )
@@ -481,8 +534,16 @@ describe("HomePage", () => {
       expect(screen.queryByRole("dialog", { name: /create payment/i })).not.toBeInTheDocument()
     })
     expect(await within(recent).findByText("追加した支払い")).toBeInTheDocument()
+    expect(
+      within(recent).queryByText("No payments yet. Use “Create payment” to record one."),
+    ).not.toBeInTheDocument()
     await waitFor(() => {
-      expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥6,080")
+      expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥1,080")
+    })
+    await waitFor(() => {
+      expect(screen.getByRole("figure", { name: "Spending through the month" })).toHaveTextContent(
+        "¥1,080",
+      )
     })
   })
 })

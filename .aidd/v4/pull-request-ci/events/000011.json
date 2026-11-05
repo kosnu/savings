@@ -1,0 +1,38 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "review",
+  "source": "conversation:current/approve-audit-2022-p2",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml",
+    "tools/dev-preview/lifecycle.mjs",
+    "tools/dev-preview/lifecycle.test.mjs",
+    "tools/dev-preview/authorize.test.mjs",
+    "docs/development-preview.md",
+    "docs/ai-driven-development/aidd-checker.md"
+  ],
+  "fingerprint": "a6d1ca09beaed78ba9ba3ea07f4591bf2dcb04c6d040fa23a03465846334dcf4",
+  "status": "pass",
+  "checks": [
+    "Checked rule: ai-driven.workflow",
+    "Checked rule: ai-driven.checker",
+    "Checked rule: documentation.policy",
+    "Checked rule: ai-driven.overview",
+    "Checked rule: ai-driven.glossary",
+    "Checked rule: infrastructure.dev-preview",
+    "Checked rule: infrastructure.overview",
+    "Checked rule: architecture.overview",
+    "Checked rule: ai-driven.change-coverage",
+    "Checked rule: ai-driven.issue-guidelines",
+    "Checked rule: policy.git-workflow",
+    "Checked rule: policy.issue-template-selection",
+    "Checked rule: policy.learning-extraction",
+    "Checked rule: policy.retrospective",
+    "Checked rule: policy.review-feedback-classification",
+    "Checked rule: policy.transaction-boundaries",
+    "適用元の要求・P2承認と最終6ファイル差分の意味評価",
+    "競合closeから削除接続・target非配信・fork拒否・reopen保護の照合"
+  ],
+  "summary": "Unresolved: なし。競合closeをtargetで受け、resolve後にdeployを明示skipし、alwaysのreconcileから既存cleanupへ接続するためP2を解消する。target labeledとPR closedは拒否、forkはpayload/再取得の両方で拒否。trusted base checkout・独立runner・非cancel同PR group・Environment承認を維持。正常label配信は維持。workflow入口の後退とtarget配信許可を静的testで検知する。2正本文書を同期し既存rule-map到達経路で十分、共通policyやIntent変更は不要。実Actions配送・承認後の実削除は未検証でfixture/静的検査の主張に限定。",
+  "remaining": []
+}

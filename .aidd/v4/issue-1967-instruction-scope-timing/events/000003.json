@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1967",
+  "paths": [
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "8043b144720e761475f16b9251b5c9de178cd9f3e8945ebf7e0c5e20f5eabca0",
+  "status": "pass",
+  "checks": [
+    "Issue #1967 DoD 1-5 semantic review",
+    "independent review",
+    "rule routing and authority boundaries"
+  ],
+  "summary": "5完了条件を期待・観測と照合し全pass。将来Retro、対象未指定Audit、修正除外の分析・返信を適合・違反・不明例で確認。独立レビュー指摘なし。判断の所有先と既存経路を維持するため索引・skill変更不要。有限事例のみで一般化と再発率低下は未検証。",
+  "remaining": []
+}

@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2075",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/features/summaryByMonth/monthlySpending/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/components/feedbacks/Snackbar/Snackbar.module.css"
+  ],
+  "fingerprint": "3414e4d7393dda1daa7f5ea0af35ed885459af4cf70c6f9db8f919df5a39eda5",
+  "status": "pass",
+  "checks": [
+    "再出力した3案とIssue更新への明示Approveを確認",
+    "補足削除・全画面幅の右下固定・超過見込みラベルの全件を承認範囲として照合",
+    "客観性と適用先pass。案件内の要件・表示/操作テストを改善し、共通規則追加は不要"
+  ],
+  "summary": "承認済み3件: 算出根拠文を削除し?やTooltipは追加しない。作成ボタンはPC/mobileとも右下固定し月選択とは独立。予測超過は短い超過見込みラベルで実績と区別。Issue2040の表示要件と作成導線の成功条件を同期する。履歴なし/失敗等の状態・予測計算・内容順は保持。根本対策は受入条件と実操作/表示テストへの反映に限定。通知は既存右下配置のため、ホームだけ位置をずらすCSS同期が必要。返信/resolveは対象なし。",
+  "remaining": []
+}

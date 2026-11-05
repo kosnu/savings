@@ -1,6 +1,16 @@
 name: Frontend CI
 
 on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+    paths:
+      - "apps/web/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/frontend_ci.yaml"
+      - ".github/actions/setup-playwright/action.yaml"
   workflow_dispatch:
     inputs:
       pr_number:
@@ -12,7 +22,7 @@ on:
         required: true
         type: string
       sync_run_id:
-        description: 受付またはVite+同期workflowのrun ID
+        description: Vite+同期workflowのrun ID
         required: true
         type: string
 
@@ -34,15 +44,17 @@ jobs:
         id: pr
         env:
           GH_TOKEN: ${{ github.token }}
-          INPUT_PR: ${{ inputs.pr_number }}
-          EXPECTED_HEAD: ${{ inputs.expected_head }}
+          INPUT_PR: ${{ github.event.pull_request.number || inputs.pr_number }}
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || inputs.expected_head }}
           SYNC_RUN_ID: ${{ inputs.sync_run_id }}
         run: |
           set -euo pipefail
           [[ "$INPUT_PR" =~ ^[1-9][0-9]*$ ]]
           [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]]
-          [[ "$SYNC_RUN_ID" =~ ^[1-9][0-9]*$ ]]
-          test "$GITHUB_REF" = refs/heads/main
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            [[ "$SYNC_RUN_ID" =~ ^[1-9][0-9]*$ ]] || exit 1
+            test "$GITHUB_SHA" = "$EXPECTED_HEAD"
+          fi
           gh api "repos/$GITHUB_REPOSITORY/pulls/$INPUT_PR" > "$RUNNER_TEMP/pr.json"
           jq -e --arg repo "$GITHUB_REPOSITORY" --arg head "$EXPECTED_HEAD" '
             .state == "open" and .head.repo != null and
@@ -211,7 +223,7 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: test-dummy-key
 
   report-dispatched-result:
-    if: always()
+    if: always() && github.event_name == 'workflow_dispatch'
     needs: [context, lint-format, typecheck, unit-test, storybook-test]
     runs-on: ubuntu-latest
     permissions:
@@ -220,13 +232,13 @@ jobs:
       - name: Report dispatched CI on the PR commit
         env:
           GH_TOKEN: ${{ github.token }}
-          EXPECTED_HEAD: ${{ inputs.expected_head }}
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || inputs.expected_head }}
           CONTEXT_HEAD: ${{ needs.context.outputs.head }}
           JOB_RESULTS: ${{ toJSON(needs) }}
         run: |
           set -euo pipefail
           [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]]
-          test "$GITHUB_REF" = refs/heads/main
+          test "$GITHUB_SHA" = "$EXPECTED_HEAD"
           if [ -n "$CONTEXT_HEAD" ]; then
             test "$CONTEXT_HEAD" = "$EXPECTED_HEAD"
           fi

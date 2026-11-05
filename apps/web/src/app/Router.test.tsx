@@ -9,6 +9,7 @@ const mockInvalidate = vi.fn(async () => {})
 
 vi.mock("@tanstack/react-router", () => ({
   RouterProvider: () => mockRouterProvider(),
+  useRouterState: () => "/",
 }))
 
 vi.mock("../providers/supabase/useSupabaseSession", () => ({
@@ -64,4 +65,20 @@ testCase("authStatus が確定したら RouterProvider を描画する", () => {
 
   expect(screen.getByText("router-provider")).toBeInTheDocument()
   expect(mockRouterProvider).toHaveBeenCalledTimes(1)
+})
+
+testCase("認証確認失敗はRouterを表示せず説明と再試行を表示する", async () => {
+  const retry = vi.fn()
+  mockUseSupabaseSession.mockReturnValue({
+    status: "error",
+    session: null,
+    requiresSignIn: false,
+    retry,
+  })
+  const { user } = render(<Router />, { withProviders: false })
+  expect(screen.getByRole("alert")).toHaveTextContent("Check your connection and try again.")
+  expect(mockRouterProvider).not.toHaveBeenCalled()
+  expect(mockInvalidate).not.toHaveBeenCalled()
+  await user.click(screen.getByRole("button", { name: "Try again" }))
+  expect(retry).toHaveBeenCalledTimes(1)
 })

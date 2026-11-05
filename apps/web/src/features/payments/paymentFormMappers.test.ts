@@ -48,6 +48,12 @@ describe("mapPaymentToFormValues", () => {
       amount: "0",
     })
   })
+
+  test("許容範囲外の既存日付もフォーム値への読み取りでは維持する", () => {
+    const payment = createPaymentFixture({ date: new Date(2021, 11, 31) })
+
+    expect(mapPaymentToFormValues(payment).date).toBe(payment.date)
+  })
 })
 
 describe("toPaymentWriteInsert", () => {
@@ -97,6 +103,20 @@ describe("toPaymentWriteInsert", () => {
       }),
     ).toThrow(`Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`)
   })
+
+  test.each([
+    { date: new Date(2022, 0, 1), dateOnly: "2022-01-01" },
+    { date: new Date(2032, 11, 31, 23, 59, 59), dateOnly: "2032-12-31" },
+  ])("許容範囲の端点 $dateOnly を作成できる", ({ date, dateOnly }) => {
+    expect(toPaymentWriteInsert({ date, amount: 0 }).date).toBe(dateOnly)
+  })
+
+  test.each([new Date(2021, 11, 31), new Date(2033, 0, 1), new Date(NaN)])(
+    "範囲外または不正な日付 %s の作成は拒否する",
+    (date) => {
+      expect(() => toPaymentWriteInsert({ date, amount: 0 })).toThrow()
+    },
+  )
 })
 
 describe("toPaymentWriteUpdate", () => {
@@ -138,5 +158,26 @@ describe("toPaymentWriteUpdate", () => {
         note: "a".repeat(PAYMENT_NOTE_MAX_LENGTH + 1),
       }),
     ).toThrow(`Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`)
+  })
+
+  test.each([
+    { date: new Date(2022, 0, 1), dateOnly: "2022-01-01" },
+    { date: new Date(2032, 11, 31, 23, 59, 59), dateOnly: "2032-12-31" },
+  ])("許容範囲の端点 $dateOnly に更新できる", ({ date, dateOnly }) => {
+    expect(toPaymentWriteUpdate({ date }).date).toBe(dateOnly)
+  })
+
+  test.each([new Date(2021, 11, 31), new Date(2033, 0, 1), new Date(NaN)])(
+    "範囲外または不正な日付 %s への更新は拒否する",
+    (date) => {
+      expect(() => toPaymentWriteUpdate({ date })).toThrow()
+    },
+  )
+
+  test("日付を含まない更新は既存日付の範囲を検証せずに変換する", () => {
+    expect(toPaymentWriteUpdate({ amount: 500, note: "修正" })).toEqual({
+      amount: 500,
+      note: "修正",
+    })
   })
 })

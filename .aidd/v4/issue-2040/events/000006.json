@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2040",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/features/summaryByMonth/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "3414e4d7393dda1daa7f5ea0af35ed885459af4cf70c6f9db8f919df5a39eda5",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:format",
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration: 158 files / 1090 tests",
+    "pnpm run web:test:storybook: 8 files / 28 tests",
+    "git diff --check",
+    "Chromeの日本語320x568表示と作成ボタン初期表示・ダイアログ開閉"
+  ],
+  "summary": "承認済み修正の最終内容で全検証成功。日別平均・空履歴・未来登録額max・月末対応・円単位丸め、当月だけの履歴取得、履歴失敗から再試行、同月翌日の再取得反映を確認。グラフ→合計→カテゴリ→支払いのDOM順とスマホ初期画面の作成ボタンを検証。実DB・本番配信と予測精度の実測は未実施。",
+  "remaining": []
+}

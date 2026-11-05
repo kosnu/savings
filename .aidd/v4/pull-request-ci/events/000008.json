@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2022#discussion_r4365901928",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml",
+    "tools/dev-preview/lifecycle.mjs",
+    "tools/dev-preview/lifecycle.test.mjs",
+    "tools/dev-preview/authorize.test.mjs",
+    "docs/development-preview.md",
+    "docs/ai-driven-development/aidd-checker.md"
+  ],
+  "fingerprint": "f1e36319fd1ade62393eb14f068ea1b5542afdaa33d65d6572a58fa070d1f2b2",
+  "status": "pass",
+  "checks": [
+    "最新PR head・全comment・thread解決状態の再取得と照合",
+    "最新headの全workflow成功と既存P2の起動条件を再確認",
+    "正確性・再発抑止と反例・反映先の三観点を再レビュー"
+  ],
+  "summary": "再Auditで新規指摘・判断変更なし。現head d3a09337の通常CIは全成功、前回P1は解決済み。未解決P2は妥当で今修正を提案し、修正前merge非推奨。配信完了後に競合したPRを未mergeでcloseするとpull_requestが起動せずPreview削除要求が欠落する。配信受付はpull_requestを維持し、closedだけpull_request_targetへ分離、target起動時のdeploy禁止・信頼済みmain補助コード限定を提案。workflow、lifecycleと接続test、Preview運用・CI権限説明を同期する。原因はevent配送条件の差の未適用、fixtureがhandler到達後だけを検査したこと。競合closeと非競合close、target配信禁止・fork拒否を承認後に検証する。三観点の分析再レビューで追加の修正事項なし。Intentは実現可能なPR移行を既に要求し改訂不要、共通policy追加も不要。thread PRRT_kwDOM0p88s6v1YOtへの返信案はclosed限定target経路と検証結果の説明、Bot解決条件は修正・検証・配信後。提案への手動承認待ちで実装・返信・解決は未実施。実残存事故や競合PR closeの実動は未観測。",
+  "remaining": []
+}

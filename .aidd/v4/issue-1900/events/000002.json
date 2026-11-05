@@ -1,0 +1,38 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/2003",
+  "paths": [
+    "apps/web/src/domain/date.ts",
+    "apps/web/src/domain/date.test.ts",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/useInitializeMonthSearch.ts",
+    "apps/web/src/app/routes/PaymentsPage/monthSearch.integration.test.tsx",
+    "apps/web/src/components/inputs/DatePicker/",
+    "apps/web/src/components/inputs/MonthPicker/",
+    "apps/web/src/features/budgets/",
+    "apps/web/src/features/categories/createCategory/",
+    "apps/web/src/features/categories/updateCategoryName/",
+    "apps/web/src/features/categories/listCategorySettings/",
+    "apps/web/src/features/payments/",
+    "apps/web/src/features/summaryByMonth/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/utils/useDateRange.tsx",
+    "apps/web/src/utils/useDateRange.test.tsx",
+    "docs/harness/domain/date.md",
+    "apps/web/src/app/routes/authRedirect.test.tsx"
+  ],
+  "fingerprint": "9595ff3ddc8aa00b77a82f5b1786860e208a9355e02d562b4776955fe6e5a6c8",
+  "status": "pass",
+  "checks": [
+    "Web lint",
+    "Web format check",
+    "Web typecheck",
+    "Unit/integration 999 tests",
+    "Storybook browser 22 tests",
+    "競合と差分空白の検査"
+  ],
+  "summary": "競合解消後のlint・整形・型検査、単体/統合999件とブラウザ22件が成功。単体/統合の並列数2・ブラウザ1で実行し、未解決の競合と空白エラーなし。",
+  "remaining": []
+}

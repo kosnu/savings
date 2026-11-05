@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2043; ユーザーの対応依頼",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/features/summaryByMonth/Summary/",
+    "apps/web/src/features/summaryByMonth/CategoryTotals/",
+    "apps/web/src/features/payments/listPayment/RecentPayments/",
+    "apps/web/src/features/payments/index.ts"
+  ],
+  "fingerprint": "fec8b249f7269553711a75c6156dde9479c290825d10383c17d261df88bc2cc5",
+  "status": "pass",
+  "checks": [
+    "web:format / web:lint / web:format-check / web:typecheck: pass",
+    "web:test:unit-integration: 152 files / 1046 tests pass",
+    "web:test:storybook: Chromium / 8 files / 28 tests pass",
+    "320pxと1280pxで0・1・5件への切替時の見出し・追加ボタン・一覧位置を照合: pass",
+    "320pxの20文字カテゴリ名と予算未設定: pass",
+    "git diff --check / Core check-changes: pass"
+  ],
+  "summary": "最終差分の必須Web検証とStorybook全件が成功。MSW遅延応答で主要操作位置の変化が0.5px未満であることを確認。長いカテゴリ名で観測した54pxの移動を修正し同条件で成功。通常権限のChromium起動制限は必要な権限で解消。",
+  "remaining": []
+}

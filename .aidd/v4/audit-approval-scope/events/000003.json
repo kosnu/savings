@@ -1,0 +1,42 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "ユーザー依頼: 相づちや直前の質問への肯定をAuditの実行承認に広げないようにルールを修正",
+  "paths": [
+    "docs/harness/policies/audit.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/cases.go",
+    "tools/harness/evals/analysis_test.go",
+    "tools/harness/evals/main_test.go"
+  ],
+  "fingerprint": "464ae05bdbab3a7a16bff4601c7373a85a110dad7b74ec426c39077c075768d0",
+  "status": "unknown",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.audit",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.retrospective",
+    "policy.review-feedback-classification",
+    "承認対象と操作の境界: pass",
+    "仮想6事例と正本の整合: pass",
+    "評価ケースと採点・suite件数の同期: pass",
+    "既存rule-map経路から正本へ到達: pass"
+  ],
+  "summary": "差分の意味レビューで指摘・規則競合なし。相づち・理解確認は未承認、明確な実行同意は質問の範囲だけ、既存承認は継続する。6仮想事例と評価ケース・採点・件数は整合。実モデルの判断改善と回帰有無はモデル利用不可で未確認。",
+  "remaining": [
+    "実モデル比較はmodel_unavailableで確認不能。静的な規則整合・採点検証の成功と実モデル効果の未確認を区別してPRに明記する。"
+  ]
+}

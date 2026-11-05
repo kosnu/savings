@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2044",
+  "paths": [
+    "apps/web/src/app/routes/PaymentsPage/",
+    "apps/web/src/features/payments/",
+    "apps/web/src/i18n/",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx"
+  ],
+  "fingerprint": "158ff013420ecf152caa9387d1996db8659a41cf0425a598d1ca48b80320ba59",
+  "status": "pass",
+  "checks": [
+    "path/surface一致と依存closureの32規則",
+    "Issueの4成功条件と実差分・検証証拠の対応",
+    "共通MonthPickerとカテゴリ選択の操作/状態比較",
+    "URL・API期間・カテゴリ保持・初期化範囲・詳細遷移",
+    "320px/1280px配置と見出し・label・fieldsetの関連付け"
+  ],
+  "summary": "4成功条件をpass。共通MonthPickerを検索欄へ常時表示し操作を短縮。新しい条件・状態・取得境界なし。既存のカテゴリ/一覧エラー表示を保持し再試行UI再設計は範囲外。未解決指摘なし。MSW境界の確認であり実サービスデータは対象外。",
+  "remaining": []
+}

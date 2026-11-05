@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2015#discussion_r4351588651",
+  "paths": [
+    "DESIGN.md",
+    "apps/web/docs/policies/error-presentation.md",
+    "apps/web/docs/policies/design-rules.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "9ff57b381a96028a36e31f043647895e94e26fb0bd691d89b73d404d3adc65cc",
+  "status": "unknown",
+  "checks": [
+    "現HEADと未解決Bot thread1件の再取得",
+    "ユーザー訂正とブランド・既存規約の意味照合",
+    "保存・取得失敗と空状態・通常超過の対照",
+    "分析レビュー:客観性・再利用性・適用先"
+  ],
+  "summary": "前回の赤違反・gray変更・意味レビュー見逃しの結論を撤回。明確な取得失敗は保存失敗と同じ失敗の意味で赤が妥当。PR指摘は色の不適合ではなくDESIGNの限定列挙の説明不足としてP3に再評価。赤は維持しDESIGNのRed定義を処理失敗の意味分類と保存・取得の例へ明確化する案。Intent・共通review規則・索引の追加変更は不要。",
+  "remaining": [
+    "DESIGNの文言明確化・検証・配信と理由返信・Bot thread解決は提示案への承認待ち",
+    "Botの内部推論は確認不能。前回Auditが列挙欠落を禁止と判断した誤りは会話から確認"
+  ]
+}

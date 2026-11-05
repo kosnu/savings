@@ -1,0 +1,36 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "会話での改善依頼（別案件を根拠に含む問題、gpt-6.1-sol lowの前後比較）",
+  "paths": [
+    "docs/harness/policies/audit.md",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/main.go",
+    "tools/harness/evals/analysis.go",
+    "tools/harness/evals/cases.go",
+    "tools/harness/evals/analysis_test.go",
+    "docs/harness/policies/retrospective.md"
+  ],
+  "fingerprint": "6a96118b826c6c059ef976d8e01c65f2d720315b7cae262aa1718270088c565f",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.audit",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.review-feedback-classification",
+    "policy.retrospective"
+  ],
+  "summary": "対象案件に適用可能な根拠・反証と参考資料の境界、両分析の入口、変更範囲と比較条件を確認。採点実装に今回の差分なし。競合・未解決指摘なし。同じ4入力の少数試行。実案件での再発率は未計測。",
+  "remaining": []
+}

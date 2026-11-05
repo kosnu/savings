@@ -22,7 +22,7 @@ Storybook のブラウザテストは opt-in で運用します。
 
 コンポーネントに Story を作成する条件は `apps/web/docs/policies/component-structure.md` で定義します。そこで作成対象になった component Story も、以下の条件に該当しない限り browser test の対象にはしません。
 
-`pnpm --filter web test:storybook --reporter=dot --silent` の Storybook project は `apps/web/.storybook-test/` の Storybook 設定を使い、`apps/web/src/app/routes/**/*.stories.tsx` 配下の Page story だけを読み込みます。その上で、`browser-test` tag が付いた story だけを対象にします。
+`pnpm --filter web test:storybook --reporter=dot --silent` の Storybook project は `apps/web/.storybook-test/` の Storybook 設定を使い、`apps/web/src/app/routes/**/*.stories.tsx` 配下の Page story と `apps/web/src/app/Sidebar/Sidebar.stories.tsx` を読み込みます。その上で、`browser-test` tag が付いた story だけを対象にします。Sidebar は描画領域内のログアウト操作とメニューのスクロール到達性を実寸で検証するため、限定して収集します。
 
 Web の通常検証では Storybook browser test を常時実行しません。`browser-test` 対象の story、`apps/web/.storybook-test/`、または Storybook browser-test 設定に影響する変更がある場合に実行します。
 
@@ -65,4 +65,4 @@ const meta = {
 
 Page 以外の story に `browser-test` を付ける場合は、ブラウザテスト対象にする理由が story の責務から読み取れるようにしてください。
 
-通常の Storybook は `apps/web/.storybook/` を使い、カタログ用途として全 story を読み込みます。`apps/web/.storybook-test/` は Storybook test project 専用で、テスト実行時の読み込み負荷を抑えるために Page story へ限定します。
+通常の Storybook は `apps/web/.storybook/` を使い、カタログ用途として全 story を読み込みます。`apps/web/.storybook-test/` は Storybook test project 専用で、テスト実行時の読み込み負荷を抑えるために Page story と上記の Sidebar story へ限定します。

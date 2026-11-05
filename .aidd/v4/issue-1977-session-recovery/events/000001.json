@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1977",
+  "paths": [
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx",
+    "apps/web/src/app/SessionError/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "5e4bef78b828cc47a2be3444ed16280a6a909b0372287f0a138ed33007a24215",
+  "status": "pass",
+  "checks": [
+    "Intent and execution scope",
+    "Session identity and stale response boundary",
+    "Recovery UI and Google OAuth callback"
+  ],
+  "summary": "初回失敗をerrorと再試行へ分離し、通信失敗ではsignOutしない。既存sessionの維持と世代判定を保ち、明示的なAuth拒否はGoogle再認証へ案内する。ProfileLoadErrorのCalloutとAuthPageの配置に合わせる。 本番実イベントとの直接一致と実OAuth往復は検証対象外。",
+  "remaining": []
+}

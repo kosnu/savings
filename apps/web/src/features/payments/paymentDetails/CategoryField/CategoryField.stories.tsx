@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { QueryClientProvider } from "@tanstack/react-query"
-import { fn } from "storybook/test"
+import { expect, fn, userEvent, within } from "storybook/test"
 
 import { createQueryClient } from "../../../../lib/queryClient"
 import { SnackbarProvider } from "../../../../providers/snackbar/SnackbarProvider"
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
-import { categoryHandlers } from "../../../../test/msw/handlers/categories"
+import { createCategoryHandlers, categoryHandlers } from "../../../../test/msw/handlers/categories"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { CategoryField } from "./CategoryField"
 
@@ -61,5 +61,82 @@ export const RealNoneCategory: Story = {
     categoryName: "None",
     onEditStart: fn(),
     onEditEnd: fn(),
+  },
+}
+
+export const Loading: Story = {
+  args: { onEditStart: fn(), onEditEnd: fn() },
+  parameters: {
+    msw: {
+      handlers: [
+        ...createPaymentHandlers({}),
+        ...createCategoryHandlers({ get: { durationOrMode: "infinite" } }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(document.body)
+    await userEvent.click(canvas.getByRole("button", { name: /edit category/i }))
+    await userEvent.click(canvas.getByRole("combobox"))
+    await body.findByRole("option", { name: /loading/i })
+  },
+}
+
+export const FetchError: Story = {
+  args: { onEditStart: fn(), onEditEnd: fn() },
+  parameters: {
+    msw: {
+      handlers: [...createPaymentHandlers({}), ...createCategoryHandlers({ get: { error: true } })],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(document.body)
+    await userEvent.click(canvas.getByRole("button", { name: /edit category/i }))
+    await userEvent.click(canvas.getByRole("combobox"))
+    await body.findByRole("option", { name: /error/i }, { timeout: 5000 })
+  },
+}
+
+export const Saving: Story = {
+  args: { onEditStart: fn(), onEditEnd: fn() },
+  parameters: {
+    msw: {
+      handlers: [
+        ...createPaymentHandlers({ update: { durationOrMode: "infinite" } }),
+        ...createCategoryHandlers({}),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(document.body)
+    await userEvent.click(canvas.getByRole("button", { name: /edit category/i }))
+    await userEvent.click(canvas.getByRole("combobox"))
+    await userEvent.click(await body.findByRole("option", { name: "Daily Necessities" }))
+    await expect(canvas.getByRole("combobox")).toBeDisabled()
+  },
+}
+
+export const SaveError: Story = {
+  args: { onEditStart: fn(), onEditEnd: fn() },
+  parameters: {
+    msw: {
+      handlers: [
+        ...createPaymentHandlers({ update: { error: true } }),
+        ...createCategoryHandlers({}),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(document.body)
+    await userEvent.click(canvas.getByRole("button", { name: /edit category/i }))
+    await userEvent.click(canvas.getByRole("combobox"))
+    await userEvent.click(await body.findByRole("option", { name: "Daily Necessities" }))
+    await expect(
+      await body.findByText("Failed to update category.", { selector: "span" }),
+    ).toBeVisible()
   },
 }

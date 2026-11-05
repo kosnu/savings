@@ -1,0 +1,31 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1878",
+  "paths": [
+    "apps/web/index.html",
+    "apps/web/seo.ts",
+    "apps/web/vite.config.ts",
+    "apps/web/src/app/pageMetadata.ts",
+    "apps/web/src/app/usePageMetadata.ts",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx",
+    "apps/web/src/app/usePageMetadata.test.tsx",
+    "apps/web/src/test/seo.test.ts",
+    "apps/web/public/_headers",
+    "apps/web/public/robots.txt",
+    "apps/web/public/sitemap.xml"
+  ],
+  "fingerprint": "a2a424f3ac3b4c8d927eb82978d070cb722af5d9874ba63d9256062c6727860d",
+  "status": "pass",
+  "checks": [
+    "rule-map全path/surfaceと依存closure",
+    "Intentの公開2ページ・認証除外・既存遷移",
+    "静的HTML生成とSPAメタ情報の一致",
+    "言語変更・個人情報・不明URL境界",
+    "回帰テストの必要性と保証範囲"
+  ],
+  "summary": "Cloudflare Vite plugin v2.0.0-beta.v.2を含む最新mainで再確認。全適用規則と実差分を照合し指摘・規則競合なし。公開ページ情報は固定文言で個人データを参照しない。本文・認証・取得境界の実装は維持し、UIは既存TopPage/PrivacyPageをそのまま使う。初回HTMLに本文はなくJavaScript描画を確認。Google実測・本番配信は未実施。",
+  "remaining": []
+}

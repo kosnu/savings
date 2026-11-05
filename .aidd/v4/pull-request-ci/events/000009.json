@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "design",
+  "source": "conversation:current/approve-audit-2022-p2",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml",
+    "tools/dev-preview/lifecycle.mjs",
+    "tools/dev-preview/lifecycle.test.mjs",
+    "tools/dev-preview/authorize.test.mjs",
+    "docs/development-preview.md",
+    "docs/ai-driven-development/aidd-checker.md"
+  ],
+  "fingerprint": "a6d1ca09beaed78ba9ba3ea07f4591bf2dcb04c6d040fa23a03465846334dcf4",
+  "status": "pass",
+  "checks": [
+    "2026-10-25 ApproveとP2提案・返信解決の範囲照合",
+    "既存PR head・未解決thread・同Task baselineの確認"
+  ],
+  "summary": "同Taskの次cycle。配信はpull_request labeledを維持し、closedだけpull_request_targetへ分離する。終了受付はmain補助コードで同一repositoryを検証し、deploy jobもtargetを明示拒否する。既存PR単位の直列化とEnvironment承認を維持。競合終了・reopen・fork拒否・target配信禁止をfixtureとworkflow接続検査で固定し関連2文書を同期。検証後に同PRへpushしP2へ返信・解決する。実配信とmergeは範囲外。",
+  "remaining": []
+}

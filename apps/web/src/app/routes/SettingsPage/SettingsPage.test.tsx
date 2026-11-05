@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { BookSettings } from "../../../features/books"
+import { DataManagementSettings } from "../../../features/payments"
 import { AppearanceSettings } from "../../../features/preferences"
 import { ProfileSettings } from "../../../features/profile"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
@@ -13,7 +14,6 @@ import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyB
 import { server } from "../../../test/msw/server"
 import { screen, within } from "../../../test/test-utils"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../utils/postgresError"
-import { DataManagementSettings } from "../DataManagementSettings"
 import { SettingsOverview } from "../SettingsOverview"
 import { SettingsPage } from "./SettingsPage"
 

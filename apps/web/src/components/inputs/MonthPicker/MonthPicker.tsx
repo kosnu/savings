@@ -2,6 +2,13 @@ import { Flex, Select } from "@radix-ui/themes"
 import { useCallback, type ComponentProps } from "react"
 import { useTranslation } from "react-i18next"
 
+import {
+  clampDateToSupportedRange,
+  isSupportedDate,
+  MAX_YEAR,
+  MIN_YEAR,
+  resolveTargetMonth,
+} from "../../../domain/date"
 import { getDateLocale } from "../../../i18n"
 
 interface MonthPickerProps {
@@ -14,8 +21,8 @@ interface MonthPickerProps {
 
 const MONTH_VALUES = Array.from({ length: 12 }, (_, i) => i + 1)
 
-const YEARS = Array.from({ length: 11 }, (_, i) => {
-  const year = 2022 + i
+const YEARS = Array.from({ length: MAX_YEAR - MIN_YEAR + 1 }, (_, i) => {
+  const year = MIN_YEAR + i
   return { value: year.toString(), label: year.toString() }
 })
 
@@ -23,23 +30,30 @@ export function MonthPicker(props: MonthPickerProps) {
   const { id, name, onChange, size, value } = props
   const { i18n, t } = useTranslation()
 
-  const currentMonth = value ? (value.getMonth() + 1).toString() : ""
-  const currentYear = value ? value.getFullYear().toString() : ""
+  const supportedValue = value && isSupportedDate(value) ? value : undefined
+  const currentMonth = supportedValue ? (supportedValue.getMonth() + 1).toString() : ""
+  const currentYear = supportedValue ? supportedValue.getFullYear().toString() : ""
 
   const handleMonthChange = useCallback(
     (month: string) => {
-      const year = currentYear || new Date().getFullYear().toString()
-      const newDate = new Date(Number.parseInt(year, 10), Number.parseInt(month, 10) - 1, 1)
-      onChange?.(newDate)
+      const targetMonth = resolveTargetMonth(
+        currentYear || undefined,
+        month,
+        clampDateToSupportedRange(new Date()),
+      )
+      onChange?.(new Date(targetMonth.year, targetMonth.month - 1, 1))
     },
     [currentYear, onChange],
   )
 
   const handleYearChange = useCallback(
     (year: string) => {
-      const month = currentMonth || (new Date().getMonth() + 1).toString()
-      const newDate = new Date(Number.parseInt(year, 10), Number.parseInt(month, 10) - 1, 1)
-      onChange?.(newDate)
+      const targetMonth = resolveTargetMonth(
+        year,
+        currentMonth || undefined,
+        clampDateToSupportedRange(new Date()),
+      )
+      onChange?.(new Date(targetMonth.year, targetMonth.month - 1, 1))
     },
     [currentMonth, onChange],
   )

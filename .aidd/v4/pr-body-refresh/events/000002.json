@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "codex://threads/01a16366-f91a-7f42-99d3-dd9f9945b815",
+  "paths": [
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "f1c65cdc907bc649671dccc554685e88ec0216a0f94412daf71ad591221c5009",
+  "status": "pass",
+  "checks": [
+    "作成と更新の全コミット・最終差分照合",
+    "追加・撤回・重複の仮想事例照合",
+    "非main baseと検証失効の境界",
+    "正本・Ship参照・テンプレートの整合"
+  ],
+  "summary": "ユーザー要件から、更新後もPR全体の現在の成果を読めることを期待。作成・複数回更新・撤回・非main base・古いチェック状態を本文規則と照合しpass。既存routingでGit Workflowへ到達し追加同期不要。指摘・規則競合なし。将来の各PRでの遵守は未観測。",
+  "remaining": []
+}

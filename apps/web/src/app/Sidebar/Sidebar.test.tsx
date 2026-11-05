@@ -1,29 +1,81 @@
 import { composeStories } from "@storybook/react-vite"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
-import { createTestQueryClient, render, screen, waitFor } from "../../test/test-utils"
+import { i18next } from "../../i18n"
+import { cleanup, createTestQueryClient, render, screen, waitFor } from "../../test/test-utils"
 import * as stories from "./Sidebar.stories"
 
 const mockSignOut = vi.fn()
+const mockAuth = {
+  signOut: (...args: unknown[]) => mockSignOut(...args),
+  setSession: vi.fn(),
+}
 
 vi.mock("../../lib/supabase", () => ({
   getSupabaseClient: () => ({
-    auth: {
-      signOut: mockSignOut,
-    },
+    auth: mockAuth,
   }),
 }))
 
-const { Default, Closed } = composeStories(stories)
+const { Default, Closed, LoggingOut, LogoutError } = composeStories(stories)
 
 describe("Sidebar", () => {
   beforeEach(() => {
     mockSignOut.mockReset()
     mockSignOut.mockResolvedValue({ error: null })
+    mockAuth.setSession.mockClear()
   })
 
-  afterEach(() => {
+  afterEach(async () => {
+    await Default.load()
     vi.restoreAllMocks()
+  })
+
+  describe.each([
+    ["ja", "ログアウト"],
+    ["en", "Log out"],
+  ] as const)("%s", (language, logoutLabel) => {
+    test.each([
+      ["LoggingOut", LoggingOut],
+      ["LogoutError", LogoutError],
+    ] as const)(
+      "%s story は認証セッションを作らず、終了後に通常のログアウトへ戻る",
+      async (_, Story) => {
+        const originalLanguage = i18next.language
+        const originalSavedLanguage = localStorage.getItem("appLanguage")
+        await i18next.changeLanguage(language)
+        try {
+          vi.spyOn(console, "error").mockImplementation(() => undefined)
+          const originalSignOut = mockAuth.signOut
+          await Story.load()
+          const { container, unmount } = render(<Story />)
+
+          expect(await screen.findByRole("button", { name: logoutLabel })).toBeEnabled()
+          await Story.play!({ canvasElement: container })
+
+          expect(mockAuth.setSession).not.toHaveBeenCalled()
+          expect(mockSignOut).not.toHaveBeenCalled()
+          unmount()
+          await Default.load()
+          expect(mockAuth.signOut).toBe(originalSignOut)
+
+          const onClose = vi.fn()
+          const { user } = render(<Default onClose={onClose} />)
+          await user.click(await screen.findByRole("button", { name: logoutLabel }))
+          expect(mockSignOut).toHaveBeenCalledWith({ scope: "local" })
+          await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1))
+          expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+        } finally {
+          cleanup()
+          await i18next.changeLanguage(originalLanguage)
+          if (originalSavedLanguage === null) {
+            localStorage.removeItem("appLanguage")
+          } else {
+            localStorage.setItem("appLanguage", originalSavedLanguage)
+          }
+        }
+      },
+    )
   })
 
   test("Default story では開いたサイドバーを表示する", async () => {

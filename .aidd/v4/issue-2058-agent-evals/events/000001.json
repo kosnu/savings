@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2058; 会話での採点の曖昧さ修正・前後再評価・HTML/PR同期の依頼",
+  "paths": [
+    "tools/aidd/evals/",
+    "docs/ai-driven-development/agent-evals.md"
+  ],
+  "fingerprint": "47a9dd7983b00c4db25f61ea1b9d8728e3cb19c86796c617fac9f23f6d9a1443",
+  "status": "pass",
+  "checks": [
+    "確認済みの検証漏れと発生・見逃しの原因を別に定義",
+    "省略事実だけではtest_gapと断定せずunknownを保持",
+    "根拠のある見逃し理由と根拠のない断定を対照テストで区別",
+    "同じv5 suiteで66d89de4と未commit候補を再評価"
+  ],
+  "summary": "同じeval導入Taskの採点修正。verification_gapは観測事実、cause/escapeは理由として分離し、事例の分析対象と証拠の範囲を明示する。根拠不足の断定は不合格に保つ。Retrospectiveの対象外fieldは採点せず、旧v4の7/8を再採点・能力不足の証拠として扱わない。",
+  "remaining": []
+}

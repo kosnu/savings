@@ -1,5 +1,5 @@
 import { HttpResponse, http } from "msw"
-import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
 import { server } from "../../../test/msw/server"
@@ -27,6 +27,10 @@ const dailyNecessitiesCategory = {
 describe("fetchCategorySettingsItems", () => {
   beforeEach(() => {
     server.resetHandlers(...createCategorySettingsHandlers())
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it("カテゴリ設定行と有効予算を取得して正規化する", async () => {
@@ -114,6 +118,28 @@ describe("fetchCategorySettingsItems", () => {
     )
 
     await expect(fetchCategorySettingsItems()).rejects.toThrow("Failed to fetch category settings.")
+  })
+
+  it.each([
+    [new Date(2026, 2, 20), "2026-03-01"],
+    [new Date(2022, 0, 1), "2022-01-01"],
+    [new Date(2032, 11, 31), "2032-12-01"],
+    [new Date(2021, 11, 31), "2022-01-01"],
+    [new Date(2033, 0, 1), "2032-12-01"],
+  ])("現在日付が%sのときは許容範囲内の対象月%sの予算を読む", async (now, targetMonth) => {
+    vi.useFakeTimers({ toFake: ["Date"] })
+    vi.setSystemTime(now)
+    let budgetBody: unknown
+    server.use(
+      http.post("*/rest/v1/rpc/get_effective_category_budgets", async ({ request }) => {
+        budgetBody = await request.json()
+        return HttpResponse.json([])
+      }),
+    )
+
+    await fetchCategorySettingsItems()
+
+    expect(budgetBody).toEqual({ p_target_month: targetMonth })
   })
 
   it("レスポンス shape が不正ならエラーにする", async () => {

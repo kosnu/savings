@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "codex://threads/01a16366-f91a-7f42-99d3-dd9f9945b815",
+  "paths": [
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "680c9643b18323334c7c8660791db7b0276fefabe6ba047b15451168c8fcfebd",
+  "status": "pass",
+  "checks": [
+    "ユーザーApproveと最終Auditの有限範囲照合",
+    "元Intentと改善済みPR規則の確認"
+  ],
+  "summary": "ユーザーのApproveに基づき、対象PRの全コミット・最終差分と一致する比較範囲を使う条件だけをGit WorkflowのPR節へ具体化。GitHub取得と確認済SHA/refのローカル比較を認め、fetchや新gateを必須化しない。同Task・baselineを維持し、承認済み改善後の次サイクルで文書検証・レビュー・同PR更新と元Botへの返信・完了後解決まで実施する。",
+  "remaining": []
+}

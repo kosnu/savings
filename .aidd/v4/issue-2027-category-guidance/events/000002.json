@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2027",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/CategoryTotals/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "59eb33d7d3afb9bc9d5c7e48532c57c70a5403a1da92ea0aa1bec8553f453941",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration",
+    "web:test:storybook",
+    "git diff --check",
+    "Core rules/check-changes"
+  ],
+  "summary": "lint・整形・型検査成功。ユニット/統合150ファイル1030件、Storybook 8ファイル22件成功。ブラウザ起動制限は権限付き再実行で解消。",
+  "remaining": []
+}

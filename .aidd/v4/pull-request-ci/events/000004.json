@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2022",
+  "paths": [
+    ".github/workflows/deploy_preview.yaml",
+    ".github/workflows/aidd_checker_ci.yaml",
+    "tools/dev-preview/",
+    "tools/vite-plus-sync/workflow.test.mjs",
+    "docs/development-preview.md",
+    "docs/ai-driven-development/aidd-checker.md"
+  ],
+  "fingerprint": "0c5daa8ea22071fc973980ae80c7cb80b0a6f4e574848c95ddc22eca1b552dc7",
+  "status": "pass",
+  "checks": [
+    "未解決thread・現head・CIとEnvironment実設定の照合",
+    "原因と反証・既存経路の区別",
+    "対策の再利用性・反例・有限の反映先の確認"
+  ],
+  "summary": "Audit完了。P1: PR管理下のPreview workflowと未設定のEnvironment承認が併存。通常CIのmain固定廃止を維持し、既存規定どおりdevelopmentの所有者承認・bypass禁止・branch制限を適用する案。P2: 旧main dispatchと新PR CIがaidd-checker-2022で競合し、直接CIがcancel→verify失敗。event別groupと旧新並行回帰testを提案。Intent不足ではなく既存承認規定の適用漏れ、外部設定・移行経路の検証不足。修正前merge非推奨。設定・コード変更とP1返信/解決は手動承認待ち。三観点の分析再レビュー完了。侵害の有無・token実権限・対策後Actions実動は未確認。",
+  "remaining": []
+}

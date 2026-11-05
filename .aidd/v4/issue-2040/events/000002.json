@@ -1,0 +1,29 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2040",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/",
+    "apps/web/src/features/payments/monthlySpending/",
+    "apps/web/src/features/payments/queryKeys.ts",
+    "apps/web/src/features/payments/index.ts",
+    "apps/web/src/features/budgets/",
+    "apps/web/src/app/routes/HomePage/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/test/msw/handlers/payments.ts"
+  ],
+  "fingerprint": "bb4e80248eae2968f9993eadac020cc7236f177559739dfe4538e406bec1c05d",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration (1082)",
+    "web:test:storybook (28)",
+    "git diff --check",
+    "320px実画面・ホームのグラフ配置"
+  ],
+  "summary": "Web必須4検証と影響するStorybook 28件が成功。月・Book・ページ分割取得、実績と見込み、予算未設定・0円、再試行・月変更復帰、作成後再取得を確認。初回のChromium起動制限は同じcommandの昇格実行で解消。",
+  "remaining": []
+}

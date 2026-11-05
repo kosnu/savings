@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2044",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/PaymentsPage/PaymentsPage.test.tsx"
+  ],
+  "fingerprint": "a6c54d43b36c51fbb8dc82e3cd9302167100010c04b6bba5fb2c4adb9dffc779",
+  "status": "pass",
+  "checks": [
+    "approveで承認された提案1と更新後Issueの成功条件を照合",
+    "専用ラベルの日英翻訳と既存グループ名期待値の3箇所に変更を限定"
+  ],
+  "summary": "同Task・baseline70fe11a9を維持。支払い日を基準に絞る意味を専用ラベルの支払い年月/Payment monthで明示し、既存テストを同期する。共通MonthPickerや検索挙動は変更しない。既存Web4検証とブラウザ32件で回帰・320px配置を確認する。",
+  "remaining": []
+}

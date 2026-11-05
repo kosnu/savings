@@ -1,0 +1,33 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/1978",
+  "paths": [
+    "docs/harness/policies/code-review.md",
+    "docs/harness/policies/learning-extraction.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "9c3564f1f2bda2fa1aa26ebdd95a017d2a2cc3ba3fa852374f739f380243b6ff",
+  "status": "pass",
+  "checks": [
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.learning-extraction",
+    "policy.review-feedback-classification",
+    "Intentの完了条件5件と最終差分の照合",
+    "PR #1963由来3事例・同期修正の対照例・unknown境界の意味評価",
+    "索引・入口・CLI・実装・CIの変更不要判断"
+  ],
+  "summary": "Coverage: 全選択規約・Intentを再照合、未解決なし。#1978の4事例の根拠と判断は維持し、mainの分析レビュー/CI事例と両立。症状・時期・手段を分ける新規定とも矛盾なし。索引・入口・実装の追加変更は不要。実運用の再発率低下は未検証。",
+  "remaining": []
+}

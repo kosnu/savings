@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/2009",
+  "paths": [
+    "docs/harness/policies/documentation-policy.md",
+    "docs/ai-driven-development/semantic-review-cases.md",
+    "docs/ai-driven-development/workflow.md"
+  ],
+  "fingerprint": "bbbea4e6c0d383c802c20127ab97ae2719e7a586034c5d1225df9777b12a585e",
+  "status": "pass",
+  "checks": [
+    "Core verify: 差分範囲・適用13規則・stable",
+    "未stage・stage済み双方の空白検査とvp check",
+    "両追加節とmain確認結果の完全保持",
+    "元PRのローカル参照先・見出し19件"
+  ],
+  "summary": "競合マーカーなし。元PRとmainの追加節・main確認結果を完全保持。Coreの検証commandはすべて正常終了し対象変更なし。元PR参照19件は正常。main既存の見出しリンク不一致2件は今回の修正対象外。",
+  "remaining": []
+}

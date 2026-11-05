@@ -61,20 +61,28 @@ test("updates, unrelated labels, forks, wrong base and unsupported events cannot
     mutate(f)
     assert.throws(() => deploymentRequest(f.event, "pull_request", "refs/pull/1871/merge", repo))
   }
-  assert.deepEqual(
+  assert.throws(() =>
     deploymentRequest(fixture().event, "pull_request_target", "refs/heads/main", repo),
-    request,
+  )
+  assert.throws(() =>
+    deploymentRequest(
+      { ...fixture().event, action: "closed" },
+      "pull_request_target",
+      "refs/heads/main",
+      repo,
+    ),
   )
 })
 
-test("the selected head resolves without an Environment API dependency", async () => {
+// PR取得はfixture。GitHubの実APIやEnvironmentの実設定確認は実行しない。
+test("authorize returns the branch and SHA of the selected open PR", async () => {
   assert.deepEqual(await authorize(request, repo, getter(fixture())), {
     branch: "feature/example",
     sha,
   })
 })
 
-test("head races, withdrawal, closure and foreign PRs fail the post-approval recheck", async () => {
+test("head races, withdrawal, closure and foreign PRs fail the pre-deployment recheck", async () => {
   await assert.rejects(
     authorize({ ...request, branch: "feature/renamed" }, repo, getter(fixture())),
   )
@@ -104,17 +112,24 @@ test("head races, withdrawal, closure and foreign PRs fail the post-approval rec
   }
 })
 
-test("workflow limits triggers and gates installation/deployment behind environment and revalidation", () => {
+// 以下のworkflow検査は本文の接続・条件・順序を固定する。Actionsの解釈や実行結果は確認しない。
+test("workflow text connects allowed requests to one PR check before checkout and installation", () => {
   const yaml = readFileSync(
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
   )
-  assert.match(yaml, /pull_request_target:\n    branches: \[main\]\n    types: \[labeled, closed\]/)
+  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled\]/)
+  assert.match(yaml, /pull_request_target:[^\n]*\n    branches: \[main\]\n    types: \[closed\]/)
   assert.doesNotMatch(yaml, /types:.*synchronize|secrets: inherit/)
   assert.match(yaml, /environment: development/)
-  assert.match(yaml, /ref: \$\{\{ needs.resolve.outputs.sha \}\}/)
+  assert.match(yaml, /ref: \$\{\{ steps.pr.outputs.sha \}\}/)
   assert.equal(yaml.match(/run: node tools\/dev-preview\/authorize.mjs/g)?.length, 1)
-  assert.ok(yaml.indexOf("Revalidate after environment approval") < yaml.indexOf("run: pnpm ci"))
+  const resolve = yaml.indexOf("Resolve selected PR head")
+  const checkout = yaml.indexOf("Checkout validated commit")
+  assert.ok(resolve >= 0 && resolve < checkout)
+  assert.ok(checkout < yaml.indexOf("run: pnpm ci"))
+  assert.match(yaml, /EXPECTED_BRANCH: \$\{\{ github.event.pull_request.head.ref \}\}/)
+  assert.doesNotMatch(yaml, /needs.resolve|Revalidate before deployment/)
   assert.ok(yaml.indexOf("run: pnpm ci") < yaml.indexOf("secrets.CLOUDFLARE_API_TOKEN"))
 })
 
@@ -133,7 +148,7 @@ test("database requests use their own label and the same immutable head checks",
   )
 })
 
-test("FE/DB share development but only DB steps receive database credentials", () => {
+test("workflow text separates FE/DB secret references and connects checkout SHA to SENTRY_RELEASE", () => {
   const read = (name) =>
     readFileSync(new URL(`../../.github/workflows/${name}`, import.meta.url), "utf8")
   const frontend = read("deploy_preview.yaml")
@@ -163,8 +178,8 @@ test("FE/DB share development but only DB steps receive database credentials", (
     .split("      - name: Deploy Dev Preview\n")[0]
   const productionWeb = production.split("\n  deploy-web:\n")[1]
   for (const [workflow, build, source] of [
-    [frontend, previewBuild, "needs.resolve.outputs.sha"],
-    [productionWeb, productionWeb, "github.sha"],
+    [frontend, previewBuild, "steps.pr.outputs.sha"],
+    [productionWeb, productionWeb, "needs.release.outputs.sha"],
   ]) {
     assert.ok(workflow.includes(`ref: \${{ ${source} }}`))
     assert.ok(build.includes(`SENTRY_RELEASE: \${{ ${source} }}`))
@@ -189,8 +204,13 @@ test("FE/DB share development but only DB steps receive database credentials", (
   assert.match(ci, /VITE_SENTRY_ENVIRONMENT: development/)
   assert.doesNotMatch(ci, /secrets\.|SENTRY_AUTH_TOKEN/)
   assert.match(database, /^  group: burneto-shared-dev-database$/m)
+  assert.match(database, /^  deploy-api:$/m)
+  assert.doesNotMatch(database, /^  resolve:|needs:|EXPECTED_SHA:/m)
+  assert.equal(database.match(/run: node tools\/dev-preview\/authorize.mjs/g)?.length, 1)
+  assert.match(database, /ref: \$\{\{ steps.pr.outputs.sha \}\}/)
+  assert.match(database, /EXPECTED_BRANCH: \$\{\{ github.event.pull_request.head.ref \}\}/)
   assert.ok(
-    database.indexOf("Revalidate after migration approval") <
+    database.indexOf("Resolve selected PR head") <
       database.indexOf("secrets.SUPABASE_ACCESS_TOKEN"),
   )
 })

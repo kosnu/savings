@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/1992",
+  "paths": [
+    "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.test.tsx"
+  ],
+  "fingerprint": "f78b706484dbd06a6733a5fee4c2bc553fcf56c8fdbe8b224b36198487511cfa",
+  "status": "pass",
+  "checks": [
+    "Web lint",
+    "Web format check",
+    "Web typecheck",
+    "unit/integration 全150ファイル1031テスト",
+    "CI相当の2分割shard",
+    "差分の空白エラー"
+  ],
+  "summary": "Web必須4検証とCI相当shard 1/2・2/2が成功。対象テストは取得失敗の表示、明示的再試行による正常表示とfocus復帰を検査する。",
+  "remaining": []
+}

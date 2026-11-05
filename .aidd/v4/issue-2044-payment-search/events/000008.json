@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2081",
+  "paths": [
+    ".github/workflows/harness_checker_ci.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs"
+  ],
+  "fingerprint": "a6c54d43b36c51fbb8dc82e3cd9302167100010c04b6bba5fb2c4adb9dffc779",
+  "status": "pass",
+  "checks": [
+    "旧取消runのverify失敗と同head後続run成功を実ログで確認",
+    "always条件とjob条件を通らない既存回帰テストが原因・見逃し箇所",
+    "ユーザーのApproveがverify・dispatch投稿の取消除外と既存テスト修正を承認"
+  ],
+  "summary": "最新のユーザー発言Approveで具体案1の有限な対象への手動承認を確認。Issue #2044のIntentとPR #2081の採用判断を再読。同じTaskの次cycleでCI条件と既存回帰テストだけを改善する。UI・Intent・共通規則・Dev配信は対象外。",
+  "remaining": []
+}

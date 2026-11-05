@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2039",
+  "paths": [
+    ".github/workflows/deploy_production.yaml",
+    ".github/workflows/release_production.yaml",
+    ".github/workflows/draft_production_release.yaml",
+    ".github/workflows/production_release_ci.yaml",
+    "tools/production-release/",
+    "tools/dev-preview/authorize.test.mjs",
+    "docs/production-release.md",
+    "docs/infrastructure.md",
+    "docs/workers-migration.md",
+    "docs/cloudflare-delivery.md",
+    ".agents/skills/release/SKILL.md"
+  ],
+  "fingerprint": "90b8b44c9f0d46f5c50b949a90efef81f8d4381f985ff4db192da3b1bd422a1d",
+  "status": "pass",
+  "checks": [
+    "通常公開の前提・承認・CI成功・結果確認への到達",
+    "採番基準・手動Draft・固定SHAの維持",
+    "DB部分適用・Web切り戻し・データ復元の制限",
+    "スキルから既存正本への経路と依頼範囲の判断",
+    "現行の最終差分と既存コード・検証証拠の整合"
+  ],
+  "summary": "公開操作を冒頭に集約し、採番と復旧の判断条件を保持した。スキルは既存正本への参照と依頼・承認の判断を所有し、重複する運用手順を除去した。索引の対象path・正本所有は維持。実配信と実機確認、標準evalでのスキル実行は未観測。",
+  "remaining": []
+}

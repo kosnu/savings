@@ -1,19 +1,19 @@
 ---
-title: AIDD v4の変更範囲とレビュー
+title: エージェント中心の開発の変更範囲とレビュー
 doc_type: policy
 status: accepted
 area: repository
 applies_to:
-  - tools/aidd
+  - tools/harness
   - docs/ai-driven-development
 topics:
   - ai-driven-development
   - aidd-v4
 when_to_read:
-  - AIDD v4の変更範囲とレビューを判断または変更するとき
+  - 開発基盤の変更範囲とレビューを判断または変更するとき
 ---
 
-# AIDD v4の変更範囲とレビュー
+# エージェント中心の開発の変更範囲とレビュー
 
 変更の意味から、正本、索引、実装、CLI、host入口、CI、検証のうち同期が必要な面を判断する。
 データ形式・入出力契約の変更では、[Code Review Policyの確認基準](../harness/policies/code-review.md#レビューで確認する内容)を適用し、生成側と利用側を同期対象と検証範囲へ含める。

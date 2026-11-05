@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "codex://threads/01a16366-f91a-7f42-99d3-dd9f9945b815",
+  "paths": [
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "680c9643b18323334c7c8660791db7b0276fefabe6ba047b15451168c8fcfebd",
+  "status": "pass",
+  "checks": [
+    "承認済みの有限範囲と実差分の一致",
+    "全適用規約と独立レビュー",
+    "元Intent・全体再構成・取得済情報の再利用"
+  ],
+  "summary": "変更はGit WorkflowのPR節一項目のみ。対象PRの全コミット・最終差分との一致を条件化し、GitHub取得と確認済みローカル比較を許可。既存の本文全体再構成・テンプレ準拠・動作確認の条件を維持。fetch強制、新gate、権限・機能の拡張なし。全適用規約と独立レビューで指摘・未解決の矛盾なし。",
+  "remaining": []
+}

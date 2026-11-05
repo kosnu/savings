@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2044",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/PaymentsPage/PaymentsPage.test.tsx"
+  ],
+  "fingerprint": "a6c54d43b36c51fbb8dc82e3cd9302167100010c04b6bba5fb2c4adb9dffc779",
+  "status": "pass",
+  "checks": [
+    "承認された提案1と更新後Issueの5成功条件",
+    "path/surface一致・依存closureの適用規則",
+    "専用日英ラベルと既存グループ名期待値の最小差分",
+    "共通部品・URL・取得境界への影響なし",
+    "検証対象内容と最新結果の一致"
+  ],
+  "summary": "日本語を支払い年月、英語をPayment monthとし支払い日の検索条件である意味を明示。期待値は承認済みIntentから導いて既存テストへ同期。5成功条件をpass、未解決指摘なし。共通規則やMonthPickerの変更不要。MSW境界の確認で実サービスの認証済み操作は対象外。",
+  "remaining": []
+}

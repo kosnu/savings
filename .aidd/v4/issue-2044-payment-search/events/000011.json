@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/2081",
+  "paths": [
+    ".github/workflows/harness_checker_ci.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs"
+  ],
+  "fingerprint": "89ca487f89cc20345951669c1a2253ea6c55d5057229902948b9b1c26f8bd994",
+  "status": "pass",
+  "checks": [
+    "Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.overview, ai-driven.workflow",
+    "Checked rules: architecture.overview, documentation.policy, policy.audit, policy.code-review, policy.git-workflow, policy.review-feedback-classification, policy.transaction-boundaries",
+    "承認済み対象と実差分が一致。通常失敗を成功にせず取消時のみ対象jobを除外",
+    "公式status関数仕様・actionlint・実条件16ケースと既存集約16ケースを照合",
+    "信頼境界・権限・起動イベント・旧新concurrency group・SHA検証は不変",
+    "PR全体の最終差分とIssueの5成功条件を照合。Web実装は前回検証対象から変更なし"
+  ],
+  "summary": "取消されたrunがverify失敗を残す経路をjob条件で閉じ、非取消時は依存失敗・skipを従来どおり失敗扱いにする。dispatchの取消後の誤投稿も除外。条件評価とshell実行の観測範囲を区別し、Actionsの実取消は未観測。LLM evalはagent判断・行動の変更がないため対象外。Unresolved: なし。追加承認・Intent変更・アプリ再配信は不要。",
+  "remaining": []
+}

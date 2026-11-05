@@ -1,11 +1,19 @@
 import * as z from "zod"
 
+import { MAX_DATE_ONLY, MIN_DATE_ONLY } from "../../../domain/date"
+
 export const PAYMENT_EXPORT_LIMIT = 10_000
+
+const exportDateSchema = z.iso.date({ error: "exportPayments.invalidDate" }).pipe(
+  z.string().refine((value) => MIN_DATE_ONLY <= value && value <= MAX_DATE_ONLY, {
+    error: "exportPayments.invalidDate",
+  }),
+)
 
 export const exportPaymentsSchema = z
   .object({
-    startDate: z.iso.date({ error: "exportPayments.invalidDate" }),
-    endDate: z.iso.date({ error: "exportPayments.invalidDate" }),
+    startDate: exportDateSchema,
+    endDate: exportDateSchema,
   })
   .refine(({ startDate, endDate }) => startDate <= endDate, {
     path: ["endDate"],

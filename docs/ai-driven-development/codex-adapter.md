@@ -1,10 +1,10 @@
 ---
-title: AIDD v4 Codex adapter
+title: エージェント中心の開発 Codex adapter
 doc_type: policy
 status: accepted
 area: repository
 applies_to:
-  - tools/aidd
+  - tools/harness
   - docs/ai-driven-development
 topics:
   - ai-driven-development
@@ -13,12 +13,12 @@ topics:
   - sandbox
   - tool-execution
 when_to_read:
-  - AIDD v4 Codex adapterを判断または変更するとき
+  - Codex adapterを判断または変更するとき
   - CodexでGit管理領域へ書き込むとき
   - Codexでツールを実行または実行中の処理を追跡するとき
 ---
 
-# AIDD v4 Codex adapter
+# エージェント中心の開発 Codex adapter
 
 Codexは[共通workflow](workflow.md)を実行する。host固有のGoalや会話要約をCoreの入力契約へ持ち込まない。
 
@@ -101,7 +101,7 @@ Codexのrulesによるコマンドの許可と、サンドボックス内のフ�
 
 ## Goal機能との接続
 
-CodexでのAIDD実行は、利用条件を満たす場合にGoalで委任されたTaskの成果と進捗を追跡する。
+Codexでの開発実行は、利用条件を満たす場合にGoalで委任されたTaskの成果と進捗を追跡する。
 Goalの作成可否と状態更新は、そのhostが公開するtoolの条件に従う。
 
 ### 利用開始
@@ -128,7 +128,7 @@ Goalには成果、Intentの参照、Issue・PRの参照、委任範囲に合う
 Shipを目的とするGoalは、成果・必要な検証・レビュー・配信確認が揃い、目的に含まれる作業が残っていない時点で完了にする。
 ローカル完了など委任範囲が限定されたGoalは、その範囲の完了条件で判断する。
 予算・時間切れや作業途中の停止を達成として扱わない。
-Goalの完了はAIDDサイクル完了と区別して報告する。Ship目的のGoalはAudit未実施でも完了できるが、
+Goalの完了は開発サイクル完了と区別して報告する。Ship目的のGoalはAudit未実施でも完了できるが、
 Audit未実施・改善承認待ちをサイクル完了として反映しない。
 AuditはShip後の明示依頼を受けて開始し、Goalの継続や完了を理由にAudit・未承認の改善を自動実行しない。
 

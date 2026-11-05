@@ -14,12 +14,27 @@ describe("useSidebar", () => {
     expect(result.current.open).toBe(false)
   })
 
-  test("保存済みの状態がある場合は保存値を初期状態に使う", () => {
+  test("以前の開いた状態が保存されていても閉じた状態で初期化する", () => {
     window.localStorage.setItem("sidebarOpen", "true")
 
     const { result } = renderHook(() => useSidebar())
 
+    expect(result.current.open).toBe(false)
+  })
+
+  test("開いた状態でアンマウントしても次の初期表示は閉じる", () => {
+    const { result, unmount } = renderHook(() => useSidebar())
+
+    act(() => {
+      result.current.openSidebar()
+    })
+
     expect(result.current.open).toBe(true)
+    unmount()
+
+    const { result: nextResult } = renderHook(() => useSidebar())
+
+    expect(nextResult.current.open).toBe(false)
   })
 
   test("openSidebar で開き、closeSidebar で閉じる", () => {

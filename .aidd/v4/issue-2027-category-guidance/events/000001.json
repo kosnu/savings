@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2027",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/CategoryTotals/",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "59eb33d7d3afb9bc9d5c7e48532c57c70a5403a1da92ea0aa1bec8553f453941",
+  "status": "pass",
+  "checks": [
+    "Issue #2027と既存取得・作成後invalidation・Book設定経路の照合"
+  ],
+  "summary": "最新mainをbaselineに新Taskを開始。既存集計の登録カテゴリkindで判定し、灰色の任意利用補足とBook設定リンクを追加する。取得境界・未分類集計は維持する。",
+  "remaining": []
+}

@@ -1,7 +1,7 @@
 import { toDateOnlyString } from "../../domain/date"
 import type { TablesInsert, TablesUpdate } from "../../types/database.types"
 import type { Payment } from "../../types/payment"
-import { noteFieldSchema, type PaymentFormValues } from "./paymentFormSchema"
+import { dateFieldSchema, noteFieldSchema, type PaymentFormValues } from "./paymentFormSchema"
 
 type PaymentInsert = Omit<TablesInsert<"payments">, "book_id">
 type PaymentUpdate = Omit<TablesUpdate<"payments">, "book_id" | "id" | "created_at" | "updated_at">
@@ -34,7 +34,7 @@ export function toPaymentWriteInsert(value: PaymentWriteInput): PaymentInsert {
 
   return {
     amount: value.amount,
-    date: toDateOnlyString(value.date),
+    date: toDateOnlyString(dateFieldSchema.parse(value.date)),
     note: note === "" ? null : (note ?? null),
     category_id: toCategoryId(value.categoryId),
   }
@@ -53,7 +53,7 @@ export function toPaymentWriteUpdate(patch: PaymentUpdatePatch): PaymentUpdate {
     updatePayload.amount = patch.amount
   }
   if (patch.date !== undefined) {
-    updatePayload.date = toDateOnlyString(patch.date)
+    updatePayload.date = toDateOnlyString(dateFieldSchema.parse(patch.date))
   }
   if (patch.note !== undefined) {
     const note = validatePaymentNote(patch.note)

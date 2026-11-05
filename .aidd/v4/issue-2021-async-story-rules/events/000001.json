@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2021",
+  "paths": [
+    "apps/web/docs/policies/component-structure.md",
+    "apps/web/src/features/",
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx"
+  ],
+  "fingerprint": "4ead65c19edbdfafe5459c777c06592ce1b7bc7b1e151ff153a0cf839bc0ddbf",
+  "status": "pass",
+  "checks": [
+    "状態所有者の判定と具体例",
+    "既存Storyの対象再判定"
+  ],
+  "summary": "既存正本へ取得・保存・表示部品・配置だけの親の判定と再現方法を統合。配置だけの親は重複追加せず、状態所有者の不足Storyを補う。本番UIの既存不備は変更しない。",
+  "remaining": []
+}

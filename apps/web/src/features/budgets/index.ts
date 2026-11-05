@@ -1,5 +1,8 @@
 export { BudgetProgress } from "./components/BudgetProgress"
 export { MonthlyBudgetUsage } from "./components/MonthlyBudgetUsage"
-export { usePrefetchEffectiveMonthlyBudget } from "./getMonthlyBudget/useEffectiveMonthlyBudget"
+export {
+  effectiveMonthlyBudgetQueryOptions,
+  usePrefetchEffectiveMonthlyBudget,
+} from "./getMonthlyBudget/useEffectiveMonthlyBudget"
 export { LatestMonthlyBudget } from "./latestMonthlyBudget/LatestMonthlyBudget"
-export type { MonthlyBudgetRow } from "./types"
+export type { MonthlyBudgetRow, MonthlyBudgetState } from "./types"

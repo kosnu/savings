@@ -1,6 +1,6 @@
 import { subMonths } from "date-fns"
 
-import { toDateOnlyString } from "../../../domain/date"
+import { clampDateToSupportedRange, toDateOnlyString } from "../../../domain/date"
 
 const FREQUENT_PAYMENT_MINIMUM_COUNT = 3
 const FREQUENT_PAYMENT_LIMIT = 5
@@ -26,9 +26,11 @@ export interface FrequentPayment {
 }
 
 export function getFrequentPaymentDateRange(referenceDate: Date): FrequentPaymentDateRange {
+  const supportedReferenceDate = clampDateToSupportedRange(referenceDate)
+
   return {
-    startDate: toDateOnlyString(subMonths(referenceDate, 1)),
-    endDate: toDateOnlyString(referenceDate),
+    startDate: toDateOnlyString(clampDateToSupportedRange(subMonths(supportedReferenceDate, 1))),
+    endDate: toDateOnlyString(supportedReferenceDate),
   }
 }
 

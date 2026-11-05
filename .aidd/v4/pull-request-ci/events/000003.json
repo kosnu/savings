@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "conversation:current/pull-request-ci",
+  "paths": [
+    ".github/workflows/frontend_ci.yaml",
+    ".github/workflows/aidd_checker_ci.yaml",
+    ".github/workflows/vite_plus_sync.yaml",
+    ".github/workflows/deploy_preview.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs",
+    "tools/dev-preview/",
+    "docs/ai-driven-development/aidd-checker.md",
+    "docs/development-preview.md"
+  ],
+  "fingerprint": "0c5daa8ea22071fc973980ae80c7cb80b0a6f4e574848c95ddc22eca1b552dc7",
+  "status": "pass",
+  "checks": [
+    "PR直接起動・同期後dispatch・Preview lifecycleの接続",
+    "全変更面のrule-map直接一致と依存closure",
+    "fork権限・SHA固定・Secret参照の確認"
+  ],
+  "summary": "Frontend/CheckerはPR側workflowで検証し、通常CIのwrite tokenを除外。Renovate同期後の現在headをPRブランチで検証し、結果だけ別jobで投稿する。自動アサインのみtargetを維持。Checked rules: ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines, ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, infrastructure.dev-preview, infrastructure.overview, policy.code-review, policy.git-workflow, policy.issue-template-selection, policy.learning-extraction, policy.retrospective, policy.review-feedback-classification, policy.transaction-boundaries. Unresolved: none. Actions実動・既存Environment保護設定は保証対象外。",
+  "remaining": []
+}

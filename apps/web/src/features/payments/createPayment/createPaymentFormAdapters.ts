@@ -1,9 +1,10 @@
+import { clampDateToSupportedRange } from "../../../domain/date"
 import type { PaymentWriteInput } from "../paymentFormMappers"
 import type { PaymentFormSubmitValues, PaymentFormValues } from "../paymentFormSchema"
 
 export function createPaymentDefaultValues(): PaymentFormValues {
   return {
-    date: new Date(),
+    date: clampDateToSupportedRange(new Date()),
     category: "",
     note: "",
     amount: undefined,

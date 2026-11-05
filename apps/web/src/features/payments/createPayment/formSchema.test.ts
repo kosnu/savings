@@ -10,7 +10,7 @@ import {
 describe("paymentFormSchema", () => {
   const data = {
     category: "hoge",
-    date: new Date(),
+    date: new Date(2026, 9, 22),
     note: "test",
     amount: 10,
   }
@@ -99,12 +99,22 @@ describe("paymentFormSchema", () => {
     const error = result.error && z.flattenError(result.error).fieldErrors.date
     expect(error).toEqual(["Date cannot be empty"])
   })
+
+  test.each([
+    { date: new Date(2022, 0, 1), valid: true },
+    { date: new Date(2032, 11, 31, 23, 59, 59), valid: true },
+    { date: new Date(2021, 11, 31), valid: false },
+    { date: new Date(2033, 0, 1), valid: false },
+    { date: new Date(NaN), valid: false },
+  ])("入力中の日付 $date の有効性は $valid", ({ date, valid }) => {
+    expect(paymentFormSchema.safeParse({ ...data, date }).success).toBe(valid)
+  })
 })
 
 describe("paymentFormSubmitSchema", () => {
   const data = {
     category: "hoge",
-    date: new Date(),
+    date: new Date(2026, 9, 22),
     note: "test",
     amount: 10,
   }
@@ -148,5 +158,15 @@ describe("paymentFormSubmitSchema", () => {
 
     const error = result.error && z.flattenError(result.error).fieldErrors.note
     expect(error).toEqual([`Note must be ${PAYMENT_NOTE_MAX_LENGTH} characters or less`])
+  })
+
+  test.each([
+    { date: new Date(2022, 0, 1), valid: true },
+    { date: new Date(2032, 11, 31, 23, 59, 59), valid: true },
+    { date: new Date(2021, 11, 31), valid: false },
+    { date: new Date(2033, 0, 1), valid: false },
+    { date: new Date(NaN), valid: false },
+  ])("送信時の日付 $date の有効性は $valid", ({ date, valid }) => {
+    expect(paymentFormSubmitSchema.safeParse({ ...data, date }).success).toBe(valid)
   })
 })

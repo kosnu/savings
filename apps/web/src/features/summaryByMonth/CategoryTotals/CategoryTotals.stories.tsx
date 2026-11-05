@@ -1,12 +1,16 @@
 import { Box } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import { createRoute } from "@tanstack/react-router"
 import { expect, userEvent, within } from "storybook/test"
 
 import { createStoryRouter, paymentsRouteBuilder } from "../../../test/helpers/routerDecorator"
+import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
+import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import type { CategoryRow } from "../../../types/category"
 import type { PaymentRow } from "../../../types/payment"
+import { BookSettings } from "../../books"
 import { CategoryTotals } from "./CategoryTotals"
 
 const categoryRows: CategoryRow[] = [
@@ -146,7 +150,16 @@ const meta = {
       ],
     },
   },
-  decorators: [createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder)],
+  decorators: [
+    createStoryRouter("/payments?year=2025&month=06", (root, Story) => [
+      ...paymentsRouteBuilder(root, Story),
+      createRoute({
+        getParentRoute: () => root,
+        path: "/settings/book",
+        component: BookSettings,
+      }),
+    ]),
+  ],
 } satisfies Meta<typeof CategoryTotals>
 
 export default meta
@@ -156,14 +169,14 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
-    expect(await canvas.findByText("On budget")).toBeInTheDocument()
+    expect(await canvas.findAllByText("On budget")).not.toHaveLength(0)
     expect(await canvas.findByText("¥2,000 left")).toBeInTheDocument()
     expect(await canvas.findByText("¥500 over")).toBeInTheDocument()
 
     await userEvent.click(await canvas.findByRole("button", { name: "Show more category totals" }))
 
-    expect(await canvas.findByText("Not set")).toBeInTheDocument()
-    expect(await canvas.findByText("No budget")).toBeInTheDocument()
+    expect(await canvas.findAllByText("Not set")).not.toHaveLength(0)
+    expect(await canvas.findAllByText("No budget")).not.toHaveLength(0)
   },
 }
 
@@ -201,5 +214,47 @@ export const LargeAmounts: Story = {
     expect(await canvas.findByText("¥8,999,999,999,999 over")).toBeInTheDocument()
     expect(container.scrollWidth).toBeLessThanOrEqual(container.clientWidth)
     expect(progress.getBoundingClientRect().width).toBe(container.getBoundingClientRect().width)
+  },
+}
+
+export const Loading: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        ...createCategoryHandlers({ get: { durationOrMode: "infinite" } }),
+        ...createPaymentHandlers(),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByLabelText("loading category totals"),
+    ).toBeVisible()
+  },
+}
+
+export const NoCategories: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        ...createBookHandlers(),
+        ...createMonthlyBudgetHandlers(),
+        ...createCategoryHandlers({ get: { response: [], paymentRows: [], budgetRows: [] } }),
+        ...createPaymentHandlers({ initialRows: [] }),
+      ],
+    },
+  },
+}
+
+export const FetchError: Story = {
+  parameters: {
+    msw: {
+      handlers: [...createCategoryHandlers({ get: { error: true } }), ...createPaymentHandlers()],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText("Failed", {}, { timeout: 5000 }),
+    ).toBeVisible()
   },
 }

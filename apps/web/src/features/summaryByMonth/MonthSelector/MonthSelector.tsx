@@ -5,10 +5,15 @@ import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { MonthPicker } from "../../../components/inputs/MonthPicker"
-import { toTargetMonth } from "../../../domain/date"
+import {
+  clampDateToSupportedRange,
+  isSelectableMonth,
+  MAX_MONTH_INDEX,
+  MIN_MONTH_INDEX,
+  toTargetMonth,
+} from "../../../domain/date"
 import { getDateLocale } from "../../../i18n"
 import { useDateRange } from "../../../utils/useDateRange"
-import { isSelectableMonth, MAX_MONTH_INDEX, MIN_MONTH_INDEX } from "../monthRange"
 
 function toMonthIndex(year: number, month: number) {
   return year * 12 + month - 1
@@ -55,12 +60,12 @@ export function MonthSelector({ to = "/payments" }: { to?: "/" | "/payments" }) 
   )
 
   const handlePreviousMonthClick = useCallback(() => {
-    const baseDate = currentDate ?? new Date()
+    const baseDate = currentDate ?? clampDateToSupportedRange(new Date())
     handleMonthChange(new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 1))
   }, [currentDate, handleMonthChange])
 
   const handleNextMonthClick = useCallback(() => {
-    const baseDate = currentDate ?? new Date()
+    const baseDate = currentDate ?? clampDateToSupportedRange(new Date())
     handleMonthChange(new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 1))
   }, [currentDate, handleMonthChange])
 

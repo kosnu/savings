@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1966",
+  "paths": [
+    "docs/harness/policies/code-review.md",
+    "apps/web/docs/policies/test-policy.md",
+    "apps/web/src/test/viteSentry.test.ts",
+    "tools/dev-preview/authorize.test.mjs",
+    "tools/dev-preview/lifecycle.test.mjs",
+    "tools/dev-preview/report.test.mjs"
+  ],
+  "fingerprint": "14713afdfbbb050ec1117a02bc8b050c8ecdb6ca75c51d3d7ddc54316de95099",
+  "status": "pass",
+  "checks": [
+    "Issue・関連PRの確定判断と現行4ファイルの経路照合",
+    "適用規約と検証範囲の選定"
+  ],
+  "summary": "自前の責務・検出故障・保証外から共通基準とWeb例を定義する。4ファイルは接続・制約を守るため維持し、過大な名前を修正、Viteの全認証項目とplugin登録を補完、lifecycleの名前変換重複を除く。新台帳や外部検証は追加しない。",
+  "remaining": []
+}

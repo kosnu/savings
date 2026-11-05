@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2013",
+  "paths": [
+    "apps/web/docs/policies/error-presentation.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/docs/policies/suspense-boundaries.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "9ff57b381a96028a36e31f043647895e94e26fb0bd691d89b73d404d3adc65cc",
+  "status": "pass",
+  "checks": [
+    "vp check: 文書とrule-mapの4ファイル",
+    "相対リンク41件",
+    "代表7パスのrule依存解決",
+    "Core rulesとGo vet",
+    "git diff --cached --check"
+  ],
+  "summary": "最新mainとの統合後も文書4ファイルは元の成果と同一。整形、リンク、規約参照経路、Coreの検証を通過。main比のTask差分にruntime変更はなくWeb検証は対象外。",
+  "remaining": []
+}

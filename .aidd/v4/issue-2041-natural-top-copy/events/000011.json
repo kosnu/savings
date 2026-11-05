@@ -1,0 +1,37 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "review",
+  "source": "Issue #2041; PR https://github.com/kosnu/savings/pull/2065; 元ユーザー発言2026-11-01 approve。句読点・文区切りの直接修正とIssue成功条件5の具体化を承認",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/TopPage/"
+  ],
+  "fingerprint": "1c632830e29e85aa830edb7c27fc935cf85118934e6e31a99c0f753cd31725a5",
+  "status": "pass",
+  "checks": [
+    "Coverage / Checked rules: ai-driven.glossary, ai-driven.overview, ai-driven.workflow, ai-driven.checker, architecture.overview, infrastructure.overview, documentation.policy",
+    "Checked rules: domain.amount, domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment, domain.user, policy.temporal-data, policy.transaction-boundaries",
+    "Checked rules: policy.code-review, policy.git-workflow, policy.audit, policy.review-feedback-classification",
+    "Checked rules: web.component-structure, web.feature-directory, web.design-rules, web.design-system-brand, web.domain-ui-rules, web.error-presentation, web.landing-page-rules",
+    "Checked rules: web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy",
+    "Unresolved: なし。PR全差分と今回の2ファイルを照合。共通規則の競合なし。新状態・新部品・機能・Query・DBの変更なし",
+    "条件1 pass: 予算・支払い・買い物/外食・入力と確認を平易な文で説明。見出しの途中の読点と末尾句点を除いた",
+    "条件2 pass: 非連携と登録不要を意味のつながる一文にし、広告は別文。手入力と必要時だけ付けるカテゴリ/メモを維持",
+    "条件3 pass: 貯蓄/節約の強制や支出への評価を含めず、残りの予算を踏まえた次の支出を問いかける",
+    "条件4 pass: 登録不要の対象は口座情報とカード番号。全体の安全性や金銭的余裕の保証へ広げない",
+    "条件5 pass: 関連2情報をつないだ説明段落をJP390/1440画面で通読。反復や励ましを減らした全文と文区切りを評価",
+    "条件6 pass: 今月はあと何に使おう、残り¥32000、買い物/外食前の確認が一つの読み順でつながる。直接の許可文は追加しない",
+    "UI比較元は既存TopPage。色・余白・強調・改行・見出し構造・金額例・2つのCTA・ログイン先を維持。今回の差異は日本語のみ",
+    "日本語Lightの390/1440幅で見出しと説明段落、残額例、使い方、開始の流れを観察。可読性・横はみ出しに問題なし",
+    "既存TopPageテストはCTAから/authのGoogle認証画面へ遷移し、日英用途・サンプル・全CTA hrefを検査。実OAuth完了は対象外",
+    "既存Storyの日本語見出し期待値を同期。新テストを増やさず、表示契約の回帰検知を維持",
+    "Web整形・lint・format-check・typecheck、単体統合1046件、Storybook22件が最終アプリ差分で成功。自然さは本文と画面で独立評価",
+    "Issue条件5のread-back一致。元発言approveと有限提案を照合。英語・共通規則・PR返信・thread解決・merge/deployへ拡張なし",
+    "PR base報告ecceb905、origin/mainは8dcaf37dへ進行。merge-baseはecceb905でPR三点差分は同一。対象の競合なし",
+    "PR review/threadは0件。旧サイクルは履歴として保持し、000009/10/11を今回の判断・検証・レビューに使用",
+    "未測定: 実ユーザーの読後感・利用意欲・転換率・同種指摘の将来発生率。ハーネス挙動の変更なしで追加eval対象外"
+  ],
+  "summary": "承認済み文案とIssue #2041の6成功条件を最終差分・現行ソース・日本語実画面で照合してpass。見出しの句読点を除き、非連携と登録不要を一文にまとめた。広告は別文で伝え、前向きに次の支出を考える流れと既存導線を維持。全適用規則を確認し指摘・競合なし。実ユーザーの効果や再発率の実証へは広げない。",
+  "remaining": []
+}

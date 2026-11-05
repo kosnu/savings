@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "conversation: issue Automation default; user approval 2026-11-01",
+  "paths": [
+    "AGENTS.md",
+    "docs/harness/policies/github-issue-workflow.md",
+    "docs/harness/rule-map.json"
+  ],
+  "fingerprint": "5e7fe21a0499ba49c71ef199bfe5b975ffbf22e16dccc8be882b425060f9b581",
+  "status": "pass",
+  "checks": [
+    "差分空白・文書整形",
+    "規則graph・実差分の適用規則",
+    "代表path選択・除外と依存closure",
+    "対象projectのAutomation定義",
+    "変更前後eval explain/approved 各2試行"
+  ],
+  "summary": "同一差分で文書整形・規則検証4件は終了コード0、stable。代表pathと参照先も確認。個人設定モデルはCLI利用不能だったため、一覧のgpt-5.6-sol/high・反復2・jobs2で前後をそろえ、各4/4成功、悪化なし。 実Issue作成による外部field更新は検証範囲外。",
+  "remaining": []
+}

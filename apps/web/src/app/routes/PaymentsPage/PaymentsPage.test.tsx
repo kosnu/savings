@@ -179,6 +179,71 @@ describe("PaymentsPage", () => {
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1)
   })
 
+  test("年月とカテゴリを組み合わせて変更しても他の検索条件を保持する", async () => {
+    const requests: URL[] = []
+    server.use(
+      http.get("*/rest/v1/payments", ({ request }) => {
+        const url = new URL(request.url)
+        requests.push(url)
+        if (
+          url.searchParams.get("category_id") === "eq.10" &&
+          url.searchParams.getAll("date").includes("gte.2025-06-01")
+        ) {
+          return HttpResponse.json([initialPaymentRows[0]])
+        }
+      }),
+    )
+    const { user } = renderStory()
+    const search = await screen.findByLabelText("Search filters")
+
+    expect(within(search).getByRole("group", { name: "Payment month" })).toBeInTheDocument()
+    expect(within(search).getByRole("combobox", { name: "Year" })).toHaveTextContent("2025")
+    await selectCategoryFilterOption(user, "Food")
+    await waitFor(() =>
+      expect(lastRequest(requests)?.searchParams.get("category_id")).toBe("eq.10"),
+    )
+    const paymentList = await screen.findByLabelText("payment-list")
+    await waitFor(() => {
+      expect(within(paymentList).getAllByRole("button", { name: /コンビニ/ })).toHaveLength(1)
+    })
+
+    await user.click(within(search).getByRole("combobox", { name: "Month" }))
+    await user.click(await screen.findByRole("option", { name: "April" }))
+
+    expect(await within(paymentList).findByRole("button", { name: /スーパー/ })).toBeInTheDocument()
+    await waitFor(() => {
+      expect(lastRequest(requests)?.searchParams.getAll("date")).toEqual([
+        "gte.2025-04-01",
+        "lte.2025-04-30",
+      ])
+      expect(lastRequest(requests)?.searchParams.get("category_id")).toBe("eq.10")
+    })
+
+    await user.click(within(search).getByRole("combobox", { name: "Year" }))
+    await user.click(await screen.findByRole("option", { name: "2024" }))
+
+    expect(await screen.findByText("No payments found.")).toBeInTheDocument()
+    await waitFor(() => {
+      expect(lastRequest(requests)?.searchParams.getAll("date")).toEqual([
+        "gte.2024-04-01",
+        "lte.2024-04-30",
+      ])
+      expect(lastRequest(requests)?.searchParams.get("category_id")).toBe("eq.10")
+    })
+    expect(within(search).getByRole("combobox", { name: /category filter/i })).toHaveTextContent(
+      "Food",
+    )
+
+    await selectCategoryFilterOption(user, "All categories")
+    await waitFor(() => {
+      expect(lastRequest(requests)?.searchParams.has("category_id")).toBe(false)
+      expect(lastRequest(requests)?.searchParams.getAll("date")).toEqual([
+        "gte.2024-04-01",
+        "lte.2024-04-30",
+      ])
+    })
+  })
+
   test("selected Bookの解決中はPayment APIを呼ばない", async () => {
     let paymentRequestCount = 0
     server.resetHandlers(...createBookHandlers({ durationOrMode: "infinite" }))

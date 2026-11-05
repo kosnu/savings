@@ -117,7 +117,8 @@ Googleログイン時の同意画面の名称・ロゴ、callbackの経路と最
 [#1885](https://github.com/kosnu/savings/issues/1885) はDev・隔離環境だけを検証対象とする。
 Prdの試験・実設定照合・変更・配信・反映後確認は対象外。
 現在の操作と合格条件は[Supabase設定変更のDev確認手順](supabase-dev-verification.md)を参照する。
-共有Devの設定変更・migration適用は、対象・影響・切り戻しへの所有者承認後に行う。
+共有Devのmigration適用は[Devプレビュー運用](development-preview.md)の実行要求で進み、Environmentの人手承認は不要。
+設定変更・破壊操作は対象・影響・切り戻しへの所有者承認後に行う。
 
 #### 2026-10-06の観測・準備記録
 
@@ -218,7 +219,9 @@ HTTP遅延、p95/p99、同時実行、CPU/IO/接続上限、APIエラー率は�
 
 ### Production deployment
 
-`Deploy Production` は手動実行とする。Workers への初回切替は
+本番配信は正式な GitHub Release の公開を起点とし、同じ対象 commit から DB migration、Web の順に適用する。
+公開前の承認、対象 SHA の検証、結果確認・再実行・DB を含む復旧の制限は
+[本番リリース手順](production-release.md)を参照する。Workers への初回切替は
 [#1867](https://github.com/kosnu/savings/issues/1867) と[移管手順](workers-migration.md)に従い、
 対象 commit と実施内容への承認を得てから行う。
 Web ビルドでは従来の Supabase・Sentry 環境変数を維持する。
@@ -232,10 +235,12 @@ Web ビルドでは従来の Supabase・Sentry 環境変数を維持する。
 PR終了時の削除は同じPRの配信と直列化し、共有DB・Auth・データは変更しない。
 `cloudflare.config.ts` は Preview context または development mode で本番 domain を外す。
 CloudからもPRのpreviewラベルでGitHub Actionsを起動する。配信経路はActionsに統一し、native cfコマンドを使用する。
-利用者は PR を選び、SHA は CI が内部で解決・固定する。main 導入後は PR 番号だけの手動実行も使える。Actions は既存 development
-Environment の所有者本人による required review（自己承認可）を経て、承認後も対象 SHA を再照合する。
+利用者は PR を選び、SHA は CI が内部で解決・固定する。main 導入後は PR 番号だけの手動実行も使える。
+development Environment のRequired reviewersは未設定とし、Preview配信・削除、共有Dev DB更新、Supabase CIのDev照合を人手承認なしで進める。
+Prodの `deploy-web` / `deploy-api` を基準に、PR確認・固定SHAのcheckoutから配信までを各job内で行う。
+DBとWebの個別実行、起動条件、concurrencyは維持し、productionの承認・保護は変更しない。
 プレビュー配信は migration、seed、reset、Auth 設定の変更を行わない。
-DB 変更は別の dev-db ラベルで専用 CI を起動し、選択 PR の固定 SHA の SQL 確認・所有者承認後に適用する。
+DB 変更は選択PRのSQLを確認してから別の dev-db ラベルで専用 CI を起動し、固定 SHA のmigrationを適用する。
 FE/DB とも development Environment を使い、DB stepだけへ管理tokenを渡す。共有DBの更新は全 branch を直列化する。履歴競合は CLI 標準の version 検査に従い、適用済み SQL の内容変更を独自検知しない。
 マージ前に新 table を適用してから、同じ PR head の FE を配信できる。
 初期設定、公開範囲、共有 DB の適用・復旧、削除条件と実機検証は

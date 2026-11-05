@@ -15,5 +15,7 @@ describe("Header", () => {
 
     expect(onMenuClick).toHaveBeenCalledTimes(1)
     expect(await screen.findByRole("link", { name: "Burneto — Home" })).toHaveAttribute("href", "/")
+    expect(screen.queryByRole("button", { name: "Theme toggle" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Create payment" })).not.toBeInTheDocument()
   })
 })

@@ -1,0 +1,16 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/1992",
+  "paths": [
+    "apps/web/src/features/profile/profileSettings/AccountInformation/AccountInformation.test.tsx"
+  ],
+  "fingerprint": "f78b706484dbd06a6733a5fee4c2bc553fcf56c8fdbe8b224b36198487511cfa",
+  "status": "pass",
+  "checks": [
+    "Issue Intent・最新main・既存StoryとMSW境界"
+  ],
+  "summary": "継続エラーのLoadError Storyを再利用し、alert確認後に成功handlerへ切替えてTry againの復帰とfocusを検査する。変更は対象テストのみ。",
+  "remaining": []
+}

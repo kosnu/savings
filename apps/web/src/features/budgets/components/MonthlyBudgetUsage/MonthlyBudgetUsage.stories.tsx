@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import { expect, within } from "storybook/test"
 
 import { monthlyBudgets } from "../../../../test/data/monthlyBudgets"
 import { createMonthlyBudgetHandlers } from "../../../../test/msw/handlers/monthlyBudgets"
@@ -62,4 +63,22 @@ export const Loading: Story = {
     totalExpenditures: null,
     totalExpendituresLoading: true,
   },
+}
+
+export const BudgetLoading: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByTestId("budget-difference-skeleton"),
+    ).toBeVisible()
+  },
+  parameters: {
+    msw: { handlers: createMonthlyBudgetHandlers({ get: { durationOrMode: "infinite" } }) },
+  },
+}
+
+export const SpendingError: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).queryByText(/¥|Failed/)).not.toBeInTheDocument()
+  },
+  args: { totalExpenditures: null, totalExpendituresError: new Error("Failed to load spending.") },
 }

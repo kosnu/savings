@@ -1,6 +1,6 @@
 ---
 name: guardrail-improvement
-description: Execute manually approved Audit improvements or PR comment replies and completed Bot thread resolution within the existing AIDD Task.
+description: Execute manually approved Audit improvements or PR comment replies and completed Bot thread resolution within the existing development Task.
 ---
 
 # Guardrail improvement
@@ -12,8 +12,8 @@ threads unresolved, and report read-back results. Do not create changes, Task re
 commits, or an improvement cycle solely for this handling. The improvement steps below apply
 only when an actual improvement proposal is approved.
 
-Apply [AIDD v4](../../../docs/ai-driven-development/workflow.md) and
-[Audit policy](../../../docs/harness/policies/learning-extraction.md).
+Apply [エージェント中心の開発](../../../docs/ai-driven-development/workflow.md) and
+[Audit policy](../../../docs/harness/policies/audit.md).
 Read the existing Issue, PR, conversation summaries, and exact Audit proposals. Require a user approval source bound to
 these proposals and finite targets before any implementation. An Audit request or original
 development authority does not satisfy this boundary. Do not create a separate Task.

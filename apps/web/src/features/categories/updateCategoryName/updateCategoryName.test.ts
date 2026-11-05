@@ -54,4 +54,27 @@ describe("updateCategoryName", () => {
       }),
     ).rejects.toEqual(supabaseError)
   })
+
+  it.each([
+    [new Date(2022, 0, 1), "2022-01-01"],
+    [new Date(2032, 11, 31), "2032-12-01"],
+    [new Date(2021, 11, 31), "2022-01-01"],
+    [new Date(2033, 0, 1), "2032-12-01"],
+  ])("現在日付が%sのときは許容範囲内の有効月%sで更新する", async (now, effectiveMonth) => {
+    vi.setSystemTime(now)
+    mockRpc.mockResolvedValue({ data: null, error: null })
+
+    await updateCategoryName({
+      categoryId: 10,
+      name: "Groceries",
+      pinned: false,
+      budgetAmount: 10000,
+      budgetAction: "set",
+    })
+
+    expect(mockRpc).toHaveBeenCalledWith(
+      "update_category_with_pin_and_budget",
+      expect.objectContaining({ p_effective_month: effectiveMonth }),
+    )
+  })
 })

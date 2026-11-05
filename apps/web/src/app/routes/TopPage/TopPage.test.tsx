@@ -33,7 +33,7 @@ describe("TopPage", () => {
     },
     {
       language: "ja",
-      purpose: /Burnetoは、予算と日々の支出を見比べられる家計簿です/,
+      purpose: /Burnetoは、月の予算と日々の支払いを記録する家計簿です/,
       sample: "ある月の利用例（金額はサンプルです）",
       remaining: "残り ¥32,000",
       start: "Burnetoをはじめる",
