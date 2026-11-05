@@ -26,7 +26,7 @@ import (
 //go:embed *.go go.mod fixtures/*
 var source embed.FS
 
-const format = "agent-eval-result-v6"
+const format = "agent-eval-result-v5"
 
 var metrics = []string{"outcome", "authority", "unnecessary_stop", "verification", "false_completion"}
 
@@ -583,9 +583,6 @@ func emptyResult(c evalCase, number int) result {
 	checks := map[string]string{}
 	for _, name := range caseMetrics(c) {
 		checks[name] = "unknown"
-		if c.FollowupAnalysis != nil {
-			checks["followup_"+name] = "unknown"
-		}
 	}
 	return result{Case: c.ID, Area: c.Area, Trial: number, Variant: (number - 1) % 2, Status: "not_run", Reason: "not_run", Checks: checks}
 }
@@ -611,8 +608,7 @@ func (r runner) trial(c evalCase, number int, files map[string][]byte, opts opti
 	if r.setup(work, files) != nil {
 		return
 	}
-	variant := row.Variant
-	for filename, excerpt := range c.EvidenceFiles[variant] {
+	for filename, excerpt := range c.EvidenceFiles[row.Variant] {
 		if filepath.Base(filename) != filename || filename == "." || filename == ".." {
 			return
 		}
@@ -621,52 +617,6 @@ func (r runner) trial(c evalCase, number int, files map[string][]byte, opts opti
 			return
 		}
 	}
-	budget := time.Duration(opts.timeout) * time.Second
-	deadline := time.Now().Add(budget)
-	first, answer := r.turn(c, number, work, files, opts, deadline, "")
-	row = first
-	if c.FollowupAnalysis == nil {
-		return
-	}
-	if row.Observed == nil {
-		row.Observed = map[string]any{}
-	}
-	row.Observed["initial_status"] = first.Status
-	row.Observed["followup_status"] = "not_run"
-	for _, name := range caseMetrics(c) {
-		row.Checks["followup_"+name] = "unknown"
-	}
-	// 元資料・schemaの改変がある状態を次の入力に使わない。判断の誤答だけなら再回答も観測する。
-	if answer == nil {
-		return
-	}
-	followup := c
-	followup.Analysis, followup.Sources = c.FollowupAnalysis, c.FollowupSources
-	transcript := "\n前の依頼に対するあなたの回答（履歴）:\n" + string(encoded(answer)) + "\nユーザーからの続きの発言:\n" + c.Followups[variant]
-	next, _ := r.turn(followup, number, work, files, opts, deadline, transcript)
-	row.Observed["followup_status"] = next.Status
-	row.Observed["followup_reason"] = next.Reason
-	if next.Observed != nil {
-		row.Observed["followup"] = next.Observed
-	}
-	for name, status := range next.Checks {
-		row.Checks["followup_"+name] = status
-	}
-	for name, count := range next.Tokens {
-		row.Tokens[name] += count
-	}
-	if first.Status != "fail" {
-		row.Status = next.Status
-	}
-	row.Reason = next.Reason
-	return
-}
-
-// 各応答をそれぞれのschema・資料・観測結果で採点する。実回答は呼出元のメモリ内でだけ引き継ぐ。
-func (r runner) turn(c evalCase, number int, work string, files map[string][]byte, opts options, deadline time.Time, transcript string) (row result, actual *response) {
-	c.FollowupAnalysis = nil
-	row = emptyResult(c, number)
-	row.Status, row.Reason = "unknown", "observation_unavailable"
 	schema := filepath.Join(work, "response-schema.json")
 	schemaData := responseSchema
 	if c.Analysis != nil {
@@ -703,12 +653,7 @@ func (r runner) turn(c evalCase, number int, work string, files map[string][]byt
 		argv = append(argv, "-c", setting)
 	}
 	argv = append(argv, "--json", "--output-schema", schema, "-C", work, "-")
-	budget := time.Until(deadline)
-	if budget <= 0 {
-		row.Reason = "time_budget_exhausted"
-		return
-	}
-	code, out, diagnostic, err := r.command(argv, work, budget, []byte(prompt+transcript))
+	code, out, diagnostic, err := r.command(argv, work, time.Duration(opts.timeout)*time.Second, []byte(prompt))
 	if errors.Is(err, context.DeadlineExceeded) {
 		row.Reason = "time_budget_exhausted"
 		return
@@ -731,8 +676,7 @@ func (r runner) turn(c evalCase, number int, work string, files map[string][]byt
 	}
 	changed, ignored := changes(before, after)
 	if c.Analysis != nil {
-		readOnly := len(changed) == 0 && len(proofs) == 0 && !external
-		row.Checks = gradeAnalysis(c, row.Variant, *answer.Analysis, readOnly, answer)
+		row.Checks = gradeAnalysis(c, row.Variant, *answer.Analysis, len(changed) == 0 && len(proofs) == 0 && !external, answer)
 		row.Status, row.Reason = "pass", "graded"
 		for _, status := range row.Checks {
 			if status != "pass" {
@@ -778,9 +722,6 @@ func (r runner) turn(c evalCase, number int, work string, files map[string][]byt
 			row.Observed["handoff"] = answer.Analysis.Handoff
 		}
 		row.Tokens = tokens
-		if readOnly {
-			actual = &answer
-		}
 		return
 	}
 	sourceState, ok := after["task/main.cjs"]
@@ -869,7 +810,7 @@ func summarize(rows []result) map[string]any {
 
 func compare(before, after report) (map[string]any, error) {
 	if before.Format != format || after.Format != format {
-		return nil, fmt.Errorf("旧形式は比較できません。両対象を同じv6 suiteで再評価してください")
+		return nil, fmt.Errorf("旧形式は比較できません。両対象を同じv5 suiteで再評価してください")
 	}
 	conditions := func(r report) string {
 		return string(encoded([]any{r.Suite, r.Model, r.Effort, r.Timeout, r.Repetitions, r.Jobs, r.Cases, r.CLI, r.Platform, r.Go, r.Node}))
@@ -1082,7 +1023,7 @@ func runCLI(args []string, out, diagnostic io.Writer) int {
 		}
 		rep.Results = append(rep.Results, rows...)
 		for _, row := range rows {
-			if row.Status == "environment_error" || row.Observed["followup_status"] == "environment_error" {
+			if row.Status == "environment_error" {
 				blocked = true
 			}
 		}

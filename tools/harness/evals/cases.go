@@ -9,9 +9,6 @@ type evalCase struct {
 	Analysis                               *[2]analysisAnswer
 	Sources                                [2][]string
 	EvidenceFiles                          [2]map[string]string
-	Followups                              [2]string
-	FollowupAnalysis                       *[2]analysisAnswer
-	FollowupSources                        [2][]string
 	IrrelevantSources                      [2][]string
 	SubjectIDs                             [2][]string
 }

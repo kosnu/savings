@@ -2,17 +2,16 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "review",
-  "source": "会話での改善依頼（#2039・#2040の分析と聞き直し時の判断）",
+  "source": "会話での改善依頼と訂正（#2039・#2040、初回分析で根拠を検証）",
   "paths": [
     "docs/harness/policies/audit.md",
     "docs/ai-driven-development/agent-evals.md",
     "tools/harness/evals/main.go",
     "tools/harness/evals/analysis.go",
     "tools/harness/evals/cases.go",
-    "tools/harness/evals/analysis_test.go",
-    "tools/harness/evals/main_test.go"
+    "tools/harness/evals/analysis_test.go"
   ],
-  "fingerprint": "fece8d4de50661896abed9389cd6c510fe4885e36f58617086d3af44726a7044",
+  "fingerprint": "8977273db2fee000731cf304b499666bfc8c3a2f0f62ae612f3a18189b4df305",
   "status": "unknown",
   "checks": [
     "ai-driven.agent-evals",
@@ -30,8 +29,8 @@
     "policy.issue-template-selection",
     "policy.review-feedback-classification"
   ],
-  "summary": "Audit・Retrospectiveの共通入口、匿名課題の元資料と箇所ID、回答と期待値の分離、両段の採点・失敗保持、追加資料の公開時点、時間予算と保存範囲を照合。規則競合なし。実モデルでの効果判定は未確認。",
+  "summary": "参照経路・元資料・採点・初回出力を照合。Auditは明確／曖昧な訂正対象、Retrospectiveは根拠不足の削減案と既読規則の適用漏れを区別。全て通常依頼1回で判定。指摘なし、規則競合なし。",
   "remaining": [
-    "実モデルへの資料送信は自動承認レビューで実行前に拒否。変更前後の判断の差は未確認。"
+    "実モデル比較は資料送信の許可がなく未実施。"
   ]
 }

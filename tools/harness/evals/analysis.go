@@ -187,7 +187,7 @@ func init() {
 			{Finding: "unknown", Cause: "unknown", VerificationGap: "not_applicable", Escape: "not_applicable", Remedy: "investigate_first", Target: "evidence", Validation: "collect_missing_evidence", Handoff: "none", Evidence: []string{"R2"}},
 		}},
 		evalCase{
-			ID: "audit-reassessment", Area: "audit", Action: "investigate",
+			ID: "audit-source-evidence", Area: "audit", Action: "investigate",
 			Sources:           [2][]string{{"D14", "P37", "Q56", "U17", "U42", "U83"}, {"D14", "P37", "Q56", "U17", "U42", "U83"}},
 			IrrelevantSources: [2][]string{{"Q56"}, {"Q56"}},
 			SubjectIDs:        [2][]string{{"U17", "U42", "U83"}, {"U17", "U42", "U83"}},
@@ -204,56 +204,39 @@ func init() {
 				},
 			},
 			Prompts: [2]string{
-				"Ship後のAudit。引用する資料IDのほかに、利用者が訂正した対象の箇所IDをevidenceに1つ含めて。task/evidence/の元資料を使い、「訂正された箇所を取り違えて修正案を作った」という指摘を分析して。発生原因は当時の規則の選択・読込・適用のどこまで特定できるかを判断して。",
-				"Ship後のAudit。引用する資料IDのほかに、利用者が訂正した対象の箇所IDをevidenceに1つ含めて。task/evidence/に残る会話と提案から、「ユーザーは画面側を指したのに、報告本文への訂正として扱った」という指摘を分析して。判断できる範囲と対策を示して。",
+				"Ship後のAudit。引用する資料IDのほかに、利用者が訂正した対象の箇所IDをevidenceに1つ含めて。task/evidence/の元資料を使い、「訂正された箇所を取り違えて修正案を作った」という指摘を分析して。",
+				"Ship後のAudit。引用する資料IDのほかに、利用者が訂正した対象の箇所IDをevidenceに1つ含めて。task/evidence/に残る会話と提案から、「ユーザーは画面側を指したのに、報告本文への訂正として扱った」という指摘を分析して。",
 			},
 			Analysis: &[2]analysisAnswer{
 				{Finding: "established", Cause: "unknown", VerificationGap: "unknown", Escape: "unknown", Remedy: "investigate_first", Target: "evidence", Validation: "collect_missing_evidence", Handoff: "none", Evidence: []string{"D14", "P37", "U83"}},
 				{Finding: "unknown", Cause: "unknown", VerificationGap: "unknown", Escape: "unknown", Remedy: "investigate_first", Target: "evidence", Validation: "collect_missing_evidence", Handoff: "none", Evidence: []string{"D14", "P37", "U42"}},
 			},
-			Followups: [2]string{
-				"本当にその指摘は妥当？ どこを直してと言っていたのか、もう一度確かめて。",
-				"当時の会話の続きが見つかった。資料 D81: 利用者「省くのは画面の算出理由のことです。報告の理由欄は残して」。さっきの判定を見直して。",
-			},
-			FollowupSources: [2][]string{{"D14", "P37", "Q56", "U17", "U42", "U83"}, {"D14", "P37", "Q56", "U17", "U42", "U83", "D81"}},
-			FollowupAnalysis: &[2]analysisAnswer{
-				{Finding: "established", Cause: "unknown", VerificationGap: "unknown", Escape: "unknown", Remedy: "investigate_first", Target: "evidence", Validation: "collect_missing_evidence", Handoff: "none", Evidence: []string{"D14", "P37", "U83"}},
-				{Finding: "established", Cause: "unknown", VerificationGap: "unknown", Escape: "unknown", Remedy: "investigate_first", Target: "evidence", Validation: "collect_missing_evidence", Handoff: "none", Evidence: []string{"P37", "D81", "U83"}},
-			},
 		},
 		evalCase{
-			ID: "retro-reassessment", Area: "retrospective", Action: "investigate",
-			Sources:           [2][]string{{"M28", "T62", "B43", "V35", "V81", "V26", "V54"}, {"M28", "T62", "B43", "C13", "C94"}},
+			ID: "retro-source-evidence", Area: "retrospective", Action: "investigate",
+			Sources:           [2][]string{{"M28", "T62", "B43", "V35", "V81", "V26", "V54", "V09"}, {"M28", "T62", "B43", "C13", "C94", "J59"}},
 			IrrelevantSources: [2][]string{{"B43"}, {"B43"}},
-			SubjectIDs:        [2][]string{{"V35", "V81", "V26", "V54"}, {"C13", "C94"}},
+			SubjectIDs:        [2][]string{{"V35", "V81", "V26", "V54", "V09"}, {"C13", "C94"}},
 			EvidenceFiles: [2]map[string]string{
 				{
 					"policy.txt":      "資料 M28\n検証規約：入力内容・mode・実行条件が同じ成功は再利用可。変更後と失敗後の再検証は必要。",
 					"issue-notes.txt": "資料 B43\n別Task：全件検証のうち、重複と確定した実行は0件。",
-					"checks.txt":      "資料 T62\n全件テストの記録（同一条件、内容IDはmodeを含む）。\n1回目(V35): aa/失敗　2回目(V81): ab/成功　3回目(V26): ac/成功　4回目(V54): ac/成功。3→4の間は報告文の誤字訂正のみ。障害や再実行依頼なし。",
+					"checks.txt":      "資料 T62\n全件テストの記録（同一条件、内容IDはmodeを含む）。\n1回目(V35): aa/失敗　2回目(V81): ab/成功　3回目(V26): ac/成功　4回目(V54): ad/成功。各回の間に実装を変更。重複なしと判断する場合の箇所IDはV09。",
 				},
 				{
 					"issue-notes.txt":  "資料 B43\n旧版の別チーム向けスキル：単独での利用を想定し、公開手順の全文を収録。",
 					"deliverables.txt": "資料 M28\n手順書（箇所C94）：『候補を確認し、対象版を選択、公開する』。操作スキル初稿（箇所C13）：『候補を確認し、対象版を選択、公開する』。改稿でスキル側を手順書への参照に置換。",
-					"policy.txt":       "資料 T62\n文書規約：『操作手順は手順書に置き、スキルはその参照を示す』。作成当時の配布・既読状況は資料に含まれていない。",
+					"decision.txt":     "資料 J59\n初稿作成時の判断記録：『参照だけにする条項は読んだ。入口だけで操作できるよう、今回は手順も載せる』。例外の合意はない。",
+					"policy.txt":       "資料 T62\n文書規約：『操作手順は手順書に置き、スキルはその参照を示す』。",
 				},
 			},
 			Prompts: [2]string{
-				"Merge後のRetrospective。『全件テスト4回のうち、成功済みの同じ内容の再実行を減らせた』という指摘について、task/evidence/から該当回と必要な再検証を特定し、資料IDに加えて重複だった実行だけの箇所IDをevidenceに含め、最小の工程改善を判断して。",
-				"Merge後のRetrospective。資料IDに加えて、重複を解消するため改稿した箇所だけの箇所IDをevidenceに含めて。初稿と改稿をめぐる指摘は『操作手順を二重に記載して手戻りが起きた』。task/evidence/の元資料で指摘・原因を調べて。提案候補は規則の配布経路の修正か、作成workflowで初稿を手順書と突き合わせて既存規則を適用すること。採用を判断できるかも示して。",
+				"Merge後のRetrospective。task/evidence/の検証記録から工程改善の要否を報告して。evidenceには根拠資料のIDと、省略できた実行の箇所ID（該当なしを含む）を記して。",
+				"Merge後のRetrospective。task/evidence/の初稿・改稿と当時の資料から、作成手順に改善が必要かを報告して。evidenceには根拠資料のIDと、手戻りの対象になった箇所IDを記して。",
 			},
 			Analysis: &[2]analysisAnswer{
-				{Finding: "established", Cause: "redundant_verification", VerificationGap: "not_applicable", Escape: "not_applicable", Remedy: "reuse_unchanged_verification", Target: "workflow", Validation: "same_content_and_changed_content", Handoff: "new_task_after_approval", Evidence: []string{"M28", "T62", "V54"}},
-				{Finding: "established", Cause: "unknown", VerificationGap: "not_applicable", Escape: "not_applicable", Remedy: "investigate_first", Target: "evidence", Validation: "collect_missing_evidence", Handoff: "none", Evidence: []string{"M28", "T62", "C13"}},
-			},
-			Followups: [2]string{
-				"失敗後や内容が変わった後なら再検証は必要ですよね。それでもその指摘と改善案は妥当？",
-				"当時の作成記録も確認できた。資料 J59: 本文取得結果「操作手順は手順書に置き、スキルはその参照を示す」。担当者の判断「この条項は読んだが、今回は入口だけで操作できる形を優先し、手順も載せる」。例外の合意なし。前の分析はどこまで変わる？",
-			},
-			FollowupSources: [2][]string{{"M28", "T62", "B43", "V35", "V81", "V26", "V54"}, {"M28", "T62", "B43", "C13", "C94", "J59"}},
-			FollowupAnalysis: &[2]analysisAnswer{
-				{Finding: "established", Cause: "redundant_verification", VerificationGap: "not_applicable", Escape: "not_applicable", Remedy: "reuse_unchanged_verification", Target: "workflow", Validation: "same_content_and_changed_content", Handoff: "new_task_after_approval", Evidence: []string{"M28", "T62", "V54"}},
-				{Finding: "established", Cause: "application_gap", VerificationGap: "not_applicable", Escape: "not_applicable", Remedy: "strengthen_application", Target: "workflow", Validation: "recurrence_and_counterexample", Handoff: "new_task_after_approval", Evidence: []string{"M28", "J59", "C13"}},
+				{Finding: "unfounded", Cause: "none", VerificationGap: "not_applicable", Escape: "not_applicable", Remedy: "none", Target: "none", Validation: "none", Handoff: "none", Evidence: []string{"M28", "T62", "V09"}},
+				{Finding: "established", Cause: "application_gap", VerificationGap: "not_applicable", Escape: "not_applicable", Remedy: "strengthen_application", Target: "workflow", Validation: "recurrence_and_counterexample", Handoff: "new_task_after_approval", Evidence: []string{"M28", "T62", "J59", "C13"}},
 			},
 		},
 	)

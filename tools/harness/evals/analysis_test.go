@@ -228,50 +228,34 @@ func TestSelectiveSuitesRequireExplicitScope(t *testing.T) {
 	}
 }
 
-func TestReassessmentRejectsUnsupportedReversalsAndStaleConclusions(t *testing.T) {
-	// 再質問だけで、元資料の裏付けがある指摘や対策を撤回できない。
-	retro := findCase(t, "retro-reassessment")
-	retro.Analysis = retro.FollowupAnalysis
-	retro.Sources = retro.FollowupSources
+func TestFirstAnalysisRequiresSupportForEachConclusion(t *testing.T) {
+	retro := findCase(t, "retro-source-evidence")
 	a := analysisResponse(retro, 0)
-	a.Analysis.Finding = "unknown"
-	a.Analysis.Remedy = "none"
+	// 回数だけで再実行を重複とする提案を退ける。
+	a.Analysis.Finding, a.Analysis.Remedy = "established", "reuse_unchanged_verification"
 	checks := gradeAnalysis(retro, 0, *a.Analysis, true, a)
 	if checks["causal_judgment"] != "fail" || checks["prevention"] != "fail" {
-		t.Fatal("unsupported reversal accepted", checks)
+		t.Fatal("unsupported optimization accepted", checks)
 	}
-	// 新証拠で原因と手段が具体化しても、既知の手戻りは成立したまま。
 	a = analysisResponse(retro, 1)
-	a.Analysis.Cause, a.Analysis.Remedy = "unknown", "investigate_first"
+	// 指摘は成立するが、読んだ規則の適用漏れに配布経路の追加は効かない。
+	a.Analysis.Cause, a.Analysis.Remedy = "routing_gap", "repair_routing"
 	checks = gradeAnalysis(retro, 1, *a.Analysis, true, a)
 	if checks["causal_judgment"] != "fail" || checks["prevention"] != "fail" {
-		t.Fatal("failure to update after contrary evidence accepted", checks)
+		t.Fatal("unsupported cause and remedy accepted", checks)
 	}
-	a = analysisResponse(retro, 1)
-	a.Analysis.Finding = "unfounded"
-	if gradeAnalysis(retro, 1, *a.Analysis, true, a)["causal_judgment"] != "fail" {
-		t.Fatal("original finding withdrawn despite corroboration")
+	audit := findCase(t, "audit-source-evidence")
+	a = analysisResponse(audit, 1)
+	a.Analysis.Finding = "established"
+	if gradeAnalysis(audit, 1, *a.Analysis, true, a)["causal_judgment"] != "fail" {
+		t.Fatal("ambiguous reference treated as confirmed")
 	}
-	// モデルが全資料のIDを転記しても、別案件を根拠に含めれば通さない。
-	a.Analysis.Evidence = retro.Sources[1]
-	if gradeAnalysis(retro, 1, *a.Analysis, true, a)["evidence"] != "fail" {
-		t.Fatal("unrelated material cited as evidence")
-	}
-	a.Analysis.Evidence = []string{"M28", "T62", "C13"}
-	if gradeAnalysis(retro, 1, *a.Analysis, true, a)["evidence"] != "fail" {
-		t.Fatal("new conclusion accepted without its supporting source")
-	}
-	// 資料名や原因の分類だけ正しくても、対象そのものを取り違えれば失敗する。
-	a = analysisResponse(retro, 0)
-	a.Analysis.Evidence = []string{"M28", "T62", "V35", "V81", "V26", "V54"}
-	if gradeAnalysis(retro, 0, *a.Analysis, true, a)["evidence"] != "fail" {
-		t.Fatal("necessary retests misclassified as redundant")
-	}
-	audit := findCase(t, "audit-reassessment")
 	a = analysisResponse(audit, 0)
-	a.Analysis.Evidence = []string{"D14", "P37", "U17"}
-	if gradeAnalysis(audit, 0, *a.Analysis, true, a)["evidence"] != "fail" {
-		t.Fatal("report text mistaken for screen annotation")
+	for _, evidence := range [][]string{{"D14", "P37", "U17"}, {"D14", "P37", "U83", "Q56"}, {"D14", "U83"}} {
+		a.Analysis.Evidence = evidence
+		if gradeAnalysis(audit, 0, *a.Analysis, true, a)["evidence"] != "fail" {
+			t.Fatal("incorrect or insufficient support accepted", evidence)
+		}
 	}
 }
 
@@ -283,18 +267,11 @@ func TestAnalysisVariantsThroughAdapter(t *testing.T) {
 		for variant := range 2 {
 			r := testRunner(t)
 			native := r.command
-			turn := 0
 			r.command = func(argv []string, cwd string, budget time.Duration, input []byte) (int, []byte, []byte, error) {
 				if argv[0] != "offline-codex" {
 					return native(argv, cwd, budget, input)
 				}
-				turn++
-				stage := c
-				if turn == 2 {
-					stage.Analysis = c.FollowupAnalysis
-					stage.Sources = c.FollowupSources
-				}
-				if !strings.Contains(string(input), c.Prompts[variant]) || turn == 2 && !strings.Contains(string(input), c.Followups[variant]) {
+				if !strings.Contains(string(input), c.Prompts[variant]) {
 					t.Fatal("wrong variant input")
 				}
 				var schema struct {
@@ -319,20 +296,26 @@ func TestAnalysisVariantsThroughAdapter(t *testing.T) {
 					t.Fatal("cannot read evaluation schema")
 				}
 				allowed := schema.Properties.Analysis.Properties.Evidence.Items.Enum
-				if stage.EvidenceFiles[variant] != nil {
+				if c.EvidenceFiles[variant] != nil {
+					for name, excerpt := range c.EvidenceFiles[variant] {
+						data, err := os.ReadFile(filepath.Join(cwd, "task/evidence", name))
+						if err != nil || string(data) != excerpt || bytes.Contains(input, data) {
+							t.Fatal("source excerpt must be available in the fixture, separately from the request", name)
+						}
+					}
 					if allowed != nil {
 						t.Fatal("fixture source IDs leaked through schema")
 					}
-				} else if string(encoded(allowed)) != string(encoded(stage.Sources[variant])) {
+				} else if string(encoded(allowed)) != string(encoded(c.Sources[variant])) {
 					t.Fatal("case source IDs not passed to CLI schema")
 				}
-				if !contains(schema.Properties.Analysis.Required, "verification_gap") || !contains(schema.Properties.Analysis.Properties.VerificationGap.Enum, stage.Analysis[variant].VerificationGap) {
+				if !contains(schema.Properties.Analysis.Required, "verification_gap") || !contains(schema.Properties.Analysis.Properties.VerificationGap.Enum, c.Analysis[variant].VerificationGap) {
 					t.Fatal("observation field not passed to CLI schema")
 				}
-				return 0, events(analysisResponse(stage, variant)), nil, nil
+				return 0, events(analysisResponse(c, variant)), nil, nil
 			}
 			row := r.trial(c, variant+1, nil, options{codex: "offline-codex", timeout: 10})
-			if row.Status != "pass" || c.FollowupAnalysis != nil && turn != 2 {
+			if row.Status != "pass" {
 				t.Fatalf("%s/%d: %+v", c.ID, variant, row)
 			}
 		}
