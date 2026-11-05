@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話での改善依頼（#2039・#2040の分析と聞き直し時の判断）",
+  "paths": [
+    "docs/harness/policies/audit.md",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/main.go",
+    "tools/harness/evals/analysis.go",
+    "tools/harness/evals/cases.go",
+    "tools/harness/evals/analysis_test.go",
+    "tools/harness/evals/main_test.go"
+  ],
+  "fingerprint": "f5c4e51c977b9b2d4914aad767776d2830a15ad3bb8572bf981953e0ecea3bfc",
+  "status": "pass",
+  "checks": [
+    "指摘・原因・対策の再判定",
+    "両分析経路と段階別採点"
+  ],
+  "summary": "AuditとRetrospectiveの共有レビューで元資料から判断し、問い直しでは根拠を再照合する。隔離した匿名課題で初回とその実回答を受けた再回答を別々に検証する。",
+  "remaining": []
+}

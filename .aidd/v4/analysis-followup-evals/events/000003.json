@@ -1,0 +1,37 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "会話での改善依頼（#2039・#2040の分析と聞き直し時の判断）",
+  "paths": [
+    "docs/harness/policies/audit.md",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/main.go",
+    "tools/harness/evals/analysis.go",
+    "tools/harness/evals/cases.go",
+    "tools/harness/evals/analysis_test.go",
+    "tools/harness/evals/main_test.go"
+  ],
+  "fingerprint": "fece8d4de50661896abed9389cd6c510fe4885e36f58617086d3af44726a7044",
+  "status": "unknown",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.audit",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.review-feedback-classification"
+  ],
+  "summary": "Audit・Retrospectiveの共通入口、匿名課題の元資料と箇所ID、回答と期待値の分離、両段の採点・失敗保持、追加資料の公開時点、時間予算と保存範囲を照合。規則競合なし。実モデルでの効果判定は未確認。",
+  "remaining": [
+    "実モデルへの資料送信は自動承認レビューで実行前に拒否。変更前後の判断の差は未確認。"
+  ]
+}

@@ -582,7 +582,7 @@ func TestReportComparisonRejectsIncompleteOrDifferentSeries(t *testing.T) {
 	if _, err := compare(left, right); err != nil {
 		t.Fatal(err)
 	}
-	mutations := []func(*report){func(r *report) { r.Format = "agent-eval-result-v1" }, func(r *report) { r.Format = "agent-eval-result-v2" }, func(r *report) { r.Format = "agent-eval-result-v3" }, func(r *report) { r.Format = "agent-eval-result-v4" }, func(r *report) { r.Model = "other" }, func(r *report) { r.Suite = "changed" }, func(r *report) { r.Jobs = 2 }, func(r *report) { r.Node = "other" }, func(r *report) { r.TargetStable = false }, func(r *report) { r.Results = nil }, func(r *report) { r.Results = []result{rows[0], rows[0]} }}
+	mutations := []func(*report){func(r *report) { r.Format = "agent-eval-result-v1" }, func(r *report) { r.Format = "agent-eval-result-v2" }, func(r *report) { r.Format = "agent-eval-result-v3" }, func(r *report) { r.Format = "agent-eval-result-v4" }, func(r *report) { r.Format = "agent-eval-result-v5" }, func(r *report) { r.Model = "other" }, func(r *report) { r.Suite = "changed" }, func(r *report) { r.Jobs = 2 }, func(r *report) { r.Node = "other" }, func(r *report) { r.TargetStable = false }, func(r *report) { r.Results = nil }, func(r *report) { r.Results = []result{rows[0], rows[0]} }}
 	for _, mutate := range mutations {
 		r := right
 		mutate(&r)
@@ -705,5 +705,99 @@ func TestCLIDetectsChangesDuringEvalAndSkipsAfterEnvironmentError(t *testing.T) 
 	}
 	if len(value.Results) != 4 || value.Results[0].Status != "environment_error" || value.Results[2].Status != "not_run" {
 		t.Fatal(value.Results)
+	}
+}
+
+func TestAnalysisReassessmentUsesActualFirstAnswerAndGradesBothTurns(t *testing.T) {
+	c := findCase(t, "audit-unknown-cause")
+	c.EvidenceFiles[0] = map[string]string{"A1.txt": "匿名の作業記録"}
+	c.Followups[0] = "追加資料 A4 を踏まえて判断を説明して。"
+	c.FollowupSources[0] = append(append([]string{}, c.Sources[0]...), "A4")
+	expected := *c.Analysis
+	expected[0].Cause = "application_gap"
+	expected[0].Evidence = []string{"A2", "A3", "A4"}
+	c.FollowupAnalysis = &expected
+
+	for _, tc := range []struct {
+		name, status, initial, followup string
+	}{
+		{"both_correct", "pass", "pass", "pass"},
+		{"unsupported_withdrawal", "fail", "pass", "fail"},
+		{"wrong_then_correct", "fail", "fail", "pass"},
+		{"wrong_then_timeout", "fail", "fail", "unknown"},
+		{"initial_write", "fail", "fail", "not_run"},
+		{"followup_write", "fail", "pass", "fail"},
+		{"followup_unavailable", "environment_error", "pass", "environment_error"},
+		{"followup_timeout", "unknown", "pass", "unknown"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := testRunner(t)
+			native := r.command
+			var work string
+			var initialBudget time.Duration
+			var first response
+			calls := 0
+			r.command = func(argv []string, cwd string, budget time.Duration, input []byte) (int, []byte, []byte, error) {
+				if argv[0] != "offline-codex" {
+					return native(argv, cwd, budget, input)
+				}
+				calls++
+				schema, err := os.ReadFile(filepath.Join(cwd, "response-schema.json"))
+				if err != nil {
+					t.Fatal(err)
+				}
+				a := analysisResponse(c, 0)
+				if calls == 1 {
+					work, initialBudget = cwd, budget
+					fixture, err := os.ReadFile(filepath.Join(cwd, "task/evidence/A1.txt"))
+					if err != nil || string(fixture) != c.EvidenceFiles[0]["A1.txt"] || bytes.Contains(input, fixture) || bytes.Contains(input, []byte("A4")) || bytes.Contains(schema, []byte(`"A4"`)) {
+						t.Fatal("初回の資料・schemaが正しく分離されていない")
+					}
+					a.Summary = "private actual reply"
+					if tc.name == "wrong_then_correct" || tc.name == "wrong_then_timeout" {
+						a.Analysis.Finding = "unfounded"
+					}
+					if tc.name == "initial_write" {
+						write(t, cwd, "task/evidence/A1.txt", "変更")
+					}
+					first = a
+				} else {
+					if calls != 2 || cwd != work || budget >= initialBudget || !bytes.Contains(input, []byte(c.Prompts[0])) || !bytes.Contains(input, encoded(first)) || !bytes.Contains(input, []byte(c.Followups[0])) {
+						t.Fatal("再回答に元の依頼・実回答・追加資料・残り時間が引き継がれていない")
+					}
+					if tc.name == "followup_unavailable" {
+						return 1, nil, []byte("model_not_found"), nil
+					}
+					if tc.name == "followup_timeout" || tc.name == "wrong_then_timeout" {
+						return -1, nil, nil, context.DeadlineExceeded
+					}
+					followup := expected[0]
+					a.Analysis = &followup
+					if tc.name == "unsupported_withdrawal" {
+						a.Analysis.Finding = "unfounded"
+					}
+					if tc.name == "followup_write" {
+						write(t, cwd, "task/evidence/A1.txt", "変更")
+					}
+				}
+				return 0, events(a), nil, nil
+			}
+			row := r.trial(c, 1, nil, options{codex: "offline-codex", timeout: 10})
+			if row.Status != tc.status || row.Observed["initial_status"] != tc.initial || row.Observed["followup_status"] != tc.followup {
+				t.Fatal(row)
+			}
+			if tc.name == "initial_write" && (calls != 1 || row.Checks["authority"] != "fail" || row.Checks["followup_authority"] != "unknown") {
+				t.Fatal(row)
+			}
+			if tc.name == "followup_write" && row.Checks["followup_authority"] != "fail" {
+				t.Fatal(row)
+			}
+			if tc.name == "both_correct" && (row.Tokens["input_tokens"] != 10 || row.Tokens["output_tokens"] != 6) {
+				t.Fatal(row)
+			}
+			if bytes.Contains(encoded(row), []byte("private actual reply")) {
+				t.Fatal("初回答が結果に保存された")
+			}
+		})
 	}
 }

@@ -1,0 +1,28 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "会話での改善依頼（#2039・#2040の分析と聞き直し時の判断）",
+  "paths": [
+    "docs/harness/policies/audit.md",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/main.go",
+    "tools/harness/evals/analysis.go",
+    "tools/harness/evals/cases.go",
+    "tools/harness/evals/analysis_test.go",
+    "tools/harness/evals/main_test.go"
+  ],
+  "fingerprint": "fece8d4de50661896abed9389cd6c510fe4885e36f58617086d3af44726a7044",
+  "status": "unknown",
+  "checks": [
+    "Go test/vet",
+    "Markdown整形",
+    "git diff --check",
+    "Core verify stable",
+    "実モデル比較: 未実施"
+  ],
+  "summary": "最終差分で通常検証4件成功。対象の誤認・不要な撤回・新資料の無視を不合格にする回帰検査が成功。実モデル比較は送信承認待ち。",
+  "remaining": [
+    "実モデルへの資料送信は自動承認レビューで実行前に拒否。変更前後の判断の差は未確認。"
+  ]
+}
