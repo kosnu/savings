@@ -91,14 +91,14 @@ pending中は期限後も通常利用を拒否する。`deleting` を永続状�
 記録項目は受付UUID、本人Auth UUID、状態、確認キーhash、申請UTC時刻・削除期限、説明version、取消/完了UTC時刻、再試行回数・次回試行時刻・最後の有限なエラー分類とする。
 email・名前・明細・Google token・Auth token・自由文ログ・試行ごとの履歴は保存しない。物理削除後も結果を残せるようuserへの削除cascade FKは付けない。
 
-| 境界                                                                       | 契約                                                                                                                                                                     |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `prepare_account_deletion()`                                               | 有効な本人sessionとusersを確認し、説明・現在のBook分類件数を返す。予約や削除を行わない                                                                                   |
-| `request_account_deletion(request_id, result_secret, explanation_version)` | 直近5分以内の本人sessionを検証し、pending要求・168時間の復帰期限を同じtransactionで確定する。復帰期限と算出した物理削除の開始予定を返す。対象user IDは受けない           |
-| `reactivate_my_account(request_id)`                                        | 本人の新しいログインsession、対象pending要求、DB期限を検証し、cancelledへ変更する。期限後は拒否する                                                                      |
-| `get_my_account_deletion_state()`                                          | 有効な本人sessionから、自分のpending状態・復帰期限・物理削除の開始予定・復帰可否だけを返す。通常データへはアクセスさせない                                               |
-| `get_account_deletion_result(request_id, result_secret)`                   | sessionなしでも正しい確認キーで、その要求の `pending` / `cancelled` / `completed` と復帰期限・物理削除の開始予定だけを照会できる。不一致・記録なしは一律 `not_confirmed` |
-| `private.delete_due_accounts()`                                            | Cronの管理roleだけが実行する。物理削除の開始予定・再試行時刻が来たpending要求を最大10件再検査して削除する。anon/authenticatedへ公開しない                                |
+| 境界                                                                       | 契約                                                                                                                                                                       |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prepare_account_deletion()`                                               | 有効な本人sessionとusersを確認し、説明・現在のBook分類件数を返す。予約や削除を行わない                                                                                     |
+| `request_account_deletion(request_id, result_secret, explanation_version)` | 直近5分以内の本人sessionを検証し、pending要求・168時間の復帰期限を同じtransactionで確定する。復帰期限と算出した物理削除の開始予定を返す。対象user IDは受けない             |
+| `reactivate_my_account(request_id)`                                        | 本人の新しいログインsession、対象pending要求、DB期限を検証し、cancelledへ変更する。期限後は拒否する                                                                        |
+| `get_my_account_deletion_state()`                                          | 有効な本人sessionから、自分のpending要求の `request_id`・状態・復帰期限・物理削除の開始予定・復帰可否を返す。pendingがなければIDは返さない。通常データへはアクセスさせない |
+| `get_account_deletion_result(request_id, result_secret)`                   | sessionなしでも正しい確認キーで、その要求の `pending` / `cancelled` / `completed` と復帰期限・物理削除の開始予定だけを照会できる。不一致・記録なしは一律 `not_confirmed`   |
+| `private.delete_due_accounts()`                                            | Cronの管理roleだけが実行する。物理削除の開始予定・再試行時刻が来たpending要求を最大10件再検査して削除する。anon/authenticatedへ公開しない                                  |
 
 公開RPCは `SECURITY INVOKER` の薄い入口とし、必要な特権処理はData API非公開schemaの固定関数へ限定する。
 特権関数は `SECURITY DEFINER`、空の `search_path`、schema修飾名とし、`PUBLIC`・anonのEXECUTEを明示的に取り消す。
@@ -125,11 +125,11 @@ markerは5分で期限切れとし、任意return URLを受け付けない。mar
 本人確認・対象を指定した復帰には専用callback `/auth/account-action` を使い、通常ログインの `/auth` とpathnameで区別する。
 専用callbackでは、継続の処理を通常のredirect・通常clientのURL session検出・`SupabaseSessionProvider` の認証同期より先に行う。
 継続中のOAuth sessionは専用の一時storageで隔離し、SDK検証後にidentityと目的を確認するまで通常sessionへ反映しない。
-元Auth UUIDと異なるidentity、OAuthエラー、marker不在/期限切れなら、継続用sessionを破棄・sign outし、通常のuser同期やdefault Book作成へ渡さない。
+元Auth UUIDと異なるidentity、OAuthエラー、marker不在/期限切れなら、通常のuser同期やdefault Book作成へ渡さない。一時sessionが成立していれば専用clientで `signOut({ scope: "local" })` を実行し、専用storageとmarkerだけを消去する。元の通常sessionと他端末のsessionは維持する。
 markerを失っても専用pathnameのcallbackを通常 `/auth` へfallbackさせない。
 通常sessionへ混入させないため、元の通常sessionを別identityで置き換えない。Google側で発行されたAuth userの存在と、Burnetoのアプリ内user作成は区別する。
 
-正しいidentityの場合だけ、申請確認ならpreview再取得、再ログインなら自分の状態照会と期限内再有効化を行う。
+正しいidentityの場合だけ、申請確認ならpreview再取得、再ログインなら本人向け状態照会で取得した `request_id` を `reactivate_my_account(request_id)` に渡す。端末の受付番号や匿名照会キーは復帰の前提にしない。
 正常に成立した継続だけ通常sessionへ反映し、marker・一時storageを消す。失敗時は停止状態の案内に留める。
 通常ログインの初回登録・redirectは維持するが、pending利用者を自動のuser同期より前に分岐する。
 利用者の明示的なGoogleログインで取得した新sessionの場合だけ再有効化を試み、既存sessionの初期復元や自動refreshから再有効化RPCを呼ばない。
@@ -171,7 +171,8 @@ markerを失っても専用pathnameのcallbackを通常 `/auth` へfallbackさ�
 各候補の削除とcompleted更新はPL/pgSQLの例外blockによるサブtransactionに含める。失敗した候補はAuth削除を含めrollbackする。
 その外側でpendingを維持し、有限のエラー分類・回数・次回試行時刻を更新する。再試行間隔は1分から倍増し最大1時間とし、次回試行時刻は失敗を確認したDB時刻から設定する。
 再試行でも元の `delete_after`・`purge_after` は延長・再設定しない。新たな午前3時待ちは発生せず、開始予定と次回試行時刻を満たした毎分ジョブの対象へ戻る。
-バッチ全体が中断・timeoutしたら未commitの成功候補・試行情報もrollbackされ、次回の実状態から再試行する。
+バッチ全体のtimeoutでは未commitの削除と再試行情報もrollbackする。同じ候補群でtimeoutが続く場合は、運営者が通常ジョブを一時停止し、専用管理roleで該当候補を1要求ずつ別transactionで処理して原因の要求を特定する。単件でもtimeoutしたら、そのtransactionの終了後に別transactionで同じaccount・要求をlockし、なおpendingなら既存の次回試行時刻を調査後に処理できる時刻まで延期する。復帰期限・開始予定・利用停止は維持する。
+通常ジョブを再開して他の要求を先に処理する。運営者は延期した要求を追跡し、原因解消後は元の要求IDで通常の削除条件を再検査して完了を確認する。
 completed要求は再削除しない。
 
 同じBookの最後の2memberの削除はBook lockで直列化する。実行関数は `VOLATILE` / READ COMMITTEDで待機後の新しいsnapshotを使う。
@@ -226,8 +227,8 @@ Authのredirect allowlistには各環境の既存 `/auth` を保ったまま、�
 隔離DBと合成ユーザーで次を確認する。実装範囲と完了条件は[Issue案](account-deletion-implementation-issue.md)に置く。
 
 - **予約と認可**：途中失敗・応答喪失・番号の重複でも二重予約や期限延長をしない。旧JWT・refresh・別端末・旧Web・REST/RPCから停止を迂回できず、削除済みAuth IDも再作成されない。
-- **再有効化とOAuth**：168時間の直前/同時/直後、lock待機、新規ログインとsession復元、別identity・古いcallback・marker紛失/期限切れを照合する。取消後の再申請や古い要求が別の予約へ作用しない。
-- **時刻と分割処理**：03:00直前/同時/直後、UTC日付差、端末時計・timezoneの違いでも繰り上げ削除しない。11件以上、ジョブ停止後の再開、再試行で上限と元の開始予定を守る。
+- **再有効化とOAuth**：168時間の直前/同時/直後、lock待機、新規ログインとsession復元、別identity・古いcallback・marker紛失/期限切れを照合する。端末保存情報のない別端末で本人照会から復帰まで通し、再申請後の旧IDは拒否する。別identity選択・marker期限切れを起こした後も、元の通常sessionと他端末でrefreshが成功することを確認する。
+- **時刻と分割処理**：03:00直前/同時/直後、UTC日付差、端末時計・timezoneの違いでも繰り上げ削除しない。11件の先頭候補で連続してバッチをtimeoutさせる。単件切り分けと延期後に残り10件が進み、原因解消後に先頭の1件も元の開始予定のまま完了することを確認する。
 - **削除と共有**：最後の2memberの同時削除、Storage依存、SQL例外、完了記録失敗、ジョブ中断/二重起動を試す。部分削除・無人Bookの残存・共有データの誤削除を防ぐ。
 - **結果と復旧**：reload・遅延応答・照合情報紛失・30日の照会期限で成功を誤表示せず、別アカウントへcacheを混ぜない。各状態を含むbackup復旧、新旧DB/Webの混在、切り戻しでも元の要求状態と期限を維持する。
 - **Hostedの実動作**：承認されたDevでGoogleの新session・callback隔離・期限内復帰・Cronを確認する。午前3時の集中と実データ規模相当のデータで、1分/10件の容量・timeout・再試行による滞留解消を測る。HTMLやMSWの成功で代替しない。
