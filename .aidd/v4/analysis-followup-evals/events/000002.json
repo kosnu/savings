@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "会話での改善依頼（別案件を根拠に含む問題、gpt-6.1-sol lowの前後比較）",
+  "paths": [
+    "docs/harness/policies/audit.md",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/main.go",
+    "tools/harness/evals/analysis.go",
+    "tools/harness/evals/cases.go",
+    "tools/harness/evals/analysis_test.go",
+    "docs/harness/policies/retrospective.md"
+  ],
+  "fingerprint": "6a96118b826c6c059ef976d8e01c65f2d720315b7cae262aa1718270088c565f",
+  "status": "pass",
+  "checks": [
+    "Go test/vet",
+    "Markdown整形・差分検査",
+    "Core verify stable",
+    "gpt-6.1-sol low 同条件比較"
+  ],
+  "summary": "4893f85bとの同一suite・4入力比較で根拠選択0/4→4/4、対策選択4/4→4/4、総合0/4→4/4。各入力1回。同じ4入力の少数試行。実案件での再発率は未計測。",
+  "remaining": []
+}

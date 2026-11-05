@@ -210,8 +210,8 @@ func TestSelectiveSuitesRequireExplicitScope(t *testing.T) {
 		suites, selected []string
 		count            int
 	}{
-		{[]string{"behavior"}, nil, 11}, {[]string{"audit"}, nil, 2}, {[]string{"retrospective"}, nil, 2},
-		{[]string{"audit", "retrospective"}, nil, 4}, {[]string{"all"}, nil, 15},
+		{[]string{"behavior"}, nil, 11}, {[]string{"audit"}, nil, 3}, {[]string{"retrospective"}, nil, 3},
+		{[]string{"audit", "retrospective"}, nil, 6}, {[]string{"all"}, nil, 17},
 		{nil, []string{"explain", "audit-rule-gap"}, 2},
 	} {
 		got, err := selectCases(tc.suites, tc.selected)
@@ -224,6 +224,37 @@ func TestSelectiveSuitesRequireExplicitScope(t *testing.T) {
 	} {
 		if _, err := selectCases(tc.suites, tc.selected); err == nil {
 			t.Fatal("ambiguous selection accepted")
+		}
+	}
+}
+
+func TestFirstAnalysisRequiresSupportForEachConclusion(t *testing.T) {
+	retro := findCase(t, "retro-source-evidence")
+	a := analysisResponse(retro, 0)
+	// 回数だけで再実行を重複とする提案を退ける。
+	a.Analysis.Finding, a.Analysis.Remedy = "established", "reuse_unchanged_verification"
+	checks := gradeAnalysis(retro, 0, *a.Analysis, true, a)
+	if checks["causal_judgment"] != "fail" || checks["prevention"] != "fail" {
+		t.Fatal("unsupported optimization accepted", checks)
+	}
+	a = analysisResponse(retro, 1)
+	// 指摘は成立するが、読んだ規則の適用漏れに配布経路の追加は効かない。
+	a.Analysis.Cause, a.Analysis.Remedy = "routing_gap", "repair_routing"
+	checks = gradeAnalysis(retro, 1, *a.Analysis, true, a)
+	if checks["causal_judgment"] != "fail" || checks["prevention"] != "fail" {
+		t.Fatal("unsupported cause and remedy accepted", checks)
+	}
+	audit := findCase(t, "audit-source-evidence")
+	a = analysisResponse(audit, 1)
+	a.Analysis.Finding = "established"
+	if gradeAnalysis(audit, 1, *a.Analysis, true, a)["causal_judgment"] != "fail" {
+		t.Fatal("ambiguous reference treated as confirmed")
+	}
+	a = analysisResponse(audit, 0)
+	for _, evidence := range [][]string{{"D14", "P37", "U17"}, {"D14", "P37", "U83", "Q56"}, {"D14", "U83"}} {
+		a.Analysis.Evidence = evidence
+		if gradeAnalysis(audit, 0, *a.Analysis, true, a)["evidence"] != "fail" {
+			t.Fatal("incorrect or insufficient support accepted", evidence)
 		}
 	}
 }
@@ -261,7 +292,21 @@ func TestAnalysisVariantsThroughAdapter(t *testing.T) {
 					} `json:"properties"`
 				}
 				data, err := os.ReadFile(filepath.Join(cwd, "response-schema.json"))
-				if err != nil || json.Unmarshal(data, &schema) != nil || string(encoded(schema.Properties.Analysis.Properties.Evidence.Items.Enum)) != string(encoded(c.Sources[variant])) {
+				if err != nil || json.Unmarshal(data, &schema) != nil {
+					t.Fatal("cannot read evaluation schema")
+				}
+				allowed := schema.Properties.Analysis.Properties.Evidence.Items.Enum
+				if c.EvidenceFiles[variant] != nil {
+					for name, excerpt := range c.EvidenceFiles[variant] {
+						data, err := os.ReadFile(filepath.Join(cwd, "task/evidence", name))
+						if err != nil || string(data) != excerpt || bytes.Contains(input, data) {
+							t.Fatal("source excerpt must be available in the fixture, separately from the request", name)
+						}
+					}
+					if allowed != nil {
+						t.Fatal("fixture source IDs leaked through schema")
+					}
+				} else if string(encoded(allowed)) != string(encoded(c.Sources[variant])) {
 					t.Fatal("case source IDs not passed to CLI schema")
 				}
 				if !contains(schema.Properties.Analysis.Required, "verification_gap") || !contains(schema.Properties.Analysis.Properties.VerificationGap.Enum, c.Analysis[variant].VerificationGap) {
@@ -293,7 +338,7 @@ func TestCLIAnalysisSelectionDefaultsAndWrongResponse(t *testing.T) {
 	if err := json.Unmarshal(data, &report); err != nil {
 		t.Fatal(err)
 	}
-	if report.Repetitions != 2 || len(report.Cases) != 2 || len(report.Results) != 4 {
+	if report.Repetitions != 2 || len(report.Cases) != 3 || len(report.Results) != 6 {
 		t.Fatal(report)
 	}
 	// 旧回答を返す偽CLIを、分析の成功として採用しない。

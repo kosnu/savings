@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話での改善依頼（別案件を根拠に含む問題、gpt-6.1-sol lowの前後比較）",
+  "paths": [
+    "docs/harness/policies/audit.md",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/main.go",
+    "tools/harness/evals/analysis.go",
+    "tools/harness/evals/cases.go",
+    "tools/harness/evals/analysis_test.go",
+    "docs/harness/policies/retrospective.md"
+  ],
+  "fingerprint": "6a96118b826c6c059ef976d8e01c65f2d720315b7cae262aa1718270088c565f",
+  "status": "pass",
+  "checks": [
+    "実案件の根拠と参考資料の区別",
+    "課題・採点器・モデルの固定"
+  ],
+  "summary": "分析手順で対象案件の結論と直接結び付く資料・箇所だけを根拠に選ぶ。変更前は4893f85bの同条件4入力を使用する。",
+  "remaining": []
+}

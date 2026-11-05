@@ -608,6 +608,15 @@ func (r runner) trial(c evalCase, number int, files map[string][]byte, opts opti
 	if r.setup(work, files) != nil {
 		return
 	}
+	for filename, excerpt := range c.EvidenceFiles[row.Variant] {
+		if filepath.Base(filename) != filename || filename == "." || filename == ".." {
+			return
+		}
+		dir := filepath.Join(work, "task/evidence")
+		if os.MkdirAll(dir, 0755) != nil || os.WriteFile(filepath.Join(dir, filename), []byte(excerpt), 0644) != nil {
+			return
+		}
+	}
 	schema := filepath.Join(work, "response-schema.json")
 	schemaData := responseSchema
 	if c.Analysis != nil {
