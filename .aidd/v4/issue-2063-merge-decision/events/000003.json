@@ -1,0 +1,34 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2063",
+  "paths": [
+    "docs/harness/policies/git-workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "e9eb272a5ead1fce20994325f12b79016bd02fc34c89c8db006cc00f0beda910",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.audit",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.review-feedback-classification",
+    "AC1: head・CI・review・thread・方式・適用条件を区別",
+    "AC2: 単一表示の断定を拒否し通常操作の実結果を採用",
+    "AC3: admin未使用と免除作用未確認を分離",
+    "AC4: reaction・PR作者から承認充足を推論しない",
+    "AC5: 成功・拒否・結果未確認の対照例と無断強制拒否"
+  ],
+  "summary": "Issueの5完了条件を目的から導き最終差分と照合しpass。成功・拒否・未確認、head変更・CI未完了・受付のみの反例を判定。既存docs選択経路で正本へ到達し索引変更不要。Unresolvedなし、findingなし。仮想事例の意味照合までで実マージ・実設定・実モデルの評価は未実施。Web/API・#2062・#2064は変更対象外。",
+  "remaining": []
+}
