@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/2090 と Codex会話のAudit修正案に対する『Approve』",
+  "paths": [
+    "AGENTS.md",
+    ".github/workflows/issue_project_automation.yaml",
+    "tools/github-actions/issue-project-automation.cjs",
+    "tools/github-actions/issue-project-automation.test.mjs"
+  ],
+  "fingerprint": "1f101d58e8193c9c49fb0b157d57783f7832acddcf9810ecd51ab3c0da0d3b66",
+  "status": "pass",
+  "checks": [
+    "ユーザーのApproveとAudit No.1の対象・範囲の照合",
+    "改善済みAGENTSと既存Intentの再読",
+    "既存のGraphQL処理・Secret・起動条件の維持"
+  ],
+  "summary": "同じTask・baseline 69ab4b89を維持し次サイクルへ進む。承認されたAGENTSの配置規則を反映した。処理はtools/github-actions/issue-project-automation.cjsへ移し、default commitのcheckout後にgithub-scriptから単行で呼ぶ。テストは直接importし、Secret不足・呼出し接続を追加確認する。専用Secret登録・merge・Bot返信は今回の承認対象に含めない。",
+  "remaining": []
+}

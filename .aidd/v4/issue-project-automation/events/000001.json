@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "Codex chat: Issue作成時のProject AutomationをGitHub Actionsで自動設定する依頼（2026-11-06）",
+  "paths": [
+    ".github/workflows/issue_project_automation.yaml",
+    ".github/workflows/github_actions_security.yaml",
+    "tools/github-actions/issue-project-automation.test.mjs",
+    "docs/harness/policies/github-issue-workflow.md"
+  ],
+  "fingerprint": "3a5d201298f6f90553d74c7039f224d885b065bb03e5522b83ad03a812a91383",
+  "status": "pass",
+  "checks": [
+    "Intent・既存の初期値ポリシー・Project定義の照合",
+    "GitHub公式のProject API・認証仕様の照合"
+  ],
+  "summary": "新規Task。baseline 69ab4b89。issues.openedからProject登録・未設定時のみEnabled設定・再取得へ接続する。既存値は保持しAPI失敗は失敗にする。専用Secretで認証しIssue本文・PRコードは実行しない。既存agent手順は維持する。運用開始には専用Secret登録とmergeが必要で、実Actions動作はこの段階では確認できない。",
+  "remaining": []
+}

@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2090 と Codex会話のユーザー指摘『ActionのYAML内にそんな複数行のコードを書かないで』",
+  "paths": [
+    ".github/workflows/issue_project_automation.yaml",
+    "tools/github-actions/issue-project-automation.test.mjs",
+    ".github/workflows/github_actions_security.yaml",
+    "docs/harness/policies/github-issue-workflow.md",
+    "AGENTS.md"
+  ],
+  "fingerprint": "3a5d201298f6f90553d74c7039f224d885b065bb03e5522b83ad03a812a91383",
+  "status": "pass",
+  "checks": [
+    "PR #2090の現head・Intent・コメント・thread状態の取得",
+    "YAMLの埋込JS・shellとテストの抽出実行経路",
+    "課題・原因の調査の正確さと客観性",
+    "根本対策の再利用性と再発抑止",
+    "適用先の妥当性"
+  ],
+  "summary": "分析完了・提案未適用。P2: YAMLの複数行JSとshellは今回の配置制約に不適合。テストもYAML抽出実行に依存する。既存規則には配置禁止がなく、選択理由は未記録。検証対象はAPI分岐・構文・安全性で配置は対象外だった。外部cjsへの移動・信頼済みdefault commitのcheckoutと短い呼出し・直接importテスト・AGENTSの共通配置規則を提案。3観点レビューで提案の成立と範囲は妥当、抑止効果は未実証。PR threadは0件、Botの指摘なし通知は返信不要。適用承認待ち。",
+  "remaining": []
+}
