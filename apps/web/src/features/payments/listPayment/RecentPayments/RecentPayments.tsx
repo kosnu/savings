@@ -86,7 +86,6 @@ function RecentPaymentsResolved({ bookId, cacheScope }: RecentPaymentsProps) {
           void navigate({
             to: "/payments/details/$paymentId",
             params: { paymentId: String(paymentId) },
-            state: { paymentDetailsFromHome: true },
             search: {
               year: String(targetMonth.year),
               month: String(targetMonth.month),

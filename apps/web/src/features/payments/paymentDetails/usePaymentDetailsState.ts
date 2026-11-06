@@ -1,19 +1,10 @@
-import { useLocation, useNavigate, useParams, useRouter } from "@tanstack/react-router"
+import { useNavigate, useParams, useRouter } from "@tanstack/react-router"
 import { useCallback, useRef } from "react"
 
 import type { PaymentId } from "../../../types/payment"
 
-declare module "@tanstack/react-router" {
-  interface HistoryState {
-    paymentDetailsFromHome?: boolean
-  }
-}
-
 export function usePaymentDetailsState() {
   const { hasPaymentDetailsRoute, selectedPaymentId } = useSelectedPaymentDetails()
-  const openedFromHome = useLocation({
-    select: (location) => location.state.paymentDetailsFromHome === true,
-  })
   const navigate = useNavigate({ from: "/payments" })
   const router = useRouter()
   const lastOpenedTriggerRef = useRef<HTMLButtonElement | null>(null)
@@ -34,12 +25,12 @@ export function usePaymentDetailsState() {
     const openedTrigger = lastOpenedTriggerRef.current
     lastOpenedTriggerRef.current = null
 
-    if (openedTrigger || openedFromHome) {
+    if (router.history.canGoBack()) {
       router.history.back()
     } else {
       void navigate({
-        to: "/payments",
-        search: (prev) => prev,
+        to: "/",
+        search: ({ year, month }) => ({ year, month }),
         replace: true,
       })
     }
@@ -47,7 +38,7 @@ export function usePaymentDetailsState() {
     requestAnimationFrame(() => {
       openedTrigger?.focus()
     })
-  }, [navigate, openedFromHome, router])
+  }, [navigate, router])
 
   const onOpenChange = useCallback(
     (open: boolean) => {

@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2083",
+  "paths": [
+    "apps/web/src/features/payments/paymentDetails/usePaymentDetailsState.ts",
+    "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.tsx",
+    "apps/web/src/features/payments/listPayment/PaymentList/PaymentList.test.tsx",
+    "apps/web/src/app/routes/PaymentsPage/PaymentsPage.test.tsx",
+    "apps/web/src/app/routes/PaymentsPage/monthSearch.integration.test.tsx"
+  ],
+  "fingerprint": "586e23622a580e5d94585e7577e2514de2216b5e2977488be2ed191eebb49977",
+  "status": "pass",
+  "checks": [
+    "Web lint",
+    "Web format-check",
+    "Web typecheck",
+    "Web unit-integration",
+    "関連4ファイルの結合テスト",
+    "差分の空白検査"
+  ],
+  "summary": "158ファイル・1097テスト成功。関連4ファイル102テストも成功。ホーム・一覧からの復帰、履歴なしのホームfallback、年月正規化後の復帰、一覧条件とfocusの保持、forwardでの再表示後の復帰を確認。途中の未変更HomePageの表示待ち時間切れは全件再実行で再現せず、原因は未確定。browser実機操作は未実施。",
+  "remaining": []
+}

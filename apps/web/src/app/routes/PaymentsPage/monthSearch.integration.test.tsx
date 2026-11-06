@@ -77,7 +77,7 @@ test.each([
   },
 )
 
-test("範囲外の詳細URLを正規化しても詳細IDとカテゴリ条件を保持する", async () => {
+test("範囲外の詳細URLはIDとカテゴリ条件を保持して正規化し、閉じるとホームへ戻る", async () => {
   vi.useFakeTimers({ toFake: ["Date"] })
   vi.setSystemTime(new Date(2026, 9, 15, 12))
   const router = createRouter({
@@ -94,6 +94,7 @@ test("範囲外の詳細URLを正規化しても詳細IDとカテゴリ条件を
   expect(router.state.location.pathname).toBe("/payments/details/2")
   expect(router.state.location.search).toEqual({ year: "2026", month: "10", category: "20" })
   await user.click(screen.getByRole("button", { name: /close payment details/i }))
-  await waitFor(() => expect(router.state.location.pathname).toBe("/payments"))
-  expect(router.state.location.search).toEqual({ year: "2026", month: "10", category: "20" })
+  await waitFor(() => expect(router.state.location.pathname).toBe("/"))
+  expect(router.state.location.search).toEqual({ year: "2026", month: "10" })
+  expect(router.state.location.state.__TSR_index).toBe(0)
 })

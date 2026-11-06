@@ -28,6 +28,7 @@ import {
   within,
 } from "../../../test/test-utils"
 import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
+import { HomePage } from "../HomePage"
 import * as stories from "./PaymentPage.stories"
 import { PaymentsPage } from "./PaymentsPage"
 
@@ -123,7 +124,18 @@ function renderPaymentsPageRoute(initialEntry: string) {
         path: "details/$paymentId",
       })
 
-      return [authenticatedRoute.addChildren([paymentsRoute.addChildren([paymentDetailsRoute])])]
+      // 固定routerのStoryでは表せないページ間の復帰を、実際の両ページで確認する。
+      const homeRoute = createRoute({
+        getParentRoute: () => root,
+        path: "/",
+        component: HomePage,
+        validateSearch: paymentsSearchSchema.pick({ year: true, month: true }),
+      })
+
+      return [
+        homeRoute,
+        authenticatedRoute.addChildren([paymentsRoute.addChildren([paymentDetailsRoute])]),
+      ]
     },
     { queryClient },
   )
@@ -537,7 +549,7 @@ describe("PaymentsPage", () => {
     })
   })
 
-  test("詳細URLを直接開いて閉じると一覧条件を維持して一覧URLへ戻る", async () => {
+  test("詳細URLを直接開いて閉じると年月を維持してホームへ戻る", async () => {
     const { router, user } = renderPaymentsPageRoute(
       "/payments/details/2?year=2025&month=6&category=20",
     )
@@ -548,9 +560,10 @@ describe("PaymentsPage", () => {
     await user.click(within(detailDialog).getByRole("button", { name: /close payment details/i }))
 
     await waitFor(() => {
-      expect(router.state.location.href).toBe("/payments?year=2025&month=6&category=20")
+      expect(router.state.location.href).toBe("/?year=2025&month=6")
       expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
     })
+    expect(await screen.findByLabelText("Recent payments")).toBeInTheDocument()
   })
 
   test("支払いを作成すると一覧に追加される", async () => {

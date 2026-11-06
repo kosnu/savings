@@ -273,7 +273,7 @@ describe("PaymentList", () => {
     })
   })
 
-  test("一覧から開いた詳細を閉じると履歴を戻して一覧URLへ戻る", async () => {
+  test("一覧から開いた詳細は閉じて履歴を進めた後も元の一覧URLへ戻る", async () => {
     server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
     const { router, user } = renderPaymentList("/payments?year=2025&month=6&category=10")
 
@@ -282,6 +282,16 @@ describe("PaymentList", () => {
 
     const dialog = await screen.findByRole("dialog", { name: /payment details/i })
     await user.click(within(dialog).getByRole("button", { name: /close payment details/i }))
+
+    await waitFor(() => {
+      expect(router.state.location.href).toBe("/payments?year=2025&month=6&category=10")
+      expect(router.state.location.state.__TSR_index).toBe(0)
+      expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
+    })
+
+    router.history.forward()
+    const reopenedDialog = await screen.findByRole("dialog", { name: /payment details/i })
+    await user.click(within(reopenedDialog).getByRole("button", { name: /close payment details/i }))
 
     await waitFor(() => {
       expect(router.state.location.href).toBe("/payments?year=2025&month=6&category=10")
@@ -318,7 +328,7 @@ describe("PaymentList", () => {
     },
   )
 
-  test("詳細URLを直接開いて閉じると同じ検索条件の一覧へ置き換える", async () => {
+  test("詳細URLを直接開いて閉じると年月を維持してホームへ置き換える", async () => {
     server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
     const { router, user } = renderPaymentList("/payments/details/2?year=2025&month=6&category=10")
 
@@ -326,10 +336,11 @@ describe("PaymentList", () => {
     await user.click(within(dialog).getByRole("button", { name: /close payment details/i }))
 
     await waitFor(() => {
-      expect(router.state.location.href).toBe("/payments?year=2025&month=6&category=10")
+      expect(router.state.location.href).toBe("/?year=2025&month=6")
       expect(router.state.location.state.__TSR_index).toBe(0)
       expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
     })
+    expect(await screen.findByLabelText("Recent payments")).toBeInTheDocument()
   })
 
   test("URL searchの登録済みカテゴリIDを一覧取得条件に反映する", async () => {
