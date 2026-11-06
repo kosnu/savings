@@ -1,0 +1,31 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2062",
+  "paths": [
+    "docs/harness/policies/git-workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "1bde1f0fc6157832afab4e69dea652fc63be38cebe26da2f1189381093c1a47a",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.audit",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.review-feedback-classification",
+    "policy.code-review",
+    "Intent acceptance criteria 1-4",
+    "Final diff and semantic case boundaries"
+  ],
+  "summary": "完了条件4件pass、findingと未解決競合なし。旧基準と最終差分を照合し、適合例pass・過多/欠落例fail。既存索引で正本に到達し同期変更不要。自動evalに対応ケースがなく実モデルでの品質への効果は未評価。",
+  "remaining": []
+}
