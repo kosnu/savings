@@ -152,6 +152,55 @@ beforeEach(async () => {
   }))
 })
 
+// 初期通知と取得結果の順序を制御するため、StoryではなくProviderの購読境界を使う。
+test.each(["before", "after"])(
+  "INITIAL_SESSION(null)が取得失敗の%sでもエラーと再試行を維持する",
+  async (notificationOrder) => {
+    const pending = createDeferred<{ data: { session: null }; error: Error }>()
+    mockGetSession.mockReturnValueOnce(pending.promise)
+    const emit = captureAuthCallback()
+    const { result } = renderSessionHook()
+    if (notificationOrder === "before") {
+      act(() => emit("INITIAL_SESSION", null))
+      expectSession(result, "loading", null)
+    }
+    await act(async () => {
+      pending.resolve({ data: { session: null }, error: new TypeError("Failed to fetch") })
+      await pending.promise
+    })
+    await waitFor(() => expectSession(result, "error", null))
+    if (notificationOrder === "after") act(() => emit("INITIAL_SESSION", null))
+    expectSession(result, "error", null)
+    const state = result.current
+    if (state.status !== "error") throw new Error("Expected retryable error")
+    expect(state.requiresSignIn).toBe(false)
+    expect(mockSignOut).not.toHaveBeenCalled()
+    mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
+    act(() => state.retry())
+    await waitFor(() => expectSession(result, "authenticated", "user-id"))
+  },
+)
+
+test.each(["before", "after"])(
+  "INITIAL_SESSION(null)が正常なsessionなし取得の%sでも未ログインになる",
+  async (notificationOrder) => {
+    const pending = createDeferred<{ data: { session: null }; error: null }>()
+    mockGetSession.mockReturnValueOnce(pending.promise)
+    const emit = captureAuthCallback()
+    const { result } = renderSessionHook()
+    if (notificationOrder === "before") act(() => emit("INITIAL_SESSION", null))
+    await act(async () => {
+      pending.resolve({ data: { session: null }, error: null })
+      await pending.promise
+    })
+    await waitFor(() => expectSession(result, "unauthenticated", null))
+    if (notificationOrder === "after") act(() => emit("INITIAL_SESSION", null))
+    expectSession(result, "unauthenticated", null)
+    expect(mockGetUser).not.toHaveBeenCalled()
+    expect(mockCaptureSupabaseSessionError).not.toHaveBeenCalled()
+  },
+)
+
 testCase("getSession が reject した場合は 再試行できるエラーにする", async () => {
   mockGetSession.mockRejectedValueOnce(new Error("network error"))
 
