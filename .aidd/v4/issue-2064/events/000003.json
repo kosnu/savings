@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2064",
+  "paths": [
+    "docs/ai-driven-development/agent-evals.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "badad171789824d10ca8825fe8d273808fc44b633c347bc19ca5a542d67f477c",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.workflow",
+    "ai-driven.overview",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "policy.issue-template-selection",
+    "policy.git-workflow",
+    "documentation.policy",
+    "policy.audit",
+    "policy.review-feedback-classification",
+    "policy.code-review",
+    "Issue完了条件4件の意味レビュー"
+  ],
+  "summary": "指摘なし。操作・状態・時点、別解と誤答、観測事実と原因、両対象の新基準比較を入力と既存実装に照合して4条件pass。既存rule経路で足りるため索引変更不要。採点器成功から定義妥当性を推論せず、実モデルの性能差は主張しない。Unresolved: なし。",
+  "remaining": []
+}
