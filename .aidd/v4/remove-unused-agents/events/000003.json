@@ -1,0 +1,32 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "codex://threads/01a1b1e0-c472-7662-928f-de9b0922fef3",
+  "paths": [
+    ".github/agents/fe-engineer.agent.md",
+    ".github/agents/be-engineer.agent.md",
+    ".codex/agents/context-scout.toml",
+    ".codex/config.toml",
+    ".agents/skills/context-scout/SKILL.md",
+    ".agents/skills/context-scout/agents/openai.yaml"
+  ],
+  "fingerprint": "8ab236e0bd66840eae712b5690ba8b51fa889a5cf337317b45f590fd3f3da7d2",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.change-coverage",
+    "documentation.policy",
+    "ai-driven.workflow",
+    "ai-driven.overview",
+    "ai-driven.glossary",
+    "ai-driven.checker",
+    "policy.code-review",
+    "policy.audit",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.review-feedback-classification"
+  ],
+  "summary": "要求した定義・Skill・登録のみを削除。残存参照ゼロ、既存sandbox・承認設定と共通委任規則の保持を確認。索引は既存path選択で到達でき変更不要。指摘・未解決の競合なし。専用agentを実行しない現行evalは対象外。",
+  "remaining": []
+}
