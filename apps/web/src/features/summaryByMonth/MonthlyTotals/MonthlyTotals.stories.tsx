@@ -10,7 +10,6 @@ import { MonthlyTotals } from "./MonthlyTotals"
 const meta = {
   title: "Features/SummaryByMonth/MonthlyTotals",
   component: MonthlyTotals,
-  tags: ["autodocs"],
   parameters: {
     msw: {
       handlers: [

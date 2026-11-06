@@ -15,7 +15,6 @@ const meta = {
     mockingDate: new Date(2025, 5, 2),
     msw: { handlers: createMonthlyBudgetHandlers() },
   },
-  tags: ["autodocs"],
   argTypes: {},
   args: {
     onCancel: fn(),

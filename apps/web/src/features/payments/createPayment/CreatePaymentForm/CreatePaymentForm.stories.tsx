@@ -15,7 +15,6 @@ const meta = {
       handlers: [...createPaymentHandlers(), ...createCategoryHandlers()],
     },
   },
-  tags: ["autodocs"],
   argTypes: {},
   args: {
     bookId: 1,
@@ -60,12 +59,6 @@ export const Saving: Story = {
 export const SaveError: Story = {
   args: { onError: fn() },
   parameters: {
-    docs: {
-      description: {
-        story:
-          "現行実装は失敗をonErrorへ通知するだけで、フォーム内のエラー表示はありません。入力を保持する状態を再現します。",
-      },
-    },
     msw: {
       handlers: [
         ...createPaymentHandlers({ create: { error: true } }),

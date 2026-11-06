@@ -48,7 +48,6 @@ const unavailableProviderSession = mockSession({
 const meta = {
   title: "Features/Profile/ProfileSettings/AccountInformation",
   component: AccountInformation,
-  tags: ["autodocs"],
   decorators: [
     (Story, context) => {
       const queryClient = createQueryClient({

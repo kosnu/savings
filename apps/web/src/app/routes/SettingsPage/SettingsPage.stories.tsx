@@ -20,7 +20,7 @@ import { SettingsPage } from "./SettingsPage"
 const meta = {
   title: "Pages/SettingsPage",
   component: SettingsPage,
-  tags: ["autodocs", "browser-test"],
+  tags: ["browser-test"],
 } satisfies Meta<typeof SettingsPage>
 
 export default meta

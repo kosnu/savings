@@ -14,7 +14,6 @@ const meta = {
       handlers: createCategorySettingsHandlers(),
     },
   },
-  tags: ["autodocs"],
   decorators: (Story) => {
     const queryClient = createQueryClient()
 

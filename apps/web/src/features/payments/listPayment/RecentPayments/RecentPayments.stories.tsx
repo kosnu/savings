@@ -10,7 +10,6 @@ const meta = {
   args: { bookId: 1, cacheScope: "recent-story" },
   decorators: [createStoryRouter("/")],
   parameters: { msw: { handlers: createPaymentHandlers() } },
-  tags: ["autodocs"],
 } satisfies Meta<typeof RecentPayments>
 
 export default meta

@@ -10,7 +10,6 @@ const meta = {
     layout: "centered",
     mockingDate: new Date(2025, 4, 15),
   },
-  tags: ["autodocs"],
   render: (args) => {
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(args.value)
 

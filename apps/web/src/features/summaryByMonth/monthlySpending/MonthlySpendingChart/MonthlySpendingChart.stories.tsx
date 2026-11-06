@@ -11,7 +11,6 @@ import { MonthlySpendingChart } from "./MonthlySpendingChart"
 const meta = {
   title: "Features/SummaryByMonth/MonthlySpendingChart",
   component: MonthlySpendingChart,
-  tags: ["autodocs"],
   args: { bookId: 1 },
   decorators: [
     (Story) => (

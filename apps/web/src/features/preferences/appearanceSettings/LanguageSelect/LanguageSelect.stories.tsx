@@ -8,7 +8,6 @@ import { LanguageSelect } from "./LanguageSelect"
 const meta = {
   title: "Features/Preferences/AppearanceSettings/LanguageSelect",
   component: LanguageSelect,
-  tags: ["autodocs"],
   beforeEach: async () => {
     await i18next.changeLanguage("en")
     return async () => {

@@ -24,7 +24,6 @@ const meta = {
       ],
     },
   },
-  tags: ["autodocs"],
   argTypes: {},
   args: {},
   decorators: [

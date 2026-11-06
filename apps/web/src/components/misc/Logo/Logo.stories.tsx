@@ -5,7 +5,6 @@ import { Logo } from "./Logo"
 const meta = {
   title: "Components/Misc/Logo",
   component: Logo,
-  tags: ["autodocs"],
 } satisfies Meta<typeof Logo>
 
 export default meta

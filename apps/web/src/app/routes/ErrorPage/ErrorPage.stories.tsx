@@ -10,7 +10,7 @@ const meta = {
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs", "browser-test"],
+  tags: ["browser-test"],
   decorators: [createStoryRouter("/")],
   args: {
     error: new Error("Storybook root error"),

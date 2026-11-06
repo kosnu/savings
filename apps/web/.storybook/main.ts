@@ -6,8 +6,8 @@ process.env.VITE_SUPABASE_URL ??= "http://127.0.0.1:54321"
 process.env.VITE_SUPABASE_PUBLISHABLE_KEY ??= "test-dummy-key"
 
 const config: StorybookConfig = {
-  stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
-  addons: ["storybook-addon-mock-date", "@storybook/addon-vitest", "@storybook/addon-docs"],
+  stories: ["../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
+  addons: ["storybook-addon-mock-date", "@storybook/addon-vitest"],
   framework: {
     name: "@storybook/react-vite",
     options: {},

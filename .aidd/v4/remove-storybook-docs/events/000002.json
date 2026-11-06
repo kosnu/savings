@@ -1,0 +1,28 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "ユーザー依頼: storybookのdocsを消して",
+  "paths": [
+    "apps/web/.storybook/",
+    "apps/web/.storybook-test/",
+    "apps/web/src/",
+    "apps/web/package.json",
+    "apps/web/docs/policies/storybook-browser-tests.md",
+    "pnpm-lock.yaml"
+  ],
+  "fingerprint": "5800da40089b360b6a93a1e3d7d6bec894d2f7cf63cf42807160c879ba9887e3",
+  "status": "pass",
+  "checks": [
+    "Web lint",
+    "Web format-check",
+    "Web typecheck",
+    "unit-integration 1097 tests",
+    "Storybook 32 browser tests",
+    "Storybook build: 252 stories / 0 Docs",
+    "変更Storyのexport・browser-test保持",
+    "Docs参照なし・diff check"
+  ],
+  "summary": "必須4検証・Storybook build成功。browser testは初回Chromium権限制限、同一コマンドを権限付きで再実行し32件成功。",
+  "remaining": []
+}

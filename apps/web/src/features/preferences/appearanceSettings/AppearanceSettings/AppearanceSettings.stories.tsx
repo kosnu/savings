@@ -5,7 +5,6 @@ import { AppearanceSettings } from "./AppearanceSettings"
 const meta = {
   title: "Features/Preferences/AppearanceSettings/AppearanceSettings",
   component: AppearanceSettings,
-  tags: ["autodocs"],
 } satisfies Meta<typeof AppearanceSettings>
 
 export default meta

@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "ユーザー依頼: storybookのdocsを消して",
+  "paths": [
+    "apps/web/.storybook/",
+    "apps/web/.storybook-test/",
+    "apps/web/src/",
+    "apps/web/package.json",
+    "apps/web/docs/policies/storybook-browser-tests.md",
+    "pnpm-lock.yaml"
+  ],
+  "fingerprint": "5800da40089b360b6a93a1e3d7d6bec894d2f7cf63cf42807160c879ba9887e3",
+  "status": "pass",
+  "checks": [
+    "rule-map path/surface・依存closure全件",
+    "Intent照合: Docs 0件・Story 252件",
+    "全60 Story差分はDocs削除のみ",
+    "文書例・依存・通常/テスト設定の同期"
+  ],
+  "summary": "Docs削除のみ、Story exportとbrowser-test保持を実差分・生成一覧・テストで確認。指摘・未解決なし。文書例の同期のみでagent判断規則は変えずeval対象外。",
+  "remaining": []
+}

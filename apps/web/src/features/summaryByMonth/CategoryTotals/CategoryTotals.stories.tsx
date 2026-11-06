@@ -130,7 +130,6 @@ const largeAmountPaymentRows: PaymentRow[] = [
 const meta = {
   title: "Features/SummaryByMonth/CategoryTotals",
   component: CategoryTotals,
-  tags: ["autodocs"],
   parameters: {
     msw: {
       handlers: [

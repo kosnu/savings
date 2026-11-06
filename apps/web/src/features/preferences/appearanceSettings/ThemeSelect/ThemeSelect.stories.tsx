@@ -5,7 +5,6 @@ import { ThemeSelect } from "./ThemeSelect"
 const meta = {
   title: "Features/Preferences/AppearanceSettings/ThemeSelect",
   component: ThemeSelect,
-  tags: ["autodocs"],
 } satisfies Meta<typeof ThemeSelect>
 
 export default meta

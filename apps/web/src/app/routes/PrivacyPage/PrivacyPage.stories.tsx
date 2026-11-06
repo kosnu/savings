@@ -9,7 +9,7 @@ import { PrivacyPage } from "./PrivacyPage"
 const meta = {
   title: "Pages/PrivacyPage",
   component: PrivacyPage,
-  tags: ["autodocs", "browser-test"],
+  tags: ["browser-test"],
   decorators: [createStoryRouter("/privacy")],
 } satisfies Meta<typeof PrivacyPage>
 

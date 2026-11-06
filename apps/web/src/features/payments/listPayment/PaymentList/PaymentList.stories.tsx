@@ -9,7 +9,6 @@ const meta = {
   title: "Features/Payments/ListPayment/PaymentList",
   component: PaymentList,
   parameters: {},
-  tags: ["autodocs"],
   decorators: [createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder)],
   argTypes: {},
   args: {
