@@ -2,17 +2,15 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import test from "node:test"
 
-const workflow = readFileSync(
-  new URL("../../.github/workflows/issue_project_automation.yaml", import.meta.url),
-  "utf8",
-)
-// YAML全体の検証はactionlintが担当し、ここでは実際のscript本文のAPI分岐を確認する。
-const script = workflow.split("          script: |\n")[1]
-assert.ok(script, "Workflow must contain the initialization script")
-const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor
-const initialize = new AsyncFunction("github", "context", "core", script)
+import initialize from "./issue-project-automation.cjs"
 
-function fixture({ current = null, confirmed = "enabled", missing, errorAt } = {}) {
+function fixture({
+  current = null,
+  confirmed = "enabled",
+  missing,
+  errorAt,
+  token = "test-token",
+} = {}) {
   const calls = []
   let reads = 0
   const graphql = async (query, variables) => {
@@ -61,9 +59,35 @@ function fixture({ current = null, confirmed = "enabled", missing, errorAt } = {
   }
   return {
     calls,
-    run: () => initialize({ graphql }, { payload: { issue: { node_id: "issue" } } }, { info() {} }),
+    run: async () =>
+      initialize({
+        github: { graphql },
+        context: { payload: { issue: { node_id: "issue" } } },
+        core: { info() {} },
+        token,
+      }),
   }
 }
+
+test("Workflowは信頼済みcommitのスクリプトを単行で呼び出す", () => {
+  const workflow = readFileSync(
+    new URL("../../.github/workflows/issue_project_automation.yaml", import.meta.url),
+    "utf8",
+  )
+  assert.match(workflow, /ref: \$\{\{ github\.sha \}\}/)
+  assert.match(workflow, /persist-credentials: false/)
+  assert.match(workflow, /PROJECT_AUTOMATION_TOKEN: \$\{\{ secrets\.PROJECT_AUTOMATION_TOKEN \}\}/)
+  assert.match(
+    workflow,
+    /^\s+script: await require\('\.\/tools\/github-actions\/issue-project-automation\.cjs'\)\(\{github, context, core\}\)$/m,
+  )
+})
+
+test("SecretがなければAPIへアクセスせず失敗する", async () => {
+  const { calls, run } = fixture({ token: "" })
+  await assert.rejects(run(), /Set repository secret PROJECT_AUTOMATION_TOKEN/)
+  assert.deepEqual(calls, [])
+})
 
 test("未設定ならIssueを登録してAutomationだけをEnabledに更新し、再取得する", async () => {
   const { calls, run } = fixture()

@@ -45,6 +45,7 @@ Read further when a required fact or decision remains unsupported; avoid searche
 
 ## Command Rules
 
+- GitHub ActionsのYAMLには実行条件と短い呼び出しだけを書き、分岐・API操作などの処理ロジックは外部スクリプトへ置く。
 - When passing extra arguments to pnpm workspace scripts, pass them directly after the script name by default, for example `pnpm --filter web storybook --no-open`.
 - Use `--` only after confirming the target script or underlying CLI requires it.
 

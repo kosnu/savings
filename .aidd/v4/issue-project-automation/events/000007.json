@@ -1,0 +1,37 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/pull/2090 と Codex会話のAudit修正案に対する『Approve』",
+  "paths": [
+    "AGENTS.md",
+    ".github/workflows/issue_project_automation.yaml",
+    "tools/github-actions/issue-project-automation.cjs",
+    "tools/github-actions/issue-project-automation.test.mjs"
+  ],
+  "fingerprint": "1f101d58e8193c9c49fb0b157d57783f7832acddcf9810ecd51ab3c0da0d3b66",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "policy.audit",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.github-issue-workflow",
+    "policy.issue-template-selection",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries",
+    "policy.retrospective",
+    "承認されたAudit No.1と実差分の一致",
+    "起動・checkout・Secret・単行呼出し・直接importの接続"
+  ],
+  "summary": "指摘と未解決の規則競合なし。複数行JS・shellを外部cjsへ移し、YAMLは単行呼出しとなった。issues.openedのdefault commitをcontents:readでcheckoutし資格情報は永続化しない。未設定更新・既存値保持・API失敗・反映確認を維持し17テストが成功。AGENTSは全作業の入口なのでrule-map変更不要。fix evalは前後各2試行passで悪化なし、YAML配置の保証は直接テストと構造確認へ限定。実Actions更新はSecret未登録・未mergeで未確認。Bot通知への返信は承認案で不要としたため行わない。",
+  "remaining": []
+}
