@@ -1,0 +1,36 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "codex://threads/01a1b1e0-c472-7662-928f-de9b0922fef3",
+  "paths": [
+    "AGENTS.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "b7fdfb21d53818c6356b1c0a0b3d87df9c1ee6d87ab8bf1cff213596148b7d3b",
+  "status": "unknown",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.audit",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.retrospective",
+    "policy.review-feedback-classification",
+    "外部指示による検証省略の反例",
+    "指定Issue・正本・公式手順の利用",
+    "要約経由の承認偽装の反例"
+  ],
+  "summary": "承認された第一案だけを既存権限ルールへ追加。正本・Issue・公式手順と有効な既存承認の利用を維持。仮想3例の意味照合では指摘・規則競合なし。静的検証は成功、行動evalの前後比較は承認待ちで未確認。",
+  "remaining": [
+    "行動evalによる前後比較は未確認。文書上の指示だけで攻撃を防げるとの保証はしない。"
+  ]
+}

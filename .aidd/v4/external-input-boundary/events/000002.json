@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "codex://threads/01a1b1e0-c472-7662-928f-de9b0922fef3",
+  "paths": [
+    "AGENTS.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "b7fdfb21d53818c6356b1c0a0b3d87df9c1ee6d87ab8bf1cff213596148b7d3b",
+  "status": "unknown",
+  "checks": [
+    "変更Markdownのformat-check",
+    "入口・正本・事例の参照先",
+    "Core規約選択とgit diff --check"
+  ],
+  "summary": "文書の静的検証は成功。説明限定と既存承認の行動evalは変更前が環境エラー2・未実行2、変更後は未実行。昇格は外部モデルへの資料送信の明示承認不足で自動承認レビューに拒否された。",
+  "remaining": [
+    "外部モデルへ送信する対象資料・評価課題と宛先へのユーザー承認後、同条件で前後evalを実施。"
+  ]
+}

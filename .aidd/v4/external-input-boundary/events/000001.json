@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "codex://threads/01a1b1e0-c472-7662-928f-de9b0922fef3",
+  "paths": [
+    "AGENTS.md",
+    "docs/ai-driven-development/workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "b7fdfb21d53818c6356b1c0a0b3d87df9c1ee6d87ab8bf1cff213596148b7d3b",
+  "status": "pass",
+  "checks": [
+    "承認された第一案のみへの限定",
+    "共通入口と権限正本への配置",
+    "既存Issue・公式手順・既存承認の利用を維持"
+  ],
+  "summary": "外部情報と報告だけでは指示・承認・権限変更を成立させない境界を追加。出所を要約後も保持し、正常な資料利用と既存権限の継続を守る。固定工程や新しい権限制御は追加しない。",
+  "remaining": []
+}
