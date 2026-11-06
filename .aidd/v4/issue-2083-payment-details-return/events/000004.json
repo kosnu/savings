@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2086",
+  "paths": [
+    "apps/web/src/features/payments/paymentDetails/usePaymentDetailsState.ts",
+    "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.tsx",
+    "apps/web/src/features/payments/listPayment/PaymentList/PaymentList.test.tsx"
+  ],
+  "fingerprint": "7e510cda90a9bc2586858bdd510da4754d4239cb707d474bc5d9953a52143b56",
+  "status": "pass",
+  "checks": [
+    "課題・原因の正確さ: pass。ユーザーコメント1とホームfallbackの訂正を現行sourceと照合",
+    "根本対策の妥当性: pass。標準履歴APIで対応可能、新規共通規則は不要",
+    "反映先の妥当性: pass。hook・遷移元・回帰テスト・Issueの完了条件と制約に限定"
+  ],
+  "summary": "PR #2086のユーザーコメント1を分析。修正案は独自state・型拡張を削除しcanGoBackで履歴復帰、履歴なしならホームへreplaceする。Issue #2083には履歴なし時のホーム復帰と標準API優先の制約を提案。原因は標準API比較不足で前回reviewも追加状態の必要性を指摘しなかった。共通規則変更は不要。改善案は未承認・未適用。標準APIの前提は確認済だが置換後のアプリ検証は未実施。返信・resolve対象なし、分析のみ完了。承認誤認の件はユーザー指定によりRetroの課題へ分離し、本Auditの分析対象から除外した。Retroは未開始。",
+  "remaining": []
+}

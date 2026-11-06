@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2083",
+  "paths": [
+    "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.tsx",
+    "apps/web/src/features/payments/paymentDetails/usePaymentDetailsState.ts",
+    "apps/web/src/features/payments/listPayment/PaymentList/PaymentList.test.tsx"
+  ],
+  "fingerprint": "7e510cda90a9bc2586858bdd510da4754d4239cb707d474bc5d9953a52143b56",
+  "status": "pass",
+  "checks": [
+    "Issueの完了条件と既存の詳細遷移を照合"
+  ],
+  "summary": "ホームからの遷移をhistory stateで識別し、既存の履歴復帰を適用する。一覧のfocus復帰と直接URLの一覧fallbackを維持する。比較元fe45556d、Issue #2083の新Taskとして実装・検証・Shipを行う。",
+  "remaining": []
+}

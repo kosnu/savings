@@ -25,12 +25,12 @@ export function usePaymentDetailsState() {
     const openedTrigger = lastOpenedTriggerRef.current
     lastOpenedTriggerRef.current = null
 
-    if (openedTrigger) {
+    if (router.history.canGoBack()) {
       router.history.back()
     } else {
       void navigate({
-        to: "/payments",
-        search: (prev) => prev,
+        to: "/",
+        search: ({ year, month }) => ({ year, month }),
         replace: true,
       })
     }

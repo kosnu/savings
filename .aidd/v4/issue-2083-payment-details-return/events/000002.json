@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2083",
+  "paths": [
+    "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.tsx",
+    "apps/web/src/features/payments/paymentDetails/usePaymentDetailsState.ts",
+    "apps/web/src/features/payments/listPayment/PaymentList/PaymentList.test.tsx"
+  ],
+  "fingerprint": "7e510cda90a9bc2586858bdd510da4754d4239cb707d474bc5d9953a52143b56",
+  "status": "pass",
+  "checks": [
+    "Web lint",
+    "Web format-check",
+    "Web typecheck",
+    "Web unit-integration",
+    "差分の空白検査"
+  ],
+  "summary": "158ファイル・1097テストが成功。ホームからボタンとEscapeで閉じた際の元の年月への復帰、一覧のカテゴリ条件保持、直接URLの一覧fallback、既存focus復帰を確認。Story・browser設定の変更はなくbrowser suiteは対象外。",
+  "remaining": []
+}

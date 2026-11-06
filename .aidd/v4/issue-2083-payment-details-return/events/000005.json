@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2083",
+  "paths": [
+    "apps/web/src/features/payments/paymentDetails/usePaymentDetailsState.ts",
+    "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.tsx",
+    "apps/web/src/features/payments/listPayment/PaymentList/PaymentList.test.tsx",
+    "apps/web/src/app/routes/PaymentsPage/PaymentsPage.test.tsx",
+    "apps/web/src/app/routes/PaymentsPage/monthSearch.integration.test.tsx"
+  ],
+  "fingerprint": "586e23622a580e5d94585e7577e2514de2216b5e2977488be2ed191eebb49977",
+  "status": "pass",
+  "checks": [
+    "承認されたAudit案・更新済みIssue・既存Taskの比較元を照合"
+  ],
+  "summary": "音声承認の引継ぎと本チャットへの承認を根拠に同じTaskを継続。独自stateと型拡張を削除し、既存history.canGoBackで復帰判定、履歴なしはホームへreplaceする。ホームへは現在の年月だけを渡し、一覧の条件・focus復帰は維持する。比較元fe45556d、直前Shipはddf7dc8a。Retro・共通規則変更は対象外。",
+  "remaining": []
+}
