@@ -7,7 +7,6 @@ import { DeleteCategoryModal } from "./DeleteCategoryModal"
 const meta = {
   title: "Features/Categories/DeleteCategory/DeleteCategoryModal",
   component: DeleteCategoryModal,
-  tags: ["autodocs"],
   args: { category: { id: 10, name: "Food" } },
   parameters: { msw: { handlers: createCategorySettingsHandlers() } },
 } satisfies Meta<typeof DeleteCategoryModal>

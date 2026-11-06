@@ -22,7 +22,6 @@ const meta = {
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
   render: (args) => {
     const [value, setValue] = useState<string | undefined>(args.value)
     const handleChange = (nextValue: string) => {

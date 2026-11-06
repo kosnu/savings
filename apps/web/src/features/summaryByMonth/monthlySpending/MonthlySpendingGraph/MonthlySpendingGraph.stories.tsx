@@ -17,7 +17,6 @@ const monthlyBudget = {
 const meta = {
   title: "Features/SummaryByMonth/MonthlySpendingGraph",
   component: MonthlySpendingGraph,
-  tags: ["autodocs"],
   args: {
     payments: [
       { date: "2025-06-02", amount: 1000 },

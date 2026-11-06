@@ -10,7 +10,6 @@ const monthlyBudget = toMonthlyBudget(normalizeMonthlyBudgetRow(monthlyBudgets[2
 const meta = {
   title: "Features/Budgets/UpdateMonthlyBudget/UpdateMonthlyBudgetForm",
   component: UpdateMonthlyBudgetForm,
-  tags: ["autodocs"],
   args: { monthlyBudget, onCancel: fn(), onSuccess: fn() },
   parameters: {
     msw: {

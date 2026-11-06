@@ -14,7 +14,6 @@ const defaultProfile = {
 const meta = {
   title: "Features/Profile/ProfileSettings/AccountInformationForm",
   component: AccountInformationForm,
-  tags: ["autodocs"],
   args: {
     profile: defaultProfile,
     loginMethod: "google",

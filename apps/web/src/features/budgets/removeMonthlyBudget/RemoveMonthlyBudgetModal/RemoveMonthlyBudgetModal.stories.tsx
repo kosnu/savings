@@ -7,7 +7,6 @@ import { RemoveMonthlyBudgetModal } from "./RemoveMonthlyBudgetModal"
 const meta = {
   title: "Features/Budgets/RemoveMonthlyBudget/RemoveMonthlyBudgetModal",
   component: RemoveMonthlyBudgetModal,
-  tags: ["autodocs"],
   args: { monthlyBudgetId: 3 },
   parameters: { msw: { handlers: createMonthlyBudgetHandlers() } },
 } satisfies Meta<typeof RemoveMonthlyBudgetModal>

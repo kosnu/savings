@@ -15,7 +15,6 @@ const meta = {
       handlers: createCategorySettingsHandlers(),
     },
   },
-  tags: ["autodocs"],
   args: {
     category: {
       id: 10,

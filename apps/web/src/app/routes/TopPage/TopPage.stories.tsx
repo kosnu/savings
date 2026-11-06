@@ -13,7 +13,7 @@ const meta = {
   title: "Pages/TopPage",
   component: TopPage,
   parameters: {},
-  tags: ["autodocs", "browser-test"],
+  tags: ["browser-test"],
   decorators: [
     createStoryRouter("/", (root, Story) => [
       createRoute({ getParentRoute: () => root, path: "/", component: Story }),

@@ -20,7 +20,6 @@ function createCurrentBookStoryParameters(options?: Parameters<typeof createBook
 const meta = {
   title: "Features/Books/CurrentBookInformation",
   component: CurrentBookInformation,
-  tags: ["autodocs"],
   decorators: [
     (Story) => {
       const queryClient = createQueryClient({

@@ -17,7 +17,6 @@ const meta = {
       handlers: [...createPaymentHandlers(), ...createCategoryHandlers()],
     },
   },
-  tags: ["autodocs"],
   argTypes: {},
   args: {
     bookId: 1,

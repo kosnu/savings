@@ -7,7 +7,6 @@ import { ProfileLoadError } from "./ProfileLoadError"
 const meta = {
   title: "Features/Profile/ProfileSettings/ProfileLoadError",
   component: ProfileLoadError,
-  tags: ["autodocs"],
   args: {
     onRetry: fn(async () => undefined),
   },

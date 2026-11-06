@@ -7,7 +7,6 @@ import { MonthlyBudgetList } from "./MonthlyBudgetList"
 const meta = {
   title: "Features/Budgets/ListMonthlyBudget/MonthlyBudgetList",
   component: MonthlyBudgetList,
-  tags: ["autodocs"],
   parameters: { msw: { handlers: createMonthlyBudgetHandlers() } },
 } satisfies Meta<typeof MonthlyBudgetList>
 export default meta

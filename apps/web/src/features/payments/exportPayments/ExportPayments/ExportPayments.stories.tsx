@@ -13,7 +13,6 @@ function parameters(options?: Parameters<typeof createPaymentExportHandlers>[0])
 const meta = {
   title: "Features/Payments/ExportPayments",
   component: ExportPayments,
-  tags: ["autodocs"],
   parameters: parameters(),
 } satisfies Meta<typeof ExportPayments>
 

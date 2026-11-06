@@ -7,7 +7,6 @@ import { PaymentSearchForm } from "./PaymentSearchForm"
 const meta = {
   title: "Features/Payments/ListPayment/PaymentSearchForm",
   component: PaymentSearchForm,
-  tags: ["autodocs"],
   parameters: { msw: { handlers: createCategoryHandlers() } },
 } satisfies Meta<typeof PaymentSearchForm>
 

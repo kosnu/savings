@@ -29,7 +29,7 @@ const meta = {
       ],
     },
   },
-  tags: ["autodocs", "browser-test"],
+  tags: ["browser-test"],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof PaymentsPage>

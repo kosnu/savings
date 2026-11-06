@@ -8,7 +8,6 @@ import { PaymentCategoryFilter } from "./PaymentCategoryFilter"
 const meta = {
   title: "Features/Payments/ListPayment/PaymentCategoryFilter",
   component: PaymentCategoryFilter,
-  tags: ["autodocs"],
   decorators: [createStoryRouter("/payments?year=2025&month=06", paymentsRouteBuilder)],
   parameters: { msw: { handlers: createCategoryHandlers() } },
 } satisfies Meta<typeof PaymentCategoryFilter>

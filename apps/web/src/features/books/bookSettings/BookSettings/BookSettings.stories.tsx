@@ -9,7 +9,6 @@ import { BookSettings } from "./BookSettings"
 const meta = {
   title: "Features/Books/BookSettings",
   component: BookSettings,
-  tags: ["autodocs"],
   parameters: {
     msw: {
       handlers: [
