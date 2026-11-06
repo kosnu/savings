@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router"
 import { useCallback, useEffect } from "react"
 
 import { paths } from "../../config/paths"
+import { markExplicitLogin } from "../../lib/accountAction"
 import { getSupabaseClient } from "../../lib/supabase"
 
 interface UseSupabaseSignIn {
@@ -13,6 +14,7 @@ export function useSupabaseSignIn(): UseSupabaseSignIn {
   const supabase = getSupabaseClient()
 
   const signIn = useCallback(async () => {
+    markExplicitLogin()
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {

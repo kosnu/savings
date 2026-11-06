@@ -346,6 +346,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_account_deletion_result: {
+        Args: { request_id: string; result_secret: string }
+        Returns: Json
+      }
+      get_my_account_deletion_state: { Args: Record<PropertyKey, never>; Returns: Json }
+      prepare_account_deletion: { Args: Record<PropertyKey, never>; Returns: Json }
+      reactivate_my_account: { Args: { request_id: string }; Returns: Json }
+      request_account_deletion: {
+        Args: { explanation_version: string; request_id: string; result_secret: string }
+        Returns: Json
+      }
       create_monthly_budget: {
         Args: { p_amount: number; p_effective_month: string }
         Returns: undefined

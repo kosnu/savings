@@ -5,6 +5,7 @@ import { afterEach, expect, test, vi } from "vite-plus/test"
 import { Router } from "../../app/Router"
 import { mockSession } from "../../test/data/supabaseSession"
 import { createTestQueryClient, render, screen } from "../../test/test-utils"
+import { SnackbarProvider } from "../snackbar/SnackbarProvider"
 import { SupabaseSessionProvider } from "./SupabaseSessionProvider"
 
 const client = vi.hoisted(() => ({ current: null as SupabaseClient | null }))
@@ -71,6 +72,8 @@ function setup({ expireDuringRequest = false, invalidSession = false } = {}) {
         }
         if (path.endsWith("/token")) return Response.json(session())
         if (path.endsWith("/user")) return Response.json(session().user)
+        if (path.endsWith("/rpc/get_my_account_deletion_state"))
+          return Response.json({ status: "active" })
         if (path.endsWith("/rpc/ensure_authenticated_user"))
           return new Response(null, { status: 204 })
         if (path.endsWith("/users")) return Response.json([{ language: "en" }])
@@ -81,7 +84,9 @@ function setup({ expireDuringRequest = false, invalidSession = false } = {}) {
   const rendered = render(
     <QueryClientProvider client={createTestQueryClient()}>
       <SupabaseSessionProvider>
-        <Router />
+        <SnackbarProvider>
+          <Router />
+        </SnackbarProvider>
       </SupabaseSessionProvider>
     </QueryClientProvider>,
     { withProviders: false },

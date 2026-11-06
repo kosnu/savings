@@ -3,6 +3,8 @@ import { RouterProvider } from "@tanstack/react-router"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
+import { AccountDeletionStatus } from "../features/profile"
+import { useSnackbar } from "../providers/snackbar/SnackbarProvider"
 import { useSupabaseSession } from "../providers/supabase/useSupabaseSession"
 import { router } from "./routes"
 import { SessionError } from "./SessionError"
@@ -13,6 +15,12 @@ export function Router() {
   const { session: supabaseSession, status: authStatus } = auth
   const contentRef = useRef<HTMLDivElement>(null)
   const recoveringRef = useRef(false)
+  const { openSnackbar } = useSnackbar()
+  const { t } = useTranslation()
+  const reactivated = auth.status === "authenticated" && auth.reactivated
+  useEffect(() => {
+    if (reactivated) openSnackbar("success", t("deletion.state.cancelled"))
+  }, [reactivated, openSnackbar, t])
   usePageMetadata(router, authStatus === "authenticated")
 
   useEffect(() => {
@@ -36,6 +44,14 @@ export function Router() {
   if (auth.status === "error") {
     return <SessionError onRetry={auth.retry} requiresSignIn={auth.requiresSignIn} />
   }
+  if (auth.status === "suspended")
+    return (
+      <AccountDeletionStatus
+        key={auth.authUserId}
+        initialState={auth.deletion}
+        authUserId={auth.authUserId}
+      />
+    )
 
   return (
     <div ref={contentRef} tabIndex={-1}>
