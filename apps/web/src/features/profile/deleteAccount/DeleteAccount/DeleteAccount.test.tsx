@@ -37,7 +37,9 @@ test("削除範囲と両時刻を確認し、初期focusの取消とEscapeは予
   const { user } = render(<Default />)
   await user.click(screen.getByRole("button", { name: "Schedule account deletion" }))
   expect(await screen.findByText(deletionPreview.email)).toBeInTheDocument()
-  expect(screen.getByText(/Your account, profile, language, pins/)).toBeInTheDocument()
+  expect(screen.getByText(/Your account, books only you use/)).toBeInTheDocument()
+  expect(screen.queryByRole("link", { name: "Privacy policy" })).not.toBeInTheDocument()
+  expect(screen.getByText(/Deletion scheduled to start:/)).toBeInTheDocument()
   expect(screen.getByText(/Return deadline:/)).toHaveTextContent("GMT+9")
   expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus()
   await user.keyboard("{Enter}")
@@ -54,7 +56,7 @@ test("説明取得失敗中は確定せず、同じ画面の再取得で復帰�
   server.use(...createAccountDeletionHandlers({ preview: { error: true } }))
   const { user } = render(<Default />)
   await user.click(screen.getByRole("button", { name: "Schedule account deletion" }))
-  expect(await screen.findByRole("alert")).toHaveTextContent("Could not load or submit")
+  expect(await screen.findByRole("alert")).toHaveTextContent("Could not prepare")
   expect(
     screen.queryByRole("button", { name: "Confirm deletion schedule" }),
   ).not.toBeInTheDocument()
@@ -124,7 +126,7 @@ test("未着の予約は本人が再確認して同じ受付番号・キーで�
     }),
   )
   const { user } = render(<Default receipt={receipt} />)
-  await user.click(screen.getByRole("button", { name: "Review resending the same receipt" }))
+  await user.click(screen.getByRole("button", { name: "Review deletion request again" }))
   await user.click(await screen.findByRole("button", { name: "Confirm deletion schedule" }))
   await waitFor(() =>
     expect(sent).toHaveBeenCalledWith({

@@ -693,7 +693,7 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
         <li>
           <span class="step">02 · 7日の期限前</span>
           <h2>再ログインで取り消し</h2>
-          <p>同じ本人の新しいGoogleログインで利用を再開。家計簿と所属もそのまま戻ります</p>
+          <p>同じ本人の新しいGoogleログインで利用を再開。ブックと所属もそのまま戻ります</p>
         </li>
         <li>
           <span class="step">03 · 締切以降の午前3時から</span>
@@ -798,7 +798,7 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
               </div>
               <div id="status" class="status" data-tone="green">
                 <h3 id="state-title">利用中</h3>
-                <p id="state-message">アカウントは有効です。通常どおり家計簿を利用できます</p>
+                <p id="state-message">アカウントは有効です。通常どおりブックを利用できます</p>
               </div>
               <dl class="deadline">
                 <dt>復帰の締切 · 申請から168時間（日本時間）</dt>
@@ -818,15 +818,15 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
                   <dd id="auth-state">保持しています</dd>
                 </div>
                 <div>
-                  <dt>あなただけの家計簿</dt>
+                  <dt>あなただけのブック</dt>
                   <dd id="personal-state">データを保持しています</dd>
                 </div>
                 <div>
-                  <dt>家計簿への所属</dt>
+                  <dt>ブックへの所属</dt>
                   <dd id="membership-state">保持しています</dd>
                 </div>
                 <div>
-                  <dt>他メンバーのいる家計簿</dt>
+                  <dt>他メンバーのいるブック</dt>
                   <dd id="shared-state">他メンバーは引き続き利用できます</dd>
                 </div>
                 <div>
@@ -850,10 +850,10 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
         <article>
           <h2>猶予中は何が残る？</h2>
           <p>
-            Authアカウント、本人の情報、家計簿への所属、家計簿のデータを保持します。<strong>本人のデータアクセスは利用停止</strong>にし、他メンバーは共有の家計簿を使い続けられます
+            Authアカウント、本人の情報、ブックへの所属、ブックのデータを保持します。<strong>本人のデータアクセスは利用停止</strong>にし、他メンバーは共有のブックを使い続けられます
           </p>
           <p>
-            物理削除で本人のAuth・登録情報・所属を削除します。他メンバーが残る家計簿とそのデータは保持し、<strong>誰もいなくなった家計簿は削除</strong>します
+            物理削除で本人のAuth・登録情報・所属を削除します。他メンバーが残るブックとそのデータは保持し、<strong>誰もいなくなったブックは削除</strong>します
           </p>
         </article>
         <article>
@@ -925,7 +925,7 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
             </li>
             <li>
               <strong>状態確認：</strong
-              >受付番号と確認キーで要求に限定した結果を確認します。申請の応答が途切れた場合は結果未確定とし、受付・取消・物理削除完了を推測で表示しません。確認キーにAuthトークンを流用しません
+              >端末に保存した情報で予約受付を自動確認し、確認できなければ再試行を案内します。受付番号や確認キーの入力・保管は求めません。申請の応答が途切れた場合は結果未確定とし、受付・取消・物理削除完了を推測で表示しません。確認キーにAuthトークンを流用しません
             </li>
             <li>
               <strong>最小の記録：</strong
@@ -1039,7 +1039,7 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
                 (model.terminal === "cancelled" ? "（予約取消済み）" : "（完了時刻ではありません）")
 
           let title = "利用中"
-          let message = "アカウントは有効です。通常どおり家計簿を利用できます"
+          let message = "アカウントは有効です。通常どおりブックを利用できます"
           let tone = "green"
           if (isPending && !isDue) {
             title = "削除予約を受け付けました"
@@ -1064,7 +1064,7 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
           } else if (model.deleted) {
             title = "物理削除が完了しました"
             message =
-              "Authと本人の関連データの削除がcommitしました。取消・復帰はできません。他メンバーがいる家計簿は残ります"
+              "Authと本人の関連データの削除がcommitしました。取消・復帰はできません。他メンバーがいるブックは残ります"
             tone = "gray"
           }
           $("state-title").textContent = title
@@ -1085,13 +1085,13 @@ when_to_read: [アカウント削除の設計と状態遷移を確認すると�
                   ? "保持しています（期限前の復帰のため）"
                   : "保持しています"
           $("personal-state").textContent = model.deleted
-            ? "家計簿とそのデータを削除しました"
+            ? "ブックとそのデータを削除しました"
             : "データを保持しています"
           $("membership-state").textContent = model.deleted
             ? "本人の所属を削除しました"
             : "保持しています"
           $("shared-state").textContent = model.deleted
-            ? "他メンバー・家計簿・データを保持しています"
+            ? "他メンバー・ブック・データを保持しています"
             : "他メンバーは引き続き利用できます"
           $("receipt-state").textContent = model.terminal
             ? `${model.terminal === "cancelled" ? "取消" : "完了"}の最小記録を30日保持します`

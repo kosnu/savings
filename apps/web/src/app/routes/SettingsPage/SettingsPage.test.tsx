@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 import { BookSettings } from "../../../features/books"
 import { DataManagementSettings } from "../../../features/payments"
 import { AppearanceSettings } from "../../../features/preferences"
-import { ProfileSettings } from "../../../features/profile"
+import { DeleteAccount, ProfileSettings } from "../../../features/profile"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
 import { createBookHandlers } from "../../../test/msw/handlers/books"
@@ -69,6 +69,12 @@ function renderSettingsPage(
       component: SettingsAppearanceComponent,
     })
 
+    const settingsAccountRoute = createRoute({
+      getParentRoute: () => settingsRoute,
+      path: "account",
+      component: DeleteAccount,
+    })
+
     const settingsDataManagementRoute = createRoute({
       getParentRoute: () => settingsRoute,
       path: "data-management",
@@ -80,6 +86,7 @@ function renderSettingsPage(
         settingsRoute.addChildren([
           settingsIndexRoute,
           settingsProfileRoute,
+          settingsAccountRoute,
           settingsAppearanceRoute,
           settingsBookRoute,
           settingsDataManagementRoute,
@@ -106,7 +113,7 @@ describe("SettingsPage", () => {
     vi.restoreAllMocks()
   })
 
-  test("Settings 見出しと設定概要、Profile / Appearance / Book への導線を表示する", async () => {
+  test("設定概要とメニューからProfile / Account / Appearance / Bookへ遷移する", async () => {
     const { router, user } = renderSettingsPage("/settings", {
       settingsProfileComponent: () => <div>Profile settings page</div>,
       settingsAppearanceComponent: () => <div>Appearance settings page</div>,
@@ -120,6 +127,9 @@ describe("SettingsPage", () => {
       .getAllByRole("link", { name: /Profile/ })
       .find((link) => link.textContent?.includes("Manage profile information."))
     expect(profileOverviewLink?.getAttribute("href")).toBe("/settings/profile")
+
+    const accountOverviewLink = screen.getByRole("link", { name: /Account.*Delete your account/ })
+    expect(accountOverviewLink).toHaveAttribute("href", "/settings/account")
 
     const appearanceOverviewLink = screen
       .getAllByRole("link", { name: /Appearance/ })
@@ -141,6 +151,9 @@ describe("SettingsPage", () => {
     const profileLink = await screen.findByRole("link", { name: "Profile" })
     expect(profileLink).toHaveAttribute("href", "/settings/profile")
 
+    const accountLink = screen.getByRole("link", { name: "Account" })
+    expect(accountLink).toHaveAttribute("href", "/settings/account")
+
     const appearanceLink = await screen.findByRole("link", { name: "Appearance" })
     expect(appearanceLink).toHaveAttribute("href", "/settings/appearance")
 
@@ -151,6 +164,12 @@ describe("SettingsPage", () => {
 
     expect(router.state.location.pathname).toBe("/settings/profile")
     expect(await screen.findByText("Profile settings page")).toBeInTheDocument()
+
+    await user.click(accountLink)
+
+    expect(router.state.location.pathname).toBe("/settings/account")
+    expect(await screen.findByRole("heading", { name: "Delete account" })).toBeInTheDocument()
+    expect(screen.queryByRole("textbox", { name: "Display name" })).not.toBeInTheDocument()
 
     await user.click(appearanceLink)
 
@@ -185,6 +204,7 @@ describe("SettingsPage", () => {
     expect(await screen.findByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
     expect(await screen.findByText("test@example.com")).toBeInTheDocument()
     expect(await screen.findByText("Google")).toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Delete account" })).not.toBeInTheDocument()
     expect(screen.queryByText("Language")).not.toBeInTheDocument()
     expect(screen.queryByText("Theme")).not.toBeInTheDocument()
   })

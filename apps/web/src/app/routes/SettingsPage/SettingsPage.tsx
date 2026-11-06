@@ -30,6 +30,11 @@ export function SettingsPage() {
                 </Link>
               </Button>
               <Button asChild variant="ghost" size="3">
+                <Link to="/settings/account" className={styles.menuLink}>
+                  {t("navigation.account")}
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="3">
                 <Link to="/settings/appearance" className={styles.menuLink}>
                   {t("navigation.appearance")}
                 </Link>

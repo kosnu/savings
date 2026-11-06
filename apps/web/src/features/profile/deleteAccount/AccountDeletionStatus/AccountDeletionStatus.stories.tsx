@@ -1,11 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { AuthError } from "@supabase/supabase-js"
-import { spyOn, userEvent, within } from "storybook/test"
+import { spyOn } from "storybook/test"
 
-import { i18next } from "../../../../i18n"
+import { deletionReceiptKey } from "../../../../lib/accountDeletion"
 import { getSupabaseClient } from "../../../../lib/supabase"
+import { mockSession } from "../../../../test/data/supabaseSession"
 import {
   createAccountDeletionHandlers,
+  deletionAuthUserId,
   deletionRequestId,
   deletionSecret,
   deletionTimes,
@@ -19,11 +21,21 @@ const meta = {
 } satisfies Meta<typeof AccountDeletionStatus>
 export default meta
 type Story = StoryObj<typeof meta>
-const lookup: Story["play"] = async ({ canvasElement }) => {
-  const canvas = within(canvasElement)
-  await userEvent.type(canvas.getByLabelText(i18next.t("deletion.requestId")), deletionRequestId)
-  await userEvent.type(canvas.getByLabelText(i18next.t("deletion.secret")), deletionSecret)
-  await userEvent.click(canvas.getByRole("button", { name: i18next.t("deletion.check") }))
+const savedReceipt = () => {
+  const previous = localStorage.getItem(deletionReceiptKey)
+  localStorage.setItem(
+    deletionReceiptKey,
+    JSON.stringify({
+      requestId: deletionRequestId,
+      secret: deletionSecret,
+      authUserId: deletionAuthUserId,
+      createdAt: Date.now(),
+    }),
+  )
+  return () => {
+    if (previous) localStorage.setItem(deletionReceiptKey, previous)
+    else localStorage.removeItem(deletionReceiptKey)
+  }
 }
 const resultParameters = (status: "pending" | "cancelled" | "completed", options = {}) => ({
   msw: {
@@ -71,26 +83,42 @@ export const Delayed: Story = {
     },
   },
 }
-export const Completed: Story = { parameters: resultParameters("completed"), play: lookup }
-export const Cancelled: Story = { parameters: resultParameters("cancelled"), play: lookup }
+export const Completed: Story = {
+  parameters: resultParameters("completed"),
+  beforeEach: savedReceipt,
+}
+export const Cancelled: Story = {
+  parameters: resultParameters("cancelled"),
+  beforeEach: savedReceipt,
+}
 export const Checking: Story = {
   parameters: resultParameters("pending", { durationOrMode: "infinite" }),
-  play: lookup,
+  beforeEach: savedReceipt,
 }
 export const CheckError: Story = {
   parameters: resultParameters("pending", { error: true }),
-  play: lookup,
+  beforeEach: savedReceipt,
 }
 export const CleanupError: Story = {
+  parameters: resultParameters("pending"),
   beforeEach: () => {
+    const restoreReceipt = savedReceipt()
+    const path = window.location.href
+    window.history.replaceState(null, "", "/account-deletion")
+    const session = mockSession()
+    session.user.id = deletionAuthUserId
+    const sessionMock = spyOn(getSupabaseClient().auth, "getSession").mockResolvedValue({
+      data: { session },
+      error: null,
+    })
     const mock = spyOn(getSupabaseClient().auth, "signOut").mockResolvedValue({
       error: new AuthError("Synthetic cleanup failure"),
     })
-    return () => mock.mockRestore()
-  },
-  play: async ({ canvasElement }) => {
-    await userEvent.click(
-      within(canvasElement).getByRole("button", { name: i18next.t("deletion.retryCleanup") }),
-    )
+    return () => {
+      mock.mockRestore()
+      sessionMock.mockRestore()
+      restoreReceipt()
+      window.history.replaceState(null, "", path)
+    }
   },
 }

@@ -1,5 +1,5 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Button, Callout, Dialog, Flex, Heading, Link, Skeleton, Text } from "@radix-ui/themes"
+import { Button, Callout, Dialog, Flex, Heading, Skeleton, Text } from "@radix-ui/themes"
 import { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -129,19 +129,13 @@ export function DeleteAccount({ receipt }: { receipt?: DeletionReceipt }) {
                   {preview.email}
                 </Text>
                 <Text as="p" size="2">
-                  {t("deletion.scope", {
-                    sole: preview.sole_book_count,
-                    shared: preview.shared_book_count,
-                  })}
+                  {t("deletion.scope")}
                 </Text>
                 <Text as="p" size="2">
                   {t("deletion.shared")}
                 </Text>
                 <Text as="p" size="2">
                   {t("deletion.restore")}
-                </Text>
-                <Text as="p" size="2">
-                  {t("deletion.retention")}
                 </Text>
                 <Text as="p" size="2">
                   {t("deletion.estimate")}
@@ -155,9 +149,6 @@ export function DeleteAccount({ receipt }: { receipt?: DeletionReceipt }) {
                 {!preview.accepting_requests && (
                   <Text color="gray">{t("deletion.unavailable")}</Text>
                 )}
-                <Link href="/privacy" target="_blank" rel="noreferrer">
-                  {t("privacy.title")}
-                </Link>
               </>
             )}
             <Flex justify="end" gap="3" wrap="wrap" mt="3">
@@ -201,9 +192,6 @@ export function DeleteAccount({ receipt }: { receipt?: DeletionReceipt }) {
           </Flex>
         </Dialog.Content>
       </Dialog.Root>
-      <Link href="/account-deletion" size="2">
-        {t("deletion.resultLink")}
-      </Link>
     </Flex>
   )
 }

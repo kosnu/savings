@@ -6,7 +6,7 @@ import { expect, userEvent, waitFor, within } from "storybook/test"
 import { BookSettings } from "../../../features/books"
 import { DataManagementSettings } from "../../../features/payments"
 import { AppearanceSettings } from "../../../features/preferences"
-import { ProfileSettings } from "../../../features/profile"
+import { DeleteAccount, ProfileSettings } from "../../../features/profile"
 import { createQueryClient } from "../../../lib/queryClient"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
@@ -54,6 +54,11 @@ export const Default: Story = {
       .find((link) => link.textContent?.includes("Manage profile information."))
     expect(profileOverviewLink?.getAttribute("href")).toBe("/settings/profile")
 
+    expect(canvas.getByRole("link", { name: /Account.*Delete your account/ })).toHaveAttribute(
+      "href",
+      "/settings/account",
+    )
+
     const appearanceOverviewLink = canvas
       .getAllByRole("link", { name: /Appearance/ })
       .find((link) => link.textContent?.includes("Manage language and theme."))
@@ -71,6 +76,10 @@ export const Default: Story = {
     expect(canvas.getByRole("link", { name: "Profile" })).toHaveAttribute(
       "href",
       "/settings/profile",
+    )
+    expect(canvas.getByRole("link", { name: "Account" })).toHaveAttribute(
+      "href",
+      "/settings/account",
     )
     expect(canvas.getByRole("link", { name: "Appearance" })).toHaveAttribute(
       "href",
@@ -166,8 +175,35 @@ export const Profile: Story = {
     expect(await canvas.findByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
     expect(await canvas.findByText("test@example.com")).toBeInTheDocument()
     expect(await canvas.findByText("Google")).toBeInTheDocument()
+    expect(canvas.queryByRole("heading", { name: "Delete account" })).not.toBeInTheDocument()
     expect(canvas.queryByText("Language")).not.toBeInTheDocument()
     expect(canvas.queryByText("Theme")).not.toBeInTheDocument()
+  },
+}
+
+export const Account: Story = {
+  decorators: [
+    createStoryRouter("/settings/account", (root, Story) => {
+      const settingsRoute = createRoute({
+        getParentRoute: () => root,
+        path: "/settings",
+        component: Story,
+      })
+      const settingsAccountRoute = createRoute({
+        getParentRoute: () => settingsRoute,
+        path: "account",
+        component: DeleteAccount,
+      })
+      return [settingsRoute.addChildren([settingsAccountRoute])]
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    expect(await canvas.findByRole("heading", { name: "Settings", level: 1 })).toBeInTheDocument()
+    expect(
+      await canvas.findByRole("heading", { name: "Delete account", level: 2 }),
+    ).toBeInTheDocument()
+    expect(canvas.queryByRole("textbox", { name: "Display name" })).not.toBeInTheDocument()
   },
 }
 

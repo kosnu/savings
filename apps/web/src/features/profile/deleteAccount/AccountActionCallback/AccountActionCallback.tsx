@@ -35,7 +35,7 @@ export function AccountActionCallback({
           </Text>
           {state === "retry" && (
             <Button asChild>
-              <a href="/settings/profile">{t("deletion.returnToConfirm")}</a>
+              <a href="/settings/account">{t("deletion.returnToConfirm")}</a>
             </Button>
           )}
           {state === "reactivate" && (
@@ -44,10 +44,7 @@ export function AccountActionCallback({
             </Button>
           )}
           {state === "error" && (
-            <>
-              <Link href="/settings/profile">{t("deletion.returnToProfile")}</Link>
-              <Link href="/account-deletion">{t("deletion.resultLink")}</Link>
-            </>
+            <Link href="/settings/account">{t("deletion.returnToAccount")}</Link>
           )}
         </Flex>
       </Container>

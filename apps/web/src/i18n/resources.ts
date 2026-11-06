@@ -1,73 +1,55 @@
 export const resources = {
   en: {
     translation: {
+      "deletion.checking": "Checking your deletion request…",
+      "navigation.account": "Account",
+      "settings.accountDescription": "Delete your account",
       "deletion.heading": "Delete account",
       "deletion.introduction":
         "Schedule deletion of your Burneto account. Your Google account will not be deleted.",
       "deletion.open": "Schedule account deletion",
       "deletion.confirmTitle": "Schedule deletion of this account?",
-      "deletion.scope":
-        "Your account, profile, language, pins and memberships will be deleted. {{sole}} books currently have no other members; their payments, categories and all budget history will also be deleted. {{shared}} books have other members.",
+      "deletion.scope": "Your account, books only you use, and their records will be deleted.",
       "deletion.shared":
-        "Books with other members and all their records will remain usable by those members. Memberships at the time of deletion determine the scope; a shared book may become empty before then.",
+        "Shared books and their records are kept if other members remain when your account is deleted.",
       "deletion.restore":
-        "Scheduling immediately stops normal use on every device. Auth, data and memberships remain during the 168-hour grace period. A new Google sign-in by you before the deadline cancels deletion. After the deadline, return is unavailable even if deletion is waiting. Deleted data cannot be restored.",
-      "deletion.retention":
-        "Pending requests remain until processing finishes. Cancellation and completion records remain for 30 days. Operator-managed backups last at most 7 days and are restored with current deletion states. Infrastructure logs and inquiry emails are managed separately; immediate removal is not guaranteed.",
-      "deletion.estimate":
-        "These are estimates before submission. The server sets the exact times when the request is accepted. Processing starts from the first 03:00 Japan time at or after the return deadline, only from 03:00 to 03:59 each day. Up to 10 requests run per minute; remaining and failed requests carry over to the next day. This is not a completion promise.",
+        "Scheduling stops use immediately. Sign in with Google within 7 days to cancel deletion and return. After the deadline, you cannot return or restore deleted data.",
+      "deletion.estimate": "Times below are estimates and are confirmed after scheduling.",
       "deletion.deadline": "Return deadline",
       "deletion.purgeAfter": "Deletion scheduled to start",
       "deletion.unavailable":
         "New deletion requests are currently unavailable. Please contact the operator.",
       "deletion.confirm": "Confirm deletion schedule",
-      "deletion.prepareError":
-        "Could not load or submit the account deletion information. Reload the explanation or return to your profile. If a request may have been sent, check its result below.",
-      "deletion.resultLink": "Check account deletion status",
-      "deletion.statusTitle": "Account deletion status",
-      "deletion.state.not_confirmed":
-        "The result cannot be confirmed. This does not mean that deletion succeeded or that no request was received.",
+      "deletion.prepareError": "Could not prepare the deletion request. Please try again.",
+      "deletion.statusTitle": "Account deletion request",
+      "deletion.state.not_confirmed": "We could not confirm your deletion request.",
       "deletion.state.pending":
-        "Your deletion request was accepted. Normal use is suspended; deletion is not yet complete.",
+        "Your deletion request was accepted. You can no longer use the app.",
       "deletion.state.cancelled":
         "Account deletion was cancelled. Your original account can be used again.",
       "deletion.state.completed": "Your account deletion is complete.",
       "deletion.grace":
-        "A new Google sign-in by you before the return deadline cancels this deletion request.",
+        "Sign in with Google before the return deadline to cancel deletion and return.",
       "deletion.waiting":
-        "The return deadline has passed. Deletion is waiting for the scheduled 03:00 Japan time start. You can no longer return.",
-      "deletion.delayed":
-        "The scheduled start has passed. Deletion is processing or delayed; it is not yet complete. Check again or contact the operator.",
-      "deletion.lookupHelp":
-        "This device keeps the receipt and confirmation key for up to 30 days. To check on another device, keep both securely. Never include the key in a URL, email or inquiry. Without the key, the operator may check a retained receipt after verifying your identity. If all matching information is lost or the record has expired, the past result may be impossible to confirm.",
-      "deletion.requestId": "Receipt number",
-      "deletion.secret": "Confirmation key",
-      "deletion.showSecret": "Show confirmation key",
-      "deletion.hideSecret": "Hide confirmation key",
-      "deletion.retryRequest": "Review resending the same receipt",
+        "The return deadline has passed. Deletion will start at the scheduled time. You can no longer return.",
+      "deletion.delayed": "Deletion has not finished yet. You can no longer return.",
+      "deletion.retryRequest": "Review deletion request again",
       "deletion.retryRequestHelp":
-        "The result is still unknown. Review the account and current explanation, then confirm resending the same receipt. This does not create a different request.",
-      "deletion.check": "Check result",
-      "deletion.lookupError":
-        "Could not check the result or start Google sign-in. Check your connection and try again.",
-      "deletion.loginWarning":
-        "Google sign-in is for returning to your account and cancels a pending request before the deadline. It is not needed just to check the result.",
+        "Please review your account and confirm the deletion request again.",
+      "deletion.lookupError": "Could not connect. Please try again.",
       "deletion.reactivate": "Return with Google",
-      "deletion.localCleanup":
-        "Server deletion and this device’s sign-out are separate. You can retry clearing this device’s session here.",
-      "deletion.cleanupError":
-        "Could not clear this device’s saved information. The server result is unchanged; retry clearing it.",
-      "deletion.retryCleanup": "Clear this device’s session",
+      "deletion.cleanupError": "Could not sign out on this device.",
+      "deletion.retryCleanup": "Retry sign-out",
       "deletion.actionTitle": "Return to your account",
       "deletion.action.loading": "Verifying your Google sign-in…",
       "deletion.action.error":
         "The return attempt failed or expired, or a different Google account was selected. Your original sign-in is preserved. Return and try signing in again.",
       "deletion.action.retry":
-        "The deletion result is still unknown. Return to your profile, review the explanation and confirm resending the same receipt.",
+        "Return to account settings to review and confirm your deletion request again.",
       "deletion.action.reactivate":
-        "Account deletion was cancelled. Your original data and memberships are available again.",
+        "Account deletion was cancelled. You can use your account again.",
       "deletion.returnToConfirm": "Return to deletion confirmation",
-      "deletion.returnToProfile": "Return to profile",
+      "deletion.returnToAccount": "Return to account settings",
       "deletion.continue": "Continue to Burneto",
       "app.name": "Burneto",
       "privacy.title": "Privacy policy",
@@ -98,7 +80,7 @@ export const resources = {
       "privacy.storage.browser":
         "Your browser’s local storage keeps your sign-in session, language and theme preferences. Language preferences are also stored with your account. Clearing browser storage or signing out does not delete the account or records stored on the servers.",
       "privacy.storage.deletion":
-        "You can delete individual payments and categories through the app. Disabling a budget does not erase past budget records. From Profile, you can schedule account deletion when new requests are enabled. Scheduling suspends normal use immediately. A new Google sign-in by you within 168 hours cancels the request. Physical deletion starts from the first 03:00 Japan time at or after that deadline, only from 03:00 to 03:59 each day, in batches of up to 10 per minute (up to 600 per day). Remaining and failed requests carry over to the next day; completion may be delayed. Your Google account is not deleted. Books with remaining members and their records are preserved. Empty books and all their records are deleted. Deleted data cannot be restored. For access, correction or unavailable deletion requests, contact the operator below.",
+        "You can delete individual payments and categories through the app. Disabling a budget does not erase past budget records. From Settings → Account, you can schedule account deletion when new requests are enabled. Scheduling suspends normal use immediately. A new Google sign-in by you within 168 hours cancels the request. Physical deletion starts from the first 03:00 Japan time at or after that deadline, only from 03:00 to 03:59 each day, in batches of up to 10 per minute (up to 600 per day). Remaining and failed requests carry over to the next day; completion may be delayed. Your Google account is not deleted. Books with remaining members and their records are preserved. Empty books and all their records are deleted. Deleted data cannot be restored. For access, correction or unavailable deletion requests, contact the operator below.",
       "privacy.storage.retention":
         "Information in backups and technical logs held by external infrastructure is managed separately from the records you see in the app. Deleting a record does not guarantee immediate removal of all related information from backups and logs. Retention and deletion conditions depend on the settings and terms of each infrastructure provider. Pending deletion requests are kept until processing finishes; cancellation and completion records are kept for 30 days. The browser keeps a receipt and confirmation key for at most 30 days and removes the key after confirming a terminal result. Operator-managed backups are retained for at most 7 days; current request states and original deadlines are reapplied before restoration is made accessible. Inquiry emails are managed separately.",
       "privacy.contact.title": "Contact the operator",
@@ -394,72 +376,47 @@ export const resources = {
   },
   ja: {
     translation: {
+      "deletion.checking": "削除予約の受付を確認しています…",
+      "navigation.account": "アカウント",
+      "settings.accountDescription": "アカウントの削除",
       "deletion.heading": "アカウントの削除",
       "deletion.introduction":
         "Burnetoのアカウント削除を予約します。Googleアカウント自体は削除されません。",
       "deletion.open": "アカウントの削除を予約",
       "deletion.confirmTitle": "アカウントの削除を予約しますか？",
-      "deletion.scope":
-        "アカウント・プロフィール・言語設定・ピン・所属を削除します。現在、他のメンバーがいない家計簿は{{sole}}件で、支払い・カテゴリ・全時点の予算履歴も削除されます。他のメンバーがいる家計簿は{{shared}}件です。",
-      "deletion.shared":
-        "他のメンバーが残る家計簿と全履歴は、そのメンバーが引き続き利用できます。削除範囲は実行時の所属で決まり、猶予中に共有家計簿も無人になる場合があります。",
+      "deletion.scope": "アカウントと、あなた一人で使っているブック・その記録を削除します。",
+      "deletion.shared": "共有ブックとその記録は、削除時に他のメンバーが残っていれば消えません。",
       "deletion.restore":
-        "予約すると全端末で通常利用を停止します。168時間の猶予中は認証情報・データ・所属を保持し、期限未満に本人がGoogleへ新しくログインすると予約を取り消して復帰できます。期限以降は処理待ちでも復帰できず、物理削除後の復元はできません。",
-      "deletion.retention":
-        "未完了の要求は処理完了まで、取消・完了記録は30日間保持します。運営者管理のバックアップは最大7日で、復旧時にも最新の削除状態を適用します。基盤の技術ログと問い合わせメールは別管理のため、即時の一括消去は保証しません。",
-      "deletion.estimate":
-        "以下は確定前の目安です。受付時にサーバーが正確な時刻を決めます。復帰期限以降で最初の日本時間午前3時から、毎日3:00〜3:59だけ毎分最大10件ずつ削除します。残件・失敗分は翌日に回し、完了時刻は約束しません。",
+        "予約すると利用を停止します。7日以内にGoogleでログインすると、予約を取り消して復帰できます。期限後は復帰できず、削除したデータは元に戻せません。",
+      "deletion.estimate": "以下の時刻は目安です。予約受付後に確定します。",
       "deletion.deadline": "復帰期限",
       "deletion.purgeAfter": "削除開始予定",
       "deletion.unavailable":
         "現在、新しい削除予約は受け付けていません。運営者へお問い合わせください。",
       "deletion.confirm": "削除予約を確定する",
-      "deletion.prepareError":
-        "削除の説明の取得または送信ができませんでした。説明を再取得するかプロフィールへ戻ってください。送信済みの可能性がある場合は、下の結果照会をご利用ください。",
-      "deletion.resultLink": "アカウント削除の結果を確認",
-      "deletion.statusTitle": "アカウント削除の状況",
-      "deletion.state.not_confirmed":
-        "結果を確認できません。削除の成功や、予約されていないことを示すものではありません。",
-      "deletion.state.pending":
-        "削除予約を受け付けました。通常利用を停止しています。削除はまだ完了していません。",
+      "deletion.prepareError": "削除予約の準備ができませんでした。もう一度お試しください。",
+      "deletion.statusTitle": "アカウントの削除予約",
+      "deletion.state.not_confirmed": "削除予約の受付を確認できません。",
+      "deletion.state.pending": "削除予約を受け付けました。現在は利用を停止しています。",
       "deletion.state.cancelled": "削除予約を取り消しました。元のアカウントを利用できます。",
       "deletion.state.completed": "アカウントの削除が完了しました。",
-      "deletion.grace":
-        "復帰期限より前に本人がGoogleへ新しくログインすると、削除予約を取り消して復帰できます。",
-      "deletion.waiting":
-        "復帰期限を過ぎました。削除開始予定の日本時間午前3時を待っています。復帰はできません。",
-      "deletion.delayed":
-        "削除開始予定を過ぎています。処理待ちまたは遅延中で、完了していません。再照会するか運営者へお問い合わせください。",
-      "deletion.lookupHelp":
-        "この端末では受付番号と確認キーを最大30日保存します。別の端末で照会する場合は、両方を安全に保管してください。確認キーをURL・メール・問い合わせへ含めないでください。キーを紛失しても受付番号等と記録が残っていれば、運営者が本人確認後に照合できる場合があります。照合情報をすべて紛失した場合や記録の保持期限後は、過去の結果を確定できないことがあります。",
-      "deletion.requestId": "受付番号",
-      "deletion.secret": "確認キー",
-      "deletion.showSecret": "確認キーを表示",
-      "deletion.hideSecret": "確認キーを隠す",
-      "deletion.retryRequest": "同じ受付番号で再送を確認",
-      "deletion.retryRequestHelp":
-        "結果はまだ確認できません。対象アカウントと最新の説明を確認し、同じ受付番号での再送を確定してください。別の番号では申請しません。",
-      "deletion.check": "結果を照会する",
-      "deletion.lookupError":
-        "結果照会またはGoogleログインの開始ができませんでした。通信状況を確認して、もう一度お試しください。",
-      "deletion.loginWarning":
-        "Googleログインは復帰のための操作です。期限未満の予約は取り消されます。結果を見るだけならログインは不要です。",
+      "deletion.grace": "復帰期限までにGoogleでログインすると、削除予約を取り消して復帰できます。",
+      "deletion.waiting": "復帰期限を過ぎました。予定時刻から削除を開始します。復帰はできません。",
+      "deletion.delayed": "削除はまだ完了していません。復帰はできません。",
+      "deletion.retryRequest": "削除予約をもう一度確認",
+      "deletion.retryRequestHelp": "対象アカウントを確認し、削除予約をもう一度確定してください。",
+      "deletion.lookupError": "接続できませんでした。もう一度お試しください。",
       "deletion.reactivate": "Googleでログインして復帰",
-      "deletion.localCleanup":
-        "サーバー上の削除と、この端末のログアウトは別の処理です。この端末のセッション消去はここから再試行できます。",
-      "deletion.cleanupError":
-        "端末内の保存情報を消去できませんでした。サーバーの結果とは別に、消去を再試行してください。",
-      "deletion.retryCleanup": "この端末のセッションを消去",
+      "deletion.cleanupError": "この端末でログアウトできませんでした。",
+      "deletion.retryCleanup": "ログアウトを再試行",
       "deletion.actionTitle": "アカウントへの復帰",
       "deletion.action.loading": "Googleログインを確認しています…",
       "deletion.action.error":
         "復帰が失敗・期限切れになったか、別のGoogleアカウントが選ばれました。元のログインは維持しています。戻ってログインをやり直してください。",
-      "deletion.action.retry":
-        "削除予約の結果はまだ確認できません。プロフィールへ戻り、説明を確認して同じ受付番号での再送を確定してください。",
-      "deletion.action.reactivate":
-        "削除予約を取り消しました。元のデータと所属を引き続き利用できます。",
+      "deletion.action.retry": "アカウント設定に戻り、削除予約をもう一度確認・確定してください。",
+      "deletion.action.reactivate": "削除予約を取り消しました。元のアカウントを利用できます。",
       "deletion.returnToConfirm": "削除の確認へ戻る",
-      "deletion.returnToProfile": "プロフィールへ戻る",
+      "deletion.returnToAccount": "アカウント設定へ戻る",
       "deletion.continue": "Burnetoを利用する",
       "app.name": "Burneto",
       "privacy.title": "プライバシーポリシー",
@@ -489,7 +446,7 @@ export const resources = {
       "privacy.storage.browser":
         "ログイン状態と言語・テーマの設定を、ブラウザのローカルストレージに保存します。言語設定はアカウントにも保存します。ブラウザの保存情報の消去やログアウトでは、サーバー上のアカウントや記録は削除されません。",
       "privacy.storage.deletion":
-        "個別の支払いやカテゴリはアプリから削除できます。予算の無効化では過去の予算履歴を消去しません。受付中はプロフィールからアカウント削除を予約でき、予約直後に通常利用を停止します。168時間未満の本人の新しいGoogleログインで予約を取り消せます。期限以降で最初の日本時間午前3時から、毎日3:00〜3:59だけ毎分最大10件（最大600件／日）を物理削除します。残件・失敗分は翌日に回し、完了が遅れる場合があります。Googleアカウント自体は削除しません。他のメンバーが残る家計簿と全履歴は保持し、無人の家計簿と全履歴を削除します。物理削除後の復元はできません。閲覧・訂正や受付停止中の削除依頼は、下記へお問い合わせください。",
+        "個別の支払いやカテゴリはアプリから削除できます。予算の無効化では過去の予算履歴を消去しません。受付中は「設定 → アカウント」からアカウント削除を予約でき、予約直後に通常利用を停止します。168時間未満の本人の新しいGoogleログインで予約を取り消せます。期限以降で最初の日本時間午前3時から、毎日3:00〜3:59だけ毎分最大10件（最大600件／日）を物理削除します。残件・失敗分は翌日に回し、完了が遅れる場合があります。Googleアカウント自体は削除しません。他のメンバーが残るブックと全履歴は保持し、無人のブックと全履歴を削除します。物理削除後の復元はできません。閲覧・訂正や受付停止中の削除依頼は、下記へお問い合わせください。",
       "privacy.storage.retention":
         "バックアップに含まれる情報や、外部基盤に保存される技術ログは、画面で確認できる登録情報とは別に管理されます。登録情報を削除しても、バックアップやログから関連情報が直ちにすべて消去されることを保証するものではありません。保持・削除の条件は、各基盤の設定や契約によります。 削除要求は処理完了まで、取消・完了記録は30日間保持します。端末の受付番号と確認キーは最大30日で、終端結果を確認したらキーを消去します。運営者管理のバックアップは最大7日とし、復旧時は最新の要求状態と元の期限を再適用してから公開します。問い合わせメールは別管理です。",
       "privacy.contact.title": "運営者へのお問い合わせ",

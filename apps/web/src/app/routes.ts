@@ -10,7 +10,7 @@ import { resolveTargetMonth } from "../domain/date"
 import { BookSettings } from "../features/books"
 import { DataManagementSettings, paymentsSearchSchema } from "../features/payments"
 import { AppearanceSettings } from "../features/preferences"
-import { ProfileSettings } from "../features/profile"
+import { DeleteAccount, ProfileSettings } from "../features/profile"
 import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"
@@ -144,6 +144,12 @@ const settingsProfileRoute = createRoute({
   component: ProfileSettings,
 })
 
+const settingsAccountRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: "account",
+  component: DeleteAccount,
+})
+
 const settingsAppearanceRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: "appearance",
@@ -166,6 +172,7 @@ const routeTree = rootRoute.addChildren([
     settingsRoute.addChildren([
       settingsIndexRoute,
       settingsProfileRoute,
+      settingsAccountRoute,
       settingsAppearanceRoute,
       settingsBookRoute,
       settingsDataManagementRoute,
