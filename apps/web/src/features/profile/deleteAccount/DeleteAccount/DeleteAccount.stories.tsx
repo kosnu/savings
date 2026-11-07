@@ -1,16 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { userEvent, within, screen, spyOn } from "storybook/test"
+import { userEvent, within, screen } from "storybook/test"
 
 import { i18next } from "../../../../i18n"
-import { getSupabaseClient } from "../../../../lib/supabase"
+import { SupabaseSessionContext } from "../../../../providers/supabase/SupabaseSessionProvider"
 import { mockSession } from "../../../../test/data/supabaseSession"
-import {
-  createAccountDeletionHandlers,
-  deletionAuthUserId,
-  deletionRequestId,
-  deletionSecret,
-  deletionTimes,
-} from "../../../../test/msw/handlers/accountDeletion"
+import { createAccountDeletionHandlers } from "../../../../test/msw/handlers/accountDeletion"
 import { DeleteAccount } from "./DeleteAccount"
 
 const meta = {
@@ -41,24 +35,20 @@ export const Unavailable: Story = {
 }
 
 export const Sending: Story = {
-  beforeEach: () => {
-    const session = mockSession()
-    session.user.id = deletionAuthUserId
-    const mock = spyOn(getSupabaseClient().auth, "getSession").mockResolvedValue({
-      data: { session },
-      error: null,
-    })
-    return () => mock.mockRestore()
-  },
-  parameters: parameters({
-    request: {
-      requestId: deletionRequestId,
-      secret: deletionSecret,
-      explanationVersion: "2026-11-06",
-      result: { status: "pending", ...deletionTimes },
-      durationOrMode: "infinite",
-    },
-  }),
+  parameters: parameters(),
+  decorators: [
+    (Story) => (
+      <SupabaseSessionContext
+        value={{
+          status: "authenticated",
+          session: mockSession(),
+          startAccountDeletion: () => undefined,
+        }}
+      >
+        <Story />
+      </SupabaseSessionContext>
+    ),
+  ],
   play: async ({ canvasElement }) => {
     await userEvent.click(
       within(canvasElement).getByRole("button", { name: i18next.t("deletion.open") }),

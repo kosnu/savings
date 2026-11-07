@@ -21,6 +21,11 @@ export const resources = {
       "deletion.confirm": "Confirm deletion schedule",
       "deletion.prepareError": "Could not prepare the deletion request. Please try again.",
       "deletion.recheck": "Recheck request",
+      "deletion.checkAccount": "Check account and return",
+      "deletion.explanationChanged":
+        "The deletion information has changed. Review it again before confirming.",
+      "deletion.sessionError":
+        "We could not verify your account. Check your sign-in before continuing.",
       "deletion.state.not_confirmed": "We could not confirm your deletion request.",
       "deletion.state.pending": "Your account deletion request was accepted.",
       "deletion.state.cancelled":
@@ -362,6 +367,10 @@ export const resources = {
       "deletion.confirm": "削除予約を確定する",
       "deletion.prepareError": "削除予約の準備ができませんでした。もう一度お試しください。",
       "deletion.recheck": "受付を再確認",
+      "deletion.checkAccount": "アカウントを確認して戻る",
+      "deletion.explanationChanged": "削除の説明が更新されました。内容を確認し直してください。",
+      "deletion.sessionError":
+        "本人のアカウントを確認できませんでした。ログイン状態を確認してください。",
       "deletion.state.not_confirmed": "削除予約の受付を確認できません。",
       "deletion.state.pending": "アカウント削除の予約を受け付けました。",
       "deletion.state.cancelled": "削除予約を取り消しました。元のアカウントを利用できます。",

@@ -382,7 +382,9 @@ describe("HomePage", () => {
     function Scenario() {
       const [session, setSession] = useState(mockSession())
       return (
-        <SupabaseSessionContext value={{ session, status: "authenticated" }}>
+        <SupabaseSessionContext
+          value={{ session, status: "authenticated", startAccountDeletion: () => undefined }}
+        >
           <Default />
           <button
             onClick={() => setSession({ ...session, user: { ...session.user, id: "new-user" } })}

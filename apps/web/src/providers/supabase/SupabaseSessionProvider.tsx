@@ -6,12 +6,15 @@ import { toInitialDisplayName } from "../../domain/displayName"
 import { i18next } from "../../i18n"
 import { loadAccountLanguage, resolveAccountLanguage } from "../../i18n/accountLanguage"
 import {
-  deletionReceiptEvent,
+  createDeletionReceipt,
+  requestAccountDeletion,
+  type DeletionPreview,
+  type DeletionRequestResult,
   clearLegacyDeletionReceipt,
   getMyDeletionState,
   type DeletionSubmission,
 } from "../../lib/accountDeletion"
-import { completeExplicitLogin } from "../../lib/explicitLogin"
+import { completeExplicitLogin, type ExplicitLoginResult } from "../../lib/explicitLogin"
 import { captureSupabaseSessionError } from "../../lib/sentry"
 import { getSupabaseClient } from "../../lib/supabase"
 import { ensureAuthenticatedUser } from "./ensureAuthenticatedUser"
@@ -20,9 +23,14 @@ export type AuthStatus = "loading" | "unauthenticated" | "authenticated" | "erro
 
 export type SupabaseSessionState =
   | {
-      status: Exclude<AuthStatus, "error" | "suspended">
-      session: Session | null
+      status: "authenticated"
+      session: Session
       reactivated?: boolean
+      startAccountDeletion: (preview: DeletionPreview) => void
+    }
+  | {
+      status: "loading" | "unauthenticated"
+      session: null
     }
   | {
       status: "suspended"
@@ -30,6 +38,7 @@ export type SupabaseSessionState =
       authUserId: string
       submission?: DeletionSubmission
       onSignedOut: () => void
+      onCheckSession: () => void
     }
   | { status: "error"; session: null; requiresSignIn: boolean; retry: () => void }
 
@@ -52,7 +61,7 @@ const unauthenticatedSessionState: SupabaseSessionState = {
 export function SupabaseSessionProvider({ children }: SupabaseSessionProviderProps) {
   const queryClient = useQueryClient()
   const sessionGenerationRef = useRef(0)
-  const loginCallback = useRef<Promise<string | undefined> | undefined>(undefined)
+  const loginCallback = useRef<Promise<ExplicitLoginResult> | undefined>(undefined)
   const stateRef = useRef<SupabaseSessionState>(initialSessionState)
   const [state, setState] = useState<SupabaseSessionState>(initialSessionState)
 
@@ -60,7 +69,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     clearLegacyDeletionReceipt()
     const supabase = getSupabaseClient()
     let isActive = true
-    let reactivatedToken: string | undefined
+    let loginResult: ExplicitLoginResult | undefined
     loginCallback.current ??= completeExplicitLogin(supabase.auth)
     let verifyingCallback = Boolean(loginCallback.current)
 
@@ -82,6 +91,12 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         session: null,
         authUserId,
         submission,
+        onCheckSession: () => {
+          if (!isActive || stateRef.current !== suspended) return
+          sessionGenerationRef.current += 1
+          setSessionState(initialSessionState)
+          void loadSession(sessionGenerationRef.current)
+        },
         onSignedOut: () => {
           if (!isActive || stateRef.current !== suspended) return
           sessionGenerationRef.current += 1
@@ -122,7 +137,10 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       const token = session.access_token
       const deletion = await getMyDeletionState(token)
       if (!isCurrentSessionHandler(sessionGeneration)) return null
-      const reactivated = token === reactivatedToken
+      const reactivated =
+        loginResult?.status === "authenticated" &&
+        loginResult.reactivated &&
+        token === loginResult.accessToken
       if (deletion.status === "pending") return { deletion, reactivated: false }
 
       await ensureAuthenticatedUser(
@@ -195,8 +213,13 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         await i18next.changeLanguage(verified.language)
         if (!isCurrentSessionHandler(sessionGeneration)) return
 
-        reactivatedToken = undefined
-        setSessionState({ status: "authenticated", session, reactivated: verified.reactivated })
+        loginResult = undefined
+        setSessionState({
+          status: "authenticated",
+          session,
+          reactivated: verified.reactivated,
+          startAccountDeletion,
+        })
       } catch (error) {
         handleSessionVerificationError(error, sessionGeneration, shouldKeepCurrentSession)
       }
@@ -225,25 +248,27 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       void loadSession(sessionGenerationRef.current)
     }
 
-    const suspendForReceipt = (event: Event) => {
-      if (!(event instanceof CustomEvent)) return
-      const submission: DeletionSubmission = event.detail
+    const startAccountDeletion = (preview: DeletionPreview) => {
       const current = stateRef.current
       if (
+        !isActive ||
         current.status !== "authenticated" ||
-        current.session?.user.id !== submission.receipt.authUserId
+        current.session.user.id !== preview.auth_user_id
       )
-        return
+        throw new Error("Account identity mismatch")
+      const receipt = createDeletionReceipt(preview.auth_user_id)
+      const result = requestAccountDeletion(receipt, preview.explanation_version).catch(
+        (): DeletionRequestResult => ({ status: "not_confirmed" }),
+      )
       sessionGenerationRef.current += 1
-      suspend(submission.receipt.authUserId, submission)
+      suspend(receipt.authUserId, { receipt, result })
     }
-    window.addEventListener(deletionReceiptEvent, suspendForReceipt)
 
     if (loginCallback.current) {
-      void loginCallback.current.then((token) => {
+      void loginCallback.current.then((result) => {
         if (!isActive) return
         loginCallback.current = undefined
-        reactivatedToken = token
+        loginResult = result
         verifyingCallback = false
         void loadSession(sessionGenerationRef.current)
       })
@@ -286,7 +311,6 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     return () => {
       isActive = false
       subscription.unsubscribe()
-      window.removeEventListener(deletionReceiptEvent, suspendForReceipt)
     }
   }, [queryClient])
 

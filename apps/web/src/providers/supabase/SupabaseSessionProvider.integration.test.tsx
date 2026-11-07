@@ -368,7 +368,7 @@ test.each(["markerなし", "marker期限後", "以前のcallback", "認証エラ
       params.set("error_description", "private provider description")
     }
     window.history.replaceState(null, "", `/auth?${params}`)
-    await completeExplicitLogin(p.auth)
+    await expect(completeExplicitLogin(p.auth)).resolves.toEqual({ status: "failed" })
     expect((await p.auth.getSession()).data.session).toEqual(original)
     expect(
       Object.keys(sessionStorage).filter((key) => key.startsWith("burneto-login-callback")),

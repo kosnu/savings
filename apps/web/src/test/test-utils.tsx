@@ -47,6 +47,7 @@ export function createTestQueryClient() {
 function createDefaultSessionState(): SupabaseSessionState {
   return {
     status: "authenticated",
+    startAccountDeletion: () => undefined,
     session: mockSession(),
   }
 }

@@ -3,7 +3,7 @@ import { AuthError } from "@supabase/supabase-js"
 import { http, HttpResponse } from "msw"
 import { afterEach, expect, test, vi } from "vite-plus/test"
 
-import { createDeletionReceipt, type DeletionResult } from "../../../../lib/accountDeletion"
+import { createDeletionReceipt, type DeletionRequestResult } from "../../../../lib/accountDeletion"
 import { getSupabaseClient } from "../../../../lib/supabase"
 import * as snackbar from "../../../../providers/snackbar/SnackbarProvider"
 import { mockSession } from "../../../../test/data/supabaseSession"
@@ -17,7 +17,7 @@ const accepted = { status: "pending", ...deletionTimes } as const
 const notification = "Your account deletion request was accepted."
 const auth = getSupabaseClient().auth
 
-function submission(result: DeletionResult = accepted) {
+function submission(result: DeletionRequestResult = accepted) {
   return { receipt: createDeletionReceipt(deletionAuthUserId), result: Promise.resolve(result) }
 }
 
@@ -124,4 +124,46 @@ test("受付後のログアウト失敗はログアウトだけを再試行し�
   expect(deletionRpc).not.toHaveBeenCalled()
   expect(signOut).toHaveBeenCalledTimes(2)
   expect(signOut).toHaveBeenLastCalledWith({ scope: "local" })
+})
+
+test.each([
+  ["unavailable", "New deletion requests are currently unavailable"],
+  ["explanation", "The deletion information has changed"],
+  ["session", "We could not verify your account"],
+] as const)("明示拒否%sは再照会せず、本人の状態を確認して戻る", async (reason, message) => {
+  const { signOut } = mockAuth()
+  const lookup = vi.fn()
+  server.use(
+    http.post("*/rest/v1/rpc/get_account_deletion_result", () => {
+      lookup()
+      return HttpResponse.json({ status: "not_confirmed" })
+    }),
+  )
+  const onCheckSession = vi.fn()
+  const { user } = render(
+    <Accepted
+      submission={submission({ status: "rejected", reason })}
+      onCheckSession={onCheckSession}
+    />,
+  )
+  expect(await screen.findByRole("alert")).toHaveTextContent(message)
+  expect(screen.queryByRole("button", { name: "Recheck request" })).not.toBeInTheDocument()
+  await user.click(screen.getByRole("button", { name: "Check account and return" }))
+  expect(onCheckSession).toHaveBeenCalledOnce()
+  expect(lookup).not.toHaveBeenCalled()
+  expect(signOut).not.toHaveBeenCalled()
+})
+
+test("既存の予約は本人の状態を確認し、今回の受付通知を出さない", async () => {
+  const { signOut } = mockAuth()
+  const onCheckSession = vi.fn()
+  render(
+    <Accepted
+      submission={submission({ status: "rejected", reason: "pending" })}
+      onCheckSession={onCheckSession}
+    />,
+  )
+  await waitFor(() => expect(onCheckSession).toHaveBeenCalledOnce())
+  expect(signOut).not.toHaveBeenCalled()
+  expect(screen.queryByText(notification)).not.toBeInTheDocument()
 })

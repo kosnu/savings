@@ -9,6 +9,10 @@ const markerKey = "burneto-explicit-login"
 const storageKey = "burneto-login-callback"
 let loginAuth: SupabaseClient["auth"] | undefined
 
+export type ExplicitLoginResult =
+  | { status: "authenticated"; accessToken: string; reactivated: boolean }
+  | { status: "failed" }
+
 export function getLoginAuth() {
   loginAuth ??= createClient(env.SUPABASE_URL, env.SUPABASE_PUBLISHABLE_KEY, {
     auth: {
@@ -46,7 +50,7 @@ export async function startExplicitLogin() {
 
 export function completeExplicitLogin(
   auth: SupabaseClient["auth"],
-): Promise<string | undefined> | undefined {
+): Promise<ExplicitLoginResult> | undefined {
   const url = new URL(window.location.href)
   if (url.pathname !== paths.auth.getHref()) return
   const fragment = new URLSearchParams(url.hash.slice(1))
@@ -57,7 +61,7 @@ export function completeExplicitLogin(
   if (!code && !failed && !fragment.has("access_token") && !fragment.has("refresh_token")) return
   window.history.replaceState(window.history.state, "", paths.auth.getHref())
 
-  const confirm = async () => {
+  const confirm = async (): Promise<ExplicitLoginResult> => {
     const raw = sessionStorage.getItem(markerKey)
     sessionStorage.removeItem(markerKey)
     const age = Date.now() - Number(raw)
@@ -85,7 +89,11 @@ export function completeExplicitLogin(
         refresh_token: session.refresh_token,
       })
       if (sessionError) throw sessionError
-      return state.status === "pending" ? session.access_token : undefined
+      return {
+        status: "authenticated",
+        accessToken: session.access_token,
+        reactivated: state.status === "pending",
+      }
     } catch (error) {
       await staging.signOut({ scope: "local" })
       throw error
@@ -101,6 +109,6 @@ export function completeExplicitLogin(
     const diagnostic = url.searchParams.get("error_code") ?? fragment.get("error_code")
     if (diagnostic) reason.set("error_code", diagnosticCode(diagnostic))
     window.history.replaceState(window.history.state, "", `${paths.auth.getHref()}?${reason}`)
-    return undefined
+    return { status: "failed" }
   })
 }

@@ -5,7 +5,7 @@ import type { PropsWithChildren } from "react"
 import { beforeEach, expect, test, vi } from "vite-plus/test"
 
 import { i18next } from "../../i18n"
-import { createDeletionReceipt, deletionReceiptEvent } from "../../lib/accountDeletion"
+import { deletionPreview } from "../../test/msw/handlers/accountDeletion"
 import { act, createTestQueryClient, waitFor } from "../../test/test-utils"
 import { createDeferred } from "../../test/utils/createDeferred"
 import {
@@ -678,12 +678,10 @@ test("送信開始でqueryを取消しcacheを消し、遅延した同一session
   mockRpc.mockReturnValueOnce(refreshing.promise)
   act(() => emit("TOKEN_REFRESHED", session))
   await waitFor(() => expect(mockRpc).toHaveBeenCalledTimes(2))
-  const submission = {
-    receipt: createDeletionReceipt(authId),
-    result: Promise.resolve({ status: "not_confirmed" as const }),
-  }
-  act(() => window.dispatchEvent(new CustomEvent(deletionReceiptEvent, { detail: submission })))
-  expect(result.current).toMatchObject({ submission })
+  const authenticated = result.current
+  if (authenticated.status !== "authenticated") throw new Error("Expected authenticated state")
+  act(() => authenticated.startAccountDeletion({ ...deletionPreview, auth_user_id: authId }))
+  expect(result.current).toMatchObject({ submission: { receipt: { authUserId: authId } } })
   expectSession(result, "suspended", null)
   expect(cancelled).toHaveBeenCalled()
   expect(queryClient.getQueryData(["private-data"])).toBeUndefined()
@@ -701,11 +699,9 @@ test("未確認の受付はsession失効後も再確認を継続し、別人の�
   const emit = captureAuthCallback()
   const { result } = renderSessionHook()
   await waitFor(() => expectSession(result, "authenticated", authId))
-  const submission = {
-    receipt: createDeletionReceipt(authId),
-    result: Promise.resolve({ status: "not_confirmed" as const }),
-  }
-  act(() => window.dispatchEvent(new CustomEvent(deletionReceiptEvent, { detail: submission })))
+  const authenticated = result.current
+  if (authenticated.status !== "authenticated") throw new Error("Expected authenticated state")
+  act(() => authenticated.startAccountDeletion({ ...deletionPreview, auth_user_id: authId }))
   await waitFor(() => expectSession(result, "suspended", null))
   const suspended = result.current
   if (suspended.status !== "suspended") throw new Error("Expected suspended state")

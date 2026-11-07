@@ -61,7 +61,6 @@ export async function reactivateAccount(requestId: string, accessToken: string) 
 }
 
 export const deletionReceiptKey = "burneto-account-deletion-receipt"
-export const deletionReceiptEvent = "burneto-account-deletion-receipt-changed"
 export interface DeletionReceipt {
   authUserId: string
   requestId: string
@@ -70,8 +69,12 @@ export interface DeletionReceipt {
 
 export interface DeletionSubmission {
   receipt: DeletionReceipt
-  result: Promise<DeletionResult>
+  result: Promise<DeletionRequestResult>
 }
+
+export type DeletionRequestResult =
+  | DeletionResult
+  | { status: "rejected"; reason: "unavailable" | "explanation" | "session" | "pending" }
 
 export function clearLegacyDeletionReceipt() {
   try {
@@ -90,12 +93,14 @@ export function createDeletionReceipt(authUserId: string): DeletionReceipt {
   }
 }
 
-export async function requestAccountDeletion(receipt: DeletionReceipt, version: string) {
+export async function requestAccountDeletion(
+  receipt: DeletionReceipt,
+  version: string,
+): Promise<DeletionRequestResult> {
   const client = getSupabaseClient()
   const { data: auth, error: sessionError } = await client.auth.getSession()
-  if (sessionError) throw sessionError
-  if (!auth.session || auth.session.user.id !== receipt.authUserId)
-    throw new Error("Account identity mismatch")
+  if (sessionError || !auth.session || auth.session.user.id !== receipt.authUserId)
+    return { status: "rejected", reason: "session" }
   // 別タブの切替が重なっても、確認した本人のJWTでこの要求だけを送信する。
   const { data, error } = await client
     .rpc("request_account_deletion", {
@@ -104,7 +109,14 @@ export async function requestAccountDeletion(receipt: DeletionReceipt, version: 
       explanation_version: version,
     })
     .setHeader("Authorization", `Bearer ${auth.session.access_token}`)
-  if (error) throw error
+  if (error) {
+    if (error.code === "55000") return { status: "rejected", reason: "unavailable" }
+    if (error.code === "23505") return { status: "rejected", reason: "pending" }
+    if (error.code === "22023" && error.message === "Refresh the deletion explanation.")
+      return { status: "rejected", reason: "explanation" }
+    if (error.code === "42501") return { status: "rejected", reason: "session" }
+    throw error
+  }
   return deletionResultSchema.parse(data)
 }
 

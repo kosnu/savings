@@ -15,6 +15,7 @@ import {
 import { DeletionHandoff } from "./DeletionHandoff"
 
 const onSignedOut: () => void = fn()
+const onCheckSession: () => void = fn()
 const submission: DeletionSubmission = {
   receipt: { authUserId: deletionAuthUserId, requestId: deletionRequestId, secret: deletionSecret },
   result: Promise.resolve({ status: "not_confirmed" }),
@@ -22,7 +23,7 @@ const submission: DeletionSubmission = {
 const meta = {
   title: "Features/Profile/DeletionHandoff",
   component: DeletionHandoff,
-  args: { authUserId: deletionAuthUserId, submission, onSignedOut },
+  args: { authUserId: deletionAuthUserId, submission, onSignedOut, onCheckSession },
   beforeEach: () => {
     const session = mockSession()
     session.user.id = deletionAuthUserId
@@ -85,5 +86,30 @@ export const SignOutError: Story = {
     spyOn(getSupabaseClient().auth, "signOut").mockResolvedValue({
       error: new AuthError("Sign-out failed"),
     })
+  },
+}
+
+export const Rejected: Story = {
+  args: {
+    submission: {
+      ...submission,
+      result: Promise.resolve({ status: "rejected", reason: "unavailable" }),
+    },
+  },
+}
+export const ExplanationChanged: Story = {
+  args: {
+    submission: {
+      ...submission,
+      result: Promise.resolve({ status: "rejected", reason: "explanation" }),
+    },
+  },
+}
+export const SessionError: Story = {
+  args: {
+    submission: {
+      ...submission,
+      result: Promise.resolve({ status: "rejected", reason: "session" }),
+    },
   },
 }

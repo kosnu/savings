@@ -3,51 +3,41 @@ import { Button, Callout, Dialog, Flex, Heading, Skeleton, Text } from "@radix-u
 import { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  createDeletionReceipt,
-  deletionReceiptEvent,
-  prepareAccountDeletion,
-  requestAccountDeletion,
-  type DeletionPreview,
-  type DeletionSubmission,
-  type DeletionResult,
-} from "../../../../lib/accountDeletion"
+import { prepareAccountDeletion, type DeletionPreview } from "../../../../lib/accountDeletion"
+import { useSupabaseSession } from "../../../../providers/supabase/useSupabaseSession"
 import { deletionTime } from "../deletionTime"
 
 export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "h3" }) {
   const { t, i18n } = useTranslation()
+  const auth = useSupabaseSession()
   const [open, setOpen] = useState(false)
   const [preview, setPreview] = useState<DeletionPreview | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(false)
   const cancelRef = useRef<HTMLButtonElement>(null)
+  const loadAttempt = useRef(0)
 
   // 確認画面を開くたび説明を取得し、通常データのquery cacheへ残さない。
   const load = async () => {
+    const attempt = ++loadAttempt.current
     setBusy(true)
     setError(false)
     setPreview(null)
     try {
-      setPreview(await prepareAccountDeletion())
+      const result = await prepareAccountDeletion()
+      if (attempt === loadAttempt.current) setPreview(result)
     } catch {
-      setError(true)
+      if (attempt === loadAttempt.current) setError(true)
     } finally {
-      setBusy(false)
+      if (attempt === loadAttempt.current) setBusy(false)
     }
   }
-  const confirm = async () => {
-    if (!preview || !preview.accepting_requests || busy) return
+  const confirm = () => {
+    if (!preview || !preview.accepting_requests || busy || auth.status !== "authenticated") return
     setBusy(true)
     setError(false)
     try {
-      const receipt = createDeletionReceipt(preview.auth_user_id)
-      // 通常データを隠し、送信結果をログアウト・再確認の処理へ引き継ぐ。
-      const result = requestAccountDeletion(receipt, preview.explanation_version).catch(
-        (): DeletionResult => ({ status: "not_confirmed" }),
-      )
-      window.dispatchEvent(
-        new CustomEvent<DeletionSubmission>(deletionReceiptEvent, { detail: { receipt, result } }),
-      )
+      auth.startAccountDeletion(preview)
     } catch {
       setError(true)
       setBusy(false)
@@ -65,17 +55,14 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
       <Dialog.Root
         open={open}
         onOpenChange={(value) => {
-          if (!busy || !preview) setOpen(value)
+          if (busy && preview) return
+          setOpen(value)
+          if (value) void load()
+          else loadAttempt.current += 1
         }}
       >
         <Dialog.Trigger>
-          <Button
-            color="red"
-            variant="soft"
-            onClick={() => {
-              void load()
-            }}
-          >
+          <Button color="red" variant="soft">
             {t("deletion.open")}
           </Button>
         </Dialog.Trigger>
@@ -170,7 +157,7 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
                   disabled={!preview.accepting_requests || busy}
                   loading={busy}
                   onClick={() => {
-                    void confirm()
+                    confirm()
                   }}
                 >
                   {t("deletion.confirm")}

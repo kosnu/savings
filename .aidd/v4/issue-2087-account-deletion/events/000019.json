@@ -1,0 +1,37 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000017.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/features/profile/",
+    "apps/web/src/lib/",
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/app/",
+    "apps/web/src/utils/auth/",
+    "apps/web/src/test/",
+    "apps/web/.storybook/",
+    "docs/design/account-deletion.md",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/features/books/"
+  ],
+  "fingerprint": "26d9ff38472ac4171736283f016657c1a1d45a9f195ad397478dc6f38d0c56d4",
+  "status": "pass",
+  "checks": [
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview",
+    "documentation.policy, domain.amount, domain.book, domain.category",
+    "domain.date, domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.overview, policy.audit, policy.code-review, policy.git-workflow",
+    "policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure",
+    "web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules",
+    "web.error-presentation, web.feature-directory, web.query-cache, web.storybook-browser-tests",
+    "web.suspense-boundaries, web.test-policy",
+    "No.1〜6の実差分・実RouterとSDKの試験を照合。初回と再試行の処理共有、型付きContextの入口を確認",
+    "明示拒否は本人状態の再確認で復旧し、応答不明の番号を再送しない。取得の旧世代は成功・失敗・終了を破棄",
+    "認証確定・/への遷移、callbackの対象tokenと復帰結果、別人・古い戻り・元session維持を確認",
+    "Contextの必須操作に合わせ、全fixtureとStoryの型・表示状態を同期。単体・結合1148件とブラウザー32件が成功",
+    "No.7の互換性・撤去条件はIssueコメントに保存。DB契約の変更に必要な判断は追跡先へ記載"
+  ],
+  "summary": "Coverageの選択規則と実差分を照合し、未解決の規則矛盾・コード指摘なし。No.1〜6を承認範囲内で反映し、No.7をIssueへ引き継いだ。実Googleログイン・定時Cron・Hosted処理容量と実backup復旧は未確認。",
+  "remaining": []
+}

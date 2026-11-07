@@ -102,7 +102,10 @@ test("送信時の別identityを拒否し、照合後に切り替わっても本
       return HttpResponse.json({ status: "pending", ...deletionTimes })
     }),
   )
-  await expect(requestAccountDeletion(receipt, "2026-11-06")).rejects.toThrow("identity mismatch")
+  await expect(requestAccountDeletion(receipt, "2026-11-06")).resolves.toEqual({
+    status: "rejected",
+    reason: "session",
+  })
   expect(seen).not.toHaveBeenCalled()
   const confirmed = mockSession()
   confirmed.user.id = deletionAuthUserId
@@ -110,4 +113,20 @@ test("送信時の別identityを拒否し、照合後に切り替わっても本
   getSession.mockResolvedValueOnce({ data: { session: confirmed }, error: null })
   await requestAccountDeletion(receipt, "2026-11-06")
   expect(seen).toHaveBeenCalledWith("Bearer confirmed-account-token")
+})
+
+test.each([
+  ["55000", "Account deletion requests are unavailable.", "unavailable"],
+  ["23505", "An account deletion is already pending.", "pending"],
+  ["22023", "Refresh the deletion explanation.", "explanation"],
+  ["42501", "Valid account session required.", "session"],
+])("DBの明示拒否%sを結果不明に変換しない", async (code, message, reason) => {
+  server.use(
+    http.post("*/rest/v1/rpc/request_account_deletion", () =>
+      HttpResponse.json({ code, message, details: null, hint: null }, { status: 400 }),
+    ),
+  )
+  await expect(
+    requestAccountDeletion(createDeletionReceipt(deletionAuthUserId), "2026-11-06"),
+  ).resolves.toEqual({ status: "rejected", reason })
 })

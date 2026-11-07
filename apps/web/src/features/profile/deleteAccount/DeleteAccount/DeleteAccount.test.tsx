@@ -2,7 +2,7 @@ import { composeStories } from "@storybook/react-vite"
 import { http, HttpResponse } from "msw"
 import { beforeEach, expect, test, vi } from "vite-plus/test"
 
-import { deletionReceiptEvent, type DeletionSubmission } from "../../../../lib/accountDeletion"
+import * as accountDeletion from "../../../../lib/accountDeletion"
 import { getSupabaseClient } from "../../../../lib/supabase"
 import { mockSession } from "../../../../test/data/supabaseSession"
 import {
@@ -10,7 +10,8 @@ import {
   deletionPreview,
 } from "../../../../test/msw/handlers/accountDeletion"
 import { server } from "../../../../test/msw/server"
-import { render, screen, waitFor } from "../../../../test/test-utils"
+import { act, render, screen } from "../../../../test/test-utils"
+import { createDeferred } from "../../../../test/utils/createDeferred"
 import * as stories from "./DeleteAccount.stories"
 
 const { Default } = composeStories(stories)
@@ -75,35 +76,39 @@ test("受付停止中は確定できない", async () => {
   expect(screen.getByText(/New deletion requests are currently unavailable/)).toBeInTheDocument()
 })
 
-test("追加ログインなしで受付を画面内に引き継ぎ、確認中の二重送信を停止する", async () => {
-  const hidden = vi.fn<(event: Event) => void>()
-  window.addEventListener(deletionReceiptEvent, hidden, { once: true })
-  const sent = vi.fn()
-  const oauth = vi.spyOn(getSupabaseClient().auth, "signInWithOAuth")
-  server.use(
-    http.post("*/rest/v1/rpc/request_account_deletion", async ({ request }) => {
-      sent(await request.json())
-      return HttpResponse.json({ status: "not_confirmed" })
-    }),
-  )
-  const { user } = render(<Default />)
+test("Contextの開始操作を一度だけ呼び、送信中の二重確定と取消を防ぐ", async () => {
+  const startAccountDeletion = vi.fn()
+  const { user } = render(<Default />, {
+    sessionState: { status: "authenticated", session: mockSession(), startAccountDeletion },
+  })
   await user.click(screen.getByRole("button", { name: "Schedule account deletion" }))
   await user.click(await screen.findByRole("button", { name: "Confirm deletion schedule" }))
-  await waitFor(() => expect(sent).toHaveBeenCalledOnce())
-  expect(hidden).toHaveBeenCalledOnce()
-  const event = hidden.mock.calls[0][0]
-  if (!(event instanceof CustomEvent)) throw new Error("Missing submission")
-  const { receipt, result } = event.detail as DeletionSubmission
-  expect(receipt.authUserId).toBe(deletionPreview.auth_user_id)
-  expect(sent).toHaveBeenCalledWith({
-    request_id: receipt.requestId,
-    result_secret: receipt.secret,
-    explanation_version: deletionPreview.explanation_version,
-  })
-  expect(await result).toEqual({ status: "not_confirmed" })
-  expect(oauth).not.toHaveBeenCalled()
+  expect(startAccountDeletion).toHaveBeenCalledExactlyOnceWith(deletionPreview)
   expect(screen.getByRole("button", { name: "Confirm deletion schedule" })).toBeDisabled()
   expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
   await user.keyboard("{Escape}")
   expect(screen.getByRole("dialog")).toBeInTheDocument()
+})
+
+test.each(["success", "failure"])("開き直した後の古い説明取得の%sを反映しない", async (outcome) => {
+  const first = createDeferred<accountDeletion.DeletionPreview>()
+  const prepare = vi.spyOn(accountDeletion, "prepareAccountDeletion")
+  prepare.mockImplementationOnce(async () => first.promise)
+  prepare.mockResolvedValue({ ...deletionPreview, accepting_requests: false })
+  const { user } = render(<Default />)
+  const open = screen.getByRole("button", { name: "Schedule account deletion" })
+  await user.click(open)
+  expect(prepare).toHaveBeenCalledOnce()
+  await user.keyboard("{Escape}")
+  await user.click(open)
+  const confirm = await screen.findByRole("button", { name: "Confirm deletion schedule" })
+  expect(confirm).toBeDisabled()
+  await act(async () => {
+    if (outcome === "failure") first.reject(new Error("Old failure"))
+    else first.resolve({ ...deletionPreview, accepting_requests: true })
+    await first.promise.catch(() => undefined)
+  })
+  expect(confirm).toBeDisabled()
+  expect(screen.getByText(/New deletion requests are currently unavailable/)).toBeVisible()
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument()
 })

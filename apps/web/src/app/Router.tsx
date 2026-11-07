@@ -59,6 +59,7 @@ export function Router() {
         key={auth.authUserId}
         submission={auth.submission}
         onSignedOut={auth.onSignedOut}
+        onCheckSession={auth.onCheckSession}
         authUserId={auth.authUserId}
       />
     )

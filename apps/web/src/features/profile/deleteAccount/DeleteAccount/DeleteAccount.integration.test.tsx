@@ -16,6 +16,7 @@ import { mockSession } from "../../../../test/data/supabaseSession"
 import {
   deletionAuthUserId,
   deletionPreview,
+  deletionRequestId,
   deletionTimes,
 } from "../../../../test/msw/handlers/accountDeletion"
 import { server } from "../../../../test/msw/server"
@@ -248,6 +249,7 @@ test.each([false, true])(
       ),
     ).toBeVisible()
     expect(cancel).toHaveBeenCalledExactlyOnceWith({ request_id: accepted.requestId })
+    await waitFor(() => expect(router.state.location.pathname).toBe("/"))
     expect((await auth.getSession()).data.session?.user.id).toBe(user.id)
     await act(async () => {
       await router.navigate({ to: "/settings/account" })
@@ -423,5 +425,78 @@ test("Aの照会が遅れてBへ切り替わっても、Bは別の控えで予�
   expect(schedules.get(userA.id)).toEqual(first)
   expect(logout).toHaveBeenCalledExactlyOnceWith(`Bearer ${tokenB}`)
   expect(reactivation).not.toHaveBeenCalled()
+  view.unmount()
+})
+
+test.each([
+  [
+    "55000",
+    "Account deletion requests are unavailable.",
+    "New deletion requests are currently unavailable",
+  ],
+  ["22023", "Refresh the deletion explanation.", "The deletion information has changed"],
+  ["23505", "An account deletion is already pending.", ""],
+])("明示拒否%sを本人の状態と照合して復旧する", async (code, message, notice) => {
+  const user = { ...mockSession().user, id: deletionAuthUserId, email: deletionPreview.email }
+  allowSignedInUser(() => user)
+  let pending = false
+  const sent = vi.fn()
+  const lookup = vi.fn()
+  const logout = vi.fn()
+  const state = vi.fn()
+  server.use(
+    http.post("*/rest/v1/rpc/get_my_account_deletion_state", () => {
+      state()
+      return HttpResponse.json(
+        pending
+          ? {
+              status: "pending",
+              request_id: deletionRequestId,
+              can_reactivate: true,
+              ...deletionTimes,
+            }
+          : { status: "active" },
+      )
+    }),
+    http.post("*/rest/v1/rpc/prepare_account_deletion", () => HttpResponse.json(deletionPreview)),
+    http.post("*/rest/v1/rpc/request_account_deletion", () => {
+      sent()
+      pending = code === "23505"
+      return HttpResponse.json({ code, message, details: null, hint: null }, { status: 400 })
+    }),
+    http.post("*/rest/v1/rpc/get_account_deletion_result", () => {
+      lookup()
+      return HttpResponse.json({ status: "not_confirmed" })
+    }),
+    http.post("*/auth/v1/logout", () => {
+      logout()
+      return new HttpResponse(null, { status: 204 })
+    }),
+  )
+  expect(
+    (
+      await getSupabaseClient().auth.setSession({
+        access_token: accessToken(),
+        refresh_token: "rejected-request",
+      })
+    ).error,
+  ).toBeNull()
+  const view = renderApp("/settings/account")
+  await view.user.click(await screen.findByRole("button", { name: "Schedule account deletion" }))
+  await view.user.click(await screen.findByRole("button", { name: "Confirm deletion schedule" }))
+  if (code === "23505") {
+    expect(await screen.findByRole("link", { name: "Sign in" })).toBeVisible()
+    expect(logout).toHaveBeenCalledOnce()
+  } else {
+    expect(await screen.findByRole("alert")).toHaveTextContent(notice)
+    await view.user.click(screen.getByRole("button", { name: "Check account and return" }))
+    expect(await screen.findByRole("button", { name: "Schedule account deletion" })).toBeEnabled()
+    expect(logout).not.toHaveBeenCalled()
+    expect((await getSupabaseClient().auth.getSession()).data.session?.user.id).toBe(user.id)
+  }
+  expect(state.mock.calls.length).toBeGreaterThanOrEqual(2)
+  expect(lookup).not.toHaveBeenCalled()
+  expect(sent).toHaveBeenCalledOnce()
+  expect(screen.queryByText("Your account deletion request was accepted.")).not.toBeInTheDocument()
   view.unmount()
 })
