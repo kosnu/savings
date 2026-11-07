@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2064",
+  "paths": [
+    "docs/ai-driven-development/agent-evals.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "fd05eece0350f0a6c945c1237566e2ef997c8ed46fbbb04999bbdcab6a21fd26",
+  "status": "pass",
+  "checks": [
+    "Issue 2064 Intentと競合の照合"
+  ],
+  "summary": "元のTask・baseline 895ab87cと採点定義を維持。最新main 74fd3461をmergeし、同位置に追加された採点定義とマージ判断の両事例を保持する。PR固有は2文書と工程結果のみ。保護設定を変更せず、関連検証・push・通常マージまで実行する。",
+  "remaining": []
+}

@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2064",
+  "paths": [
+    "docs/ai-driven-development/agent-evals.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "fd05eece0350f0a6c945c1237566e2ef997c8ed46fbbb04999bbdcab6a21fd26",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.workflow",
+    "ai-driven.overview",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "documentation.policy",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.audit",
+    "policy.review-feedback-classification",
+    "policy.code-review",
+    "Issue完了条件4件・両事例保持"
+  ],
+  "summary": "指摘・未解決なし。競合箇所はmain全文と元headの採点定義事例をどちらも無変更で保持。PR固有2文書の4完了条件はpass、既存rule経路で十分。最新Git Workflowのマージ判断・実結果の区別も確認。mergeは今回の明示依頼に基づき通常操作だけを行う。",
+  "remaining": []
+}
