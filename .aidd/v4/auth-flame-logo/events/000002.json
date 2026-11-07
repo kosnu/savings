@@ -2,22 +2,21 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "verify",
-  "source": "ユーザー依頼: 元のロゴを忠実なベクター素材として再現し、炎の輪郭そのものを太い根元から燃え上がらせて先端を不規則にたなびかせる。お札は固定。PNGの変形とモヤの重ね描きを禁止。PR #2102の継続修正",
+  "source": "ユーザー最新添付GIF（e0b2d984）の認証確認中表示への採用依頼。PR #2102の同じTask・baselineを継続し、独自SVGアニメーションを置換する。",
   "paths": [
     "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
     "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "1d3f695fffb2abe41828b504eb3bbb7379b8d5d83e81afc9b3ea894c64008878",
+  "fingerprint": "258e860303843e29681e48cd266b1ec4ef95d013303d49836ed4ca26f9d36ec5",
   "status": "pass",
   "checks": [
-    "Web lint / format-check / typecheck",
-    "Web unit-integration: 159 files / 1105 tests",
-    "静止SVGと元画像の比較",
-    "ChromiumのSVGパス変形・お札固定・静止設定・再開",
-    "PNG埋め込み・Canvas・フィルターなし",
-    "差分と規約graph"
+    "Web lint・format-check・typecheck",
+    "Web unit-integration: 158 files / 1104 tests",
+    "Web production build: GIF・PNGの出力",
+    "Chromium: GIF再生・静止設定の初期値と切替・解除・通常ロゴ",
+    "GIFの16フレーム・1.6秒と差分の空白検査"
   ],
-  "summary": "整形後の最終差分でWeb検証が成功。元画像の輪郭と配色を再構成したSVGを静止比較し、拡大時の微細な色境界の差を明示。Chromiumの8秒192フレームで炎のパスが変形し、お札のパスが不変であることを確認。静止設定で形状が停止し解除で再開、色参照の破損なし。SVG内の画像埋め込み・フィルターとCanvasはない。回帰テストはOS設定の初期値・途中変更、炎だけのパス更新、お札固定と購読解除を検証し、Routerテストは認証確認完了時の切替を検証する。browser-test対象Storyと設定は変更していないため専用suiteは対象外。実描画はChromiumのみでFirefox/Safariは未確認。",
+  "summary": "必須Web4検証とbuildが成功。最新添付GIFを192px・16フレーム・1.6秒の約202KBへ軽量化し、同じ素材の先頭フレームPNGを生成。Animated Storyの実描画で96pxの再生とフレーム差、静止設定の初期値・途中変更でPNG選択と画素不変、解除でGIF選択、Defaultで従来の32pxアイコンを確認。Routerの既存状態遷移テストも成功。独自SVG・変形helperの参照は残らない。browser-test対象Storyの通常分岐と設定に影響しないため専用suiteは対象外。実描画はChromiumのみ、実OAuthと本番配信は対象外。",
   "remaining": []
 }
