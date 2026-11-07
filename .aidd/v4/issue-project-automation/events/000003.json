@@ -1,0 +1,36 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "Codex chat: Issue作成時のProject AutomationをGitHub Actionsで自動設定する依頼（2026-11-06）",
+  "paths": [
+    ".github/workflows/issue_project_automation.yaml",
+    ".github/workflows/github_actions_security.yaml",
+    "tools/github-actions/issue-project-automation.test.mjs",
+    "docs/harness/policies/github-issue-workflow.md"
+  ],
+  "fingerprint": "3a5d201298f6f90553d74c7039f224d885b065bb03e5522b83ad03a812a91383",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "policy.audit",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.github-issue-workflow",
+    "policy.issue-template-selection",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries",
+    "イベントからProject更新・再取得までの接続",
+    "Secret保護・既存手順との併存・再実行"
+  ],
+  "summary": "実差分レビューで指摘と未解決の規則競合なし。Issue作成から登録・未設定時の更新・再取得への接続、Disabled保持、失敗時の再実行を照合。API mock15ケースと実read queryを根拠とし、実Actions更新は未確認。既存正本の所有・agent手順・rule-mapの選択契約は変更せず、Actions運用説明のみ追加したためモデルeval対象外。運用開始には専用Secret登録とmergeが必要。",
+  "remaining": []
+}

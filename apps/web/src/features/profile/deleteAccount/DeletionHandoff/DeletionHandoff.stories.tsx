@@ -18,7 +18,6 @@ const onSignedOut: () => void = fn()
 const meta = {
   title: "Features/Profile/DeletionHandoff",
   component: DeletionHandoff,
-  tags: ["autodocs"],
   args: { authUserId: deletionAuthUserId, initialState: null, onSignedOut },
   beforeEach: () => {
     const previousReceipt = localStorage.getItem(deletionReceiptKey)

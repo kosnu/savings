@@ -11,7 +11,6 @@ const monthlyBudget = { ...monthlyBudgets[2], amount: 30000 }
 const meta = {
   title: "Features/Budgets/Components/MonthlyBudgetUsage",
   component: MonthlyBudgetUsage,
-  tags: ["autodocs"],
   parameters: {
     msw: {
       handlers: createMonthlyBudgetHandlers({

@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "Codex chat: Issue作成時のProject AutomationをGitHub Actionsで自動設定する依頼（2026-11-06）",
+  "paths": [
+    ".github/workflows/issue_project_automation.yaml",
+    ".github/workflows/github_actions_security.yaml",
+    "tools/github-actions/issue-project-automation.test.mjs",
+    "docs/harness/policies/github-issue-workflow.md"
+  ],
+  "fingerprint": "3a5d201298f6f90553d74c7039f224d885b065bb03e5522b83ad03a812a91383",
+  "status": "pass",
+  "checks": [
+    "Workflow実scriptのAPI mock分岐15ケース",
+    "actionlint",
+    "zizmor offline",
+    "変更4ファイルのformat-check",
+    "git diff --check",
+    "Core check-changes"
+  ],
+  "summary": "ローカル検証はすべて成功。API mockで未設定更新・既存値保持・取得失敗・反映不一致を確認し、実Projectのfield定義とread queryも取得した。Secret未登録・未mergeのため実Actionsからの更新は未確認。アプリ変更とagent判断手順変更がないためWeb検証とモデルevalは対象外。",
+  "remaining": []
+}

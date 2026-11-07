@@ -9,7 +9,6 @@ import { SessionError } from "./SessionError"
 const meta = {
   title: "App/SessionError",
   component: SessionError,
-  tags: ["autodocs"],
   args: { onRetry: fn() },
   beforeEach: () => {
     const signIn = spyOn(getLoginAuth(), "signInWithOAuth").mockResolvedValue({

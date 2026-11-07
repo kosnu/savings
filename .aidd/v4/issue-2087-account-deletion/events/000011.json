@@ -21,7 +21,7 @@
     "docs/design/account-deletion.md",
     "tools/supabase-check/"
   ],
-  "fingerprint": "fae7c8cccf2cc0ba1815222db000d5e73105e57022163c089ddd03ada1d33c6a",
+  "fingerprint": "ff6cf9129286cc9f2473f617b53a72b1a53e32f0631172edb8cd3bc5ccf67a78",
   "status": "pass",
   "checks": [
     "ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview",
@@ -36,7 +36,8 @@
     "policy.query-performance, web.msw-handlers",
     "Issue #2087と項目1–3・5、Settings/AuthPage/SessionError/Sidebarとの比較、日英Privacyと確定前の見込時刻",
     "実Router/Providerの正常・応答喪失、本人の期限内のみ通常PKCEログインで復帰、旧callback・別人・期限後・他端末の自動logout",
-    "非superuserの明示SET権限・環境共通の2ジョブ・匿名/一般roleの管理権限なし、隔離DBで実SQLと確認"
+    "非superuserの明示SET権限・環境共通の2ジョブ・匿名/一般roleの管理権限なし、隔離DBで実SQLと確認",
+    "最新mainとの統合でINITIAL_SESSIONのnull・起動時通信失敗からの復帰、PKCE/受付・Storyタグを双方保持"
   ],
   "summary": "プロフィールに表示名、アカウントに登録メールと削除を配置。確定後は保護データを隠し、既存Snackbarで受付通知、通常トップと通常ログインへ戻す。失敗時のみCalloutで再試行。新旧のPKCEコードを照合し、古い戻りで現sessionや元の予約を変更しない。API権限・Go検証とIssue・設計の対応を確認。規則矛盾・未対処のコード指摘なし。実Google往復、定時Cronの自動起動、Hostedの容量・backup復元は未確認でIssueに残す。",
   "remaining": []

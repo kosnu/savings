@@ -15,7 +15,6 @@ const meta: Meta<typeof Sidebar> = {
   parameters: {
     layout: "fullscreen",
   },
-  tags: ["autodocs"],
   decorators: [createStoryRouter("/")],
   argTypes: {
     open: { control: "boolean" },

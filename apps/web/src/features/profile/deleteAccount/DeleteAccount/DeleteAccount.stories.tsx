@@ -16,7 +16,6 @@ import { DeleteAccount } from "./DeleteAccount"
 const meta = {
   title: "Features/Profile/DeleteAccount",
   component: DeleteAccount,
-  tags: ["autodocs"],
 } satisfies Meta<typeof DeleteAccount>
 export default meta
 type Story = StoryObj<typeof meta>

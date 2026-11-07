@@ -11,7 +11,6 @@ const meta = {
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
   argTypes: {},
   args: {
     open: true,

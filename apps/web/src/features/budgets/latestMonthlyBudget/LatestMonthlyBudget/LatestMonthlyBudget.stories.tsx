@@ -19,7 +19,6 @@ const meta = {
       ],
     },
   },
-  tags: ["autodocs"],
   decorators: (Story) => {
     const queryClient = createQueryClient()
 

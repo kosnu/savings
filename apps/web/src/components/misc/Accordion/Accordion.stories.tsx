@@ -6,7 +6,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./
 const meta = {
   title: "Components/Misc/Accordion",
   component: Accordion,
-  tags: ["autodocs"],
   decorators: [
     (Story) => (
       <Card style={{ maxWidth: 320 }}>

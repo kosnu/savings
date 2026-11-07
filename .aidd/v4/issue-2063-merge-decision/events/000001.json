@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2063",
+  "paths": [
+    "docs/harness/policies/git-workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "e9eb272a5ead1fce20994325f12b79016bd02fc34c89c8db006cc00f0beda910",
+  "status": "pass",
+  "checks": [
+    "Issue完了条件と担当範囲の照合",
+    "正本・索引・事例の責務確認"
+  ],
+  "summary": "最新main 895ab87cをbaselineとする新Task。Git Workflowにマージ判断と結果報告を集約し、意味レビュー事例で成功・拒否・未確認を照合する。既存docs経路から正本へ到達し、索引・実装・eval採点の変更は不要。実PR操作・設定変更・追加LLM採点は対象外。",
+  "remaining": []
+}

@@ -9,7 +9,6 @@ import { Header } from "./Header"
 const meta = {
   title: "App/Header",
   component: Header,
-  tags: ["autodocs"],
   decorators: [createStoryRouter("/")],
 } satisfies Meta<typeof Header>
 

@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザー依頼: storybookのdocsを消して",
+  "paths": [
+    "apps/web/.storybook/",
+    "apps/web/.storybook-test/",
+    "apps/web/src/",
+    "apps/web/package.json",
+    "apps/web/docs/policies/storybook-browser-tests.md",
+    "pnpm-lock.yaml"
+  ],
+  "fingerprint": "5800da40089b360b6a93a1e3d7d6bec894d2f7cf63cf42807160c879ba9887e3",
+  "status": "pass",
+  "checks": [
+    "Docs設定・依存・全Storyタグの同期",
+    "browser-test対象保持"
+  ],
+  "summary": "会話をIntentとする新Task。origin/mainを基準にDocs addon、autodocs、Docs専用パラメータとMDX globのみ削除し、カタログ・browser-testを保持する。",
+  "remaining": []
+}

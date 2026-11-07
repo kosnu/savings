@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js"
+import { type AuthChangeEvent, createClient, type SupabaseClient } from "@supabase/supabase-js"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { http, HttpResponse } from "msw"
 import { afterEach, expect, test, vi } from "vite-plus/test"
@@ -9,7 +9,7 @@ import { completeExplicitLogin, getLoginAuth, startExplicitLogin } from "../../l
 import { mockSession } from "../../test/data/supabaseSession"
 import { deletionRequestId } from "../../test/msw/handlers/accountDeletion"
 import { server } from "../../test/msw/server"
-import { createTestQueryClient, render, screen } from "../../test/test-utils"
+import { act, createTestQueryClient, render, screen, waitFor } from "../../test/test-utils"
 import { SnackbarProvider } from "../snackbar/SnackbarProvider"
 import { ThemeProvider } from "../theme/ThemeProvider"
 import { SupabaseSessionProvider } from "./SupabaseSessionProvider"
@@ -33,7 +33,15 @@ function setup({
   expireDuringRequest = false,
   invalidSession = false,
   deletion,
-}: { expireDuringRequest?: boolean; invalidSession?: boolean; deletion?: MyDeletionState } = {}) {
+  expiredAtStartup = false,
+  withoutSession = false,
+}: {
+  expireDuringRequest?: boolean
+  invalidSession?: boolean
+  deletion?: MyDeletionState
+  expiredAtStartup?: boolean
+  withoutSession?: boolean
+} = {}) {
   const storageKey = `session-recovery-${crypto.randomUUID()}`
   let now = Date.now()
   const startingTime = now
@@ -45,11 +53,11 @@ function setup({
     user: mockSession().user,
     deletion: deletion ?? { status: "active" as const },
   }
-  const session = () =>
+  const session = (expiresIn = 3600) =>
     mockSession({
       user: connection.user,
-      access_token: `${encode({ alg: "HS256", typ: "JWT" })}.${encode({ sub: connection.user.id, exp: Math.floor(now / 1000) + 3600 })}.dGVzdA`,
-      expires_at: Math.floor(now / 1000) + 3600,
+      access_token: `${encode({ alg: "HS256", typ: "JWT" })}.${encode({ sub: connection.user.id, exp: Math.floor(now / 1000) + expiresIn })}.dGVzdA`,
+      expires_at: Math.floor(now / 1000) + expiresIn,
     })
   const verifiers = new Map<string, string>()
   const login = async () => {
@@ -85,7 +93,8 @@ function setup({
     http.get("*/auth/v1/user", () => HttpResponse.json(session().user)),
     http.post("*/auth/v1/logout", () => new HttpResponse(null, { status: 204 })),
   )
-  const storage = new Map([[storageKey, JSON.stringify(session())]])
+  const savedSession = session(expiredAtStartup ? -60 : 3600)
+  const storage = new Map(withoutSession ? [] : [[storageKey, JSON.stringify(savedSession)]])
   vi.spyOn(Date, "now").mockImplementation(() => now)
   client.current = createClient("https://auth.test.invalid", "synthetic-publishable-key", {
     auth: {
@@ -144,6 +153,12 @@ function setup({
       },
     },
   })
+  const events: { event: AuthChangeEvent; hasSession: boolean }[] = []
+  const {
+    data: { subscription },
+  } = client.current.auth.onAuthStateChange((event, notifiedSession) => {
+    events.push({ event, hasSession: notifiedSession !== null })
+  })
   const mountProvider = () =>
     render(
       <QueryClientProvider client={createTestQueryClient()}>
@@ -157,14 +172,20 @@ function setup({
       </QueryClientProvider>,
       { withProviders: false },
     )
+  const rendered = mountProvider()
   return {
-    ...mountProvider(),
+    ...rendered,
     mountProvider,
     auth: client.current.auth,
     login,
     connection,
     storage,
     storageKey,
+    events,
+    unmount: () => {
+      rendered.unmount()
+      subscription.unsubscribe()
+    },
     reconnect: () => {
       connection.offline = false
       // SDKが更新失敗を保持するcooldown後の、復旧した接続での再試行。
@@ -201,6 +222,49 @@ test.each([false, true])(
     p.unmount()
   },
 )
+
+test.each(["retry", "automatic"])(
+  "起動時期限切れの更新失敗でも説明を残し、通信復旧後に%sで認証へ戻る",
+  async (recovery) => {
+    const p = setup({ expiredAtStartup: true })
+    await waitFor(() =>
+      expect(p.events).toContainEqual({ event: "INITIAL_SESSION", hasSession: false }),
+    )
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Check your connection and try again.",
+    )
+    expect(screen.getByRole("button", { name: "Try again" })).toBeEnabled()
+    expect(screen.queryByText("Public home")).not.toBeInTheDocument()
+    expect(p.storage.has(p.storageKey)).toBe(true)
+    expect(p.connection.requests).toContain("/auth/v1/token")
+    expect(p.connection.requests.some((path) => path.endsWith("/logout"))).toBe(false)
+    p.reconnect()
+    if (recovery === "retry") {
+      await p.user.click(screen.getByRole("button", { name: "Try again" }))
+    } else {
+      // 前景への復帰によるSDK自身の更新を通し、Providerのretryは呼ばない。
+      vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible")
+      act(() => window.dispatchEvent(new Event("visibilitychange")))
+    }
+    expect(await screen.findByText("Authenticated content")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    expect(p.events).toContainEqual({ event: "TOKEN_REFRESHED", hasSession: true })
+    expect(p.connection.requests).toContain("/rest/v1/rpc/ensure_authenticated_user")
+    expect(p.connection.requests).toContain("/rest/v1/users")
+    p.unmount()
+  },
+)
+
+test("保存済みsessionのない正常起動はエラーを表示せず未ログインになる", async () => {
+  const p = setup({ withoutSession: true })
+  expect(await screen.findByText("Public home")).toBeInTheDocument()
+  await waitFor(() =>
+    expect(p.events).toContainEqual({ event: "INITIAL_SESSION", hasSession: false }),
+  )
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+  expect(p.connection.requests).toEqual([])
+  p.unmount()
+})
 
 test("無効な認証情報は認証済み画面へ進めず、再認証の理由とログイン操作を表示する", async () => {
   const p = setup({ invalidSession: true })

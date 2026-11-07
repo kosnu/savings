@@ -16,7 +16,6 @@ const meta = {
       handlers: createCategorySettingsHandlers(),
     },
   },
-  tags: ["autodocs"],
   args: {
     onCancel: fn(),
     onSuccess: fn(),

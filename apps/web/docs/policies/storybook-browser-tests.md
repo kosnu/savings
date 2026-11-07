@@ -59,7 +59,7 @@ Storybook test project の収集範囲は、Story の責務を Page へ移す理
 const meta = {
   title: "Pages/ExamplePage",
   component: ExamplePage,
-  tags: ["autodocs", "browser-test"],
+  tags: ["browser-test"],
 } satisfies Meta<typeof ExamplePage>
 ```
 

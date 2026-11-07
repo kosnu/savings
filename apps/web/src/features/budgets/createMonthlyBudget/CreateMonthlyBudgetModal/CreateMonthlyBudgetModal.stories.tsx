@@ -11,7 +11,6 @@ const meta = {
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
   argTypes: {},
   decorators: (Story) => {
     const queryClient = createQueryClient()

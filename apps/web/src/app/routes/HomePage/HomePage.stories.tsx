@@ -24,7 +24,7 @@ import { HomePage } from "./HomePage"
 const meta = {
   title: "Pages/HomePage",
   component: HomePage,
-  tags: ["autodocs", "browser-test"],
+  tags: ["browser-test"],
   decorators: [
     createStoryRouter("/?year=2025&month=6", (root, Story) => {
       const home = createRoute({

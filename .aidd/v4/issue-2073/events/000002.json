@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2073",
+  "paths": [
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.integration.test.tsx"
+  ],
+  "fingerprint": "3719afb84d14be397a07c78f508fac8c2be555f4e31edebe2829877746eb5317",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration",
+    "git diff --check",
+    "Core check-changes"
+  ],
+  "summary": "lint・整形・型検査成功。最終の全体テストは158ファイル1104件成功。実SDK・合成通信で起動時期限切れの説明と手動/自動復帰、正常なsessionなしを確認。途中の全体実行でProviderを通らない既存5ファイル10件が取得待ちで失敗し、同じテスト・待機時間の再実行は全件成功（DOM診断出力のみ短縮）。 本番試験・実OAuth往復は対象外、頻度は未測定。",
+  "remaining": []
+}

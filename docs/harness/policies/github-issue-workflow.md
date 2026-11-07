@@ -16,7 +16,7 @@ when_to_read:
 
 # GitHub Issue Workflow
 
-このリポジトリでagentがIssueを作成するときのプロジェクト登録と初期値を定める。
+このリポジトリのIssue作成時のプロジェクト登録と初期値を定める。
 テンプレートは[Issue Template Selection](issue-template-selection.md)、本文は[Intentの記述](../../ai-driven-development/issue-guidelines.md)に従う。
 Issue作成の承認条件は、利用する作成手順に従う。
 
@@ -40,4 +40,18 @@ Issue作成とプロジェクトへの追加後、次の処理を行う。
 item・field・optionが見つからない、アクセスできない、反映を確認できない場合は、作成済みIssueのURLと初期値設定が未完了であることを報告する。
 Issueを重複作成したり、fieldやoptionを新設したりしない。
 
-このルールは新規Issue作成時に適用する。既存Issueの一括更新やGitHub画面からの作成を含む自動化は、このルールの対象に含めない。
+上記はagentが新規Issueを作成するときの手順であり、既存Issueの一括更新は対象に含めない。
+
+## GitHub Actionsによる自動設定
+
+[Initialize issue project automation](../../../.github/workflows/issue_project_automation.yaml)は、`kosnu/savings` の `issues.opened` で起動する。GitHub画面・CLIなどの作成経路を問わず、新規Issueをsavingsプロジェクトへ追加し、`Automation` が未設定の場合だけ `Enabled` にする。設定済みの値は保持し、更新後は再取得して反映を確認する。登録済みitemは再利用するため、agentの手順やProjectの自動追加と併存できる。
+
+利用開始には、次の設定が必要になる。
+
+1. Projectへアクセスできるアカウントで、`project` scopeを持つpersonal access token (classic)を作成する。非公開リポジトリのIssueにアクセスする場合は `repo` scopeも付ける。
+2. `kosnu/savings` のRepository Actions Secretへ `PROJECT_AUTOMATION_TOKEN` として登録する。既定の `GITHUB_TOKEN` はユーザー所有のProjectへアクセスできない。
+3. Workflowをデフォルトブランチへmergeした後、新規IssueのActions runとProjectの `Automation` を確認する。
+
+Secret不足、Project・field・optionの欠落、API失敗、反映確認の失敗はrunを失敗にする。原因を解消した後は該当runを再実行する。既存Issueの一括更新は行わない。`GITHUB_TOKEN` によるIssue作成では後続のActionsイベントが起動しないため、その経路では上記agent手順などで設定する。
+
+認証と起動条件はGitHub公式の[ProjectsのActions自動化](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/automating-projects-using-actions)と[イベントの再帰起動制限](https://docs.github.com/en/actions/how-tos/writing-workflows/choosing-when-your-workflow-runs/triggering-a-workflow#triggering-a-workflow-from-a-workflow)に従う。

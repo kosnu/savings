@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "codex://threads/01a1b1e0-c472-7662-928f-de9b0922fef3",
+  "paths": [
+    ".github/agents/fe-engineer.agent.md",
+    ".github/agents/be-engineer.agent.md",
+    ".codex/agents/context-scout.toml",
+    ".codex/config.toml",
+    ".agents/skills/context-scout/SKILL.md",
+    ".agents/skills/context-scout/agents/openai.yaml"
+  ],
+  "fingerprint": "8ab236e0bd66840eae712b5690ba8b51fa889a5cf337317b45f590fd3f3da7d2",
+  "status": "pass",
+  "checks": [
+    "削除対象と登録・参照経路の確認",
+    "共通の委任規則と権限制御の維持"
+  ],
+  "summary": "未使用FE/BE定義とcontext-scout定義・Skill・登録のみを削除する。共通方針、sandbox、承認設定、履歴は保持。",
+  "remaining": []
+}

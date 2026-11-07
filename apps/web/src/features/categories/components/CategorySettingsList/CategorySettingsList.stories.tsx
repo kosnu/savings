@@ -7,7 +7,6 @@ import { CategorySettingsList } from "./CategorySettingsList"
 const meta = {
   title: "Features/Categories/Components/CategorySettingsList",
   component: CategorySettingsList,
-  tags: ["autodocs"],
   parameters: {
     msw: {
       handlers: createCategorySettingsHandlers(),

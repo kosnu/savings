@@ -278,6 +278,9 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     } = supabase.auth.onAuthStateChange((event, session) => {
       // 通常ログインの検証中は既存sessionも新規sessionもアプリへ公開しない。
       if (verifyingCallback) return
+      // 初期通知のnullは取得失敗でも届くため、未ログインの確定はgetSessionに任せる。
+      if (event === "INITIAL_SESSION" && !session) return
+
       sessionGenerationRef.current += 1
       // 検証中にSDKが無効なsessionを破棄した場合も、再認証の理由を残す。
       if (

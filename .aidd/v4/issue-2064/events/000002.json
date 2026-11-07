@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2064",
+  "paths": [
+    "docs/ai-driven-development/agent-evals.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "fd05eece0350f0a6c945c1237566e2ef997c8ed46fbbb04999bbdcab6a21fd26",
+  "status": "pass",
+  "checks": [
+    "関連Go回帰7テスト",
+    "evals vet",
+    "文書fmt/lint",
+    "両事例の全文保持と追加参照8件",
+    "Git空白・規約graph検査"
+  ],
+  "summary": "main取込後に関連7テスト・vet・文書検査が成功。解消結果はmain全文に元の採点定義事例だけを追加した内容と一致。eval正本は元headと同一。PR固有のWeb/API変更はなくアプリ検証は対象外。実モデル課題・採点定義は不変で実モデル再比較は対象外。",
+  "remaining": []
+}

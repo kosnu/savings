@@ -52,7 +52,6 @@ const meta = {
       handlers: createPaymentHandlers({ get: { response: candidateRows } }),
     },
   },
-  tags: ["autodocs"],
   args: {
     bookId: 1,
     onSelect,

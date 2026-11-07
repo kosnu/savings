@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/2090 と Codex会話のAudit修正案に対する『Approve』",
+  "paths": [
+    "AGENTS.md",
+    ".github/workflows/issue_project_automation.yaml",
+    "tools/github-actions/issue-project-automation.cjs",
+    "tools/github-actions/issue-project-automation.test.mjs"
+  ],
+  "fingerprint": "1f101d58e8193c9c49fb0b157d57783f7832acddcf9810ecd51ab3c0da0d3b66",
+  "status": "pass",
+  "checks": [
+    "直接importのAPI mock・接続・Secret不足17ケース",
+    "actionlint・zizmor offline",
+    "vp check（変更4ファイル）",
+    "Core verify・check-changes・rules・git diff --check",
+    "YAML解析による複数行コードなし・checkout順序の照合",
+    "行動eval fix: 同一条件で変更前後各2試行pass"
+  ],
+  "summary": "通常検証は全成功。テストrunのasync指定不足を修正して再検証済み。eval初回はsandbox起動不可、昇格後の設定モデルは利用不可だったが、利用可能一覧のgpt-5.6-sol・high・180秒・2並列へ前後をそろえ各2試行pass、悪化なし。evalは小修正の完遂まででYAML配置の保証は構造照合と直接importテストが担う。実Actions更新はSecret未登録・未mergeで未確認。Web/API変更はなくアプリ検証対象外。",
+  "remaining": []
+}

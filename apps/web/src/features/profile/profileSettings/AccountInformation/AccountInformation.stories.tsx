@@ -21,7 +21,6 @@ function createProfileStoryParameters(options?: Parameters<typeof createProfileH
 const meta = {
   title: "Features/Profile/ProfileSettings/AccountInformation",
   component: AccountInformation,
-  tags: ["autodocs"],
   args: { section: "profile" },
   decorators: [
     (Story) => {

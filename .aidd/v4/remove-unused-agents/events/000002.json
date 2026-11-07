@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "codex://threads/01a1b1e0-c472-7662-928f-de9b0922fef3",
+  "paths": [
+    ".github/agents/fe-engineer.agent.md",
+    ".github/agents/be-engineer.agent.md",
+    ".codex/agents/context-scout.toml",
+    ".codex/config.toml",
+    ".agents/skills/context-scout/SKILL.md",
+    ".agents/skills/context-scout/agents/openai.yaml"
+  ],
+  "fingerprint": "8ab236e0bd66840eae712b5690ba8b51fa889a5cf337317b45f590fd3f3da7d2",
+  "status": "pass",
+  "checks": [
+    "TOML構文と既存設定の保持",
+    "削除対象の不在と残存参照ゼロ",
+    "Core rulesと差分規約の解決",
+    "git diff --check"
+  ],
+  "summary": "対象5ファイルと登録を削除し、既存権限制御と共通委任規則を維持。アプリ検証は対象外。現行evalはsubagent無効・専用設定を取り込まないため対象ケースなし。",
+  "remaining": []
+}

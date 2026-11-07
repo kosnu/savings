@@ -21,14 +21,14 @@
     "docs/design/account-deletion.md",
     "tools/supabase-check/"
   ],
-  "fingerprint": "fae7c8cccf2cc0ba1815222db000d5e73105e57022163c089ddd03ada1d33c6a",
+  "fingerprint": "ff6cf9129286cc9f2473f617b53a72b1a53e32f0631172edb8cd3bc5ccf67a78",
   "status": "pass",
   "checks": [
-    "Web lint/format-check/typecheck、unit/integration 162ファイル1129件、Storybook 8ファイル33件",
+    "最新mainのlockfileを適用し、Web lint/format-check/typecheck、unit/integration全件、Storybook 8ファイル33件が成功。認証Providerの統合と単体39件も成功",
     "実Router/Provider/SDK：受付成功と応答喪失→同じ予約の再確認→自動logout→通常PKCEログインで本人復帰。照会・logout失敗の再試行、期限/別人/再利用の拒否",
     "Go test/vet、隔離Supabaseの全migration・pgTAP 542件・Auth/REST/旧JWT・削除競合・timeout復旧、非superuserで実際の両Cron本文を実行",
     "Core検証7項目・差分内容安定、文書整形/リンク・HTML構文",
-    "Burneto Devで削除/保守ジョブ有効、両実行者のSET権限と新規受付停止を確認"
+    "Burneto Devで削除/保守ジョブ有効、各実行者のSET権限と、受付有効化後のaccepting_requests=trueを照合"
   ],
   "summary": "承認したUI・認証とCron権限の変更を検証。通常ログインの認証戻り先は /auth のみ、コード交換と受付照会は実SDKと模擬サーバーで確認。Go/DBは隔離環境の合成データを使用。 Hostedで実Googleアカウントの認証往復、定時枠でのCron起動、実規模処理容量と実backup復旧は未確認。",
   "remaining": []

@@ -13,7 +13,6 @@ const meta = {
       handlers: categoryHandlers,
     },
   },
-  tags: ["autodocs"],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof CategoryField>

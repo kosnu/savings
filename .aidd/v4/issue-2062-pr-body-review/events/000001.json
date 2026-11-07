@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2062",
+  "paths": [
+    "docs/harness/policies/git-workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "1bde1f0fc6157832afab4e69dea652fc63be38cebe26da2f1189381093c1a47a",
+  "status": "pass",
+  "checks": [
+    "Issue scope and baseline",
+    "PR template and routing"
+  ],
+  "summary": "基準895ab87cから新規Task。PR本文の情報選択・再構成・確認基準をGit Workflowが所有し、意味レビューに適合・過多・過少の対照例を追加。索引の所有と適用経路は不変。",
+  "remaining": []
+}

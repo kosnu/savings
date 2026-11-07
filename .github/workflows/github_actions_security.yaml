@@ -7,10 +7,12 @@ on:
     paths:
       - ".github/workflows/**"
       - ".github/actions/**"
+      - "tools/github-actions/**"
   pull_request:
     paths:
       - ".github/workflows/**"
       - ".github/actions/**"
+      - "tools/github-actions/**"
     types: [opened, synchronize]
 
 permissions: {}
@@ -31,3 +33,6 @@ jobs:
         uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
         with:
           advanced-security: false
+
+      - name: Test issue project automation
+        run: node --test tools/github-actions/issue-project-automation.test.mjs

@@ -13,11 +13,12 @@
     "docs/design/account-deletion.html",
     "docs/design/account-deletion-implementation-issue.md"
   ],
-  "fingerprint": "fae7c8cccf2cc0ba1815222db000d5e73105e57022163c089ddd03ada1d33c6a",
+  "fingerprint": "ff6cf9129286cc9f2473f617b53a72b1a53e32f0631172edb8cd3bc5ccf67a78",
   "status": "pass",
   "checks": [
     "Issue #2087、PR #2093 dc69e5e8、2026-11-07のAudit項目1〜3および項目4を撤回して置き換えた5へのユーザー承認",
-    "プロフィール/identity属性、既存Settings・認証境界、Hostedの非superuser実行者、Dev限定のWeb配信範囲"
+    "プロフィール/identity属性、既存Settings・認証境界、Hostedの非superuser実行者、Dev限定のWeb配信範囲",
+    "最新mainの起動時session取得失敗の再試行とStorybookタグ変更を保った統合"
   ],
   "summary": "プロフィールは表示名、アカウントは登録メール・削除に整理し、日英の利用者向けUIを認証方法から独立させる。受付を一度通知してログアウトし、通常トップへ戻る。応答不明は同じ受付で照会し、失敗した操作だけ再試行する。復帰は期限内の本人の通常ログインとし、専用状況画面・専用認証戻り先を廃止。通常の /auth でPKCEを用いて新旧callbackを区別する。共通のCron登録SQLで実行者のSET権限と両ジョブの実行を検証する。",
   "remaining": []

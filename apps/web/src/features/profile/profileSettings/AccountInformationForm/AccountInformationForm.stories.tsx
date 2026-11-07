@@ -9,7 +9,6 @@ import { AccountInformationForm } from "./AccountInformationForm"
 const meta = {
   title: "Features/Profile/ProfileSettings/AccountInformationForm",
   component: AccountInformationForm,
-  tags: ["autodocs"],
   args: {
     displayName: "Test User",
     isPending: false,

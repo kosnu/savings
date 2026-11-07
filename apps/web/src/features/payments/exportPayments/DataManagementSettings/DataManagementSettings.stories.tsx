@@ -5,7 +5,6 @@ import { DataManagementSettings } from "./DataManagementSettings"
 const meta = {
   title: "Features/Payments/DataManagementSettings",
   component: DataManagementSettings,
-  tags: ["autodocs"],
 } satisfies Meta<typeof DataManagementSettings>
 
 export default meta

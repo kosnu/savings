@@ -7,7 +7,6 @@ import { AccountSettings } from "./AccountSettings"
 const meta = {
   title: "Features/Profile/AccountSettings",
   component: AccountSettings,
-  tags: ["autodocs"],
 } satisfies Meta<typeof AccountSettings>
 
 export default meta

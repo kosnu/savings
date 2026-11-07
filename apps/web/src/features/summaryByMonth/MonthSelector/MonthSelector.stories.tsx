@@ -10,7 +10,6 @@ const meta = {
     layout: "centered",
     mockingDate: new Date(2025, 4, 15),
   },
-  tags: ["autodocs"],
 } satisfies Meta<typeof MonthSelector>
 
 export default meta

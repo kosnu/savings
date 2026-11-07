@@ -19,7 +19,6 @@ const meta = {
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
   args: {
     bookId: 1,
     open: true,

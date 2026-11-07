@@ -21,7 +21,6 @@ function createProfileStoryParameters(options?: Parameters<typeof createProfileH
 const meta = {
   title: "Features/Profile/ProfileSettings/ProfileSettings",
   component: ProfileSettings,
-  tags: ["autodocs"],
   decorators: [
     (Story) => {
       const queryClient = createQueryClient({
