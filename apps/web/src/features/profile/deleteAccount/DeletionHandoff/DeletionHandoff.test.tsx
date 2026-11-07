@@ -9,7 +9,8 @@ import * as snackbar from "../../../../providers/snackbar/SnackbarProvider"
 import { mockSession } from "../../../../test/data/supabaseSession"
 import { deletionAuthUserId, deletionTimes } from "../../../../test/msw/handlers/accountDeletion"
 import { server } from "../../../../test/msw/server"
-import { render, screen, waitFor } from "../../../../test/test-utils"
+import { act, render, screen, waitFor } from "../../../../test/test-utils"
+import { createDeferred } from "../../../../test/utils/createDeferred"
 import * as stories from "./DeletionHandoff.stories"
 
 const { Accepted, OtherDevice } = composeStories(stories)
@@ -58,6 +59,38 @@ test("受付後に別人のセッションへ切り替わっていても、そ�
   render(<Accepted submission={submission()} />)
   await waitFor(() => expect(getSession).toHaveBeenCalled())
   expect(signOut).not.toHaveBeenCalled()
+})
+
+test("本人切替後に届いた古いセッション照合結果で通知・ログアウトしない", async () => {
+  const { getSession, signOut } = mockAuth()
+  const first = createDeferred<Awaited<ReturnType<typeof auth.getSession>>>()
+  getSession.mockImplementationOnce(async () => first.promise)
+  const onFirstSignedOut = vi.fn()
+  const onNextSignedOut = vi.fn()
+  const { rerender } = render(<Accepted submission={submission()} onSignedOut={onFirstSignedOut} />)
+  await waitFor(() => expect(getSession).toHaveBeenCalledOnce())
+
+  const nextSession = mockSession()
+  nextSession.user.id = "20870000-0000-4000-8000-000000000099"
+  getSession.mockResolvedValue({ data: { session: nextSession }, error: null })
+  rerender(
+    <Accepted
+      authUserId={nextSession.user.id}
+      submission={undefined}
+      onSignedOut={onNextSignedOut}
+    />,
+  )
+  await waitFor(() => expect(onNextSignedOut).toHaveBeenCalledOnce())
+
+  const firstSession = mockSession()
+  firstSession.user.id = deletionAuthUserId
+  await act(async () => {
+    first.resolve({ data: { session: firstSession }, error: null })
+    await first.promise
+  })
+  expect(signOut).toHaveBeenCalledExactlyOnceWith({ scope: "local" })
+  expect(onFirstSignedOut).not.toHaveBeenCalled()
+  expect(screen.queryByText(notification)).not.toBeInTheDocument()
 })
 
 test.each([false, true])(

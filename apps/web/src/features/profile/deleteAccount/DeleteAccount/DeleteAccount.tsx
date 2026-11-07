@@ -3,48 +3,15 @@ import { Button, Callout, Dialog, Flex, Heading, Skeleton, Text } from "@radix-u
 import { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { prepareAccountDeletion, type DeletionPreview } from "../../../../lib/accountDeletion"
-import { useSupabaseSession } from "../../../../providers/supabase/useSupabaseSession"
 import { deletionTime } from "../deletionTime"
+import { useDeleteAccount } from "../useDeleteAccount"
 
 export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "h3" }) {
   const { t, i18n } = useTranslation()
-  const auth = useSupabaseSession()
+  const { preview, error, isPreparing, isSubmitting, prepare, cancelPreparation, confirm } =
+    useDeleteAccount()
   const [open, setOpen] = useState(false)
-  const [preview, setPreview] = useState<DeletionPreview | null>(null)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState(false)
   const cancelRef = useRef<HTMLButtonElement>(null)
-  const loadAttempt = useRef(0)
-  const isPreparing = busy && preview === null
-  const isSubmitting = busy && preview !== null
-
-  // 確認画面を開くたび説明を取得し、通常データのquery cacheへ残さない。
-  const load = async () => {
-    const attempt = ++loadAttempt.current
-    setBusy(true)
-    setError(false)
-    setPreview(null)
-    try {
-      const result = await prepareAccountDeletion()
-      if (attempt === loadAttempt.current) setPreview(result)
-    } catch {
-      if (attempt === loadAttempt.current) setError(true)
-    } finally {
-      if (attempt === loadAttempt.current) setBusy(false)
-    }
-  }
-  const confirm = () => {
-    if (!preview || !preview.accepting_requests || busy || auth.status !== "authenticated") return
-    setBusy(true)
-    setError(false)
-    try {
-      auth.startAccountDeletion(preview)
-    } catch {
-      setError(true)
-      setBusy(false)
-    }
-  }
 
   return (
     <Flex direction="column" gap="3">
@@ -59,8 +26,8 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
         onOpenChange={(value) => {
           if (isSubmitting) return
           setOpen(value)
-          if (value) void load()
-          else loadAttempt.current += 1
+          if (value) void prepare()
+          else cancelPreparation()
         }}
       >
         <Dialog.Trigger>
@@ -145,7 +112,7 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
                   variant="soft"
                   disabled={isPreparing || isSubmitting}
                   onClick={() => {
-                    void load()
+                    void prepare()
                   }}
                 >
                   {t("common.retry")}
@@ -158,9 +125,7 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
                   variant="solid"
                   disabled={!preview.accepting_requests || isSubmitting}
                   loading={isSubmitting}
-                  onClick={() => {
-                    confirm()
-                  }}
+                  onClick={confirm}
                 >
                   {t("deletion.confirm")}
                 </Button>

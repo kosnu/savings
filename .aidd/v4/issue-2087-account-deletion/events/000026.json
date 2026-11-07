@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000025.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/features/profile/deleteAccount/"
+  ],
+  "fingerprint": "7020438b7184b9005928caf29a19cc2786a661f51dddaf8001554f84925a5182",
+  "status": "pass",
+  "checks": [
+    "Web lint・format-check・typecheckが成功",
+    "Web単体/結合161ファイル1149件が成功",
+    "本人切替後の古いsession照合が通知・logoutを起こさない回帰テストを追加して成功",
+    "既存Story/API境界の通信断・明示拒否・必要操作だけの再試行・通知1回・旧説明応答・取消focusを確認",
+    "Storybook browser-test対象story・共有provider・設定への動作変更はなく、browser suite対象外",
+    "初回の既存PaymentDateField終了後に未処理errorが1件。同一差分の全件再実行は正常終了",
+    "git diff whitespaceとCore change coverageが成功。API/Goソースは60aba70aと同一"
+  ],
+  "summary": "承認No.13・14の専用hook分離後にWeb既定検証が成功。再試行は同じ操作だけを直接実行し、本人照合・旧応答破棄・通知1回とページ内受付を維持。既存日付編集の終了後errorはコードを変えず再実行して解消。実Google認証とHostedの定時Cron・容量・実backup復旧は未確認。",
+  "remaining": []
+}
