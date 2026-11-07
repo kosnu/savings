@@ -1,8 +1,9 @@
-import { Flex, Spinner, Text } from "@radix-ui/themes"
+import { Flex, Text } from "@radix-ui/themes"
 import { RouterProvider } from "@tanstack/react-router"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
+import { Logo } from "../components/misc/Logo"
 import { useSupabaseSession } from "../providers/supabase/useSupabaseSession"
 import { router } from "./routes"
 import { SessionError } from "./SessionError"
@@ -48,11 +49,13 @@ function AuthLoadingScreen() {
   const { t } = useTranslation()
 
   return (
-    <Flex align="center" direction="column" gap="3" justify="center" minHeight="100vh">
-      <Spinner size="3" />
-      <Text color="gray" size="2">
-        {t("auth.loading")}
-      </Text>
+    <Flex align="center" direction="column" gap="3" justify="center" minHeight="100vh" asChild>
+      <output aria-live="polite">
+        <Logo width={96} height={96} animated alt="" />
+        <Text color="gray" size="2">
+          {t("auth.loading")}
+        </Text>
+      </output>
     </Flex>
   )
 }

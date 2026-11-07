@@ -1,0 +1,9 @@
+@media (prefers-reduced-motion: reduce) {
+  .flame {
+    filter: none;
+  }
+
+  .plumes {
+    display: none;
+  }
+}

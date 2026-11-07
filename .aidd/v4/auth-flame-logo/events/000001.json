@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザー依頼: ロゴの炎を燃えるように動かし認証確認時に表示",
+  "paths": [
+    "apps/web/src/components/misc/Logo/",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx"
+  ],
+  "fingerprint": "b6b8fee3fd86df49d60ea395d15d059ba1d472f615760d08591db91395f49d67",
+  "status": "pass",
+  "checks": [
+    "既存ロゴと認証確認中表示の比較",
+    "ロゴ全体の燃焼表現",
+    "ブラウザでの静止設定"
+  ],
+  "summary": "比較元main 9bf3d0e9。ロゴ全体を上昇するノイズで変位・明滅させ、左右の下部と上部から大きな炎が立ち上がる形状アニメーションを加える。下部は固定しない。認証確認中だけ96pxで表示し、認証判定と既存文言は維持する。動きの抑制時は炎を非表示にしてフィルターを外す。",
+  "remaining": []
+}

@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "ユーザー依頼: ロゴの炎を燃えるように動かし認証確認時に表示",
+  "paths": [
+    "apps/web/src/components/misc/Logo/",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx"
+  ],
+  "fingerprint": "b6b8fee3fd86df49d60ea395d15d059ba1d472f615760d08591db91395f49d67",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration",
+    "git diff --check",
+    "Core check-changes",
+    "Chromiumでの全体燃焼・静止設定"
+  ],
+  "summary": "最終差分で必須4コマンドと空白・規約検査に成功。158ファイル・1104テストが成功し、認証確認から通常画面への切替を確認。Chromiumで96pxの形状変化とreduced-motion時のfilter解除・炎非表示を確認。カタログStoryのみの変更のためStorybook browser suiteは対象外。",
+  "remaining": []
+}
