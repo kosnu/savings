@@ -7,7 +7,7 @@ void main() {
 }
 `
 
-// 元の炎に沿う揺らぎを保ち、お札の下端から炎の先端を伸ばし、細く消えるまで描く。
+// 元の炎に沿う揺らぎを保ち、お札の下端から厚い炎を伸ばして先端を不規則にたなびかせる。
 const fragmentSource = `
 precision highp float;
 uniform sampler2D artwork;
@@ -71,18 +71,19 @@ void main() {
 
   float fire = 0.0;
   float hot = 0.0;
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 3; i++) {
     float seed = float(i) * 19.7;
-    float clock = time * (0.65 + 0.1 * noise(seed + 2.0)) + float(i) * 0.37;
+    float clock = time * (0.55 + 0.08 * noise(seed + 2.0)) + float(i) * 0.37;
     float cycle = floor(clock);
     float age = fract(clock);
     float energy = noise(cycle + seed + 4.2);
-    float life = smoothstep(0.0, 0.1, age) * (1.0 - smoothstep(0.65, 1.0, age));
-    float root = 175.0 + float(i) * 45.0;
-    float base = 470.0 - abs(root - 250.0) * 0.7;
-    // 根元で生まれた短い炎が伸び上がり、燃え尽きると尾も上へ抜ける。
-    float height = 12.0 + (210.0 + 40.0 * energy) * smoothstep(0.0, 0.7, age);
-    float tail = smoothstep(0.55, 1.0, age) * 0.75;
+    float life = smoothstep(0.0, 0.08, age) * (1.0 - smoothstep(0.78, 1.0, age));
+    float root = 200.0 + float(i) * 70.0;
+    float base = 470.0 - abs(root - 250.0) * 0.5;
+    // 幅のある根元を残して伸び上がり、燃え尽きる最後に尾が上へ抜ける。
+    float growth = smoothstep(0.0, 0.7, age);
+    float height = 24.0 + (210.0 + 40.0 * energy + 18.0 * gust(time * 2.3 + seed)) * growth;
+    float tail = smoothstep(0.7, 1.0, age) * 0.55;
     float rise = (base - p.y) / height;
     float progress = clamp(rise, 0.0, 1.0);
     float flow = (base - p.y) / 85.0 - time * 1.6;
@@ -90,10 +91,12 @@ void main() {
     float bend = wind * 38.0 + noise(time * 0.8 + seed) * 30.0;
     float curl = noise(time * 1.35 + seed + 7.8) * 22.0;
     float center = root + bend * pow(progress, 1.4) + curl * sin(progress * 3.1415927);
-    center += gust(flow + seed) * (5.0 + 14.0 * progress);
-    float radius = (29.0 + energy * 6.0) * pow(1.0 - progress, 0.7);
-    radius *= 0.8 + sin(progress * 3.1415927) * 0.35;
-    radius *= (0.9 + surge * 0.2) * mix(1.1, 0.25, smoothstep(0.6, 1.0, age));
+    center += gust(flow + seed) * (2.0 + 12.0 * progress);
+    center += gust(time * 2.8 + seed + cycle * 0.37) * 50.0 * pow(progress, 2.8);
+    // 胴体を急に絞らず、先端付近だけを細くして面として燃やす。
+    float radius = (64.0 + energy * 10.0) * mix(1.0, 0.4, smoothstep(0.3, 0.8, progress));
+    radius *= 1.0 - smoothstep(0.75, 1.0, progress);
+    radius *= (1.0 + surge * 0.15) * mix(1.0, 0.75, smoothstep(0.75, 1.0, age));
     radius = max(radius, 1.5);
     float tongue = 1.0 - smoothstep(radius * 0.4, radius, abs(p.x - center));
     tongue *= smoothstep(tail - 0.04, tail + 0.04, rise);

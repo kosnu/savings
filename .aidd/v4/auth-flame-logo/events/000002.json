@@ -2,21 +2,21 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "verify",
-  "source": "ユーザー依頼: お金にかかる炎を模様の移動ではなく下から上へ炎が伸びて燃え上がる動きとして明確にし、元のロゴの形を保つ。PR #2102の継続修正",
+  "source": "ユーザー依頼: お金にかかる炎の根元を太くし、先端が不規則に揺らぎながら燃え上がる厚みのある動きへ修正する。元のロゴの形は保つ。PR #2102の継続修正",
   "paths": [
     "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
     "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "03dfcd78d785dafa58689d37d1bb3aa23a2061027b5e6f9611baa1d1200b3008",
+  "fingerprint": "41985868f1a2772d08edbb331d6bc23ef23c08e039050dceecaa123bef29ea0a",
   "status": "pass",
   "checks": [
     "Web lint / format-check / typecheck",
     "Web unit-integration: 158 files / 1104 tests",
-    "Chromiumの炎の発生・成長・消失と輪郭一致",
+    "Chromiumの太い前景炎・先端の揺らぎ・輪郭一致",
     "静止設定・再開・context loss",
     "差分と規約graph"
   ],
-  "summary": "整形後の最終差分でWeb検証が成功。Chromiumで8秒192フレームを観測し、お札の下端に生まれた炎の先端が伸び上がり、尾も上昇して消える動きを確認した。同じシェーダーの前景炎を分離した診断でも先端の上昇と消失を観測した。前景有無の6時点の比較でalphaが全画素一致し、輪郭を保持。静止設定への切替と解除時の再開、context loss時の静止表示を確認。既存Routerテストは認証確認から完了への表示切替を検証する。browser-test対象Storyと設定は変更していないため専用suiteは対象外。GPU描画は単体テストの保証外でFirefox/Safariは未確認。",
+  "summary": "整形後の最終差分でWeb検証が成功。Chromiumで8秒192フレームを観測し、根元と胴体の厚い炎が伸び上がり、先端が不規則にたなびくことを確認。前後の実シェーダーから中央の炎を分離した比較で、同じ成長段階の最大幅が7pxから23pxへ拡大し、先端の上昇も観測した。前景有無の6時点の比較でalphaは全画素一致。静止設定への切替・解除時の再開とcontext loss時の静止表示も確認。既存Routerテストは認証確認から完了への表示切替を検証する。browser-test対象Storyと設定は変更していないため専用suiteは対象外。GPU描画は単体テストの保証外でFirefox/Safariは未確認。",
   "remaining": []
 }

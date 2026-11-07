@@ -2,20 +2,20 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "review",
-  "source": "ユーザー依頼: お金にかかる炎を模様の移動ではなく下から上へ炎が伸びて燃え上がる動きとして明確にし、元のロゴの形を保つ。PR #2102の継続修正",
+  "source": "ユーザー依頼: お金にかかる炎の根元を太くし、先端が不規則に揺らぎながら燃え上がる厚みのある動きへ修正する。元のロゴの形は保つ。PR #2102の継続修正",
   "paths": [
     "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
     "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "03dfcd78d785dafa58689d37d1bb3aa23a2061027b5e6f9611baa1d1200b3008",
+  "fingerprint": "41985868f1a2772d08edbb331d6bc23ef23c08e039050dceecaa123bef29ea0a",
   "status": "pass",
   "checks": [
     "rule-mapのpath・surface・依存closure 28規則",
-    "炎の先端を下から上へ伸ばし尾も消す",
+    "太い根元と胴体から先端が不規則に燃え上がる",
     "元の形・表示条件・静止表示・資源解放",
     "最終実装と検証・説明の整合"
   ],
-  "summary": "指摘なし。比較元はLogoのDefault/SignInと既存AuthLoadingScreen。通常表示は既存画像、認証確認中は元の炎に沿う揺らぎと、お札下端から成長して消える前景炎を表示する。形状の先端が上昇し、尾も上へ抜ける描画を観測したため明確な燃え上がりをpassとした。前景の成長はサンプリング座標とalphaを変えず、実描画比較でも輪郭が一致したため形保持をpassとした。発生・消失時に強度がゼロになり、周期境界の形状変化を隠すことも実装で照合。ブランド色、表示条件、アクセシビリティ、静止設定・context lossと資源解放を照合し、型・Lint・整形と1104テストは最終差分で成功。Checked rulesはPRのCoverageに列挙、Unresolvedはなし。実描画はChromiumのみでFirefox/Safariは未確認。",
+  "summary": "指摘なし。比較元はLogoのDefault/SignInと既存AuthLoadingScreen。通常表示は既存画像、認証確認中は元の炎に沿う揺らぎとお札上の厚い前景炎を表示する。3本の幅広い炎を重ね、胴体の早い絞り込みをやめ、先端に強い不規則な曲げと伸縮を加える。実シェーダー比較で中央の炎が太くなり、8秒の描画で厚みを保って伸び上がることを観測したためpass。元画像のサンプリングとalphaは変更せず、前景有無でも輪郭が一致したため形保持をpassとした。ブランド色、表示条件、アクセシビリティ、静止設定・context lossと資源解放を照合。型・Lint・整形と1104テストは最終差分で成功。Checked rulesはPRのCoverageに列挙、Unresolvedはなし。実描画はChromiumのみでFirefox/Safariは未確認。",
   "remaining": []
 }
