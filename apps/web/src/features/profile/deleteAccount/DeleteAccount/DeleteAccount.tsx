@@ -16,6 +16,8 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
   const [error, setError] = useState(false)
   const cancelRef = useRef<HTMLButtonElement>(null)
   const loadAttempt = useRef(0)
+  const isPreparing = busy && preview === null
+  const isSubmitting = busy && preview !== null
 
   // 確認画面を開くたび説明を取得し、通常データのquery cacheへ残さない。
   const load = async () => {
@@ -55,7 +57,7 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
       <Dialog.Root
         open={open}
         onOpenChange={(value) => {
-          if (busy && preview) return
+          if (isSubmitting) return
           setOpen(value)
           if (value) void load()
           else loadAttempt.current += 1
@@ -73,7 +75,7 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
             cancelRef.current?.focus()
           }}
           onEscapeKeyDown={(event) => {
-            if (busy && preview) event.preventDefault()
+            if (isSubmitting) event.preventDefault()
           }}
         >
           <Dialog.Title>{t("deletion.confirmTitle")}</Dialog.Title>
@@ -81,7 +83,7 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
             {t("deletion.introduction")}
           </Dialog.Description>
           <Flex direction="column" gap="3">
-            {busy && !preview && (
+            {isPreparing && (
               <output aria-label={t("common.loading")}>
                 <Flex direction="column" gap="3">
                   <Skeleton height="24px" width="60%" />
@@ -133,7 +135,7 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
                   type="button"
                   color="gray"
                   variant="soft"
-                  disabled={busy && !!preview}
+                  disabled={isSubmitting}
                 >
                   {t("common.cancel")}
                 </Button>
@@ -141,7 +143,7 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
               {error && (
                 <Button
                   variant="soft"
-                  disabled={busy}
+                  disabled={isPreparing || isSubmitting}
                   onClick={() => {
                     void load()
                   }}
@@ -154,8 +156,8 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
                   type="button"
                   color="red"
                   variant="solid"
-                  disabled={!preview.accepting_requests || busy}
-                  loading={busy}
+                  disabled={!preview.accepting_requests || isSubmitting}
+                  loading={isSubmitting}
                   onClick={() => {
                     confirm()
                   }}

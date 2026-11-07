@@ -95,8 +95,31 @@ func accountDeletionChecks(ctx context.Context, a api, service string) error {
 	if err != nil {
 		return err
 	}
+	requestID := "20872000-0000-4000-8000-000000000001"
+	secret := random() + random()
+	if err = deletionReservationChecks(ctx, a, u, requestID, secret); err != nil {
+		return fmt.Errorf("削除予約: %w", err)
+	}
+	if err = deletionSuspensionChecks(ctx, a, u, other, requestID, secret); err != nil {
+		return fmt.Errorf("予約中の認可: %w", err)
+	}
+	u, err = deletionReactivationChecks(ctx, a, u, requestID, secret)
+	if err != nil {
+		return fmt.Errorf("本人復帰: %w", err)
+	}
+	if err = deletionCompletionChecks(ctx, a, u, other, secret); err != nil {
+		return fmt.Errorf("物理削除後: %w", err)
+	}
+	fmt.Println("PASS 削除API: 既存sessionで追加認証なしの予約・並行申請・旧JWT/refresh停止・本人復帰・匿名照会・Auth削除")
+	if err = deletionConcurrencyChecks(ctx); err != nil {
+		return err
+	}
+	return deletionQueryPlanCheck(ctx)
+}
+
+func deletionReservationChecks(ctx context.Context, a api, u actor, requestID, secret string) error {
 	// sessionの年齢だけを進め、実JWTを持つ既存本人が追加認証なしで予約できることを確認する。
-	if _, err = sql(ctx, fmt.Sprintf("update auth.sessions set created_at=clock_timestamp()-interval '1 day' where user_id='%s';", u.uid)); err != nil {
+	if _, err := sql(ctx, fmt.Sprintf("update auth.sessions set created_at=clock_timestamp()-interval '1 day' where user_id='%s';", u.uid)); err != nil {
 		return err
 	}
 	r, err := rpc(ctx, a, u.token, "prepare_account_deletion", row{})
@@ -113,8 +136,6 @@ func accountDeletionChecks(ctx context.Context, a api, service string) error {
 	if _, err = sql(ctx, "update private.account_deletion_control set accepting_requests=true;"); err != nil {
 		return err
 	}
-	requestID := "20872000-0000-4000-8000-000000000001"
-	secret := random() + random()
 	args := row{"request_id": requestID, "result_secret": secret, "explanation_version": "2026-11-06"}
 	// 同一要求の並行再送は一つの予約と同じ期限に収束する。
 	results := make([]row, 2)
@@ -136,6 +157,10 @@ func accountDeletionChecks(ctx context.Context, a api, service string) error {
 	if results[0]["delete_after"] != results[1]["delete_after"] {
 		return errors.New("並行再送で期限が変化しました")
 	}
+	return nil
+}
+
+func deletionSuspensionChecks(ctx context.Context, a api, u, other actor, requestID, secret string) error {
 	for _, table := range tables {
 		response, e := a.request(ctx, "GET", "/rest/v1/"+table+"?select=*", u.token, nil)
 		if e != nil {
@@ -163,7 +188,7 @@ func accountDeletionChecks(ctx context.Context, a api, service string) error {
 			return fmt.Errorf("pending %s: %w", c.name, e)
 		}
 	}
-	r, err = a.request(ctx, "POST", "/rest/v1/payments", u.token, row{"amount": 1, "date": month(), "book_id": u.book})
+	r, err := a.request(ctx, "POST", "/rest/v1/payments", u.token, row{"amount": 1, "date": month(), "book_id": u.book})
 	if err != nil {
 		return err
 	}
@@ -221,23 +246,33 @@ func accountDeletionChecks(ctx context.Context, a api, service string) error {
 	if err = denied(r); err != nil {
 		return err
 	}
-	u, err = deletionSignIn(ctx, a, u)
+	return nil
+}
+
+func deletionReactivationChecks(ctx context.Context, a api, u actor, requestID, secret string) (actor, error) {
+	u, err := deletionSignIn(ctx, a, u)
 	if err != nil {
-		return err
+		return u, err
 	}
 	if _, err = deletionResult(ctx, a, u.token, "reactivate_my_account", row{"request_id": requestID}, "cancelled"); err != nil {
-		return err
+		return u, err
 	}
 	data, err := rows(ctx, a, u.token, "users", "")
 	if err != nil || len(data) != 1 || number(data[0]["id"]) != u.user {
-		return errors.New("復帰後に同じprofileを再取得できません")
+		return u, errors.New("復帰後に同じprofileを再取得できません")
 	}
 	if _, err = deletionResult(ctx, a, "", "get_account_deletion_result", row{"request_id": requestID, "result_secret": secret}, "cancelled"); err != nil {
-		return err
+		return u, err
 	}
+	return u, nil
+}
+
+func deletionCompletionChecks(ctx context.Context, a api, u, other actor, secret string) error {
 	// 別受付番号の同時申請は、一方だけがpendingになる。
 	ids := []string{"20872000-0000-4000-8000-000000000002", "20872000-0000-4000-8000-000000000003"}
 	responses := make([]response, 2)
+	errs := make([]error, 2)
+	var wg sync.WaitGroup
 	for i := range ids {
 		wg.Add(1)
 		go func(i int) {
@@ -263,28 +298,24 @@ func accountDeletionChecks(ctx context.Context, a api, service string) error {
 		return errors.New("別IDの並行予約が一件へ制限されません")
 	}
 	// 管理者が猶予終了を設定し、実Auth cascade後も旧JWTを拒否する。
-	if _, err = sql(ctx, fmt.Sprintf("update private.account_deletion_requests set requested_at='2026-01-01',delete_after='2026-01-08',next_attempt_at='2026-01-08' where request_id='%s';select private.delete_account_request('%s');", winner, winner)); err != nil {
+	if _, err := sql(ctx, fmt.Sprintf("update private.account_deletion_requests set requested_at='2026-01-01',delete_after='2026-01-08',next_attempt_at='2026-01-08' where request_id='%s';select private.delete_account_request('%s');", winner, winner)); err != nil {
 		return err
 	}
-	if _, err = deletionResult(ctx, a, "", "get_account_deletion_result", row{"request_id": winner, "result_secret": secret}, "completed"); err != nil {
+	if _, err := deletionResult(ctx, a, "", "get_account_deletion_result", row{"request_id": winner, "result_secret": secret}, "completed"); err != nil {
 		return err
 	}
-	r, err = rpc(ctx, a, u.token, "ensure_authenticated_user", row{"p_initial_display_name": "resurrected"})
+	r, err := rpc(ctx, a, u.token, "ensure_authenticated_user", row{"p_initial_display_name": "resurrected"})
 	if err != nil {
 		return err
 	}
 	if err = denied(r); err != nil {
 		return err
 	}
-	data, err = rows(ctx, a, other.token, "users", "")
+	data, err := rows(ctx, a, other.token, "users", "")
 	if err != nil || len(data) != 1 {
 		return errors.New("他人のprofileを維持できません")
 	}
-	fmt.Println("PASS 削除API: 既存sessionで追加認証なしの予約・並行申請・旧JWT/refresh停止・本人復帰・匿名照会・Auth削除")
-	if err = deletionConcurrencyChecks(ctx); err != nil {
-		return err
-	}
-	return deletionQueryPlanCheck(ctx)
+	return nil
 }
 
 // 非同期のSQLを開始した事実だけで競合成立とみなさず、lock保持後の待機を観測する。
@@ -339,6 +370,28 @@ func deletionConcurrencyChecks(ctx context.Context) (err error) {
 	if _, err = sql(ctx, setup); err != nil {
 		return err
 	}
+	if err = deletionDuplicateBatchCheck(ctx); err != nil {
+		return fmt.Errorf("二重batch: %w", err)
+	}
+	bookData, err := sql(ctx, "select book_id from public.book_members join public.users on users.id=user_id where email='race-one@example.com';")
+	if err != nil {
+		return err
+	}
+	sharedBook := strings.TrimSpace(string(bookData))
+	if err = deletionSharedBookCheck(ctx, sharedBook); err != nil {
+		return fmt.Errorf("共有Bookの同時削除: %w", err)
+	}
+	if err = deletionDeadlineLockCheck(ctx); err != nil {
+		return fmt.Errorf("lock待機後の期限: %w", err)
+	}
+	if err = deletionTimeoutRecoveryCheck(ctx); err != nil {
+		return fmt.Errorf("timeout復旧: %w", err)
+	}
+	fmt.Println("PASS 削除競合: 二重batch・最後の2member・lock待機後期限判定・11件の連続timeoutと単件延期復旧")
+	return nil
+}
+
+func deletionDuplicateBatchCheck(ctx context.Context) error {
 	batchBlocker, err := deletionBlocker(ctx, "select pg_advisory_xact_lock(pg_catalog.hashtextextended('account-deletion-batch',0))")
 	if err != nil {
 		return err
@@ -360,11 +413,10 @@ func deletionConcurrencyChecks(ctx context.Context) (err error) {
 	if strings.TrimSpace(string(pending)) != "2" {
 		return errors.New("競合中のbatchが要求状態を変更しました")
 	}
-	bookData, err := sql(ctx, "select book_id from public.book_members join public.users on users.id=user_id where email='race-one@example.com';")
-	if err != nil {
-		return err
-	}
-	sharedBook := strings.TrimSpace(string(bookData))
+	return nil
+}
+
+func deletionSharedBookCheck(ctx context.Context, sharedBook string) error {
 	blocker, err := deletionBlocker(ctx, "select 1 from public.books where id="+sharedBook+" for update")
 	if err != nil {
 		return err
@@ -401,14 +453,18 @@ func deletionConcurrencyChecks(ctx context.Context) (err error) {
 	if strings.TrimSpace(string(result)) != "2" {
 		return errors.New("同時削除の2要求が完了しません")
 	}
+	return nil
+}
+
+func deletionDeadlineLockCheck(ctx context.Context) error {
 	// 期限前に開始してもlock待機後に期限を越えた復帰は拒否する。
-	if _, err = sql(ctx, `insert into auth.users(id,email) values ('20874100-0000-0000-0000-000000000001','deadline@example.com');
+	if _, err := sql(ctx, `insert into auth.users(id,email) values ('20874100-0000-0000-0000-000000000001','deadline@example.com');
  insert into public.users(auth_user_id,email,name) values ('20874100-0000-0000-0000-000000000001','deadline@example.com','deadline');
  with t as(select clock_timestamp()+interval '1 second' d) insert into private.account_deletion_requests(request_id,auth_user_id,result_secret_hash,requested_at,delete_after,explanation_version,next_attempt_at) select '20874100-0000-0000-0000-000000000001','20874100-0000-0000-0000-000000000001',extensions.digest(repeat('a',64),'sha256'),d-interval '168 hours',d,'2026-11-06',d from t;
  insert into auth.sessions(id,user_id,created_at,updated_at) values ('20874100-0000-0000-0001-000000000001','20874100-0000-0000-0000-000000000001',clock_timestamp(),clock_timestamp());`); err != nil {
 		return err
 	}
-	blocker, err = deletionBlocker(ctx, "select pg_advisory_xact_lock(private.account_deletion_lock_key('20874100-0000-0000-0000-000000000001'))")
+	blocker, err := deletionBlocker(ctx, "select pg_advisory_xact_lock(private.account_deletion_lock_key('20874100-0000-0000-0000-000000000001'))")
 	if err != nil {
 		return err
 	}
@@ -419,6 +475,11 @@ func deletionConcurrencyChecks(ctx context.Context) (err error) {
 	if reactivateErr == nil || !strings.Contains(reactivateErr.Error(), "Account reactivation deadline has passed") {
 		return errors.New("lock待機後の期限切れが拒否されません")
 	}
+	return nil
+}
+
+func deletionTimeoutRecoveryCheck(ctx context.Context) (err error) {
+	var result []byte
 	// 先頭の大きな処理を模したtimeoutがbatchを原子的に戻し、延期後に後続10件を進める。
 	if _, err = sql(ctx, `insert into auth.users(id,email) select ('20874200-0000-0000-0000-'||lpad(i::text,12,'0'))::uuid,'timeout-'||i||'@example.com' from generate_series(1,11)i;
  insert into public.users(auth_user_id,email,name) select id,email,'timeout' from auth.users where email like 'timeout-%@example.com';
@@ -460,7 +521,6 @@ func deletionConcurrencyChecks(ctx context.Context) (err error) {
 	if strings.TrimSpace(string(result)) != "t" {
 		return errors.New("timeout原因解消後に同じ要求が完了しません")
 	}
-	fmt.Println("PASS 削除競合: 二重batch・最後の2member・lock待機後期限判定・11件の連続timeoutと単件延期復旧")
 	return nil
 }
 

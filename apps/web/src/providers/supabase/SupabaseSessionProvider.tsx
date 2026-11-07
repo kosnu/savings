@@ -2,22 +2,19 @@ import { isAuthApiError, isAuthSessionMissingError, type Session } from "@supaba
 import { useQueryClient } from "@tanstack/react-query"
 import { createContext, type ReactNode, useEffect, useRef, useState } from "react"
 
-import { toInitialDisplayName } from "../../domain/displayName"
 import { i18next } from "../../i18n"
-import { loadAccountLanguage, resolveAccountLanguage } from "../../i18n/accountLanguage"
 import {
   createDeletionReceipt,
   requestAccountDeletion,
   type DeletionPreview,
   type DeletionRequestResult,
   clearLegacyDeletionReceipt,
-  getMyDeletionState,
   type DeletionSubmission,
 } from "../../lib/accountDeletion"
 import { completeExplicitLogin, type ExplicitLoginResult } from "../../lib/explicitLogin"
 import { captureSupabaseSessionError } from "../../lib/sentry"
 import { getSupabaseClient } from "../../lib/supabase"
-import { ensureAuthenticatedUser } from "./ensureAuthenticatedUser"
+import { verifyAuthenticatedSession } from "./verifyAuthenticatedSession"
 
 export type AuthStatus = "loading" | "unauthenticated" | "authenticated" | "error" | "suspended"
 
@@ -127,40 +124,6 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     const isCurrentSessionHandler = (sessionGeneration: number) =>
       isActive && sessionGenerationRef.current === sessionGeneration
 
-    const verifyAuthenticatedSession = async (session: Session, sessionGeneration: number) => {
-      const { error: getUserError } = await supabase.auth.getUser()
-      if (getUserError) {
-        throw getUserError
-      }
-
-      if (!isCurrentSessionHandler(sessionGeneration)) return null
-      const token = session.access_token
-      const deletion = await getMyDeletionState(token)
-      if (!isCurrentSessionHandler(sessionGeneration)) return null
-      const reactivated =
-        loginResult?.status === "authenticated" &&
-        loginResult.reactivated &&
-        token === loginResult.accessToken
-      if (deletion.status === "pending") return { deletion, reactivated: false }
-
-      await ensureAuthenticatedUser(
-        toInitialDisplayName({
-          name: session.user.user_metadata.name,
-          fullName: session.user.user_metadata.full_name,
-          email: session.user.email,
-        }),
-      )
-
-      const deviceLanguage = i18next.resolvedLanguage
-      try {
-        const accountLanguage = await loadAccountLanguage(session.user.id)
-        return { language: resolveAccountLanguage(accountLanguage, deviceLanguage), reactivated }
-      } catch (error) {
-        captureSupabaseSessionError(error)
-        return { language: resolveAccountLanguage(undefined, deviceLanguage), reactivated }
-      }
-    }
-
     const handleSessionVerificationError = (
       error: unknown,
       sessionGeneration: number,
@@ -202,7 +165,9 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       }
 
       try {
-        const verified = await verifyAuthenticatedSession(session, sessionGeneration)
+        const verified = await verifyAuthenticatedSession(session, () =>
+          isCurrentSessionHandler(sessionGeneration),
+        )
         if (!verified || !isCurrentSessionHandler(sessionGeneration)) return
 
         if (verified.deletion) {
@@ -213,11 +178,15 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         await i18next.changeLanguage(verified.language)
         if (!isCurrentSessionHandler(sessionGeneration)) return
 
+        const reactivated =
+          loginResult?.status === "authenticated" &&
+          loginResult.reactivated &&
+          session.access_token === loginResult.accessToken
         loginResult = undefined
         setSessionState({
           status: "authenticated",
           session,
-          reactivated: verified.reactivated,
+          reactivated,
           startAccountDeletion,
         })
       } catch (error) {

@@ -42,7 +42,7 @@ export function DeletionHandoff({
   useEffect(() => {
     let active = true
 
-    const signOut = async (accepted: boolean) => {
+    const signOut = async (notifyAcceptance: boolean) => {
       if (!active) return
       setFailure(null)
       try {
@@ -50,7 +50,7 @@ export function DeletionHandoff({
         const { data, error } = await auth.getSession()
         if (error) throw error
         if (!active || (data.session && data.session.user.id !== authUserId)) return
-        if (accepted && !notified.current) {
+        if (notifyAcceptance && !notified.current) {
           notified.current = true
           openSnackbar("success", i18next.t("deletion.state.pending"))
         }
@@ -65,7 +65,7 @@ export function DeletionHandoff({
             message: "deletion.cleanupError",
             label: "deletion.retryCleanup",
             retry: () => {
-              void signOut(accepted)
+              void signOut(notifyAcceptance)
             },
           })
       }

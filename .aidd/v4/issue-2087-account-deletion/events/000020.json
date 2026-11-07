@@ -1,0 +1,36 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000017.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2093",
+  "paths": [
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/features/profile/deleteAccount/",
+    "tools/supabase-check/account_deletion.go",
+    "tools/supabase-check/local.go",
+    "tools/supabase-check/README.md",
+    "docs/design/account-deletion.md"
+  ],
+  "fingerprint": "26d9ff38472ac4171736283f016657c1a1d45a9f195ad397478dc6f38d0c56d4",
+  "status": "unknown",
+  "checks": [
+    "43a3a305とサイド会話01a1b17e-d5ff-70a1-bbd9-6b5a684db55eの「Auditとしてメインに伝えて」を確認。",
+    "前回No.1〜6の実装・検証・Shipは完了。No.7はIssueコメント6706595165で互換性条件付き追跡。過去cycleを保持。",
+    "PR #2093のhead一致、公開Botスレッド4件解決済み、最新Bot要約は43a3a305に新指摘なし。",
+    "8：Providerには既にverifyAuthenticatedSessionがある。Effect内の購読・状態反映と検証手順の依存を分ける余地。",
+    "9：送信はContextへ移動済みで、残る取得と開始操作は短い。hook化は採用せず、取得中・送信中の名前を明確にする案。",
+    "10：API試験は同じactor・受付・新sessionを予約→停止→復帰→物理削除へ引き継ぐ。親が順序と値を明示する案。",
+    "11：競合試験は時計の置換/復元と4シナリオを所有。実lock待機と共有fixture・失敗注入の境界を保って分割する案。",
+    "12：Handoffのacceptedは通知要否の引数で、永続的な予約状態ではない。notifyAcceptanceなどへの局所改名を提案。",
+    "分析レビュー3観点で成立・手段・時期を照合。行数だけを根拠に分割せず、共通規則・Intentの追加は不要と判断。"
+  ],
+  "summary": "承認済みNo.1〜6を再開せず、Ship後の追加候補をNo.8〜12として分析。8は認証手順、9はUI状態の名前、10・11はGo試験のシナリオ、12は通知引数の意味を整理する案。5件は保守性改善で、機能不具合・マージ阻害の根拠は未確認。9のhook化は追う場所を増やすため採用しない。既存の世代チェック・SDK lock・DB期限・実競合の観測・原状復旧を確認条件にする。読み取りによる判断で、改善効果・修正後試験は未確認。実装・返信の新承認なし。",
+  "remaining": [
+    "8：Providerの購読・状態反映とverifyAuthenticatedSessionの検証手順を分離。世代とpending・同一本人refreshを回帰検証する案。",
+    "9：DeleteAccountで既存stateから取得中/送信中を区別する名前を導き、Cancel・Escape・旧応答破棄を検証する案。",
+    "10：accountDeletionChecksを予約・停止認可・復帰・削除後の関数へ分割。actorと受付の受渡し・同じ試験順序を維持する案。",
+    "11：deletionConcurrencyChecksは時計の復元を親に保ち、二重batch・共有Book・期限越え・timeoutを分割する案。",
+    "12：signOutのaccepted引数を受付通知の要否が分かる名前へ変更し、本人/別端末と再試行の通知回数を確認する案。",
+    "No.8〜12は承認待ち。Web検証とGo test/vet・隔離Supabase localによる分割後の同等性確認は未実施。"
+  ]
+}
