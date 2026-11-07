@@ -21,7 +21,6 @@
 
 @media (width < 768px) {
   .categories {
-    /* モバイルでは20文字のカテゴリ名の折り返しも見込む。 */
-    --category-name-lines: 2;
+    min-height: 0;
   }
 }

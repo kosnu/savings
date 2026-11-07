@@ -1,3 +1,9 @@
 .content {
   min-block-size: 24rem;
 }
+
+@media (width < 768px) {
+  .content {
+    min-block-size: 0;
+  }
+}
