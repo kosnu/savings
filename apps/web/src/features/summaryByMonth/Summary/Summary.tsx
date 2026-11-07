@@ -38,7 +38,7 @@ export function Summary({
         </Flex>
       </Card>
       <Card size="2">
-        <Box className={reserveSpace ? styles.categories : undefined}>
+        <Box>
           {loading ? (
             <Flex direction="column" gap="2" aria-hidden>
               {[0, 1, 2].map((row) => (

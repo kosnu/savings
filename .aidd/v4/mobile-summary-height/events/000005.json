@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/2101 と Codex会話のAudit再提示に対するユーザー発言 Approve。PC余白のみ、breakpoint共通化は対象外。",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/Summary/Summary.tsx",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.module.css",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.module.css",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "a281f5b26a650b6cf101e63d0bdfb9e9159e86be437115f91100debbea9e6a5c",
+  "status": "pass",
+  "checks": [
+    "元Intent・Audit提案・ユーザーApprove・担当5ファイル・同Task baseline9bf3d0eの照合"
+  ],
+  "summary": "同Taskで承認済みPC余白対応を実行する。全幅で利用推移とカテゴリ集計の最低高を解除し、不要なCSS参照を削除する。既存Card/Box、通常padding、月次合計の予約高は維持。HomePage StoryはPCにも内容高の一致を適用し、不要になる一覧位置固定期待値を削除する。ブレークポイント共有は対象外。Web必須4検証とStorybook、幅320/390/767/768/1280pxの実寸で余分な空き0pxを確認する。",
+  "remaining": []
+}
