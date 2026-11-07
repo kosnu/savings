@@ -2,20 +2,21 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "review",
-  "source": "ユーザー依頼: お金にかかる炎の根元を太くし、先端が不規則に揺らぎながら燃え上がる厚みのある動きへ修正する。元のロゴの形は保つ。PR #2102の継続修正",
+  "source": "ユーザー依頼: 元のロゴを忠実なベクター素材として再現し、炎の輪郭そのものを太い根元から燃え上がらせて先端を不規則にたなびかせる。お札は固定。PNGの変形とモヤの重ね描きを禁止。PR #2102の継続修正",
   "paths": [
     "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
     "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "41985868f1a2772d08edbb331d6bc23ef23c08e039050dceecaa123bef29ea0a",
+  "fingerprint": "1d3f695fffb2abe41828b504eb3bbb7379b8d5d83e81afc9b3ea894c64008878",
   "status": "pass",
   "checks": [
     "rule-mapのpath・surface・依存closure 28規則",
-    "太い根元と胴体から先端が不規則に燃え上がる",
-    "元の形・表示条件・静止表示・資源解放",
+    "ベクター素材への再構成と炎の輪郭の変形",
+    "お札固定・禁止された描画方式の撤去",
+    "アクセシビリティ・静止設定・再開・解放",
     "最終実装と検証・説明の整合"
   ],
-  "summary": "指摘なし。比較元はLogoのDefault/SignInと既存AuthLoadingScreen。通常表示は既存画像、認証確認中は元の炎に沿う揺らぎとお札上の厚い前景炎を表示する。3本の幅広い炎を重ね、胴体の早い絞り込みをやめ、先端に強い不規則な曲げと伸縮を加える。実シェーダー比較で中央の炎が太くなり、8秒の描画で厚みを保って伸び上がることを観測したためpass。元画像のサンプリングとalphaは変更せず、前景有無でも輪郭が一致したため形保持をpassとした。ブランド色、表示条件、アクセシビリティ、静止設定・context lossと資源解放を照合。型・Lint・整形と1104テストは最終差分で成功。Checked rulesはPRのCoverageに列挙、Unresolvedはなし。実描画はChromiumのみでFirefox/Safariは未確認。",
+  "summary": "指摘なし。比較元はLogoのDefault/SignInと既存AuthLoadingScreen。通常表示は既存画像、認証確認中は元の輪郭と配色を再構成したSVGを表示する。炎とお札を独立したパスに分け、炎の制御点と対応するグラデーションだけを更新する。静止比較・8秒の実描画と回帰テストで形状再構成、太い根元からの変化と先端の揺らぎ、お札固定を照合してpass。PNG座標変形・WebGL・前面の形状合成は削除され、素材に画像埋め込み・フィルターがないため禁止条件をpassとした。色IDはインスタンス単位に分離され、静止設定・再開・フレームキャンセル・購読解除を実装と検証範囲で照合。型・Lint・整形と1105テストは最終差分で成功。SVG拡大時の微差とFirefox/Safari未確認をPRに明示する。Checked rulesはPRのCoverageに列挙、Unresolvedはなし。",
   "remaining": []
 }

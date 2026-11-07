@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useId, useRef } from "react"
 
 import { animateFlame } from "./animateFlame"
+import artworkUrl from "./logoArtwork.svg"
 
 import styles from "./Logo.module.css"
 
@@ -12,34 +13,30 @@ interface LogoProps {
 }
 
 export function Logo({ width = 32, height = 32, alt = "Burneto", animated = false }: LogoProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const artworkRef = useRef<SVGSVGElement>(null)
+  const id = useId()
 
   useEffect(() => {
-    if (!animated || !canvasRef.current) return
-    return animateFlame(canvasRef.current)
-  }, [animated, width, height])
+    if (!animated || !artworkRef.current) return
+    return animateFlame(artworkRef.current, id)
+  }, [animated, width, height, id])
 
   if (!animated) {
     return <img src="/icon-192.png" alt={alt} width={width} height={height} />
   }
 
-  // oxlint-disable jsx-a11y/prefer-tag-over-role -- Canvasで動かすロゴを1つの画像として読み上げる。
+  // oxlint-disable jsx-a11y/prefer-tag-over-role -- 輪郭を動かすSVGのロゴを1つの画像として読み上げる。
   return (
     <span className={styles.animated}>
-      <canvas
-        ref={canvasRef}
-        className={styles.canvas}
+      <svg
+        ref={artworkRef}
+        className={styles.artwork}
+        viewBox="0 0 512 512"
         role="img"
         aria-label={alt || undefined}
         aria-hidden={alt === ""}
       />
-      <img
-        src="/icon-512.png"
-        alt={alt}
-        width={width}
-        height={height}
-        className={styles.fallback}
-      />
+      <img src={artworkUrl} alt={alt} width={width} height={height} className={styles.fallback} />
     </span>
   )
   // oxlint-enable jsx-a11y/prefer-tag-over-role

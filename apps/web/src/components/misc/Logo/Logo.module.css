@@ -7,7 +7,7 @@
   display: block;
 }
 
-.canvas {
+.artwork {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -15,10 +15,10 @@
   visibility: hidden;
 }
 
-.canvas[data-ready="true"] {
+.artwork[data-ready="true"] {
   visibility: visible;
 }
 
-.canvas[data-ready="true"] + .fallback {
+.artwork[data-ready="true"] + .fallback {
   visibility: hidden;
 }
