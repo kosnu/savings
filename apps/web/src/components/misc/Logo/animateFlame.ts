@@ -7,7 +7,7 @@ void main() {
 }
 `
 
-// 元の炎に沿って曲げと伸縮を加え、輪郭の内側で下から立ち上がる炎をお札の手前に重ねる。
+// 元の炎に沿う揺らぎを保ち、輪郭の内側で炎の筋とくびれをお札の下から上へ流す。
 const fragmentSource = `
 precision highp float;
 uniform sampler2D artwork;
@@ -78,17 +78,22 @@ void main() {
     float height = 145.0 + 65.0 * noise(time * 1.15 + seed + 4.2);
     float rise = (base - p.y) / height;
     float progress = clamp(rise, 0.0, 1.0);
+    // 同じ模様が時間とともに上へ移動し、炎の輪郭と芯を一緒に運ぶ。
+    float flow = (base - p.y) / 85.0 - time * 1.6;
+    float surge = noise(flow * 1.3 + seed + 3.1);
     float bend = wind * 38.0 + noise(time * 0.8 + seed) * 30.0;
     float curl = noise(time * 1.35 + seed + 7.8) * 22.0;
     float center = root + bend * pow(progress, 1.4) + curl * sin(progress * 3.1415927);
-    center += gust(time * 2.1 + progress * 3.0 + seed) * 7.0 * progress;
+    center += gust(flow + seed) * (5.0 + 14.0 * progress);
     float radius = (30.0 + noise(time * 1.4 + seed + 6.1) * 8.0) * pow(1.0 - progress, 0.7);
     radius *= 0.8 + sin(progress * 3.1415927) * 0.35;
+    radius *= 0.8 + surge * 0.4;
     radius = max(radius, 1.5);
     float tongue = 1.0 - smoothstep(radius * 0.4, radius, abs(p.x - center));
     tongue *= smoothstep(-0.04, 0.04, rise) * (1.0 - smoothstep(0.92, 1.02, rise));
     fire = max(fire, tongue * 0.72);
-    hot = max(hot, tongue * tongue * (1.0 - progress * 0.75));
+    float core = tongue * tongue * (0.55 + 0.45 * smoothstep(-0.6, 0.7, surge));
+    hot = max(hot, core * (1.0 - progress * 0.6));
   }
   vec3 fireColor = mix(vec3(52.0, 31.0, 103.0), vec3(155.0, 134.0, 234.0), clamp(hot * 1.4, 0.2, 1.0));
   fireColor = mix(fireColor, vec3(242.0, 240.0, 255.0), smoothstep(0.55, 1.0, hot)) / 255.0;

@@ -2,20 +2,21 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "verify",
-  "source": "ユーザー依頼: 元の炎の形を保ち、先端が伸縮して不規則にたなびき、お札にかかるよう下から全体を燃やす。PR #2102の継続修正",
+  "source": "ユーザー依頼: お金にかかる炎も下から上へ流れて燃え上がる表現にし、元のロゴの形は崩さない。PR #2102の継続修正",
   "paths": [
     "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
     "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "4aa5ecdda4332c02a5187bb0849a4dd3758e8641054f00471d09540d1735650b",
+  "fingerprint": "57b4f18dc90dffe7a9c11954a1e1891459596a8e5551cc314f0255a87bab041f",
   "status": "pass",
   "checks": [
     "Web lint / format-check / typecheck",
     "Web unit-integration: 158 files / 1104 tests",
-    "Chromium実描画・静止設定・描画不能・context loss",
+    "Chromiumの上昇描画と輪郭一致",
+    "静止設定・再開・context loss",
     "差分と規約graph"
   ],
-  "summary": "整形後の最終差分でWeb検証が成功。Chromiumで12秒288フレームを観測し、先端の伸縮、お札にかかる下部の炎、短周期で繰り返さない動きを確認した。静止設定への切替と解除時の再開、WebGL不可とcontext loss時の静止表示も確認した。Routerの既存テストは認証確認中から完了への表示切替を検証する。browser-test対象Storyと設定は変更していないため専用suiteは対象外。GPU描画は単体テストの保証外で、Firefox/Safariは未確認。",
+  "summary": "整形後の最終差分でWeb検証が成功。Chromiumで8秒192フレームを観測し、お札上の炎の筋とくびれの上昇を確認した。前景の炎を除いた同じ描画との6時点の比較でalphaが全画素一致し、輪郭の保持を確認。静止設定への切替と解除時の再開、context loss時の静止画像を確認した。Routerの既存テストは認証確認から完了への表示切替を検証する。browser-test対象Storyと設定は変更していないため専用suiteは対象外。GPU描画は単体テストの保証外で、Firefox/Safariは未確認。",
   "remaining": []
 }

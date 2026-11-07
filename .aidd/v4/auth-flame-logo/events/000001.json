@@ -2,19 +2,19 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "design",
-  "source": "ユーザー依頼: 元の炎の形を保ち、先端が伸縮して不規則にたなびき、お札にかかるよう下から全体を燃やす。PR #2102の継続修正",
+  "source": "ユーザー依頼: お金にかかる炎も下から上へ流れて燃え上がる表現にし、元のロゴの形は崩さない。PR #2102の継続修正",
   "paths": [
     "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
     "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "4aa5ecdda4332c02a5187bb0849a4dd3758e8641054f00471d09540d1735650b",
+  "fingerprint": "57b4f18dc90dffe7a9c11954a1e1891459596a8e5551cc314f0255a87bab041f",
   "status": "pass",
   "checks": [
-    "PR #2102の同じTaskとbaselineの継続",
-    "不規則な曲げと先端の伸縮",
-    "お札の手前に立ち上がる炎"
+    "同じTask・baseline・PR #2102の継続",
+    "元の形とお札を保持",
+    "前景の炎の筋・くびれ・芯を下から上へ移動"
   ],
-  "summary": "比較元main 9bf3d0e9を維持。元画像の炎に沿う曲げを保ち、滑らかな不規則な風と先端の伸縮に変更する。短い時間ループを使わず、下端からお札の手前へ炎を重ねる。前景の炎は元のシルエットの内側に描画する。静止設定・描画不可・context loss時の静止表示と、終了時の資源解放を維持する。",
+  "summary": "比較元main 9bf3d0e9と既存の炎に沿う不規則な曲げを維持する。お札に重なる炎の形状と芯を同じ上昇座標で動かし、その場の伸縮に上向きの流れを加える。元画像のサンプリング座標とalphaを変更せず、ロゴやお札の形を崩さない。静止設定・描画不能時の静止画像と資源解放は既存のまま保つ。",
   "remaining": []
 }

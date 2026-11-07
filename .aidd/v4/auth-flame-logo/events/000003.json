@@ -2,20 +2,20 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "review",
-  "source": "ユーザー依頼: 元の炎の形を保ち、先端が伸縮して不規則にたなびき、お札にかかるよう下から全体を燃やす。PR #2102の継続修正",
+  "source": "ユーザー依頼: お金にかかる炎も下から上へ流れて燃え上がる表現にし、元のロゴの形は崩さない。PR #2102の継続修正",
   "paths": [
     "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
     "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "4aa5ecdda4332c02a5187bb0849a4dd3758e8641054f00471d09540d1735650b",
+  "fingerprint": "57b4f18dc90dffe7a9c11954a1e1891459596a8e5551cc314f0255a87bab041f",
   "status": "pass",
   "checks": [
     "rule-mapのpath・surface・依存closure 28規則",
-    "元の形に沿う不規則な伸縮と下部からの炎",
+    "ロゴの形を保ちお札上の炎を上昇",
     "表示条件・アクセシビリティ・静止表示・資源解放",
-    "現在の実装と説明・検証範囲の整合"
+    "最終実装と検証・説明の整合"
   ],
-  "summary": "指摘なし。比較元は同じLogoのDefault/SignInと既存AuthLoadingScreen。通常表示は既存画像を保ち、認証確認中のみ元の炎の中心線に沿う変位と、不規則に伸縮する先端、下からお札の手前に重なる炎を表示する。追加表現は最新依頼に合致し、色はブランド色と照合。短周期の時間リセットを除去し、先端と下部の動きをChromiumで観測したためpass。認証完了時の切替は既存テスト、静止設定・WebGL不可・context lossは実ブラウザで確認。型・Lint・整形と1104テストは最終差分で成功。通常Logoとbrowser-test Storyは変更なし。実GPUはChromiumのみでFirefox/Safariは未確認。Checked rulesはPRのCoverageへ列挙し、Unresolvedはなし。",
+  "summary": "指摘なし。比較元はLogoのDefault/SignInと既存AuthLoadingScreen。通常表示は既存画像、認証確認中は元の炎に沿う不規則な伸縮を保ち、お札に重なる炎の筋・くびれ・芯に同じ上昇座標を適用する。サンプリング座標とalphaは今回変更せず、前景有無の実描画比較でも輪郭が一致したため形保持をpassとした。8秒の描画で上昇する炎を観測し、上昇表現をpassとした。ブランド色、表示条件、静止設定・context lossと資源解放を照合し、型・Lint・整形と1104テストは最終差分で成功。通常Logoとbrowser-test Storyは変更なし。Checked rulesはPRのCoverageへ列挙、Unresolvedはなし。実GPUはChromiumのみでFirefox/Safariは未確認。",
   "remaining": []
 }
