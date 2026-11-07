@@ -2,21 +2,22 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "verify",
-  "source": "ユーザー最新添付GIF（e0b2d984）の認証確認中表示への採用依頼。PR #2102の同じTask・baselineを継続し、独自SVGアニメーションを置換する。",
+  "source": "ユーザー明示指示: 認証確認中の画面全体を確認できるStoryを追加する。PR #2102とTask auth-flame-logoの同じ成果・baselineを継続する。",
   "paths": [
-    "apps/web/src/components/misc/Logo/",
+    "apps/web/src/app/AuthLoadingScreen/",
     "apps/web/src/app/Router.tsx",
-    "apps/web/src/app/Router.test.tsx"
+    "apps/web/src/app/Router.test.tsx",
+    "apps/web/src/components/misc/Logo/"
   ],
-  "fingerprint": "258e860303843e29681e48cd266b1ec4ef95d013303d49836ed4ca26f9d36ec5",
+  "fingerprint": "2664653bde2ac76761bed68c571a9aeaf4652601b4560983fea1272d80ced536",
   "status": "pass",
   "checks": [
     "Web lint・format-check・typecheck",
     "Web unit-integration: 158 files / 1104 tests",
-    "Web production build: GIF・PNGの出力",
-    "Chromium: GIF再生・静止設定の初期値と切替・解除・通常ロゴ",
-    "GIFの16フレーム・1.6秒と差分の空白検査"
+    "Web production build",
+    "AuthLoadingScreen Story: PC・モバイルの実描画",
+    "GIF再生・静止設定と再開・空alt・横溢れなし"
   ],
-  "summary": "必須Web4検証とbuildが成功。最新添付GIFを192px・16フレーム・1.6秒の約202KBへ軽量化し、同じ素材の先頭フレームPNGを生成。Animated Storyの実描画で96pxの再生とフレーム差、静止設定の初期値・途中変更でPNG選択と画素不変、解除でGIF選択、Defaultで従来の32pxアイコンを確認。Routerの既存状態遷移テストも成功。独自SVG・変形helperの参照は残らない。browser-test対象Storyの通常分岐と設定に影響しないため専用suiteは対象外。実描画はChromiumのみ、実OAuthと本番配信は対象外。",
+  "summary": "必須Web4検証とbuildが成功。新しいApp/AuthLoadingScreenのDefault StoryをChromiumで確認。PC 1280x720、モバイル390x844でstatusが画面全体を占め、96pxロゴと日本語の認証確認メッセージが中央に表示され、横溢れなし。GIFの経時フレーム差、静止設定でPNG選択と画素不変、解除でGIF選択、装飾画像の空altを確認。Routerの既存状態遷移テストも成功。待機UIとStoryは同じ共有コンポーネントであり、本番用のモック状態は追加していない。カタログStoryの追加でbrowser-test対象Story・設定に影響がないため専用suiteは対象外。実OAuth・Firefox/Safari・本番配信は未確認。",
   "remaining": []
 }
