@@ -7,11 +7,11 @@
     "docs/ai-driven-development/agent-evals.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "badad171789824d10ca8825fe8d273808fc44b633c347bc19ca5a542d67f477c",
+  "fingerprint": "fd05eece0350f0a6c945c1237566e2ef997c8ed46fbbb04999bbdcab6a21fd26",
   "status": "pass",
   "checks": [
-    "Issue 2064 Intentと既存schema・テストの照合"
+    "Issue 2064 Intentと競合の照合"
   ],
-  "summary": "baseline 895ab87c。採点定義の照合基準と仮想対照事例を既存2文書へ追加。schema・採点処理・被評価課題は変更しない。関連Go test/vet、整形、Coreで検証する。独立Taskとして開始し、merge/deploy/Auditは委任外。",
+  "summary": "元のTask・baseline 895ab87cと採点定義を維持。最新main 74fd3461をmergeし、同位置に追加された採点定義とマージ判断の両事例を保持する。PR固有は2文書と工程結果のみ。保護設定を変更せず、関連検証・push・通常マージまで実行する。",
   "remaining": []
 }

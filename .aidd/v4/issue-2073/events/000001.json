@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2073",
+  "paths": [
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.test.tsx",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.integration.test.tsx"
+  ],
+  "fingerprint": "3719afb84d14be397a07c78f508fac8c2be555f4e31edebe2829877746eb5317",
+  "status": "pass",
+  "checks": [
+    "Issue 2073 and PR 2071 finding",
+    "INITIAL_SESSION null and getSession ordering",
+    "SDK recovery and normal signed-out startup"
+  ],
+  "summary": "初期null通知では世代と状態を更新せず、未ログイン確定はgetSessionの成功結果へ委ねる。非null通知とSIGNED_OUTの世代判定は維持。実SDK・合成通信で起動時期限切れ、手動再試行、前景復帰、sessionなしを検証する。",
+  "remaining": []
+}

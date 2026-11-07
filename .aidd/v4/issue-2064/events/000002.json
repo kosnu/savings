@@ -7,15 +7,15 @@
     "docs/ai-driven-development/agent-evals.md",
     "docs/ai-driven-development/semantic-review-cases.md"
   ],
-  "fingerprint": "badad171789824d10ca8825fe8d273808fc44b633c347bc19ca5a542d67f477c",
+  "fingerprint": "fd05eece0350f0a6c945c1237566e2ef997c8ed46fbbb04999bbdcab6a21fd26",
   "status": "pass",
   "checks": [
     "関連Go回帰7テスト",
     "evals vet",
     "文書fmt/lint",
-    "相対リンク・見出し照合",
-    "Core差分・規約・空白検査"
+    "両事例の全文保持と追加参照8件",
+    "Git空白・規約graph検査"
   ],
-  "summary": "関連7テスト・vet・文書検査・Coreが成功。採点定義の意味レビューを仮想対照事例で確認。被評価課題・schema・採点処理・分析判断は不変のため実モデル比較は対象外。Web/APIコード変更なし。",
+  "summary": "main取込後に関連7テスト・vet・文書検査が成功。解消結果はmain全文に元の採点定義事例だけを追加した内容と一致。eval正本は元headと同一。PR固有のWeb/API変更はなくアプリ検証は対象外。実モデル課題・採点定義は不変で実モデル再比較は対象外。",
   "remaining": []
 }

@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2062",
+  "paths": [
+    "docs/harness/policies/git-workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "1bde1f0fc6157832afab4e69dea652fc63be38cebe26da2f1189381093c1a47a",
+  "status": "pass",
+  "checks": [
+    "Diff whitespace",
+    "Markdown format",
+    "Rule graph and changed paths",
+    "Added links and anchors",
+    "PR body semantic cases: pass/fail/fail"
+  ],
+  "summary": "文書2件の空白・整形・rule graph・リンクと関連3例の照合に成功。既存自動evalにPR本文のケースがなく実モデルでの品質は未評価。app実装・Core・採点定義は不変のため関連外の検証は省略。",
+  "remaining": []
+}
