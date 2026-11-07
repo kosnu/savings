@@ -2,24 +2,20 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "verify",
-  "source": "ユーザー依頼: 元の炎の形を無視せず、炎自体を自然に揺らがせる。PR #2102の継続修正",
+  "source": "ユーザー依頼: 元の炎の形を保ち、先端が伸縮して不規則にたなびき、お札にかかるよう下から全体を燃やす。PR #2102の継続修正",
   "paths": [
     "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
     "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "bcd15921bb9d9e2dd32146b2c20d72ec0dcf23ffd7b0ea171e3f88b2645b9154",
+  "fingerprint": "4aa5ecdda4332c02a5187bb0849a4dd3758e8641054f00471d09540d1735650b",
   "status": "pass",
   "checks": [
-    "pnpm run web:lint",
-    "pnpm run web:format-check",
-    "pnpm run web:typecheck",
-    "pnpm run web:test:unit-integration",
-    "git diff --check",
-    "Core check-changes",
-    "Chromiumで9秒・180フレームを確認",
-    "静止・再開・描画不可・context lossを確認"
+    "Web lint / format-check / typecheck",
+    "Web unit-integration: 158 files / 1104 tests",
+    "Chromium実描画・静止設定・描画不能・context loss",
+    "差分と規約graph"
   ],
-  "summary": "最終差分で必須4コマンドと規約・空白検査に成功。158ファイル・1104テストが成功。Chromiumで9秒・180フレームの曲げを確認し、179フレームで輪郭が変わり、お札中央の画素サンプルは変化0。静止設定・解除後の再開、描画不可・context loss時の静止表示を確認。自動テストではGPU描画を保証しない。Storybook browser suiteは対象外。",
+  "summary": "整形後の最終差分でWeb検証が成功。Chromiumで12秒288フレームを観測し、先端の伸縮、お札にかかる下部の炎、短周期で繰り返さない動きを確認した。静止設定への切替と解除時の再開、WebGL不可とcontext loss時の静止表示も確認した。Routerの既存テストは認証確認中から完了への表示切替を検証する。browser-test対象Storyと設定は変更していないため専用suiteは対象外。GPU描画は単体テストの保証外で、Firefox/Safariは未確認。",
   "remaining": []
 }

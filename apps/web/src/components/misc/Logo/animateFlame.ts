@@ -7,7 +7,7 @@ void main() {
 }
 `
 
-// 元画像の炎の中心線に沿って先端ほど大きく曲げ、お札との境目はなめらかに固定する。
+// 元の炎に沿って曲げと伸縮を加え、輪郭の内側で下から立ち上がる炎をお札の手前に重ねる。
 const fragmentSource = `
 precision highp float;
 uniform sampler2D artwork;
@@ -18,6 +18,19 @@ float edge(vec2 a, vec2 b, vec2 p) {
   vec2 direction = b - a;
   vec2 point = p - a;
   return (direction.x * point.y - direction.y * point.x) / length(direction);
+}
+
+float noise(float p) {
+  float cell = floor(p);
+  float phase = fract(p);
+  phase = phase * phase * (3.0 - 2.0 * phase);
+  float a = fract(sin(cell * 127.1 + 311.7) * 43758.5453);
+  float b = fract(sin((cell + 1.0) * 127.1 + 311.7) * 43758.5453);
+  return mix(a, b, phase) * 2.0 - 1.0;
+}
+
+float gust(float p) {
+  return noise(p) * 0.65 + noise(p * 2.03 + 15.7) * 0.25 + noise(p * 4.11 + 7.3) * 0.1;
 }
 
 void main() {
@@ -43,17 +56,44 @@ void main() {
   note = min(note, edge(vec2(250.0, 470.0), vec2(151.0, 364.0), p));
   float flameOnly = 1.0 - smoothstep(-20.0, -4.0, note);
 
-  float mainPhase = time * 6.2831853 / 1.8 + p.y * 0.018;
-  float sidePhase = time * 6.2831853 / 1.5 + p.y * 0.023 + 0.8;
-  float lowerPhase = time * 6.2831853 / 2.25 + p.y * 0.024 + 1.4;
-  float dx = mainFlame * (22.0 * sin(mainPhase) + 6.0 * sin(mainPhase * 2.0 + 1.2));
-  dx += sideFlame * (18.0 * sin(sidePhase) + 4.0 * sin(sidePhase * 2.0));
-  dx += lowerFlame * 7.0 * sin(lowerPhase);
-  float dy = mainFlame * 3.0 * cos(mainPhase) + sideFlame * 2.0 * cos(sidePhase);
-  dy += lowerFlame * 3.0 * cos(lowerPhase);
+  float wind = noise(time * 0.47 + 17.3) * 0.5;
+  float mainGust = wind + gust(time * 1.3 + p.y * 0.014 + 10.0) * 0.7;
+  float sideGust = wind + gust(time * 1.65 + p.y * 0.017 + 30.0) * 0.65;
+  float lowerGust = wind + gust(time * 2.0 + p.y * 0.02 + 50.0) * 0.55;
+  float dx = mainFlame * 30.0 * mainGust + sideFlame * 23.0 * sideGust;
+  dx += lowerFlame * 10.0 * lowerGust;
+  float dy = mainFlame * (-23.0 * noise(time * 1.55 + 4.7) + 3.0 * mainGust);
+  dy += sideFlame * (-18.0 * noise(time * 1.9 + 28.2) + 2.0 * sideGust);
+  dy += lowerFlame * 5.0 * lowerGust;
 
   vec2 source = (p - vec2(dx, dy) * flameOnly) / 512.0;
-  gl_FragColor = texture2D(artwork, source);
+  vec4 color = texture2D(artwork, source);
+
+  float fire = smoothstep(380.0, 475.0, p.y) * 0.18;
+  float hot = 0.0;
+  for (int i = 0; i < 5; i++) {
+    float seed = float(i) * 19.7;
+    float root = 175.0 + float(i) * 45.0;
+    float base = 470.0 - abs(root - 250.0) * 0.7;
+    float height = 145.0 + 65.0 * noise(time * 1.15 + seed + 4.2);
+    float rise = (base - p.y) / height;
+    float progress = clamp(rise, 0.0, 1.0);
+    float bend = wind * 38.0 + noise(time * 0.8 + seed) * 30.0;
+    float curl = noise(time * 1.35 + seed + 7.8) * 22.0;
+    float center = root + bend * pow(progress, 1.4) + curl * sin(progress * 3.1415927);
+    center += gust(time * 2.1 + progress * 3.0 + seed) * 7.0 * progress;
+    float radius = (30.0 + noise(time * 1.4 + seed + 6.1) * 8.0) * pow(1.0 - progress, 0.7);
+    radius *= 0.8 + sin(progress * 3.1415927) * 0.35;
+    radius = max(radius, 1.5);
+    float tongue = 1.0 - smoothstep(radius * 0.4, radius, abs(p.x - center));
+    tongue *= smoothstep(-0.04, 0.04, rise) * (1.0 - smoothstep(0.92, 1.02, rise));
+    fire = max(fire, tongue * 0.72);
+    hot = max(hot, tongue * tongue * (1.0 - progress * 0.75));
+  }
+  vec3 fireColor = mix(vec3(52.0, 31.0, 103.0), vec3(155.0, 134.0, 234.0), clamp(hot * 1.4, 0.2, 1.0));
+  fireColor = mix(fireColor, vec3(242.0, 240.0, 255.0), smoothstep(0.55, 1.0, hot)) / 255.0;
+  color.rgb = mix(color.rgb, fireColor, fire);
+  gl_FragColor = color;
 }
 `
 
@@ -153,7 +193,7 @@ export function animateFlame(canvas: HTMLCanvasElement) {
 
   function draw(now: number) {
     if (disposed || !loaded) return
-    gl.uniform1f(clock, ((now - started) / 1000) % 9)
+    gl.uniform1f(clock, (now - started) / 1000)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     canvas.dataset.ready ??= "true"
     frame = requestAnimationFrame(draw)
