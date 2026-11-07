@@ -240,18 +240,13 @@ function loadingTransitionStory(count: number, mobile = false): Story {
     play: async ({ canvasElement }) => {
       expect(window.innerWidth).toBe(mobile ? 320 : 1280)
       const canvas = within(canvasElement)
-      const loading = await canvas.findByTestId("home-loading")
-      const headingTop = within(loading)
-        .getByRole("heading", { name: "Recent payments" })
-        .getBoundingClientRect().top
-      const listTop = within(loading)
-        .getAllByLabelText("loading-payment-item")[0]
-        .getBoundingClientRect().top
+      await canvas.findByTestId("home-loading")
       expect(canvas.queryByRole("button", { name: "Create payment" })).not.toBeInTheDocument()
 
       const create = await canvas.findByRole("button", { name: "Create payment" })
       const createTop = create.getBoundingClientRect().top
-      expect(canvas.getByLabelText("loading category totals")).toBeInTheDocument()
+      const categoryContent = canvas.getByLabelText("loading category totals").parentElement
+      if (!categoryContent) throw new globalThis.Error("カテゴリ集計の表示領域がありません")
       expect(canvas.getByTestId("budget-difference-skeleton")).toBeInTheDocument()
       await waitFor(
         () => {
@@ -263,10 +258,21 @@ function loadingTransitionStory(count: number, mobile = false): Story {
         { timeout: 5000 },
       )
 
-      expect(
-        canvas.getByRole("heading", { name: "Recent payments" }).getBoundingClientRect().top,
-      ).toBeCloseTo(headingTop, 0)
       expect(create.getBoundingClientRect().top).toBeCloseTo(createTop, 0)
+      const categoryItems = categoryContent.firstElementChild
+      const graph = await canvas.findByRole("figure", { name: "Spending through the month" })
+      const chart = graph.parentElement
+      if (!categoryItems || !chart?.parentElement) {
+        throw new globalThis.Error("集計の表示内容がありません")
+      }
+      expect(categoryContent.getBoundingClientRect().height).toBeCloseTo(
+        categoryItems.getBoundingClientRect().height,
+        0,
+      )
+      expect(chart.parentElement.getBoundingClientRect().height).toBeCloseTo(
+        chart.getBoundingClientRect().height,
+        0,
+      )
       if (mobile) {
         const bounds = create.getBoundingClientRect()
         expect(bounds.top).toBeGreaterThanOrEqual(0)
@@ -275,7 +281,6 @@ function loadingTransitionStory(count: number, mobile = false): Story {
         expect(bounds.right).toBeLessThanOrEqual(window.innerWidth)
       }
       const recent = canvas.getByLabelText("Recent payments")
-      expect(recent.getBoundingClientRect().top).toBeCloseTo(listTop, 0)
       expect(within(recent).queryAllByRole("button")).toHaveLength(count)
       if (count === 0) {
         expect(

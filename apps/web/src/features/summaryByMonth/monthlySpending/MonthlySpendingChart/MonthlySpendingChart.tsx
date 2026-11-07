@@ -11,8 +11,6 @@ import { effectiveMonthlyBudgetQueryOptions } from "../../../budgets"
 import { monthlySpendingQueryOptions } from "../../../payments"
 import { MonthlySpendingGraph } from "../MonthlySpendingGraph"
 
-import styles from "./MonthlySpendingChart.module.css"
-
 interface MonthlySpendingChartProps {
   bookId?: number
   loading?: boolean
@@ -32,7 +30,7 @@ export function MonthlySpendingChart({ bookId, loading = false }: MonthlySpendin
           <Heading as="h2" size="4" weight="medium" id={headingId}>
             {t("summary.spendingChart.title")}
           </Heading>
-          <Box className={styles.content}>
+          <Box>
             {loading || bookId === undefined ? (
               <MonthlySpendingChartLoading />
             ) : (
