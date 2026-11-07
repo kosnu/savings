@@ -2,13 +2,13 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "review",
-  "source": "ユーザー依頼: ロゴの炎の輪郭を無視する揺らぎをやめる。PR #2102の継続修正",
+  "source": "ユーザー依頼: 元の炎の形を無視せず、炎自体を自然に揺らがせる。PR #2102の継続修正",
   "paths": [
     "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
     "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "4a91e699be7b974d7fb8f3ef107c31c7926c7215060fb67e51726f5fff137026",
+  "fingerprint": "bcd15921bb9d9e2dd32146b2c20d72ec0dcf23ffd7b0ea171e3f88b2645b9154",
   "status": "pass",
   "checks": [
     "ai-driven.glossary",
@@ -40,6 +40,6 @@
     "web.suspense-boundaries",
     "web.test-policy"
   ],
-  "summary": "指摘なし。Checked rulesはchecksの28規則、Unresolvedはなし。最新の輪郭を崩す揺らぎをやめる要求に対し、変位と外側の炎形状を削除しSourceGraphicの透明度を保つ合成を確認。36フレームすべてで輪郭が静止表示と一致。既存の認証表示条件・文言・切替・静止設定を保持し、必須検証と1104テストが成功。視覚確認はChromiumのみ。",
+  "summary": "指摘なし。Checked rulesはchecksの28規則、Unresolvedはなし。元画像の炎の位置に沿う滑らかな曲げを確認し、明滅だけの処理と別形状の炎を使わない。認証中の表示条件と文言、画像名、静止時と描画不可時の表示、終了時の描画資源・イベント・frame解除を照合。ブラウザ確認と必須4検証、1104テストが成功。実描画の確認はChromiumのみ。",
   "remaining": []
 }

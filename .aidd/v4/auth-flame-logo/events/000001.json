@@ -2,19 +2,19 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "design",
-  "source": "ユーザー依頼: ロゴの炎の輪郭を無視する揺らぎをやめる。PR #2102の継続修正",
+  "source": "ユーザー依頼: 元の炎の形を無視せず、炎自体を自然に揺らがせる。PR #2102の継続修正",
   "paths": [
     "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
     "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "4a91e699be7b974d7fb8f3ef107c31c7926c7215060fb67e51726f5fff137026",
+  "fingerprint": "bcd15921bb9d9e2dd32146b2c20d72ec0dcf23ffd7b0ea171e3f88b2645b9154",
   "status": "pass",
   "checks": [
-    "PR #2102の同じTask・baselineの継続",
-    "元画像の輪郭の保持",
-    "Chromiumでの36フレーム比較"
+    "PR #2102の同じTaskとbaselineの継続",
+    "元画像の炎の形に沿う曲げ",
+    "Chromiumで9秒・180フレームを確認"
   ],
-  "summary": "比較元main 9bf3d0e9を維持。最新の輪郭を崩す揺らぎをやめる依頼に合わせ、変位と外側の炎形状を削除する。元画像の透明度を保持し、輪郭の内側だけに上昇する明滅を適用。96pxの認証確認中表示と静止設定は維持する。Chromiumの36フレームすべてで静止画像と透明度が一致し、35フレームで色の変化を確認。",
+  "summary": "比較元main 9bf3d0e9を維持。炎自体を自然に揺らがせる最新依頼に合わせ、元画像の大きい炎・小さい炎・下部の外周に沿った滑らかな曲げを描画する。先端ほど大きく、根元ほど小さく動かし、お札との境目を保つ。明滅だけの処理は使わない。描画不可・静止設定・context loss時は元画像を表示し、終了時に描画資源を解放する。",
   "remaining": []
 }

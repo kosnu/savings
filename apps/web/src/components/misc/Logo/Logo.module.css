@@ -1,5 +1,24 @@
-@media (prefers-reduced-motion: reduce) {
-  .flame {
-    filter: none;
-  }
+.animated {
+  position: relative;
+  display: inline-block;
+}
+
+.fallback {
+  display: block;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+}
+
+.canvas[data-ready="true"] {
+  visibility: visible;
+}
+
+.canvas[data-ready="true"] + .fallback {
+  visibility: hidden;
 }

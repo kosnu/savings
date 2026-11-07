@@ -2,13 +2,13 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "verify",
-  "source": "ユーザー依頼: ロゴの炎の輪郭を無視する揺らぎをやめる。PR #2102の継続修正",
+  "source": "ユーザー依頼: 元の炎の形を無視せず、炎自体を自然に揺らがせる。PR #2102の継続修正",
   "paths": [
     "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
     "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "4a91e699be7b974d7fb8f3ef107c31c7926c7215060fb67e51726f5fff137026",
+  "fingerprint": "bcd15921bb9d9e2dd32146b2c20d72ec0dcf23ffd7b0ea171e3f88b2645b9154",
   "status": "pass",
   "checks": [
     "pnpm run web:lint",
@@ -17,9 +17,9 @@
     "pnpm run web:test:unit-integration",
     "git diff --check",
     "Core check-changes",
-    "Chromiumで36フレームの透明度・色を比較",
-    "動きの抑制設定"
+    "Chromiumで9秒・180フレームを確認",
+    "静止・再開・描画不可・context lossを確認"
   ],
-  "summary": "最終差分で必須4コマンドと規約・空白検査に成功。158ファイル・1104テストが成功。Chromiumの36フレームを静止表示と比較し透明度の差は0、35フレームで色の変化を確認。透明な背景も含む比較であることを確認。reduced-motionではfilterがnoneになり静止する。Storybook browser suiteは対象外。",
+  "summary": "最終差分で必須4コマンドと規約・空白検査に成功。158ファイル・1104テストが成功。Chromiumで9秒・180フレームの曲げを確認し、179フレームで輪郭が変わり、お札中央の画素サンプルは変化0。静止設定・解除後の再開、描画不可・context loss時の静止表示を確認。自動テストではGPU描画を保証しない。Storybook browser suiteは対象外。",
   "remaining": []
 }
