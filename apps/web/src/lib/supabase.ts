@@ -7,7 +7,7 @@ let supabaseClient: SupabaseClient<Database> | null = null
 
 export function getSupabaseClient(): SupabaseClient<Database> {
   supabaseClient ??= createClient<Database>(env.SUPABASE_URL, env.SUPABASE_PUBLISHABLE_KEY, {
-    auth: { detectSessionInUrl: window.location.pathname !== "/auth/account-action" },
+    auth: { detectSessionInUrl: false },
   })
 
   return supabaseClient

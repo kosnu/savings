@@ -5,7 +5,6 @@ import type { PropsWithChildren } from "react"
 import { beforeEach, expect, test, vi } from "vite-plus/test"
 
 import { i18next } from "../../i18n"
-import { markExplicitLogin } from "../../lib/accountAction"
 import { createDeletionReceipt, deletionReceiptEvent } from "../../lib/accountDeletion"
 import { act, createTestQueryClient, waitFor } from "../../test/test-utils"
 import { createDeferred } from "../../test/utils/createDeferred"
@@ -35,7 +34,7 @@ vi.mock("../../lib/sentry", () => ({
 
 vi.mock("../../lib/supabase", () => ({
   getSupabaseClient: () => ({
-    rpc: mockRpc,
+    rpc: (...args: unknown[]) => ({ setHeader: () => mockRpc(...args) }),
     auth: {
       getSession: mockGetSession,
       getUser: mockGetUser,
@@ -616,26 +615,6 @@ test("pendingのsession復元・refreshは再有効化もuser同期も行わな�
   expect(mockRpc.mock.calls.every(([name]) => name === "get_my_account_deletion_state")).toBe(true)
 })
 
-test("明示Googleログインだけが本人照会から予約を取り消し、再取得後に同期する", async () => {
-  window.history.replaceState(null, "", "/auth")
-  markExplicitLogin()
-  const times = { delete_after: "2099-11-13T06:00:00Z", purge_after: "2099-11-13T18:00:00Z" }
-  const requestId = "20870000-0000-4000-8000-000000000002"
-  mockRpc
-    .mockResolvedValueOnce({
-      data: { status: "pending", request_id: requestId, can_reactivate: true, ...times },
-      error: null,
-    })
-    .mockResolvedValueOnce({ data: { status: "cancelled", ...times }, error: null })
-    .mockResolvedValueOnce({ data: { status: "active" }, error: null })
-  mockGetSession.mockResolvedValue({ data: { session: createSession() }, error: null })
-  const { result } = renderSessionHook()
-  await waitFor(() => expectSession(result, "authenticated", "user-id"))
-  expect(mockRpc).toHaveBeenCalledWith("reactivate_my_account", { request_id: requestId })
-  expect(mockEnsureAuthenticatedUser).toHaveBeenCalledTimes(1)
-  expect(result.current).toMatchObject({ reactivated: true })
-})
-
 test("送信開始でqueryを取消しcacheを消し、遅延した同一sessionの検証で再表示しない", async () => {
   const authId = "20870000-0000-4000-8000-000000000001"
   const session = createSession(authId)
@@ -647,7 +626,9 @@ test("送信開始でqueryを取消しcacheを消し、遅延した同一session
   queryClient.setQueryData(["private-data"], "sensitive")
   const cancelled = vi.spyOn(queryClient, "cancelQueries")
   createDeletionReceipt(authId)
-  act(() => window.dispatchEvent(new Event(deletionReceiptEvent)))
+  const submission = Promise.resolve({ status: "not_confirmed" as const })
+  act(() => window.dispatchEvent(new CustomEvent(deletionReceiptEvent, { detail: submission })))
+  expect(result.current).toMatchObject({ submission })
   expectSession(result, "suspended", null)
   expect(cancelled).toHaveBeenCalled()
   expect(queryClient.getQueryData(["private-data"])).toBeUndefined()
@@ -655,4 +636,21 @@ test("送信開始でqueryを取消しcacheを消し、遅延した同一session
   await waitFor(() => expect(mockRpc).toHaveBeenCalledTimes(2))
   expectSession(result, "suspended", null)
   expect(mockEnsureAuthenticatedUser).toHaveBeenCalledTimes(1)
+})
+
+test("未確認の受付はsession失効後も再確認を継続し、別人のログインを止めない", async () => {
+  const authId = "20870000-0000-4000-8000-000000000001"
+  createDeletionReceipt(authId)
+  mockGetSession.mockResolvedValue({ data: { session: createSession(authId) }, error: null })
+  const emit = captureAuthCallback()
+  const { result } = renderSessionHook()
+  await waitFor(() => expectSession(result, "suspended", null))
+  const suspended = result.current
+  if (suspended.status !== "suspended") throw new Error("Expected suspended state")
+  act(() => emit("SIGNED_OUT", null))
+  expectSession(result, "suspended", null)
+  act(() => emit("SIGNED_IN", createSession("another-user")))
+  await waitFor(() => expectSession(result, "authenticated", "another-user"))
+  act(() => suspended.onSignedOut())
+  expectSession(result, "authenticated", "another-user")
 })

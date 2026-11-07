@@ -10,11 +10,19 @@ import {
   requestAccountDeletion,
   type DeletionPreview,
   type DeletionReceipt,
+  type DeletionResult,
 } from "../../../../lib/accountDeletion"
-import { getSupabaseClient } from "../../../../lib/supabase"
 import { deletionTime } from "../deletionTime"
 
-export function DeleteAccount({ receipt }: { receipt?: DeletionReceipt }) {
+export function DeleteAccount({
+  receipt,
+  headingLevel = "h2",
+  onSubmitted,
+}: {
+  onSubmitted?: () => void
+  receipt?: DeletionReceipt
+  headingLevel?: "h2" | "h3"
+}) {
   const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)
   const [preview, setPreview] = useState<DeletionPreview | null>(null)
@@ -44,22 +52,12 @@ export function DeleteAccount({ receipt }: { receipt?: DeletionReceipt }) {
     setError(false)
     try {
       const requestReceipt = receipt ?? createDeletionReceipt(preview.auth_user_id)
-      // 送信直前から保護画面を隠し、commit応答喪失も結果照会へ渡す。
-      window.dispatchEvent(new Event(deletionReceiptEvent))
-      try {
-        await requestAccountDeletion(requestReceipt, preview.explanation_version)
-      } catch {
-        /* 成否は独立した匿名照会で確定する。別番号で再送しない。 */
-      }
-      try {
-        const client = getSupabaseClient()
-        const { data } = await client.auth.getSession()
-        if (data.session?.user.id === requestReceipt.authUserId)
-          await client.auth.signOut({ scope: "local" })
-      } catch {
-        /* 結果画面に端末内消去の再試行を残す。 */
-      }
-      window.location.assign("/account-deletion")
+      // 通常データを隠し、送信結果をログアウト・再確認の処理へ引き継ぐ。
+      const submission = requestAccountDeletion(requestReceipt, preview.explanation_version).catch(
+        (): DeletionResult => ({ status: "not_confirmed" }),
+      )
+      window.dispatchEvent(new CustomEvent(deletionReceiptEvent, { detail: submission }))
+      onSubmitted?.()
     } catch {
       setError(true)
       setBusy(false)
@@ -68,7 +66,7 @@ export function DeleteAccount({ receipt }: { receipt?: DeletionReceipt }) {
 
   return (
     <Flex direction="column" gap="3">
-      <Heading as="h2" size="4">
+      <Heading as={headingLevel} size="4">
         {t("deletion.heading")}
       </Heading>
       <Text as="p" size="2">

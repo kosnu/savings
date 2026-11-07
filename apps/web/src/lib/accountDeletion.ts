@@ -35,8 +35,10 @@ const previewSchema = z.object({
 })
 export type DeletionPreview = z.infer<typeof previewSchema>
 
-export async function getMyDeletionState(client = getSupabaseClient()) {
-  const { data, error } = await client.rpc("get_my_account_deletion_state")
+export async function getMyDeletionState(accessToken: string) {
+  const { data, error } = await getSupabaseClient()
+    .rpc("get_my_account_deletion_state")
+    .setHeader("Authorization", `Bearer ${accessToken}`)
   if (error) throw error
   return myStateSchema.parse(data)
 }
@@ -47,12 +49,14 @@ export async function prepareAccountDeletion(client = getSupabaseClient()) {
   return previewSchema.parse(data)
 }
 
-export async function reactivateAccount(requestId: string, client = getSupabaseClient()) {
-  const { data, error } = await client.rpc("reactivate_my_account", { request_id: requestId })
+export async function reactivateAccount(requestId: string, accessToken: string) {
+  const { data, error } = await getSupabaseClient()
+    .rpc("reactivate_my_account", { request_id: requestId })
+    .setHeader("Authorization", `Bearer ${accessToken}`)
   if (error) throw error
   const result = deletionResultSchema.parse(data)
   if (result.status !== "cancelled") throw new Error("Account reactivation unconfirmed")
-  if ((await getMyDeletionState(client)).status !== "active")
+  if ((await getMyDeletionState(accessToken)).status !== "active")
     throw new Error("Account remains unavailable")
 }
 

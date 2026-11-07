@@ -2,19 +2,19 @@ import { isAuthApiError, isAuthSessionMissingError, type Session } from "@supaba
 import { useQueryClient } from "@tanstack/react-query"
 import { createContext, type ReactNode, useEffect, useRef, useState } from "react"
 
+import { paths } from "../../config/paths"
 import { toInitialDisplayName } from "../../domain/displayName"
 import { i18next } from "../../i18n"
 import { loadAccountLanguage, resolveAccountLanguage } from "../../i18n/accountLanguage"
-import { consumeExplicitLogin } from "../../lib/accountAction"
 import {
-  clearDeletionReceipt,
   deletionReceiptEvent,
   deletionReceiptKey,
   getMyDeletionState,
   readDeletionReceipt,
-  reactivateAccount,
+  type DeletionResult,
   type MyDeletionState,
 } from "../../lib/accountDeletion"
+import { completeExplicitLogin } from "../../lib/explicitLogin"
 import { captureSupabaseSessionError } from "../../lib/sentry"
 import { getSupabaseClient } from "../../lib/supabase"
 import { ensureAuthenticatedUser } from "./ensureAuthenticatedUser"
@@ -27,7 +27,14 @@ export type SupabaseSessionState =
       session: Session | null
       reactivated?: boolean
     }
-  | { status: "suspended"; session: null; authUserId: string; deletion: MyDeletionState | null }
+  | {
+      status: "suspended"
+      session: null
+      authUserId: string
+      deletion: MyDeletionState | null
+      submission?: Promise<DeletionResult>
+      onSignedOut: () => void
+    }
   | { status: "error"; session: null; requiresSignIn: boolean; retry: () => void }
 
 export const SupabaseSessionContext = createContext<SupabaseSessionState | undefined>(undefined)
@@ -49,20 +56,47 @@ const unauthenticatedSessionState: SupabaseSessionState = {
 export function SupabaseSessionProvider({ children }: SupabaseSessionProviderProps) {
   const queryClient = useQueryClient()
   const sessionGenerationRef = useRef(0)
+  const loginCallback = useRef<Promise<string | undefined> | undefined>(undefined)
   const stateRef = useRef<SupabaseSessionState>(initialSessionState)
   const [state, setState] = useState<SupabaseSessionState>(initialSessionState)
 
   useEffect(() => {
     const supabase = getSupabaseClient()
     let isActive = true
+    let reactivatedToken: string | undefined
+    loginCallback.current ??= completeExplicitLogin(supabase.auth)
+    let verifyingCallback = Boolean(loginCallback.current)
 
     const setSessionState = (nextState: SupabaseSessionState) => {
-      if (stateRef.current.session?.user.id !== nextState.session?.user.id) {
+      if (
+        nextState.status === "suspended" ||
+        stateRef.current.session?.user.id !== nextState.session?.user.id
+      ) {
         void queryClient.cancelQueries()
         queryClient.clear()
       }
       stateRef.current = nextState
       setState(nextState)
+    }
+
+    const suspend = (
+      authUserId: string,
+      deletion: MyDeletionState | null,
+      submission?: Promise<DeletionResult>,
+    ) => {
+      const suspended: SupabaseSessionState = {
+        status: "suspended",
+        session: null,
+        authUserId,
+        deletion,
+        submission,
+        onSignedOut: () => {
+          if (!isActive || stateRef.current !== suspended) return
+          sessionGenerationRef.current += 1
+          setSessionState(unauthenticatedSessionState)
+        },
+      }
+      setSessionState(suspended)
     }
 
     const handleSessionError = (
@@ -92,21 +126,13 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         throw getUserError
       }
 
-      const deletion = await getMyDeletionState()
       if (!isCurrentSessionHandler(sessionGeneration)) return null
-      const explicitLogin = consumeExplicitLogin()
-      let reactivated = false
-      if (deletion.status === "pending") {
-        if (!explicitLogin || !deletion.can_reactivate) return { deletion, reactivated }
-        await reactivateAccount(deletion.request_id)
-        const receipt = readDeletionReceipt()
-        if (receipt?.authUserId === session.user.id && receipt.requestId === deletion.request_id)
-          clearDeletionReceipt()
-        reactivated = true
-      }
-      if (!reactivated && readDeletionReceipt()?.authUserId === session.user.id) {
-        return { deletion: { status: "active" as const }, reactivated }
-      }
+      const token = session.access_token
+      const deletion = await getMyDeletionState(token)
+      if (!isCurrentSessionHandler(sessionGeneration)) return null
+      const reactivated = token === reactivatedToken
+      if (deletion.status === "pending" || readDeletionReceipt()?.authUserId === session.user.id)
+        return { deletion, reactivated: false }
 
       await ensureAuthenticatedUser(
         toInitialDisplayName({
@@ -136,7 +162,8 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       if (!isCurrentSessionHandler(sessionGeneration)) return
       // 同じユーザーの更新失敗では、検証前の有効な session を維持する。
       const requiresSignIn = needsSignIn(error)
-      if (shouldKeepCurrentSession && !requiresSignIn) return
+      if (stateRef.current.status === "suspended" || (shouldKeepCurrentSession && !requiresSignIn))
+        return
 
       setSessionState({ status: "error", session: null, requiresSignIn, retry })
     }
@@ -145,7 +172,18 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       if (!isCurrentSessionHandler(sessionGeneration)) return
 
       if (!session) {
-        if (stateRef.current.status === "error" && stateRef.current.requiresSignIn) return
+        const current = stateRef.current
+        if (current.status === "error" && current.requiresSignIn) return
+        const receipt = readDeletionReceipt()
+        if (
+          receipt &&
+          (!current.session || current.session.user.id === receipt.authUserId) &&
+          (window.location.pathname !== paths.auth.getHref() || current.status === "suspended")
+        ) {
+          if (current.status !== "suspended" || current.authUserId !== receipt.authUserId)
+            suspend(receipt.authUserId, null)
+          return
+        }
         setSessionState(unauthenticatedSessionState)
         return
       }
@@ -153,7 +191,11 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       const currentState = stateRef.current
       const shouldKeepCurrentSession = isSameAuthenticatedUser(currentState, session)
 
-      if (!shouldKeepCurrentSession) {
+      const suspended =
+        currentState.status === "suspended" && currentState.authUserId === session.user.id
+          ? currentState
+          : null
+      if (!shouldKeepCurrentSession && !suspended) {
         setSessionState({ status: "loading", session: null })
       }
 
@@ -162,20 +204,14 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         if (!verified || !isCurrentSessionHandler(sessionGeneration)) return
 
         if (verified.deletion) {
-          setSessionState({
-            status: "suspended",
-            session: null,
-            authUserId: session.user.id,
-            deletion: verified.deletion,
-          })
-          await queryClient.cancelQueries()
-          queryClient.clear()
+          suspend(session.user.id, verified.deletion, suspended?.submission)
           return
         }
 
         await i18next.changeLanguage(verified.language)
         if (!isCurrentSessionHandler(sessionGeneration)) return
 
+        reactivatedToken = undefined
         setSessionState({ status: "authenticated", session, reactivated: verified.reactivated })
       } catch (error) {
         handleSessionVerificationError(error, sessionGeneration, shouldKeepCurrentSession)
@@ -205,8 +241,10 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       void loadSession(sessionGenerationRef.current)
     }
 
-    const suspendForReceipt = () => {
-      const authUserId = stateRef.current.session?.user.id
+    const suspendForReceipt = (event: Event) => {
+      const current = stateRef.current
+      const authUserId =
+        current.status === "suspended" ? current.authUserId : current.session?.user.id
       if (!authUserId) return
       try {
         if (readDeletionReceipt()?.authUserId !== authUserId) return
@@ -214,24 +252,39 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         // 送信開始後にstorageを読めなくなっても通常データを再表示しない。
       }
       sessionGenerationRef.current += 1
-      setSessionState({ status: "suspended", session: null, authUserId, deletion: null })
-      void queryClient.cancelQueries()
-      queryClient.clear()
+      const submission = event instanceof CustomEvent ? event.detail : undefined
+      suspend(authUserId, null, submission)
     }
     const onStorage = (event: StorageEvent) => {
-      if (event.key === deletionReceiptKey && event.newValue) suspendForReceipt()
+      if (event.key === deletionReceiptKey && event.newValue) suspendForReceipt(event)
     }
     window.addEventListener(deletionReceiptEvent, suspendForReceipt)
     window.addEventListener("storage", onStorage)
 
-    void loadSession(sessionGenerationRef.current)
+    if (loginCallback.current) {
+      void loginCallback.current.then((token) => {
+        if (!isActive) return
+        loginCallback.current = undefined
+        reactivatedToken = token
+        verifyingCallback = false
+        void loadSession(sessionGenerationRef.current)
+      })
+    } else {
+      void loadSession(sessionGenerationRef.current)
+    }
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      // 通常ログインの検証中は既存sessionも新規sessionもアプリへ公開しない。
+      if (verifyingCallback) return
       sessionGenerationRef.current += 1
       // 検証中にSDKが無効なsessionを破棄した場合も、再認証の理由を残す。
-      if (event === "SIGNED_OUT" && stateRef.current.status === "loading") {
+      if (
+        event === "SIGNED_OUT" &&
+        stateRef.current.status === "loading" &&
+        !readDeletionReceipt()
+      ) {
         setSessionState({ status: "error", session: null, requiresSignIn: true, retry })
         return
       }
@@ -240,10 +293,10 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         void handleSession(null, generation)
         return
       }
+      const current = stateRef.current
       if (
-        session &&
-        !isSameAuthenticatedUser(stateRef.current, session) &&
-        stateRef.current.status !== "suspended"
+        !isSameAuthenticatedUser(current, session) &&
+        !(current.status === "suspended" && current.authUserId === session.user.id)
       ) {
         setSessionState({ status: "loading", session: null })
       }

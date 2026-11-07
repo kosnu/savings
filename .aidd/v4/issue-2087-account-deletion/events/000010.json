@@ -1,0 +1,35 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/api/supabase/operations/account_deletion_jobs.sql",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/SessionError/",
+    "apps/web/src/app/index.tsx",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/",
+    "apps/web/src/features/profile/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/lib/",
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/utils/auth/useSupabaseSignIn.tsx",
+    "docs/account-deletion-operations.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html",
+    "docs/design/account-deletion.md",
+    "tools/supabase-check/"
+  ],
+  "fingerprint": "fae7c8cccf2cc0ba1815222db000d5e73105e57022163c089ddd03ada1d33c6a",
+  "status": "pass",
+  "checks": [
+    "Web lint/format-check/typecheck、unit/integration 162ファイル1129件、Storybook 8ファイル33件",
+    "実Router/Provider/SDK：受付成功と応答喪失→同じ予約の再確認→自動logout→通常PKCEログインで本人復帰。照会・logout失敗の再試行、期限/別人/再利用の拒否",
+    "Go test/vet、隔離Supabaseの全migration・pgTAP 542件・Auth/REST/旧JWT・削除競合・timeout復旧、非superuserで実際の両Cron本文を実行",
+    "Core検証7項目・差分内容安定、文書整形/リンク・HTML構文",
+    "Burneto Devで削除/保守ジョブ有効、両実行者のSET権限と新規受付停止を確認"
+  ],
+  "summary": "承認したUI・認証とCron権限の変更を検証。通常ログインの認証戻り先は /auth のみ、コード交換と受付照会は実SDKと模擬サーバーで確認。Go/DBは隔離環境の合成データを使用。 Hostedで実Googleアカウントの認証往復、定時枠でのCron起動、実規模処理容量と実backup復旧は未確認。",
+  "remaining": []
+}

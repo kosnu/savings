@@ -1,8 +1,7 @@
 import { useNavigate } from "@tanstack/react-router"
-import { useCallback, useEffect } from "react"
+import { useEffect } from "react"
 
-import { paths } from "../../config/paths"
-import { markExplicitLogin } from "../../lib/accountAction"
+import { startExplicitLogin } from "../../lib/explicitLogin"
 import { getSupabaseClient } from "../../lib/supabase"
 
 interface UseSupabaseSignIn {
@@ -12,21 +11,6 @@ interface UseSupabaseSignIn {
 export function useSupabaseSignIn(): UseSupabaseSignIn {
   const navigate = useNavigate()
   const supabase = getSupabaseClient()
-
-  const signIn = useCallback(async () => {
-    markExplicitLogin()
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        // NOTE: Supabase のダッシュボードで設定したリダイレクト URL に一致させる必要があります
-        redirectTo: `${window.location.origin}${paths.auth.getHref()}`,
-      },
-    })
-
-    if (error) {
-      throw error
-    }
-  }, [supabase])
 
   useEffect(() => {
     let isActive = true
@@ -60,6 +44,6 @@ export function useSupabaseSignIn(): UseSupabaseSignIn {
   }, [supabase, navigate])
 
   return {
-    signIn: signIn,
+    signIn: startExplicitLogin,
   }
 }

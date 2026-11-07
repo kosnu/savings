@@ -27,7 +27,7 @@ describe("ProfileSettings", () => {
     vi.restoreAllMocks()
   })
 
-  test("プロフィール読み込み中はアカウント情報のSkeletonを表示する", async () => {
+  test("プロフィール読み込み中は表示名のSkeletonを表示する", async () => {
     resetHandlersForStory(ProfileLoading)
 
     await renderStory(<ProfileLoading />)

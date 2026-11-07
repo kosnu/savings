@@ -6,18 +6,12 @@ import { SnackbarProvider } from "../../../../providers/snackbar/SnackbarProvide
 import { ThemeProvider } from "../../../../providers/theme/ThemeProvider"
 import { AccountInformationForm } from "./AccountInformationForm"
 
-const defaultProfile = {
-  name: "Test User",
-  email: "test@example.com",
-}
-
 const meta = {
   title: "Features/Profile/ProfileSettings/AccountInformationForm",
   component: AccountInformationForm,
   tags: ["autodocs"],
   args: {
-    profile: defaultProfile,
-    loginMethod: "google",
+    displayName: "Test User",
     isPending: false,
     onSaveDisplayName: fn(async () => undefined),
   },
@@ -36,12 +30,6 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
-
-export const UnavailableLoginMethod: Story = {
-  args: {
-    loginMethod: "unavailable",
-  },
-}
 
 export const ValidationError: Story = {
   play: async ({ canvasElement }) => {

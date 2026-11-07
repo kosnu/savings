@@ -3,7 +3,7 @@ import { AuthError } from "@supabase/supabase-js"
 import { fn } from "storybook/test"
 import { expect, test, vi } from "vite-plus/test"
 
-import { getSupabaseClient } from "../../lib/supabase"
+import { getLoginAuth } from "../../lib/explicitLogin"
 import { render, screen } from "../../test/test-utils"
 import * as stories from "./SessionError.stories"
 
@@ -19,14 +19,14 @@ test("認証確認失敗の説明と再試行操作を表示する", async () =>
 })
 
 test("再認証は既存と同じGoogle providerとcallbackで開始し、失敗後も再操作できる", async () => {
-  const signIn = vi.spyOn(getSupabaseClient().auth, "signInWithOAuth").mockResolvedValue({
+  const signIn = vi.spyOn(getLoginAuth(), "signInWithOAuth").mockResolvedValue({
     data: { provider: "google", url: null },
     error: new AuthError("synthetic"),
   })
   const { user } = render(<SignInRequired />)
   expect(screen.getByRole("alert")).toHaveTextContent("Please sign in again.")
   expect(screen.queryByRole("button", { name: "Try again" })).not.toBeInTheDocument()
-  const button = screen.getByRole("button", { name: "Continue with Google" })
+  const button = screen.getByRole("button", { name: "Sign in" })
   await user.click(button)
   expect(signIn).toHaveBeenCalledWith({
     provider: "google",

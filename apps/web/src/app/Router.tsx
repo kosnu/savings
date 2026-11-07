@@ -3,7 +3,7 @@ import { RouterProvider } from "@tanstack/react-router"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import { AccountDeletionStatus } from "../features/profile"
+import { DeletionHandoff } from "../features/profile"
 import { useSnackbar } from "../providers/snackbar/SnackbarProvider"
 import { useSupabaseSession } from "../providers/supabase/useSupabaseSession"
 import { router } from "./routes"
@@ -14,6 +14,7 @@ export function Router() {
   const auth = useSupabaseSession()
   const { session: supabaseSession, status: authStatus } = auth
   const contentRef = useRef<HTMLDivElement>(null)
+  const suspendedRef = useRef(false)
   const recoveringRef = useRef(false)
   const { openSnackbar } = useSnackbar()
   const { t } = useTranslation()
@@ -34,6 +35,14 @@ export function Router() {
 
   useEffect(() => {
     if (authStatus === "loading" || authStatus === "error") return
+    if (authStatus === "suspended") {
+      suspendedRef.current = true
+      return
+    }
+    if (suspendedRef.current && authStatus === "unauthenticated") {
+      void router.navigate({ to: "/", replace: true })
+    }
+    suspendedRef.current = false
     void router.invalidate()
   }, [authStatus, supabaseSession?.user?.id])
 
@@ -46,9 +55,11 @@ export function Router() {
   }
   if (auth.status === "suspended")
     return (
-      <AccountDeletionStatus
+      <DeletionHandoff
         key={auth.authUserId}
         initialState={auth.deletion}
+        submission={auth.submission}
+        onSignedOut={auth.onSignedOut}
         authUserId={auth.authUserId}
       />
     )

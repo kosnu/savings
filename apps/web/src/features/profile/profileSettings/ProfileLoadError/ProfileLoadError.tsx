@@ -4,10 +4,14 @@ import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 interface ProfileLoadErrorProps {
+  messageKey?: "profile.loadError" | "account.emailLoadError"
   onRetry: () => Promise<void> | void
 }
 
-export function ProfileLoadError({ onRetry }: ProfileLoadErrorProps) {
+export function ProfileLoadError({
+  messageKey = "profile.loadError",
+  onRetry,
+}: ProfileLoadErrorProps) {
   const { t } = useTranslation()
   const retryButtonRef = useRef<HTMLButtonElement>(null)
   const shouldFocusRetryRef = useRef(false)
@@ -39,7 +43,7 @@ export function ProfileLoadError({ onRetry }: ProfileLoadErrorProps) {
         <Callout.Icon>
           <ExclamationTriangleIcon />
         </Callout.Icon>
-        <Callout.Text>{t("profile.loadError")}</Callout.Text>
+        <Callout.Text>{t(messageKey)}</Callout.Text>
       </Callout.Root>
       <Button
         ref={retryButtonRef}

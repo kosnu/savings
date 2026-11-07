@@ -5,12 +5,13 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 import { BookSettings } from "../../../features/books"
 import { DataManagementSettings } from "../../../features/payments"
 import { AppearanceSettings } from "../../../features/preferences"
-import { DeleteAccount, ProfileSettings } from "../../../features/profile"
+import { AccountSettings, ProfileSettings } from "../../../features/profile"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
 import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
+import { createProfileHandlers } from "../../../test/msw/handlers/profile"
 import { server } from "../../../test/msw/server"
 import { screen, within } from "../../../test/test-utils"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../utils/postgresError"
@@ -72,7 +73,7 @@ function renderSettingsPage(
     const settingsAccountRoute = createRoute({
       getParentRoute: () => settingsRoute,
       path: "account",
-      component: DeleteAccount,
+      component: AccountSettings,
     })
 
     const settingsDataManagementRoute = createRoute({
@@ -125,10 +126,12 @@ describe("SettingsPage", () => {
 
     const profileOverviewLink = screen
       .getAllByRole("link", { name: /Profile/ })
-      .find((link) => link.textContent?.includes("Manage profile information."))
+      .find((link) => link.textContent?.includes("Edit your display name."))
     expect(profileOverviewLink?.getAttribute("href")).toBe("/settings/profile")
 
-    const accountOverviewLink = screen.getByRole("link", { name: /Account.*Delete your account/ })
+    const accountOverviewLink = screen.getByRole("link", {
+      name: /Account.*View your registered email address or delete your account/,
+    })
     expect(accountOverviewLink).toHaveAttribute("href", "/settings/account")
 
     const appearanceOverviewLink = screen
@@ -168,7 +171,9 @@ describe("SettingsPage", () => {
     await user.click(accountLink)
 
     expect(router.state.location.pathname).toBe("/settings/account")
-    expect(await screen.findByRole("heading", { name: "Delete account" })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Account", level: 2 })).toBeInTheDocument()
+    expect(await screen.findByText("test@example.com")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Delete account", level: 3 })).toBeInTheDocument()
     expect(screen.queryByRole("textbox", { name: "Display name" })).not.toBeInTheDocument()
 
     await user.click(appearanceLink)
@@ -197,16 +202,34 @@ describe("SettingsPage", () => {
     expect(screen.getByLabelText(/End date/)).toBeInTheDocument()
   })
 
-  test("Profile 設定ではアカウント情報だけを表示する", async () => {
+  test("Profile 設定で表示名を編集でき、アカウントの項目を表示しない", async () => {
     renderSettingsPage("/settings/profile")
 
-    expect(await screen.findByRole("heading", { name: "Account information" })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Profile" })).toBeInTheDocument()
     expect(await screen.findByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
-    expect(await screen.findByText("test@example.com")).toBeInTheDocument()
-    expect(await screen.findByText("Google")).toBeInTheDocument()
+    expect(screen.queryByText("Email address")).not.toBeInTheDocument()
+    expect(screen.queryByText("Login method")).not.toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "Delete account" })).not.toBeInTheDocument()
     expect(screen.queryByText("Language")).not.toBeInTheDocument()
     expect(screen.queryByText("Theme")).not.toBeInTheDocument()
+  })
+
+  test("登録メールの読み込みに失敗しても削除操作が残り、再試行でメールを確認できる", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.use(...createProfileHandlers({ get: { error: true } }))
+    const { user } = renderSettingsPage("/settings/account")
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not load your email address.")
+    expect(screen.getByRole("button", { name: "Schedule account deletion" })).toBeEnabled()
+    server.use(
+      ...createProfileHandlers({
+        get: { response: { name: "Test User", email: "registered@example.com" } },
+      }),
+    )
+    await user.click(screen.getByRole("button", { name: "Try again" }))
+
+    expect(await screen.findByText("registered@example.com")).toBeVisible()
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   })
 
   test("Appearance 設定では現在のLanguageとThemeを表示する", async () => {

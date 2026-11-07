@@ -5,10 +5,53 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 )
+
+func checkAccountDeletionJobs(ctx context.Context, root string) error {
+	ops, err := os.ReadFile(filepath.Join(root, "apps/api/supabase/operations/account_deletion_jobs.sql"))
+	if err != nil {
+		return err
+	}
+	// 隔離DBのpostgresも非superuserであり、migration直後は管理roleに切替できない。
+	const setup = `do $$ begin
+  if (select rolsuper from pg_roles where rolname = current_user)
+      or pg_has_role(current_user, 'account_deletion_admin', 'SET') then
+    raise exception 'Cronの検証にはSET権限のない非superuser登録者が必要';
+  end if;
+end; $$;
+`
+	const verify = `
+do $$ begin
+  if (select count(*) from cron.job
+        where username = current_user and active and (jobname, schedule) in (
+          ('burneto-account-deletion', '* 18 * * *'),
+          ('burneto-account-deletion-retention', '0 18 * * *'))) <> 2 then
+    raise exception '削除・保守ジョブの登録者またはスケジュールが不一致';
+  end if;
+  if pg_has_role(current_user, 'account_deletion_admin', 'USAGE') or exists (
+      select from pg_roles where rolname in ('anon', 'authenticated', 'service_role')
+        and (pg_has_role(oid, 'account_deletion_admin', 'SET')
+          or pg_has_role(oid, 'account_deletion_admin', 'USAGE'))) then
+    raise exception '削除管理roleの権限が過剰';
+  end if;
+end; $$;
+select command from cron.job where username = current_user
+  and jobname in ('burneto-account-deletion', 'burneto-account-deletion-retention') order by jobname
+\gexec
+select cron.unschedule(jobid) from cron.job where username = current_user
+  and jobname in ('burneto-account-deletion', 'burneto-account-deletion-retention');
+`
+	if _, err := sql(ctx, setup+string(ops)+verify); err != nil {
+		return fmt.Errorf("削除・保守Cronの運用SQL: %w", err)
+	}
+	fmt.Println("PASS 非superuser登録者から削除・保守Cronの両ジョブ本文を実行")
+	return nil
+}
 
 // OAuthそのものはHostedで別検証する。ここでは実Authが発行したsessionでDBの鮮度判定を通す。
 func deletionSignIn(ctx context.Context, a api, u actor) (actor, error) {

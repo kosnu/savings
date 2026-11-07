@@ -1,5 +1,5 @@
 import { AccountInformation } from "../AccountInformation"
 
 export function ProfileSettings() {
-  return <AccountInformation />
+  return <AccountInformation section="profile" />
 }

@@ -1,5 +1,4 @@
 import { Flex, Heading, Skeleton, Text } from "@radix-ui/themes"
-import type { Session } from "@supabase/supabase-js"
 import { useQueryClient } from "@tanstack/react-query"
 import { Suspense, useEffect, useRef, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
@@ -12,11 +11,15 @@ import { profileQueryKeys } from "../profileQueryKeys"
 import { useProfile } from "../useProfile"
 import { useUpdateDisplayName } from "../useUpdateDisplayName"
 
-export function AccountInformation() {
+type Section = "profile" | "account"
+
+export function AccountInformation({ section }: { section: Section }) {
   const { session } = useSupabaseSession()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const authUserId = session?.user.id
+  const isProfile = section === "profile"
+  const loadErrorKey = isProfile ? "profile.loadError" : "account.emailLoadError"
   const headingRef = useRef<HTMLHeadingElement>(null)
   const [focusHeadingRequest, setFocusHeadingRequest] = useState(0)
 
@@ -29,11 +32,12 @@ export function AccountInformation() {
   return (
     <Flex direction="column" gap="3">
       <Heading ref={headingRef} as="h2" size="4" tabIndex={-1}>
-        {t("profile.accountInformation")}
+        {t(isProfile ? "navigation.profile" : "navigation.account")}
       </Heading>
       <ErrorBoundary
         fallbackRender={({ resetErrorBoundary }) => (
           <ProfileLoadError
+            messageKey={loadErrorKey}
             onRetry={async () => {
               if (!authUserId) {
                 resetErrorBoundary()
@@ -52,73 +56,70 @@ export function AccountInformation() {
             }}
           />
         )}
-        resetKeys={[authUserId]}
+        resetKeys={[authUserId, section]}
       >
-        {authUserId && session ? (
-          <Suspense fallback={<ProfileLoading />}>
-            <AccountInformationContent authUserId={authUserId} session={session} />
+        {authUserId ? (
+          <Suspense key={authUserId} fallback={<ProfileLoading section={section} />}>
+            {isProfile ? (
+              <DisplayNameContent authUserId={authUserId} />
+            ) : (
+              <AccountEmail authUserId={authUserId} />
+            )}
           </Suspense>
         ) : (
-          <ProfileLoadError onRetry={() => undefined} />
+          <ProfileLoadError messageKey={loadErrorKey} onRetry={() => undefined} />
         )}
       </ErrorBoundary>
     </Flex>
   )
 }
 
-function AccountInformationContent({
-  authUserId,
-  session,
-}: {
-  authUserId: string
-  session: Session
-}) {
+function DisplayNameContent({ authUserId }: { authUserId: string }) {
   const { data: profile } = useProfile(authUserId)
-  const loginMethod = getLoginMethod(session)
   const { updateDisplayName, isPending } = useUpdateDisplayName(authUserId)
 
   return (
     <AccountInformationForm
       key={profile.name}
+      displayName={profile.name}
       isPending={isPending}
-      loginMethod={loginMethod}
-      profile={profile}
       onSaveDisplayName={updateDisplayName}
     />
   )
 }
 
-function ProfileLoading() {
+function AccountEmail({ authUserId }: { authUserId: string }) {
+  const { t } = useTranslation()
+  const { data: profile } = useProfile(authUserId)
+
+  return (
+    <Flex direction="column" gap="1">
+      <Text as="p" size="2" weight="bold">
+        {t("profile.email")}
+      </Text>
+      <Text as="p" style={{ overflowWrap: "anywhere" }}>
+        {profile.email}
+      </Text>
+      <Text as="p" size="1" color="gray">
+        {t("profile.readOnly")}
+      </Text>
+    </Flex>
+  )
+}
+
+function ProfileLoading({ section }: { section: Section }) {
   const { t } = useTranslation()
 
   return (
     <Flex aria-label={t("common.loading")} direction="column" gap="3">
       <Skeleton loading>
-        <Text>{t("profile.displayName")}</Text>
+        <Text>{t(section === "profile" ? "profile.displayName" : "profile.email")}</Text>
       </Skeleton>
-      <Skeleton loading>
-        <Text>{t("profile.email")}</Text>
-      </Skeleton>
-      <Skeleton loading>
-        <Text>{t("profile.loginMethod")}</Text>
-      </Skeleton>
-      <Skeleton loading>
-        <Text>{t("common.save")}</Text>
-      </Skeleton>
+      {section === "profile" && (
+        <Skeleton loading>
+          <Text>{t("common.save")}</Text>
+        </Skeleton>
+      )}
     </Flex>
   )
-}
-
-type LoginMethod = "google" | "unavailable"
-
-function getLoginMethod(session: Session): LoginMethod {
-  const metadataProvider = session.user.app_metadata.provider
-  const identityProvider = session.user.identities?.[0]?.provider
-  const provider = [metadataProvider, identityProvider].find(isNonEmptyString)
-
-  return provider === "google" ? "google" : "unavailable"
-}
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0
 }

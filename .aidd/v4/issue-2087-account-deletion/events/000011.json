@@ -1,0 +1,43 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/api/supabase/operations/account_deletion_jobs.sql",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/SessionError/",
+    "apps/web/src/app/index.tsx",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/",
+    "apps/web/src/features/profile/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/lib/",
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/utils/auth/useSupabaseSignIn.tsx",
+    "docs/account-deletion-operations.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html",
+    "docs/design/account-deletion.md",
+    "tools/supabase-check/"
+  ],
+  "fingerprint": "fae7c8cccf2cc0ba1815222db000d5e73105e57022163c089ddd03ada1d33c6a",
+  "status": "pass",
+  "checks": [
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview",
+    "documentation.policy, domain.amount, domain.book, domain.category",
+    "domain.date, domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.dev-preview, infrastructure.overview, infrastructure.supabase-verification, policy.audit",
+    "policy.code-review, policy.git-workflow, policy.review-feedback-classification, policy.temporal-data",
+    "policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand",
+    "web.domain-layer-rules, web.domain-ui-rules, web.error-presentation, web.feature-directory",
+    "web.landing-page-rules, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries",
+    "web.test-policy",
+    "policy.query-performance, web.msw-handlers",
+    "Issue #2087と項目1–3・5、Settings/AuthPage/SessionError/Sidebarとの比較、日英Privacyと確定前の見込時刻",
+    "実Router/Providerの正常・応答喪失、本人の期限内のみ通常PKCEログインで復帰、旧callback・別人・期限後・他端末の自動logout",
+    "非superuserの明示SET権限・環境共通の2ジョブ・匿名/一般roleの管理権限なし、隔離DBで実SQLと確認"
+  ],
+  "summary": "プロフィールに表示名、アカウントに登録メールと削除を配置。確定後は保護データを隠し、既存Snackbarで受付通知、通常トップと通常ログインへ戻す。失敗時のみCalloutで再試行。新旧のPKCEコードを照合し、古い戻りで現sessionや元の予約を変更しない。API権限・Go検証とIssue・設計の対応を確認。規則矛盾・未対処のコード指摘なし。実Google往復、定時Cronの自動起動、Hostedの容量・backup復元は未確認でIssueに残す。",
+  "remaining": []
+}
