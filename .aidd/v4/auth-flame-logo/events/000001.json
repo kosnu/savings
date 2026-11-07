@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザー依頼: 元のロゴを忠実なベクター素材として再現し、炎の輪郭そのものを太い根元から燃え上がらせて先端を不規則にたなびかせる。お札は固定。PNGの変形とモヤの重ね描きを禁止。PR #2102の継続修正",
+  "paths": [
+    "apps/web/src/components/misc/Logo/",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx"
+  ],
+  "fingerprint": "1d3f695fffb2abe41828b504eb3bbb7379b8d5d83e81afc9b3ea894c64008878",
+  "status": "pass",
+  "checks": [
+    "同じTask・baseline・PR #2102の継続",
+    "元の輪郭と配色からSVG素材を再構成",
+    "お札を固定し炎のパスとグラデーションを一体で動かす"
+  ],
+  "summary": "比較元main 9bf3d0e9を維持。PNG座標変形と前面の形状・色合成を廃止する。元画像を曲線とSVGグラデーションへ再構成し、炎とお札を独立したパスへ分離。お札のパスを更新せず、炎の制御点を根元の太さを残して変化させる。上ほど大きい不規則な曲げと伸縮を加え、下から上へ変化を伝える。最大30fpsで更新し、静止設定時は元のパスへ戻し、解除で再開し、終了時はフレームと購読を解放する。描画不能時は静止SVGを表示する。",
+  "remaining": []
+}

@@ -1,0 +1,24 @@
+.animated {
+  position: relative;
+  display: inline-block;
+}
+
+.fallback {
+  display: block;
+}
+
+.artwork {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+}
+
+.artwork[data-ready="true"] {
+  visibility: visible;
+}
+
+.artwork[data-ready="true"] + .fallback {
+  visibility: hidden;
+}
