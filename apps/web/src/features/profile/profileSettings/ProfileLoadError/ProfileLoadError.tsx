@@ -39,7 +39,7 @@ export function ProfileLoadError({ onRetry }: ProfileLoadErrorProps) {
         <Callout.Icon>
           <ExclamationTriangleIcon />
         </Callout.Icon>
-        <Callout.Text>{t("profile.loadError")}</Callout.Text>
+        <Callout.Text>{t("account.loadError")}</Callout.Text>
       </Callout.Root>
       <Button
         ref={retryButtonRef}

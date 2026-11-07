@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/app/",
+    "apps/web/src/features/profile/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/lib/",
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/test/msw/",
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "3e5cc9a525d044d36723f6ef8ea0b2725a3e93fd43c8b99b115de3ac5ba33b46",
+  "status": "pass",
+  "checks": [
+    "Webのlint・整形・型、単体／結合161ファイル1135件、ChromiumのStorybook 8ファイル32件がすべて成功",
+    "保存禁止・旧キー・通信応答喪失・同ページ照会・再訪時の照会と再送0件・別アカウント切替・ログアウト再試行・旧URL転送をテスト",
+    "隔離Supabaseの公開RPCでA/Bのpendingは各1件、Aの期限と受付情報は不変。同一人の2件目は23505で拒否",
+    "設計3文書の整形・差分空白を検査"
+  ],
+  "summary": "保存状態に依存せず本人ごとに予約でき、未確定の受付はその場でのみ照会できる。外部Googleログインは模擬し、隔離DBでは合成sessionを使用。",
+  "remaining": []
+}

@@ -14,13 +14,13 @@ export function SettingsOverview() {
       </Text>
       <nav aria-label={t("settings.overviewLinks")}>
         <Flex direction="column" gap="0">
-          <Link to="/settings/profile" className={styles.itemLink}>
+          <Link to="/settings/account" className={styles.itemLink}>
             <Flex direction="column" gap="1">
               <Text as="span" size="4" weight="medium" className={styles.itemTitle}>
-                {t("navigation.profile")}
+                {t("navigation.account")}
               </Text>
               <Text as="span" size="3" color="gray">
-                {t("settings.profileDescription")}
+                {t("settings.accountDescription")}
               </Text>
             </Flex>
           </Link>

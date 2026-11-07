@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000017.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/features/profile/",
+    "apps/web/src/lib/",
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/app/",
+    "apps/web/src/utils/auth/",
+    "apps/web/src/test/",
+    "apps/web/.storybook/",
+    "docs/design/account-deletion.md",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/features/books/"
+  ],
+  "fingerprint": "26d9ff38472ac4171736283f016657c1a1d45a9f195ad397478dc6f38d0c56d4",
+  "status": "pass",
+  "checks": [
+    "Web lint・format-check・typecheckが成功",
+    "単体/結合161ファイル1148件、Chromium Storybook 8ファイル32件が成功",
+    "通信断・同番号照会・再訪・本人切替・拒否理由・既存予約・古い説明応答を実Router/SDKと模擬通信で検証",
+    "古いcallback・認証失敗は元sessionを維持。本人の期限内復帰と通常ログイン後の/への遷移を確認",
+    "設計書の整形とgit diff --checkが成功。Storybook初回のOS権限エラーは権限指定の再実行で解消",
+    "No.7の条件と完了基準をIssueコメント6706595165へ記入しread-back一致を確認"
+  ],
+  "summary": "承認されたNo.1〜6と追跡No.7を検証。DB契約は同じで、外部Google画面とサーバー応答は模擬した。Hostedの実Google往復、定時Cronと容量・backup復旧は従来どおり未確認。",
+  "remaining": []
+}

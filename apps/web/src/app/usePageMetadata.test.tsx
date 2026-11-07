@@ -24,7 +24,7 @@ afterEach(async () => {
 async function setup(initialEntry = "/") {
   const root = createRootRoute()
   const routeTree = root.addChildren(
-    ["/", "/privacy", "/auth", "/payments", "/settings/profile"].map((path) =>
+    ["/", "/privacy", "/auth", "/payments", "/settings/account"].map((path) =>
       createRoute({ getParentRoute: () => root, path }),
     ),
   )
@@ -80,7 +80,7 @@ test("公開ページの遷移・言語変更でtitle、説明、正規URLと言
   expect(document.querySelector('meta[name="robots"]')).toHaveAttribute("content", "index, follow")
 })
 
-test.each(["/auth", "/payments", "/settings/profile"])(
+test.each(["/auth", "/payments", "/settings/account"])(
   "%s への遷移は検索除外に切り替わり、公開ページの情報が残らない",
   async (to) => {
     const { router } = await setup()

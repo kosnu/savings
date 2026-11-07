@@ -22,7 +22,11 @@ function renderApp(initialEntry: string, sessionState: SupabaseSessionState) {
 }
 
 const unauthenticated = { status: "unauthenticated", session: null } as const
-const authenticated = { status: "authenticated", session: mockSession() } as const
+const authenticated = {
+  status: "authenticated",
+  session: mockSession(),
+  startAccountDeletion: () => undefined,
+} as const
 
 describe("プライバシーポリシーの公開ルート", () => {
   test.each([unauthenticated, authenticated])("$statusでもURLを直接開ける", async (state) => {

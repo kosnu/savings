@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000021.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/features/profile/deleteAccount/",
+    "tools/supabase-check/account_deletion.go"
+  ],
+  "fingerprint": "182bbb8b3ac2bb4169dbf0d2ff7d856418afcf2f25f6dab936c1b81e847da32e",
+  "status": "pass",
+  "checks": [
+    "Web lint・format-check・typecheckが成功。単体/結合161ファイル1148件が成功",
+    "Go test/vetとgofmt、git diff --checkが成功",
+    "固定CLI 2.122.0をpnpm execで供給し、専用隔離Supabaseで全migration・pgTAP 542件・実Auth/RESTの検証が成功",
+    "二重batch・共有Book競合・lock待機後期限越え・11件timeout/後続10件と延期分復旧、実行計画が成功",
+    "Goの旧SQL/API・assert文字列はすべて保持。追加はシナリオ名を付けるerrorラップのみ",
+    "初回の既存Home待機テスト1件は、対象コードを変えず再実行して成功"
+  ],
+  "summary": "No.8〜12の整理後にWebと隔離DB/APIを検証。既存の認証世代・停止・言語fallback、試験順序・fixture・競合の観測と復旧を保持。実Google認証往復、Hostedの定時Cron・容量・実backup復旧は未確認。",
+  "remaining": []
+}

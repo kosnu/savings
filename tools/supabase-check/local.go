@@ -206,6 +206,9 @@ func localRun(ctx context.Context, root string, extra func(context.Context) erro
 	if extra != nil {
 		return extra(ctx)
 	}
+	if err = checkAccountDeletionJobs(ctx, root); err != nil {
+		return err
+	}
 
 	data, err := command(ctx, root, "", "supabase", "status", "--workdir", temp, "-o", "json")
 	if err != nil {

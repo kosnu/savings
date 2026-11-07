@@ -32,7 +32,7 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(await canvas.findByRole("heading", { level: 1 })).toHaveTextContent("Burneto")
-    await expect(canvas.getByRole("link", { name: "Log in" })).toHaveAttribute("href", "/auth")
+    await expect(canvas.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/auth")
     await expect(canvas.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "68000")
     await expect(canvas.getByRole("progressbar")).toHaveAttribute("aria-valuemax", "100000")
   },

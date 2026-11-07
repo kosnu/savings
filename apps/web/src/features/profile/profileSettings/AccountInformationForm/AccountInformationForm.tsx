@@ -1,5 +1,5 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Callout, Flex, Text, TextField } from "@radix-ui/themes"
+import { Callout, Flex, TextField } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
 import { useId, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -10,20 +10,17 @@ import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inp
 import { displayNameSchema } from "../../../../domain/displayName"
 import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
-import type { Profile } from "../profileSchema"
 
 const profileFormSchema = z.object({ name: displayNameSchema })
 
 interface AccountInformationFormProps {
-  profile: Profile
-  loginMethod: "google" | "unavailable"
+  displayName: string
   isPending: boolean
   onSaveDisplayName: (name: string) => Promise<void>
 }
 
 export function AccountInformationForm({
-  profile,
-  loginMethod,
+  displayName,
   isPending,
   onSaveDisplayName,
 }: AccountInformationFormProps) {
@@ -34,11 +31,11 @@ export function AccountInformationForm({
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | undefined>()
 
   const form = useForm({
-    defaultValues: { name: profile.name },
+    defaultValues: { name: displayName },
     validators: { onSubmit: profileFormSchema },
     onSubmit: async ({ value }) => {
       const parsedValue = profileFormSchema.parse(value)
-      if (parsedValue.name === profile.name) return
+      if (parsedValue.name === displayName) return
 
       try {
         setSubmitErrorMessage(undefined)
@@ -79,48 +76,37 @@ export function AccountInformationForm({
                   <Callout.Text>{submitErrorMessage}</Callout.Text>
                 </Callout.Root>
               ) : null}
-              <Flex direction="column" gap="3">
-                <form.Field name="name">
-                  {(field) => {
-                    const isValid = field.state.meta.isValid
-                    const errorMessages = getErrorMessages(field.state.meta.errors) ?? []
-                    const hasError = !isValid && errorMessages.length > 0
+              <form.Field name="name">
+                {(field) => {
+                  const isValid = field.state.meta.isValid
+                  const errorMessages = getErrorMessages(field.state.meta.errors) ?? []
+                  const hasError = !isValid && errorMessages.length > 0
 
-                    return (
-                      <BaseField>
-                        <FieldLabel htmlFor={nameInputId} required>
-                          {t("profile.displayName")}
-                        </FieldLabel>
-                        <TextField.Root
-                          disabled={isSaving}
-                          id={nameInputId}
-                          name="name"
-                          value={field.state.value}
-                          aria-label={t("profile.displayName")}
-                          aria-describedby={hasError ? nameErrorId : undefined}
-                          aria-invalid={hasError}
-                          onChange={(event) => {
-                            field.handleChange(event.target.value)
-                            setSubmitErrorMessage(undefined)
-                          }}
-                        />
-                        <span id={nameErrorId}>
-                          <FieldMessages error={hasError} messages={errorMessages} />
-                        </span>
-                      </BaseField>
-                    )
-                  }}
-                </form.Field>
-                <ReadOnlyProfileValue label={t("profile.email")} value={profile.email} />
-                <ReadOnlyProfileValue
-                  label={t("profile.loginMethod")}
-                  value={
-                    loginMethod === "unavailable"
-                      ? t("profile.providerUnavailable")
-                      : t(`profile.providers.${loginMethod}`)
-                  }
-                />
-              </Flex>
+                  return (
+                    <BaseField>
+                      <FieldLabel htmlFor={nameInputId} required>
+                        {t("profile.displayName")}
+                      </FieldLabel>
+                      <TextField.Root
+                        disabled={isSaving}
+                        id={nameInputId}
+                        name="name"
+                        value={field.state.value}
+                        aria-label={t("profile.displayName")}
+                        aria-describedby={hasError ? nameErrorId : undefined}
+                        aria-invalid={hasError}
+                        onChange={(event) => {
+                          field.handleChange(event.target.value)
+                          setSubmitErrorMessage(undefined)
+                        }}
+                      />
+                      <span id={nameErrorId}>
+                        <FieldMessages error={hasError} messages={errorMessages} />
+                      </span>
+                    </BaseField>
+                  )
+                }}
+              </form.Field>
               <Flex justify="start">
                 <SubmitButton loading={isSaving}>{t("common.save")}</SubmitButton>
               </Flex>
@@ -129,21 +115,5 @@ export function AccountInformationForm({
         }}
       </form.Subscribe>
     </form>
-  )
-}
-
-function ReadOnlyProfileValue({ label, value }: { label: string; value: string }) {
-  const { t } = useTranslation()
-
-  return (
-    <Flex direction="column" gap="1">
-      <Text as="p" size="2" weight="bold">
-        {label}
-      </Text>
-      <Text as="p">{value}</Text>
-      <Text as="p" size="1" color="gray">
-        {t("profile.readOnly")}
-      </Text>
-    </Flex>
   )
 }

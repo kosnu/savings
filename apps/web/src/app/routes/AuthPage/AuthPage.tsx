@@ -42,7 +42,7 @@ export function AuthPage() {
           )}
           <Flex direction="column" gap="3">
             <Button onClick={signInWithSupabase} variant="outline">
-              {t("auth.continueWithGoogle")}
+              {t("auth.login")}
             </Button>
             <ThemeLink asChild size="2">
               <Link to="/privacy">{t("privacy.title")}</Link>

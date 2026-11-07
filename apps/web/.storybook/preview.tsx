@@ -39,7 +39,13 @@ const preview: Preview = {
 
       return (
         <QueryClientProvider client={queryClient}>
-          <SupabaseSessionContext value={{ session: mockSession(), status: "authenticated" }}>
+          <SupabaseSessionContext
+            value={{
+              session: mockSession(),
+              status: "authenticated",
+              startAccountDeletion: () => undefined,
+            }}
+          >
             <ThemeProvider>
               <SnackbarProvider>
                 <Story />

@@ -1,0 +1,35 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2093",
+  "paths": [
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/features/profile/profileSettings/",
+    "apps/web/src/features/profile/deleteAccount/",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+    "apps/api/supabase/operations/account_deletion_jobs.sql",
+    "apps/api/supabase/tests/account_deletion.test.sql",
+    "docs/design/account-deletion.md",
+    "docs/account-deletion-operations.md"
+  ],
+  "fingerprint": "64ab1f9057fe67bd1dd365b89c782676b0bf8ca1b51e5d0ac740734a12594e80",
+  "status": "unknown",
+  "checks": [
+    "PR #2093 head dc69e5e8・Issue #2087・ユーザー3点・未解決Bot thread 2件",
+    "日英文言、Settings見出し/実項目/期待値、user属性の正本",
+    "Burneto Dev: 受付停止・保留0件、cron.job無し、postgresから管理roleへSET不可",
+    "両ジョブのSQL・pgTAP権限検査・provider/Router/停止画面とsignOut mock",
+    "分析レビュー: 成立と反証・適用先を確認、再発抑止効果とHostedでの復帰実測はunknown"
+  ],
+  "summary": "ログイン元名が利用者向け案内に埋め込まれ、プロフィール経路の見出し/テストがアカウント情報を期待。日英で操作名を中立化し、プロフィール=表示名、アカウント=メール確認/削除を提案。Dev受付の明示依頼あり。共有DevのCron未導入と管理role切替不可を実測。通常経路の別端末で自動logout後に停止画面が失われるコード経路も確認。4件ともマージ前修正を提案。",
+  "remaining": [
+    "Issue #2087のUI条件・設計・日英文言・Settings・関連Story/testを同期。復帰時の本人/期限確認を維持。共通規則追加は不要。",
+    "PR discussion 4496001293: 公開SQLでジョブ実行roleだけSET可能にし、非superuserから両ジョブ本文を隔離環境で検証。",
+    "PR discussion 4496001308: receiptなしの本人の停止画面をローカルlogout後も維持。Provider+Router経由で期限前後・別人ログインを検証。",
+    "Bot2件は未返信/未解決。修正・検証・配信後に各commitと結果を返信し論点解消を確認。",
+    "UI・コード・Issueの改善は承認待ち。Dev受付とCron有効化は別操作。公開順序の例外か、Devでのジョブ・権限まで含むかを確認。"
+  ]
+}

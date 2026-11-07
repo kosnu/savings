@@ -14,6 +14,7 @@ import {
 } from "../../../providers/supabase/SupabaseSessionProvider"
 import { payments } from "../../../test/data/payments"
 import { mockSession } from "../../../test/data/supabaseSession"
+import { createAccountDeletionHandlers } from "../../../test/msw/handlers/accountDeletion"
 import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
@@ -42,6 +43,7 @@ const {
 
 function resetHandlers() {
   server.resetHandlers(
+    ...createAccountDeletionHandlers(),
     ...createBookHandlers(),
     ...createPaymentHandlers(),
     ...createCategoryHandlers(),
@@ -320,6 +322,7 @@ describe("HomePage", () => {
 
   test("支払いがない場合は0円の集計と空状態を表示する", async () => {
     server.resetHandlers(
+      ...createAccountDeletionHandlers(),
       ...createBookHandlers(),
       ...createPaymentHandlers({ initialRows: [] }),
       ...createCategoryHandlers({ get: { paymentRows: [] } }),
@@ -379,7 +382,9 @@ describe("HomePage", () => {
     function Scenario() {
       const [session, setSession] = useState(mockSession())
       return (
-        <SupabaseSessionContext value={{ session, status: "authenticated" }}>
+        <SupabaseSessionContext
+          value={{ session, status: "authenticated", startAccountDeletion: () => undefined }}
+        >
           <Default />
           <button
             onClick={() => setSession({ ...session, user: { ...session.user, id: "new-user" } })}
@@ -505,6 +510,7 @@ describe("HomePage", () => {
       amount: 1080,
     }
     server.resetHandlers(
+      ...createAccountDeletionHandlers(),
       ...createBookHandlers(),
       ...createPaymentHandlers({ initialRows: [], create: { response: created } }),
       ...createCategoryHandlers({ get: { paymentRows: [] } }),
@@ -519,6 +525,7 @@ describe("HomePage", () => {
     const dialog = await screen.findByRole("dialog", { name: /create payment/i })
     await user.type(within(dialog).getByLabelText(/amount/i), "1080")
     server.resetHandlers(
+      ...createAccountDeletionHandlers(),
       ...createBookHandlers(),
       ...createPaymentHandlers({
         initialRows: [created],

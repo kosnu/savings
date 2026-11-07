@@ -8,8 +8,7 @@ import { server } from "../../../../test/msw/server"
 import { act, render, screen, waitFor } from "../../../../test/test-utils"
 import * as stories from "./AccountInformation.stories"
 
-const { Default, Loading, LoadError, IdentityProviderFallback, UnavailableLoginMethod } =
-  composeStories(stories)
+const { Default, Loading, LoadError } = composeStories(stories)
 
 type ProfileStory = typeof Default
 
@@ -29,19 +28,15 @@ describe("AccountInformation", () => {
     vi.restoreAllMocks()
   })
 
-  test("Default Storyでprofileを表示し、保存成功後に再取得値と成功通知を表示する", async () => {
+  test("アカウントの表示名と登録メールを表示し、保存成功後に再取得値と成功通知を表示する", async () => {
     resetHandlersForStory(Default)
     const { user } = await renderStory(<Default />)
 
-    expect(await screen.findByRole("heading", { name: "Account information" })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Account" })).toBeInTheDocument()
     const input = await screen.findByRole("textbox", { name: "Display name" })
     expect(input).toHaveValue("Test User")
-    expect(await screen.findByText("test@example.com")).toBeInTheDocument()
-    expect(await screen.findByText("Google")).toBeInTheDocument()
-    expect(screen.getAllByText("Read-only")).toHaveLength(2)
-    expect(screen.queryByRole("textbox", { name: "Email address" })).not.toBeInTheDocument()
-    expect(screen.queryByRole("textbox", { name: "Login method" })).not.toBeInTheDocument()
-
+    expect(screen.getByText("test@example.com")).toBeVisible()
+    expect(screen.getByText("Read-only")).toBeVisible()
     await user.clear(input)
     await user.type(input, "Updated User")
     await user.click(screen.getByRole("button", { name: "Save" }))
@@ -111,14 +106,14 @@ describe("AccountInformation", () => {
     const { user } = await renderStory(<LoadError />)
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Could not load profile information.",
+      "Could not load your display name or email address.",
     )
     server.resetHandlers(...createProfileHandlers())
     await user.click(screen.getByRole("button", { name: "Try again" }))
 
     expect(await screen.findByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Account information" })).toHaveFocus()
+      expect(screen.getByRole("heading", { name: "Account" })).toHaveFocus()
     })
   })
 
@@ -128,21 +123,5 @@ describe("AccountInformation", () => {
     await renderStory(<Loading />)
 
     expect(screen.getByLabelText("Loading")).toBeInTheDocument()
-  })
-
-  test("app_metadataが空の場合はidentityのproviderをfallbackに使う", async () => {
-    resetHandlersForStory(IdentityProviderFallback)
-    await renderStory(<IdentityProviderFallback />)
-
-    expect(await screen.findByText("Google")).toBeInTheDocument()
-  })
-
-  test("providerが不明でもプロフィール全体をエラーにしない", async () => {
-    resetHandlersForStory(UnavailableLoginMethod)
-    await renderStory(<UnavailableLoginMethod />)
-
-    expect(await screen.findByText("Login method unavailable.")).toBeInTheDocument()
-    expect(screen.getByRole("textbox", { name: "Display name" })).toBeInTheDocument()
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   })
 })

@@ -1,6 +1,37 @@
 export const resources = {
   en: {
     translation: {
+      "navigation.account": "Account",
+      "settings.accountDescription":
+        "Edit your display name, view your registered email address, or delete your account.",
+      "deletion.heading": "Delete account",
+      "deletion.introduction": "Schedule deletion of your Burneto account.",
+      "deletion.open": "Schedule account deletion",
+      "deletion.confirmTitle": "Schedule deletion of this account?",
+      "deletion.scope": "Your account, books only you use, and their records will be deleted.",
+      "deletion.shared":
+        "Shared books and their records are kept if other members remain when your account is deleted.",
+      "deletion.restore":
+        "Scheduling stops use immediately. Sign back in to the same account within 7 days to cancel deletion and return. After the deadline, you cannot return or restore deleted data.",
+      "deletion.estimate": "Times below are estimates and are confirmed after scheduling.",
+      "deletion.deadline": "Return deadline",
+      "deletion.purgeAfter": "Deletion scheduled to start",
+      "deletion.unavailable":
+        "New deletion requests are currently unavailable. Please contact the operator.",
+      "deletion.confirm": "Confirm deletion schedule",
+      "deletion.prepareError": "Could not prepare the deletion request. Please try again.",
+      "deletion.recheck": "Recheck request",
+      "deletion.checkAccount": "Check account and return",
+      "deletion.explanationChanged":
+        "The deletion information has changed. Review it again before confirming.",
+      "deletion.sessionError":
+        "We could not verify your account. Check your sign-in before continuing.",
+      "deletion.state.not_confirmed": "We could not confirm your deletion request.",
+      "deletion.state.pending": "Your account deletion request was accepted.",
+      "deletion.state.cancelled":
+        "Account deletion was cancelled. Your original account can be used again.",
+      "deletion.cleanupError": "Could not sign out on this device.",
+      "deletion.retryCleanup": "Retry sign-out",
       "app.name": "Burneto",
       "privacy.title": "Privacy policy",
       "privacy.back": "Back to {{appName}}",
@@ -30,9 +61,9 @@ export const resources = {
       "privacy.storage.browser":
         "Your browser’s local storage keeps your sign-in session, language and theme preferences. Language preferences are also stored with your account. Clearing browser storage or signing out does not delete the account or records stored on the servers.",
       "privacy.storage.deletion":
-        "You can delete individual payments and categories through the app. Disabling a budget does not erase past budget records. An account-deletion option is not currently available in the app. For requests for access, correction or deletion, please contact the operator below.",
+        "You can delete individual payments and categories through the app. Disabling a budget does not erase past budget records. From Settings → Account, you can schedule account deletion when new requests are enabled. Scheduling suspends normal use immediately. Signing back in to the same account within 168 hours cancels the request. Physical deletion starts from the first 03:00 Japan time at or after that deadline, only from 03:00 to 03:59 each day, in batches of up to 10 per minute (up to 600 per day). Remaining and failed requests carry over to the next day; completion may be delayed. Deletion applies to your Burneto account and its data. Books with remaining members and their records are preserved. Empty books and all their records are deleted. Deleted data cannot be restored. For access, correction or unavailable deletion requests, contact the operator below.",
       "privacy.storage.retention":
-        "Information in backups and technical logs held by external infrastructure is managed separately from the records you see in the app. Deleting a record does not guarantee immediate removal of all related information from backups and logs. Retention and deletion conditions depend on the settings and terms of each infrastructure provider.",
+        "Information in backups and technical logs held by external infrastructure is managed separately from the records you see in the app. Deleting a record does not guarantee immediate removal of all related information from backups and logs. Retention and deletion conditions depend on the settings and terms of each infrastructure provider. Pending deletion requests are kept until processing finishes; cancellation and completion records are kept for 30 days. The request number and confirmation key are used only while the request page is open. Closing or reloading the page ends the check. Operator-managed backups are retained for at most 7 days; current request states and original deadlines are reapplied before restoration is made accessible. Inquiry emails are managed separately.",
       "privacy.contact.title": "Contact the operator",
       "privacy.contact.description":
         "For questions about personal information or requests for access, correction or deletion, please use the contact email below.",
@@ -45,7 +76,6 @@ export const resources = {
       "navigation.payments": "Payments",
       "navigation.settings": "Settings",
       "navigation.book": "Book",
-      "navigation.profile": "Profile",
       "navigation.appearance": "Appearance",
       "navigation.paymentsAria": "Navigate to Payments page",
       "navigation.settingsAria": "Navigate to Settings page",
@@ -69,8 +99,7 @@ export const resources = {
       "auth.goToAuth": "Go to Auth",
       "auth.startDescription":
         "Start with today's spending. As you record payments, see how your month is taking shape.",
-      "auth.login": "Log in",
-      "introduction.startNote": "Continue with your Google account",
+      "auth.login": "Sign in",
       "introduction.example.preview": "Spending overview",
       "introduction.example.available": "Left in your monthly budget",
       "introduction.example.categories": "Spending by category",
@@ -94,7 +123,6 @@ export const resources = {
       "introduction.everyday.record":
         "Enter the date and amount by hand. Add a category or note when you need one.",
       "introduction.everyday.review": "See totals by category, such as groceries or eating out.",
-      "auth.continueWithGoogle": "Continue with Google",
       "auth.callbackErrorTitle": "Sign-in failed",
       "auth.callbackErrorDescription":
         "Authentication could not be completed. Please wait and try again.",
@@ -125,7 +153,6 @@ export const resources = {
       "settings.sections": "Settings sections",
       "settings.overviewLinks": "Settings overview links",
       "settings.overviewDescription": "Choose a setting to manage.",
-      "settings.profileDescription": "Manage profile information.",
       "settings.appearanceDescription": "Manage language and theme.",
       "settings.bookDescription":
         "View the current book and manage its monthly budget and categories.",
@@ -134,17 +161,13 @@ export const resources = {
       "books.loadError": "Could not load current book information.",
       "books.loadingCurrent": "loading current book",
       "appearance.title": "Appearance",
-      "profile.accountInformation": "Account information",
       "profile.displayName": "Display name",
       "profile.email": "Email address",
-      "profile.loginMethod": "Login method",
+      "account.loadError": "Could not load your display name or email address.",
       "profile.readOnly": "Read-only",
-      "profile.loadError": "Could not load profile information.",
       "profile.saveError": "Could not save your display name.",
       "profile.saveSuccess": "Display name updated.",
       "profile.retry": "Try again",
-      "profile.providerUnavailable": "Login method unavailable.",
-      "profile.providers.google": "Google",
       "aggregates.title": "Aggregates",
       "aggregates.placeholder": "Aggregate features will be implemented here.",
       "common.cancel": "Cancel",
@@ -326,6 +349,33 @@ export const resources = {
   },
   ja: {
     translation: {
+      "navigation.account": "アカウント",
+      "settings.accountDescription": "表示名の編集、登録メールアドレスの確認、アカウントの削除",
+      "deletion.heading": "アカウントの削除",
+      "deletion.introduction": "Burnetoのアカウント削除を予約します。",
+      "deletion.open": "アカウントの削除を予約",
+      "deletion.confirmTitle": "アカウントの削除を予約しますか？",
+      "deletion.scope": "アカウントと、あなた一人で使っているブック・その記録を削除します。",
+      "deletion.shared": "共有ブックとその記録は、削除時に他のメンバーが残っていれば消えません。",
+      "deletion.restore":
+        "予約すると利用を停止します。7日以内に同じアカウントでログインすると、予約を取り消して復帰できます。期限後は復帰できず、削除したデータは元に戻せません。",
+      "deletion.estimate": "以下の時刻は目安です。予約受付後に確定します。",
+      "deletion.deadline": "復帰期限",
+      "deletion.purgeAfter": "削除開始予定",
+      "deletion.unavailable":
+        "現在、新しい削除予約は受け付けていません。運営者へお問い合わせください。",
+      "deletion.confirm": "削除予約を確定する",
+      "deletion.prepareError": "削除予約の準備ができませんでした。もう一度お試しください。",
+      "deletion.recheck": "受付を再確認",
+      "deletion.checkAccount": "アカウントを確認して戻る",
+      "deletion.explanationChanged": "削除の説明が更新されました。内容を確認し直してください。",
+      "deletion.sessionError":
+        "本人のアカウントを確認できませんでした。ログイン状態を確認してください。",
+      "deletion.state.not_confirmed": "削除予約の受付を確認できません。",
+      "deletion.state.pending": "アカウント削除の予約を受け付けました。",
+      "deletion.state.cancelled": "削除予約を取り消しました。元のアカウントを利用できます。",
+      "deletion.cleanupError": "この端末でログアウトできませんでした。",
+      "deletion.retryCleanup": "ログアウトを再試行",
       "app.name": "Burneto",
       "privacy.title": "プライバシーポリシー",
       "privacy.back": "{{appName}}に戻る",
@@ -354,9 +404,9 @@ export const resources = {
       "privacy.storage.browser":
         "ログイン状態と言語・テーマの設定を、ブラウザのローカルストレージに保存します。言語設定はアカウントにも保存します。ブラウザの保存情報の消去やログアウトでは、サーバー上のアカウントや記録は削除されません。",
       "privacy.storage.deletion":
-        "個別の支払いやカテゴリは画面から削除できます。予算を無効にしても、過去の予算の記録は削除されません。アカウントを削除する画面操作は現在提供していません。開示・訂正・削除等のご相談は、以下の窓口へご連絡ください。",
+        "個別の支払いやカテゴリはアプリから削除できます。予算の無効化では過去の予算履歴を消去しません。受付中は「設定 → アカウント」からアカウント削除を予約でき、予約直後に通常利用を停止します。予約から168時間が経つ前に同じアカウントでログインし直すと、予約を取り消せます。期限以降で最初の日本時間午前3時から、毎日3:00〜3:59だけ毎分最大10件（最大600件／日）を物理削除します。残件・失敗分は翌日に回し、完了が遅れる場合があります。削除対象はBurnetoのアカウントとそのデータです。他のメンバーが残るブックと全履歴は保持し、無人のブックと全履歴を削除します。物理削除後の復元はできません。閲覧・訂正や受付停止中の削除依頼は、下記へお問い合わせください。",
       "privacy.storage.retention":
-        "バックアップに含まれる情報や、外部基盤に保存される技術ログは、画面で確認できる登録情報とは別に管理されます。登録情報を削除しても、バックアップやログから関連情報が直ちにすべて消去されることを保証するものではありません。保持・削除の条件は、各基盤の設定や契約によります。",
+        "バックアップに含まれる情報や、外部基盤に保存される技術ログは、画面で確認できる登録情報とは別に管理されます。登録情報を削除しても、バックアップやログから関連情報が直ちにすべて消去されることを保証するものではありません。保持・削除の条件は、各基盤の設定や契約によります。 削除要求は処理完了まで、取消・完了記録は30日間保持します。受付番号と確認キーは申請ページを開いている間だけ使用します。ページを閉じたり再読み込みしたりすると確認は終了します。運営者管理のバックアップは最大7日とし、復旧時は最新の要求状態と元の期限を再適用してから公開します。問い合わせメールは別管理です。",
       "privacy.contact.title": "運営者へのお問い合わせ",
       "privacy.contact.description":
         "個人情報の取扱いに関するお問い合わせや、開示・訂正・削除等のご相談は、以下のメールアドレスへご連絡ください。",
@@ -369,7 +419,6 @@ export const resources = {
       "navigation.payments": "支払い",
       "navigation.settings": "設定",
       "navigation.book": "ブック",
-      "navigation.profile": "プロフィール",
       "navigation.appearance": "外観",
       "navigation.paymentsAria": "支払いページへ移動",
       "navigation.settingsAria": "設定ページへ移動",
@@ -394,7 +443,6 @@ export const resources = {
       "auth.startDescription":
         "まずは今日の支払いから。記録を重ねて、毎月のお金の使い方を見ていきましょう。",
       "auth.login": "ログイン",
-      "introduction.startNote": "Googleアカウントで利用を始められます",
       "introduction.example.preview": "家計簿のイメージ",
       "introduction.example.available": "月の予算の残り",
       "introduction.example.categories": "カテゴリごとの支出",
@@ -418,7 +466,6 @@ export const resources = {
       "introduction.everyday.record":
         "日付と金額を手入力します。カテゴリやメモは、必要なときだけ付けられます。",
       "introduction.everyday.review": "食費や外食など、カテゴリごとの支出を確認できます。",
-      "auth.continueWithGoogle": "Googleで続ける",
       "auth.callbackErrorTitle": "ログインに失敗しました",
       "auth.callbackErrorDescription":
         "認証を完了できませんでした。時間をおいて、もう一度お試しください。",
@@ -449,7 +496,6 @@ export const resources = {
       "settings.sections": "設定セクション",
       "settings.overviewLinks": "設定概要のリンク",
       "settings.overviewDescription": "設定したい項目を選択してください。",
-      "settings.profileDescription": "プロフィール情報を管理します。",
       "settings.appearanceDescription": "言語とテーマを管理します。",
       "settings.bookDescription": "現在のブックを確認し、その月予算とカテゴリを管理します。",
       "books.current": "現在のブック",
@@ -457,17 +503,13 @@ export const resources = {
       "books.loadError": "現在のブック情報を読み込めませんでした。",
       "books.loadingCurrent": "現在のブックを読み込み中",
       "appearance.title": "外観",
-      "profile.accountInformation": "アカウント情報",
       "profile.displayName": "表示名",
       "profile.email": "メールアドレス",
-      "profile.loginMethod": "ログイン方法",
+      "account.loadError": "表示名とメールアドレスを読み込めませんでした。",
       "profile.readOnly": "読み取り専用",
-      "profile.loadError": "プロフィール情報を読み込めませんでした。",
       "profile.saveError": "表示名を保存できませんでした。",
       "profile.saveSuccess": "表示名を更新しました。",
       "profile.retry": "もう一度試す",
-      "profile.providerUnavailable": "ログイン方法を確認できません。",
-      "profile.providers.google": "Google",
       "aggregates.title": "集計",
       "aggregates.placeholder": "ここに集計機能が実装される予定です。",
       "common.cancel": "キャンセル",

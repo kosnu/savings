@@ -1,0 +1,35 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/app/",
+    "apps/web/src/features/profile/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/lib/",
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/test/msw/",
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "3e5cc9a525d044d36723f6ef8ea0b2725a3e93fd43c8b99b115de3ac5ba33b46",
+  "status": "pass",
+  "checks": [
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview",
+    "documentation.policy, domain.amount, domain.book, domain.category",
+    "domain.date, domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.overview, policy.audit, policy.code-review, policy.git-workflow",
+    "policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure",
+    "web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules",
+    "web.error-presentation, web.feature-directory, web.query-cache, web.storybook-browser-tests",
+    "web.suspense-boundaries, web.test-policy",
+    "infrastructure.dev-preview（既存PRのWeb配信）、日英のPrivacy・設定一覧と設計文書の整合",
+    "設定の表示名・メールを既存profile queryで取得し、本人別のSuspense／ErrorBoundaryとフォーム保存、旧URL転送を確認",
+    "受付結果は本人のページ内だけで照合し、成功通知は一度、照会とlogoutの再試行を区別する。別人への切替・再訪・旧保存キーの拒否は回帰テストと照合",
+    "同一人の二重予約拒否・他人の予約不変はDBの公開RPCで確認。期限内の本人復帰と保護データ停止は既存のサーバー判定を利用"
+  ],
+  "summary": "Issue #2087の承認済み改善2点を現行差分・検証結果と照合。新たな指摘・規則間の矛盾なし。実Googleアカウントでの往復、定時Cronの起動・実規模の処理容量・実バックアップ復旧は引き続き未確認。",
+  "remaining": []
+}

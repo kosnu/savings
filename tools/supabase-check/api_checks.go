@@ -16,6 +16,7 @@ import (
 type row = map[string]any
 type actor struct {
 	token, refresh, uid  string
+	email, password      string
 	user, book, category float64
 }
 
@@ -72,6 +73,7 @@ func makeActor(ctx context.Context, a api, service, label string) (actor, error)
 	if e = r.decode(&session); e != nil {
 		return user, e
 	}
+	user.email, user.password = email, password
 	user.token = session.AccessToken
 	user.refresh = session.RefreshToken
 	user.uid = session.User.ID
@@ -246,7 +248,10 @@ func apiChecks(ctx context.Context, a api, service string) error {
 	if e != nil {
 		return e
 	}
-	return allowed(r)
+	if e = allowed(r); e != nil {
+		return e
+	}
+	return accountDeletionChecks(ctx, a, service)
 }
 
 func columnAndCRUD(ctx context.Context, a api, u, other actor) error {
@@ -387,7 +392,7 @@ func columnAndCRUD(ctx context.Context, a api, u, other actor) error {
 	return nil
 }
 
-var rpcNames = []string{"export_payments", "create_category_with_pin", "update_category_with_pin", "ensure_authenticated_user", "get_authenticated_user_id", "get_authenticated_default_book_id", "get_monthly_total_amount", "get_effective_monthly_budget", "get_effective_category_budgets", "create_monthly_budget", "update_current_monthly_budget", "remove_current_monthly_budget", "create_category_with_pin_and_budget", "update_category_with_pin_and_budget", "delete_category_with_budget"}
+var rpcNames = []string{"export_payments", "create_category_with_pin", "update_category_with_pin", "ensure_authenticated_user", "get_authenticated_user_id", "get_authenticated_default_book_id", "get_monthly_total_amount", "get_effective_monthly_budget", "get_effective_category_budgets", "create_monthly_budget", "update_current_monthly_budget", "remove_current_monthly_budget", "create_category_with_pin_and_budget", "update_category_with_pin_and_budget", "delete_category_with_budget", "prepare_account_deletion", "request_account_deletion", "get_my_account_deletion_state", "reactivate_my_account", "get_account_deletion_result"}
 
 func catalogCoverage(ctx context.Context) error {
 	data, e := sql(ctx, `select json_build_object('tables',(select json_agg(relname order by relname) from pg_class join pg_namespace n on n.oid=relnamespace where n.nspname='public' and relkind in ('r','v','m','p')),'rpcs',(select json_agg(proname order by proname) from pg_proc join pg_namespace n on n.oid=pronamespace where n.nspname='public' and prorettype not in ('trigger'::regtype,'event_trigger'::regtype) and (has_function_privilege('authenticated',pg_proc.oid,'EXECUTE') or has_function_privilege('anon',pg_proc.oid,'EXECUTE'))));`)
@@ -497,7 +502,14 @@ func rpcChecks(ctx context.Context, a api, u, other actor) error {
 	anonymous["create_category_with_pin_and_budget"] = row{"p_category_name": "anon", "p_pinned": false, "p_effective_month": month()}
 	anonymous["create_category_with_pin"] = row{"p_category_name": "anonymous", "p_pinned": false}
 	anonymous["delete_category_with_budget"] = row{"p_category_id": u.category}
+	anonymous["prepare_account_deletion"] = row{}
+	anonymous["get_my_account_deletion_state"] = row{}
+	anonymous["request_account_deletion"] = row{"request_id": "20870000-0000-4000-8000-000000000001", "result_secret": strings.Repeat("a", 64), "explanation_version": "2026-11-06"}
+	anonymous["reactivate_my_account"] = row{"request_id": "20870000-0000-4000-8000-000000000001"}
 	for _, name := range rpcNames {
+		if name == "get_account_deletion_result" {
+			continue
+		} // 正しいキーの匿名照会は別のlifecycle試験で確認する。
 		r, e := rpc(ctx, a, "", name, anonymous[name])
 		if e != nil {
 			return e
