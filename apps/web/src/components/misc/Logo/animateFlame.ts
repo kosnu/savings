@@ -7,7 +7,7 @@ void main() {
 }
 `
 
-// 元の炎に沿う揺らぎを保ち、輪郭の内側で炎の筋とくびれをお札の下から上へ流す。
+// 元の炎に沿う揺らぎを保ち、お札の下端から炎の先端を伸ばし、細く消えるまで描く。
 const fragmentSource = `
 precision highp float;
 uniform sampler2D artwork;
@@ -69,29 +69,36 @@ void main() {
   vec2 source = (p - vec2(dx, dy) * flameOnly) / 512.0;
   vec4 color = texture2D(artwork, source);
 
-  float fire = smoothstep(380.0, 475.0, p.y) * 0.18;
+  float fire = 0.0;
   float hot = 0.0;
   for (int i = 0; i < 5; i++) {
     float seed = float(i) * 19.7;
+    float clock = time * (0.65 + 0.1 * noise(seed + 2.0)) + float(i) * 0.37;
+    float cycle = floor(clock);
+    float age = fract(clock);
+    float energy = noise(cycle + seed + 4.2);
+    float life = smoothstep(0.0, 0.1, age) * (1.0 - smoothstep(0.65, 1.0, age));
     float root = 175.0 + float(i) * 45.0;
     float base = 470.0 - abs(root - 250.0) * 0.7;
-    float height = 145.0 + 65.0 * noise(time * 1.15 + seed + 4.2);
+    // 根元で生まれた短い炎が伸び上がり、燃え尽きると尾も上へ抜ける。
+    float height = 12.0 + (210.0 + 40.0 * energy) * smoothstep(0.0, 0.7, age);
+    float tail = smoothstep(0.55, 1.0, age) * 0.75;
     float rise = (base - p.y) / height;
     float progress = clamp(rise, 0.0, 1.0);
-    // 同じ模様が時間とともに上へ移動し、炎の輪郭と芯を一緒に運ぶ。
     float flow = (base - p.y) / 85.0 - time * 1.6;
     float surge = noise(flow * 1.3 + seed + 3.1);
     float bend = wind * 38.0 + noise(time * 0.8 + seed) * 30.0;
     float curl = noise(time * 1.35 + seed + 7.8) * 22.0;
     float center = root + bend * pow(progress, 1.4) + curl * sin(progress * 3.1415927);
     center += gust(flow + seed) * (5.0 + 14.0 * progress);
-    float radius = (30.0 + noise(time * 1.4 + seed + 6.1) * 8.0) * pow(1.0 - progress, 0.7);
+    float radius = (29.0 + energy * 6.0) * pow(1.0 - progress, 0.7);
     radius *= 0.8 + sin(progress * 3.1415927) * 0.35;
-    radius *= 0.8 + surge * 0.4;
+    radius *= (0.9 + surge * 0.2) * mix(1.1, 0.25, smoothstep(0.6, 1.0, age));
     radius = max(radius, 1.5);
     float tongue = 1.0 - smoothstep(radius * 0.4, radius, abs(p.x - center));
-    tongue *= smoothstep(-0.04, 0.04, rise) * (1.0 - smoothstep(0.92, 1.02, rise));
-    fire = max(fire, tongue * 0.72);
+    tongue *= smoothstep(tail - 0.04, tail + 0.04, rise);
+    tongue *= (1.0 - smoothstep(0.94, 1.02, rise)) * life;
+    fire = max(fire, tongue * 0.9);
     float core = tongue * tongue * (0.55 + 0.45 * smoothstep(-0.6, 0.7, surge));
     hot = max(hot, core * (1.0 - progress * 0.6));
   }
