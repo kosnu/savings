@@ -1,0 +1,39 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2093",
+  "paths": [
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/SettingsPage/",
+    "apps/web/src/app/routes/SettingsOverview/",
+    "apps/web/src/features/profile/",
+    "apps/web/src/lib/accountDeletion.ts",
+    "apps/web/src/lib/accountDeletion.integration.test.ts",
+    "apps/web/src/lib/explicitLogin.ts",
+    "apps/web/src/providers/supabase/",
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "apps/web/src/i18n/resources.ts",
+    "docs/design/account-deletion.html",
+    "apps/api/supabase/migrations/20261106143708_account_deletion.sql"
+  ],
+  "fingerprint": "ff6cf9129286cc9f2473f617b53a72b1a53e32f0631172edb8cd3bc5ccf67a78",
+  "status": "unknown",
+  "checks": [
+    "Issue #2087・PR #2093 head 08849bd0と今回の設定統合・控え廃止の判断",
+    "公開済みBot threadは解決済み2、未返信・未解決2",
+    "実装・既存テストと前回再現した読取例外・別人の予約拒否",
+    "DBの本人別pending一意制約・本人照会と認証時の停止/復帰",
+    "Issue・設計・HTML・日英Privacy・PR本文の旧仕様"
+  ],
+  "summary": "マージ前に表示名・登録メール・削除をアカウントへ統合する。2・3はブラウザーへの受付控えの保存・参照を撤去し、読取例外と別人の受付拒否を共通原因から解消する提案。保存不能なら予約を止める案、本人別に控えを保存する案を撤回。結果不明を誤表示せず、ページを開き直した後の自動照会を廃止。DBの本人別の停止・重複防止・通常ログインによる復帰を確認。共通ガードレール追加は不要。変更後の実動作は未検証。",
+  "remaining": [
+    "1：設定一覧・ルート・旧URL転送・日英文言・Story/test、Issue・設計・PRを揃える。",
+    "2：受付情報はページ内のみ。旧キーは利用せず削除可能時に破棄。読取拒否・成功通知・通信断・再読込を検証。",
+    "3：Aの応答喪失後にBが予約でき、Aの予約が変わらず同一人の重複を防げることを確認。",
+    "別タブの停止・本人だけの期限内復帰を確認し、Issue・設計/HTML・日英Privacyを同期。",
+    "未解決 PRRT_kwDOM0p88s60zEIZ（4500489331）・PRRT_kwDOM0p88s60zEIb（4500489334）。",
+    "実装・検証・PRとDevへの反映、各threadに結果を返信し論点解消後にresolveする案は承認待ち。"
+  ]
+}

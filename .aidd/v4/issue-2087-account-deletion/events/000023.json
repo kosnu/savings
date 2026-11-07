@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000021.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/features/profile/deleteAccount/",
+    "tools/supabase-check/account_deletion.go"
+  ],
+  "fingerprint": "182bbb8b3ac2bb4169dbf0d2ff7d856418afcf2f25f6dab936c1b81e847da32e",
+  "status": "pass",
+  "checks": [
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview",
+    "documentation.policy, domain.amount, domain.book, domain.category",
+    "domain.date, domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.dev-preview, infrastructure.overview, infrastructure.supabase-verification, policy.audit",
+    "policy.code-review, policy.git-workflow, policy.review-feedback-classification, policy.temporal-data",
+    "policy.transaction-boundaries, web.component-structure, web.design-rules, web.design-system-brand",
+    "web.domain-layer-rules, web.domain-ui-rules, web.error-presentation, web.feature-directory",
+    "web.query-cache, web.storybook-browser-tests, web.suspense-boundaries, web.test-policy",
+    "No.8：本人検証→pending判定→user同期→言語取得の順序・世代チェックを旧実装と照合",
+    "No.9/12：派生状態名と通知引数の改名は既存条件と等価。新しいReact stateや状態機械は追加していない",
+    "No.10/11：親からactor・受付番号・secret・sharedBookを渡す順序、WaitGroupとlock観測、時計のdefer復元を照合",
+    "全SQL/API/assert文字列と旧検証ケースを保持し、隔離DBで同じAuth・競合・timeout復旧の成功を確認",
+    "共通規則・DB契約の変更なし。No.7はIssue #2087で互換性判断待ちの追跡を保持"
+  ],
+  "summary": "Coverageの選択規則と最終差分を照合し、未解決の規則矛盾・コード指摘なし。No.8〜12は同一の認証/削除/検証動作を保つ範囲で整理。実Google往復とHosted定時Cron・処理容量・実backup復旧は未確認。",
+  "remaining": []
+}

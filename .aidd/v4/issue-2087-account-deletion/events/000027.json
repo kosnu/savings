@@ -1,0 +1,33 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000025.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/features/profile/deleteAccount/"
+  ],
+  "fingerprint": "7020438b7184b9005928caf29a19cc2786a661f51dddaf8001554f84925a5182",
+  "status": "pass",
+  "checks": [
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow",
+    "architecture.overview, documentation.policy, domain.amount",
+    "domain.book, domain.category, domain.date",
+    "domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.overview, infrastructure.dev-preview, policy.audit",
+    "policy.code-review, policy.git-workflow, policy.review-feedback-classification",
+    "policy.temporal-data, policy.transaction-boundaries, web.component-structure",
+    "web.design-rules, web.design-system-brand, web.domain-layer-rules",
+    "web.domain-ui-rules, web.error-presentation, web.feature-directory",
+    "web.query-cache, web.storybook-browser-tests, web.suspense-boundaries",
+    "web.test-policy",
+    "60aba70aと承認No.13・14を基準に5実装/試験ファイルを照合。Issue本文は承認文言のみ追記しread-back",
+    "両componentからSDK/RPC・受付結果分岐を除去。UIは表示・開閉・focus・hookへの接続を所有",
+    "hookの初回と再試行は同じsignOut/recheck手順を使用。EffectはPromise結果からの開始と有効性の終了管理のみ",
+    "各非同期処理に有効性を渡し、本人切替・cleanup後の結果は破棄。通知refと失敗時だけの再操作を維持",
+    "UI比較は旧DeleteAccountと既存のuseDeleteCategory/usePaymentDetailsState。配置は同じslice、UIのfocus/色/文言は保持",
+    "既存のStoryとcomponent/API境界のテストで全状態を確認。追加試験は古い本人照合を反映する故障を検出",
+    "DB/認証Provider/RPC署名・保存先を変更せず、共通layer・起動state/counter・新しい永続状態は追加しない"
+  ],
+  "summary": "Coverageの全選択規則と承認範囲を最終差分へ適用し、未解決の矛盾・コード指摘なし。componentは表示と操作の接続、削除sliceのhookは非同期手順と結果状態を担当。行数やテスト成功だけで完了にせず、処理を読む入口とUIの責務境界を確認。既存の通常利用停止・認証状態の正本はProviderに保持する。",
+  "remaining": []
+}

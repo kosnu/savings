@@ -10,7 +10,7 @@ import { resolveTargetMonth } from "../domain/date"
 import { BookSettings } from "../features/books"
 import { DataManagementSettings, paymentsSearchSchema } from "../features/payments"
 import { AppearanceSettings } from "../features/preferences"
-import { ProfileSettings } from "../features/profile"
+import { AccountSettings } from "../features/profile"
 import type { AuthStatus } from "../providers/supabase/SupabaseSessionProvider"
 import { AppLayout } from "./AppLayout"
 import { AggregatesPage } from "./routes/AggregatesPage"
@@ -141,7 +141,15 @@ const settingsBookRoute = createRoute({
 const settingsProfileRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: "profile",
-  component: ProfileSettings,
+  beforeLoad: () => {
+    throw redirect({ to: "/settings/account", replace: true })
+  },
+})
+
+const settingsAccountRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: "account",
+  component: AccountSettings,
 })
 
 const settingsAppearanceRoute = createRoute({
@@ -166,6 +174,7 @@ const routeTree = rootRoute.addChildren([
     settingsRoute.addChildren([
       settingsIndexRoute,
       settingsProfileRoute,
+      settingsAccountRoute,
       settingsAppearanceRoute,
       settingsBookRoute,
       settingsDataManagementRoute,

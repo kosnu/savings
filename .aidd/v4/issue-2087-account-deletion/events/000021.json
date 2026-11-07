@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000021.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/features/profile/deleteAccount/",
+    "tools/supabase-check/account_deletion.go"
+  ],
+  "fingerprint": "182bbb8b3ac2bb4169dbf0d2ff7d856418afcf2f25f6dab936c1b81e847da32e",
+  "status": "pass",
+  "checks": [
+    "43a3a305を比較元とし、Audit No.8〜12への今回のApproveを適用",
+    "本人検証を同じProviderディレクトリの関数へ分離し、購読・世代・状態反映はProviderで扱う",
+    "busyの派生名と通知引数の改名。API/競合の各シナリオは同じSQL・API・並行実行・順序で検証する",
+    "Web既定検証とGo test/vet、専用の隔離Supabase localで同等性を確認する"
+  ],
+  "summary": "認証と削除の既存動作を保ちながら、手順・シナリオ・状態名を明示する。No.7のDB契約変更はIssueで追跡中。今回の対象はNo.8〜12の有限な整理。",
+  "remaining": []
+}

@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/app/",
+    "apps/web/src/features/profile/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/lib/",
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/test/msw/",
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html"
+  ],
+  "fingerprint": "3e5cc9a525d044d36723f6ef8ea0b2725a3e93fd43c8b99b115de3ac5ba33b46",
+  "status": "pass",
+  "checks": [
+    "Issue #2087の更新・再読、2026-11-07のAudit 1〜3と再提示への明示承認、PR #2093の08849bd0を照合",
+    "本人のpending・二重予約は既存DBで検査し、Webは本人の状態を確認する",
+    "共有Devの既存PRプレビューへWebを反映し、未解決Botの2件に返答する承認範囲"
+  ],
+  "summary": "設定のアカウントに表示名・登録メール・削除を統合し旧プロフィールURLを転送する。削除申請の番号とキーはページ内の送信・再確認だけに使用する。旧キーの除去は失敗を許容し、再読込後は古い申請を照会・再送しない。本人・期限内の通常ログインだけで復帰する。DB・Cron設定を変えず、日英Privacy・設計と回帰試験を同期する。",
+  "remaining": []
+}

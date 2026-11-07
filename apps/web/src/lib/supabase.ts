@@ -6,7 +6,9 @@ import type { Database } from "../types/database.types"
 let supabaseClient: SupabaseClient<Database> | null = null
 
 export function getSupabaseClient(): SupabaseClient<Database> {
-  supabaseClient ??= createClient<Database>(env.SUPABASE_URL, env.SUPABASE_PUBLISHABLE_KEY)
+  supabaseClient ??= createClient<Database>(env.SUPABASE_URL, env.SUPABASE_PUBLISHABLE_KEY, {
+    auth: { detectSessionInUrl: false },
+  })
 
   return supabaseClient
 }

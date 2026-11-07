@@ -1,0 +1,36 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2093",
+  "paths": [
+    "apps/web/src/features/profile/deleteAccount/",
+    "apps/web/src/features/profile/profileSettings/ProfileSettings/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/lib/accountDeletion.ts",
+    "apps/web/src/app/routes/SettingsPage/",
+    "docs/design/account-deletion.md",
+    "docs/harness/policies/code-review.md",
+    "apps/web/docs/policies/design-rules.md",
+    "apps/web/docs/policies/domain-ui-rules.md"
+  ],
+  "fingerprint": "827923bf38c1548ab9deee52a2d0340ec3b2d563a5b73b01b036efeab361e3f7",
+  "status": "unknown",
+  "checks": [
+    "PR2093 head02e7d16a・Issue2087・ユーザー7点",
+    "PRコメント最新取得・未解決threadなし",
+    "文言/確認dialog/設定導線/結果画面/自動logoutの実コード",
+    "design-rules70/72・domain-ui-rules40・error-presentation80",
+    "分析レビュー:事実pass・再発抑止unknown・適用先pass"
+  ],
+  "summary": "内部項目と運用制約の常時表示、ブック/固定の語彙不一致、通常画面の手動照会/セッション消去を確認。プロフィール配置と匿名照会は元設計にもあり、最新訂正のIntent反映が必要。短文化・設定アカウントへの移動・受付/通信失敗/復帰に絞った画面・失敗時だけのlogout再試行を提案。時刻表示は維持。規則は既存で十分だが適用/検出漏れあり。テストは長文と照会フォームを正解としていた。レビュー判断過程の詳細は未確定。",
+  "remaining": [
+    "提案1:日英文言とDeleteAccountの内部項目/運用説明/Privacyリンクを削減。ブックへ統一。",
+    "提案2:SettingsPage/SettingsOverview/routes.tsとProfileSettingsを変更し設定のアカウントへ削除導線を移す。",
+    "提案3:AccountDeletionStatusを受付/通信失敗/復帰に限定。常設結果リンクと番号キー入力、常時logout操作を除く。自動受付確認と失敗時の再試行は維持。",
+    "Issue2087のDoD1/5と設計の利用者画面/結果照会、日英Privacy、対象Story/testを同期する提案は未承認。",
+    "共通規則の追加は提案しない。既存規則の適用を通常/通信失敗/logout失敗の画面で再確認する。",
+    "仮想反例:支払い削除で内部項目列挙は不要、共有ブックで他人の記録が消える注意は必要と照合。適用後の再発抑止効果は未検証。",
+    "実装・Issue更新・PR返信/resolveは未実施。返信/resolve対象threadなし。"
+  ]
+}

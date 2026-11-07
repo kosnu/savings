@@ -28,7 +28,13 @@ const meta = {
 
       return (
         <QueryClientProvider client={queryClient}>
-          <SupabaseSessionContext value={{ session: mockSession(), status: "authenticated" }}>
+          <SupabaseSessionContext
+            value={{
+              session: mockSession(),
+              status: "authenticated",
+              startAccountDeletion: () => undefined,
+            }}
+          >
             <ThemeProvider>
               <Story />
             </ThemeProvider>

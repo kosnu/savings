@@ -6,10 +6,11 @@ import { expect, userEvent, waitFor, within } from "storybook/test"
 import { BookSettings } from "../../../features/books"
 import { DataManagementSettings } from "../../../features/payments"
 import { AppearanceSettings } from "../../../features/preferences"
-import { ProfileSettings } from "../../../features/profile"
+import { AccountSettings } from "../../../features/profile"
 import { createQueryClient } from "../../../lib/queryClient"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
 import { createStoryRouter } from "../../../test/helpers/routerDecorator"
+import { createAccountDeletionHandlers } from "../../../test/msw/handlers/accountDeletion"
 import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
@@ -49,10 +50,11 @@ export const Default: Story = {
 
     expect(await canvas.findByRole("heading", { name: "Settings" })).toBeInTheDocument()
     expect(await canvas.findByText("Choose a setting to manage.")).toBeInTheDocument()
-    const profileOverviewLink = canvas
-      .getAllByRole("link", { name: /Profile/ })
-      .find((link) => link.textContent?.includes("Manage profile information."))
-    expect(profileOverviewLink?.getAttribute("href")).toBe("/settings/profile")
+    expect(
+      canvas.getByRole("link", {
+        name: /Account.*Edit your display name, view your registered email address, or delete your account/,
+      }),
+    ).toHaveAttribute("href", "/settings/account")
 
     const appearanceOverviewLink = canvas
       .getAllByRole("link", { name: /Appearance/ })
@@ -68,9 +70,9 @@ export const Default: Story = {
       )
     expect(bookOverviewLink?.getAttribute("href")).toBe("/settings/book")
     expect(canvas.getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/settings")
-    expect(canvas.getByRole("link", { name: "Profile" })).toHaveAttribute(
+    expect(canvas.getByRole("link", { name: "Account" })).toHaveAttribute(
       "href",
-      "/settings/profile",
+      "/settings/account",
     )
     expect(canvas.getByRole("link", { name: "Appearance" })).toHaveAttribute(
       "href",
@@ -136,38 +138,38 @@ export const PaymentExport: Story = {
   },
 }
 
-export const Profile: Story = {
+export const Account: Story = {
   decorators: [
-    createStoryRouter("/settings/profile", (root, Story) => {
+    createStoryRouter("/settings/account", (root, Story) => {
       const settingsRoute = createRoute({
         getParentRoute: () => root,
         path: "/settings",
         component: Story,
       })
-
-      const settingsProfileRoute = createRoute({
+      const settingsAccountRoute = createRoute({
         getParentRoute: () => settingsRoute,
-        path: "profile",
-        component: ProfileSettings,
+        path: "account",
+        component: AccountSettings,
       })
-
-      return [settingsRoute.addChildren([settingsProfileRoute])]
+      return [settingsRoute.addChildren([settingsAccountRoute])]
     }),
   ],
   parameters: {
     msw: {
-      handlers: createProfileHandlers(),
+      handlers: [
+        ...createProfileHandlers(),
+        ...createAccountDeletionHandlers({ preview: { response: { email: "test@example.com" } } }),
+      ],
     },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-
-    expect(await canvas.findByRole("heading", { name: "Account information" })).toBeInTheDocument()
-    expect(await canvas.findByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
+    expect(await canvas.findByRole("heading", { name: "Settings", level: 1 })).toBeInTheDocument()
+    expect(await canvas.findByRole("heading", { name: "Account", level: 2 })).toBeInTheDocument()
     expect(await canvas.findByText("test@example.com")).toBeInTheDocument()
-    expect(await canvas.findByText("Google")).toBeInTheDocument()
-    expect(canvas.queryByText("Language")).not.toBeInTheDocument()
-    expect(canvas.queryByText("Theme")).not.toBeInTheDocument()
+    expect(canvas.getByRole("heading", { name: "Delete account", level: 3 })).toBeInTheDocument()
+    expect(canvas.getByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
+    expect(canvas.getByText("Read-only")).toBeVisible()
   },
 }
 
@@ -198,7 +200,7 @@ export const Appearance: Story = {
   },
 }
 
-export const ProfileRetryFailed: Story = {
+export const AccountRetryFailed: Story = {
   decorators: [
     (Story) => (
       <QueryClientProvider
@@ -207,20 +209,20 @@ export const ProfileRetryFailed: Story = {
         <Story />
       </QueryClientProvider>
     ),
-    createStoryRouter("/settings/profile", (root, Story) => {
+    createStoryRouter("/settings/account", (root, Story) => {
       const settingsRoute = createRoute({
         getParentRoute: () => root,
         path: "/settings",
         component: Story,
       })
 
-      const settingsProfileRoute = createRoute({
+      const settingsAccountRoute = createRoute({
         getParentRoute: () => settingsRoute,
-        path: "profile",
-        component: ProfileSettings,
+        path: "account",
+        component: AccountSettings,
       })
 
-      return [settingsRoute.addChildren([settingsProfileRoute])]
+      return [settingsRoute.addChildren([settingsAccountRoute])]
     }),
   ],
   parameters: {
@@ -232,7 +234,7 @@ export const ProfileRetryFailed: Story = {
     const canvas = within(canvasElement)
     const retryButton = await canvas.findByRole("button", { name: "Try again" })
 
-    expect(canvas.queryByRole("combobox", { name: "Language" })).not.toBeInTheDocument()
+    expect(canvas.getByRole("button", { name: "Schedule account deletion" })).toBeEnabled()
     await userEvent.click(retryButton)
     await waitFor(() => {
       expect(retryButton).toBeEnabled()

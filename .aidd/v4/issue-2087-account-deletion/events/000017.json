@@ -1,0 +1,28 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000017.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/features/profile/",
+    "apps/web/src/lib/",
+    "apps/web/src/providers/supabase/",
+    "apps/web/src/app/",
+    "apps/web/src/utils/auth/",
+    "apps/web/src/test/",
+    "apps/web/.storybook/",
+    "docs/design/account-deletion.md",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/features/books/"
+  ],
+  "fingerprint": "26d9ff38472ac4171736283f016657c1a1d45a9f195ad397478dc6f38d0c56d4",
+  "status": "pass",
+  "checks": [
+    "Issue #2087、PR #2093の3333b2ff、Audit No.1〜7への今回のApproveを照合",
+    "No.1〜6を実装し、No.7は互換性と完了条件をIssueコメント6706595165へ引き継いだ",
+    "開始操作をContextに明示し、Handoffは初回の自動処理と直接呼ぶ再試行、拒否時は本人状態を検証する",
+    "説明取得の世代を照合。通常遷移は既存ガードの/、callbackは結果型で対象sessionと復帰有無を渡す"
+  ],
+  "summary": "同じTaskで承認されたWeb整理を実施。通知一回・本人切替・遅延応答破棄・同じ受付の照会を保ち、明示拒否を結果不明から区別する。No.7は契約変更の判断後に着手する追跡事項として登録。",
+  "remaining": []
+}

@@ -1,0 +1,41 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/api/supabase/migrations/20261106143708_account_deletion.sql",
+    "apps/api/supabase/tests/account_deletion.test.sql",
+    "apps/api/supabase/operations/account_deletion_jobs.sql",
+    "apps/web/src/",
+    "tools/supabase-check/",
+    "docs/account-deletion-operations.md",
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion.html",
+    "docs/design/account-deletion-implementation-issue.md"
+  ],
+  "fingerprint": "827923bf38c1548ab9deee52a2d0340ec3b2d563a5b73b01b036efeab361e3f7",
+  "status": "unknown",
+  "checks": [
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow",
+    "architecture.overview, documentation.policy, domain.amount",
+    "domain.book, domain.category, domain.date",
+    "domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.dev-preview, infrastructure.overview, infrastructure.supabase-verification",
+    "policy.audit, policy.code-review, policy.git-workflow",
+    "policy.query-performance, policy.review-feedback-classification, policy.temporal-data",
+    "policy.transaction-boundaries, web.component-structure, web.design-rules",
+    "web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules",
+    "web.error-presentation, web.feature-directory, web.msw-handlers",
+    "web.query-cache, web.storybook-browser-tests, web.suspense-boundaries",
+    "web.test-policy",
+    "独立Web/APIレビューと最終差分",
+    "UI比較: AccountInformationForm/Sidebar/AuthPage",
+    "型/RPC同期・MSW・日英Privacy・運用SQL"
+  ],
+  "summary": "DoD1/4/5はローカルと隔離環境でpass。DoD2/3/6は停止認可・復帰・callback異常・復旧の実装/試験でpass、Hosted実測はunknown。DoD7は共有Dev未承認のためunknown。予約の追加ログイン撤回、本人照合/JWT固定、復帰条件維持を再レビューし新規指摘なし。内部規則の未解決矛盾なし。",
+  "remaining": [
+    "Google新session・他端末refresh・Hosted認可/Cron/実規模容量・backup運用は別途承認後に検証する。",
+    "新規受付はfalseで配信。Issue2087の全DoD達成・公開済みとは扱わない。"
+  ]
+}

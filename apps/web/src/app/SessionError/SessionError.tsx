@@ -3,8 +3,7 @@ import { Button, Callout, Container, Flex, Heading } from "@radix-ui/themes"
 import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { paths } from "../../config/paths"
-import { getSupabaseClient } from "../../lib/supabase"
+import { startExplicitLogin } from "../../lib/explicitLogin"
 
 interface SessionErrorProps {
   onRetry: () => void
@@ -27,11 +26,7 @@ export function SessionError({ onRetry, requiresSignIn = false }: SessionErrorPr
     setIsSigningIn(true)
     setSignInFailed(false)
     try {
-      const { error } = await getSupabaseClient().auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: `${window.location.origin}${paths.auth.getHref()}` },
-      })
-      if (error) throw error
+      await startExplicitLogin()
     } catch {
       setIsSigningIn(false)
       setSignInFailed(true)
@@ -66,7 +61,7 @@ export function SessionError({ onRetry, requiresSignIn = false }: SessionErrorPr
               loading={isSigningIn}
               onClick={() => void signIn()}
             >
-              {t("auth.continueWithGoogle")}
+              {t("auth.login")}
             </Button>
           ) : (
             <Button type="button" variant="soft" onClick={onRetry}>

@@ -63,9 +63,6 @@ export function TopPage() {
                   <ArrowRightIcon aria-hidden="true" />
                 </Link>
               </Button>
-              <Text as="p" size="2" color="gray">
-                {t("introduction.startNote")}
-              </Text>
             </Flex>
           </Flex>
 
@@ -229,9 +226,6 @@ export function TopPage() {
           mb="7"
           className={styles.closing}
         >
-          <Text as="p" size="2" color="gray">
-            {t("introduction.startNote")}
-          </Text>
           <Button asChild size="3" className={styles.closingAction}>
             <Link to="/auth">
               {t("introduction.start", { appName: t("app.name") })}

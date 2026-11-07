@@ -1,0 +1,33 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/api/supabase/migrations/20261106143708_account_deletion.sql",
+    "apps/api/supabase/tests/account_deletion.test.sql",
+    "apps/api/supabase/operations/account_deletion_jobs.sql",
+    "apps/web/src/",
+    "tools/supabase-check/",
+    "docs/account-deletion-operations.md",
+    "docs/design/account-deletion.md",
+    "docs/design/account-deletion.html",
+    "docs/design/account-deletion-implementation-issue.md"
+  ],
+  "fingerprint": "827923bf38c1548ab9deee52a2d0340ec3b2d563a5b73b01b036efeab361e3f7",
+  "status": "unknown",
+  "checks": [
+    "Web lint/format-check/typecheck",
+    "Web unit/integration 1130 tests",
+    "Storybook 32 browser tests",
+    "Supabase全migration/pgTAP542 tests/Auth REST/競合/timeout復旧",
+    "supabase-check Go test/vet",
+    "Security Advisor/Cron登録SQL rollback",
+    "Core verify stable/差分・文書整形"
+  ],
+  "summary": "許可範囲のローカル検証は全て成功。予約の追加ログインなし・現在の本人照合・JWT固定、復帰の新session境界を確認。隔離DBで期限/03時台/競合/30日/復旧/原子性を確認。Core verifyは7項目exit0、stable=true。",
+  "remaining": [
+    "承認された共有DevでGoogle新session・別identity失敗後の他端末refresh・callback許可設定を実測する。",
+    "Hosted公開経路/Cron/処理容量、backup保持・最新要求状態の取得と実backup復旧は未確認。"
+  ]
+}
