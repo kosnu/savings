@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2063",
+  "paths": [
+    "docs/harness/policies/git-workflow.md",
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "e9eb272a5ead1fce20994325f12b79016bd02fc34c89c8db006cc00f0beda910",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "vp check文書2件",
+    "Core変更範囲・rule graph",
+    "front matter・相対リンク・追加見出し"
+  ],
+  "summary": "対象2文書の整形・差分範囲・索引・参照検査が成功し、内容とmodeは安定。初回vp checkはMarkdownにlint対象がなく未起動。既存hookと同じ未一致許容で再実行し成功。実マージ・実設定の作用は対象外で未検証。追加LLM採点は依頼の制約により実施せず。",
+  "remaining": []
+}
