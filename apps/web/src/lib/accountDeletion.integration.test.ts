@@ -10,18 +10,10 @@ import {
   deletionTimes,
 } from "../test/msw/handlers/accountDeletion"
 import { server } from "../test/msw/server"
-import {
-  clearDeletionReceipt,
-  createDeletionReceipt,
-  deletionReceiptKey,
-  getDeletionResult,
-  readDeletionReceipt,
-  requestAccountDeletion,
-} from "./accountDeletion"
+import { createDeletionReceipt, getDeletionResult, requestAccountDeletion } from "./accountDeletion"
 import { getSupabaseClient } from "./supabase"
 
 beforeEach(() => {
-  localStorage.clear()
   vi.restoreAllMocks()
   const session = mockSession()
   session.user.id = deletionAuthUserId
@@ -31,24 +23,20 @@ beforeEach(() => {
   })
 })
 
-test("送信前に32byteのキーを保存し、reload後も同じ受付番号で照会できる", async () => {
-  const receipt = createDeletionReceipt(deletionAuthUserId)
-  expect(receipt.secret).toMatch(/^[0-9a-f]{64}$/)
-  expect(readDeletionReceipt()).toEqual(receipt)
-  expect(() => createDeletionReceipt(deletionAuthUserId)).toThrow()
-  server.use(
-    ...createAccountDeletionHandlers({
-      result: {
-        requestId: receipt.requestId,
-        secret: receipt.secret,
-        result: { status: "pending", ...deletionTimes },
-      },
-    }),
-  )
-  expect(await getDeletionResult(receipt.requestId, receipt.secret)).toEqual({
-    status: "pending",
-    ...deletionTimes,
-  })
+test("受付用storageの読み書きが拒否されても本人ごとに新しい受付番号とキーを作成する", () => {
+  const denied = () => {
+    throw new DOMException("Storage denied", "SecurityError")
+  }
+  for (const storage of [localStorage, Storage.prototype]) {
+    vi.spyOn(storage, "getItem").mockImplementation(denied)
+    vi.spyOn(storage, "setItem").mockImplementation(denied)
+  }
+  const first = createDeletionReceipt(deletionAuthUserId)
+  const other = createDeletionReceipt("20870000-0000-4000-8000-000000000003")
+  expect(first.secret).toMatch(/^[0-9a-f]{64}$/)
+  expect(other.secret).toMatch(/^[0-9a-f]{64}$/)
+  expect(other.requestId).not.toBe(first.requestId)
+  expect(other.secret).not.toBe(first.secret)
 })
 
 test("匿名照会には通常のJWTやURL上の確認キーを含めない", async () => {
@@ -72,31 +60,11 @@ test("匿名照会には通常のJWTやURL上の確認キーを含めない", as
   })
 })
 
-test("30日経過・壊れた端末記録は消し、結果成功に置き換えない", () => {
-  const receipt = createDeletionReceipt(deletionAuthUserId)
-  localStorage.setItem(
-    deletionReceiptKey,
-    JSON.stringify({ ...receipt, createdAt: Date.now() - 30 * 86400000 }),
-  )
-  expect(readDeletionReceipt()).toBeNull()
-  expect(localStorage.getItem(deletionReceiptKey)).toBeNull()
-  localStorage.setItem(deletionReceiptKey, "invalid json")
-  expect(readDeletionReceipt()).toBeNull()
-})
-
-test("保存失敗時は予約を始めず、既存キーを再生成しない", () => {
-  vi.spyOn(localStorage, "setItem").mockImplementation(() => {
-    throw new Error("Storage denied")
-  })
-  expect(() => createDeletionReceipt(deletionAuthUserId)).toThrow("Storage denied")
-})
-
 test("mutation mockは許可対象未指定・番号不一致を成功にしない", async () => {
   const receipt = {
     requestId: deletionRequestId,
     secret: deletionSecret,
     authUserId: deletionAuthUserId,
-    createdAt: Date.now(),
   }
   await expect(requestAccountDeletion(receipt, "2026-11-06")).rejects.toMatchObject({
     message: "Request not allowed",
@@ -118,7 +86,6 @@ test("mutation mockは許可対象未指定・番号不一致を成功にしな�
     status: "pending",
     ...deletionTimes,
   })
-  clearDeletionReceipt()
 })
 
 test("送信時の別identityを拒否し、照合後に切り替わっても本人のJWTを固定する", async () => {

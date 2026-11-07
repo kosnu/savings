@@ -14,17 +14,6 @@ export function SettingsOverview() {
       </Text>
       <nav aria-label={t("settings.overviewLinks")}>
         <Flex direction="column" gap="0">
-          <Link to="/settings/profile" className={styles.itemLink}>
-            <Flex direction="column" gap="1">
-              <Text as="span" size="4" weight="medium" className={styles.itemTitle}>
-                {t("navigation.profile")}
-              </Text>
-              <Text as="span" size="3" color="gray">
-                {t("settings.profileDescription")}
-              </Text>
-            </Flex>
-          </Link>
-          <Separator size="4" />
           <Link to="/settings/account" className={styles.itemLink}>
             <Flex direction="column" gap="1">
               <Text as="span" size="4" weight="medium" className={styles.itemTitle}>

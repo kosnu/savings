@@ -11,15 +11,11 @@ import { profileQueryKeys } from "../profileQueryKeys"
 import { useProfile } from "../useProfile"
 import { useUpdateDisplayName } from "../useUpdateDisplayName"
 
-type Section = "profile" | "account"
-
-export function AccountInformation({ section }: { section: Section }) {
+export function AccountInformation() {
   const { session } = useSupabaseSession()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const authUserId = session?.user.id
-  const isProfile = section === "profile"
-  const loadErrorKey = isProfile ? "profile.loadError" : "account.emailLoadError"
   const headingRef = useRef<HTMLHeadingElement>(null)
   const [focusHeadingRequest, setFocusHeadingRequest] = useState(0)
 
@@ -32,12 +28,11 @@ export function AccountInformation({ section }: { section: Section }) {
   return (
     <Flex direction="column" gap="3">
       <Heading ref={headingRef} as="h2" size="4" tabIndex={-1}>
-        {t(isProfile ? "navigation.profile" : "navigation.account")}
+        {t("navigation.account")}
       </Heading>
       <ErrorBoundary
         fallbackRender={({ resetErrorBoundary }) => (
           <ProfileLoadError
-            messageKey={loadErrorKey}
             onRetry={async () => {
               if (!authUserId) {
                 resetErrorBoundary()
@@ -56,70 +51,62 @@ export function AccountInformation({ section }: { section: Section }) {
             }}
           />
         )}
-        resetKeys={[authUserId, section]}
+        resetKeys={[authUserId]}
       >
         {authUserId ? (
-          <Suspense key={authUserId} fallback={<ProfileLoading section={section} />}>
-            {isProfile ? (
-              <DisplayNameContent authUserId={authUserId} />
-            ) : (
-              <AccountEmail authUserId={authUserId} />
-            )}
+          <Suspense key={authUserId} fallback={<ProfileLoading />}>
+            <AccountInformationContent authUserId={authUserId} />
           </Suspense>
         ) : (
-          <ProfileLoadError messageKey={loadErrorKey} onRetry={() => undefined} />
+          <ProfileLoadError onRetry={() => undefined} />
         )}
       </ErrorBoundary>
     </Flex>
   )
 }
 
-function DisplayNameContent({ authUserId }: { authUserId: string }) {
+function AccountInformationContent({ authUserId }: { authUserId: string }) {
+  const { t } = useTranslation()
   const { data: profile } = useProfile(authUserId)
   const { updateDisplayName, isPending } = useUpdateDisplayName(authUserId)
 
   return (
-    <AccountInformationForm
-      key={profile.name}
-      displayName={profile.name}
-      isPending={isPending}
-      onSaveDisplayName={updateDisplayName}
-    />
-  )
-}
-
-function AccountEmail({ authUserId }: { authUserId: string }) {
-  const { t } = useTranslation()
-  const { data: profile } = useProfile(authUserId)
-
-  return (
-    <Flex direction="column" gap="1">
-      <Text as="p" size="2" weight="bold">
-        {t("profile.email")}
-      </Text>
-      <Text as="p" style={{ overflowWrap: "anywhere" }}>
-        {profile.email}
-      </Text>
-      <Text as="p" size="1" color="gray">
-        {t("profile.readOnly")}
-      </Text>
+    <Flex direction="column" gap="4">
+      <AccountInformationForm
+        key={profile.name}
+        displayName={profile.name}
+        isPending={isPending}
+        onSaveDisplayName={updateDisplayName}
+      />
+      <Flex direction="column" gap="1">
+        <Text as="p" size="2" weight="bold">
+          {t("profile.email")}
+        </Text>
+        <Text as="p" style={{ overflowWrap: "anywhere" }}>
+          {profile.email}
+        </Text>
+        <Text as="p" size="1" color="gray">
+          {t("profile.readOnly")}
+        </Text>
+      </Flex>
     </Flex>
   )
 }
 
-function ProfileLoading({ section }: { section: Section }) {
+function ProfileLoading() {
   const { t } = useTranslation()
 
   return (
     <Flex aria-label={t("common.loading")} direction="column" gap="3">
       <Skeleton loading>
-        <Text>{t(section === "profile" ? "profile.displayName" : "profile.email")}</Text>
+        <Text>{t("profile.displayName")}</Text>
       </Skeleton>
-      {section === "profile" && (
-        <Skeleton loading>
-          <Text>{t("common.save")}</Text>
-        </Skeleton>
-      )}
+      <Skeleton loading>
+        <Text>{t("common.save")}</Text>
+      </Skeleton>
+      <Skeleton loading>
+        <Text>{t("profile.email")}</Text>
+      </Skeleton>
     </Flex>
   )
 }

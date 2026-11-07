@@ -1,38 +1,43 @@
-import { createRoute } from "@tanstack/react-router"
+import {
+  createMemoryHistory,
+  createRoute,
+  createRouter,
+  RouterProvider,
+} from "@tanstack/react-router"
 import type { ReactNode } from "react"
-import { afterEach, describe, expect, test, vi } from "vite-plus/test"
+import { afterEach, describe, expect, onTestFinished, test, vi } from "vite-plus/test"
 
 import { BookSettings } from "../../../features/books"
 import { DataManagementSettings } from "../../../features/payments"
 import { AppearanceSettings } from "../../../features/preferences"
-import { AccountSettings, ProfileSettings } from "../../../features/profile"
+import { AccountSettings } from "../../../features/profile"
+import { i18next } from "../../../i18n"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
+import { mockSession } from "../../../test/data/supabaseSession"
 import { renderWithRouter } from "../../../test/helpers/renderWithRouter"
 import { createBookHandlers } from "../../../test/msw/handlers/books"
 import { createCategorySettingsHandlers } from "../../../test/msw/handlers/categorySettings"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createProfileHandlers } from "../../../test/msw/handlers/profile"
 import { server } from "../../../test/msw/server"
-import { screen, within } from "../../../test/test-utils"
+import { render, screen, within } from "../../../test/test-utils"
 import { POSTGRES_UNIQUE_VIOLATION_CODE } from "../../../utils/postgresError"
+import { router as appRouter } from "../../routes"
 import { SettingsOverview } from "../SettingsOverview"
 import { SettingsPage } from "./SettingsPage"
 
 type SettingsBookComponentType = () => ReactNode
 type SettingsAppearanceComponentType = () => ReactNode
-type SettingsProfileComponentType = () => ReactNode
 
 function renderSettingsPage(
   initialEntry = "/settings",
   options: {
     settingsBookComponent?: SettingsBookComponentType
     settingsAppearanceComponent?: SettingsAppearanceComponentType
-    settingsProfileComponent?: SettingsProfileComponentType
   } = {},
 ) {
   const SettingsBookComponent = options.settingsBookComponent ?? BookSettings
   const SettingsAppearanceComponent = options.settingsAppearanceComponent ?? AppearanceSettings
-  const SettingsProfileComponent = options.settingsProfileComponent ?? ProfileSettings
 
   return renderWithRouter(initialEntry, (root) => {
     const authenticatedRoute = createRoute({
@@ -58,12 +63,6 @@ function renderSettingsPage(
       component: SettingsBookComponent,
     })
 
-    const settingsProfileRoute = createRoute({
-      getParentRoute: () => settingsRoute,
-      path: "profile",
-      component: SettingsProfileComponent,
-    })
-
     const settingsAppearanceRoute = createRoute({
       getParentRoute: () => settingsRoute,
       path: "appearance",
@@ -86,7 +85,6 @@ function renderSettingsPage(
       authenticatedRoute.addChildren([
         settingsRoute.addChildren([
           settingsIndexRoute,
-          settingsProfileRoute,
           settingsAccountRoute,
           settingsAppearanceRoute,
           settingsBookRoute,
@@ -114,9 +112,8 @@ describe("SettingsPage", () => {
     vi.restoreAllMocks()
   })
 
-  test("設定概要とメニューからProfile / Account / Appearance / Bookへ遷移する", async () => {
+  test("設定概要とメニューからAccount / Appearance / Bookへ遷移する", async () => {
     const { router, user } = renderSettingsPage("/settings", {
-      settingsProfileComponent: () => <div>Profile settings page</div>,
       settingsAppearanceComponent: () => <div>Appearance settings page</div>,
       settingsBookComponent: () => <div>Book settings page</div>,
     })
@@ -124,13 +121,10 @@ describe("SettingsPage", () => {
     expect(await screen.findByRole("heading", { name: "Settings" })).toBeInTheDocument()
     expect(await screen.findByText("Choose a setting to manage.")).toBeInTheDocument()
 
-    const profileOverviewLink = screen
-      .getAllByRole("link", { name: /Profile/ })
-      .find((link) => link.textContent?.includes("Edit your display name."))
-    expect(profileOverviewLink?.getAttribute("href")).toBe("/settings/profile")
+    expect(screen.queryByRole("link", { name: /Profile/ })).not.toBeInTheDocument()
 
     const accountOverviewLink = screen.getByRole("link", {
-      name: /Account.*View your registered email address or delete your account/,
+      name: /Account.*Edit your display name, view your registered email address, or delete your account/,
     })
     expect(accountOverviewLink).toHaveAttribute("href", "/settings/account")
 
@@ -151,9 +145,6 @@ describe("SettingsPage", () => {
     const settingsLink = await screen.findByRole("link", { name: "Settings" })
     expect(settingsLink).toHaveAttribute("href", "/settings")
 
-    const profileLink = await screen.findByRole("link", { name: "Profile" })
-    expect(profileLink).toHaveAttribute("href", "/settings/profile")
-
     const accountLink = screen.getByRole("link", { name: "Account" })
     expect(accountLink).toHaveAttribute("href", "/settings/account")
 
@@ -163,18 +154,13 @@ describe("SettingsPage", () => {
     const bookLink = await screen.findByRole("link", { name: "Book" })
     expect(bookLink).toHaveAttribute("href", "/settings/book")
 
-    await user.click(profileLink)
-
-    expect(router.state.location.pathname).toBe("/settings/profile")
-    expect(await screen.findByText("Profile settings page")).toBeInTheDocument()
-
     await user.click(accountLink)
 
     expect(router.state.location.pathname).toBe("/settings/account")
     expect(await screen.findByRole("heading", { name: "Account", level: 2 })).toBeInTheDocument()
     expect(await screen.findByText("test@example.com")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Delete account", level: 3 })).toBeInTheDocument()
-    expect(screen.queryByRole("textbox", { name: "Display name" })).not.toBeInTheDocument()
+    expect(screen.getByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
 
     await user.click(appearanceLink)
 
@@ -202,24 +188,37 @@ describe("SettingsPage", () => {
     expect(screen.getByLabelText(/End date/)).toBeInTheDocument()
   })
 
-  test("Profile 設定で表示名を編集でき、アカウントの項目を表示しない", async () => {
-    renderSettingsPage("/settings/profile")
+  test("旧プロフィールURLをアカウント設定に置換し、戻る履歴を増やさない", async () => {
+    const previousLanguage = i18next.language
+    await i18next.changeLanguage("ja")
+    onTestFinished(async () => {
+      await i18next.changeLanguage(previousLanguage)
+    })
+    const router = createRouter({
+      routeTree: appRouter.options.routeTree,
+      history: createMemoryHistory({ initialEntries: ["/settings/profile"] }),
+      context: { authStatus: "authenticated", supabaseSession: mockSession() },
+    })
+    render(<RouterProvider router={router} />)
 
-    expect(await screen.findByRole("heading", { name: "Profile" })).toBeInTheDocument()
-    expect(await screen.findByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
-    expect(screen.queryByText("Email address")).not.toBeInTheDocument()
-    expect(screen.queryByText("Login method")).not.toBeInTheDocument()
-    expect(screen.queryByRole("heading", { name: "Delete account" })).not.toBeInTheDocument()
-    expect(screen.queryByText("Language")).not.toBeInTheDocument()
-    expect(screen.queryByText("Theme")).not.toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "アカウント", level: 2 })).toBeVisible()
+    expect(router.state.location.pathname).toBe("/settings/account")
+    expect(router.history.canGoBack()).toBe(false)
+    expect(await screen.findByRole("textbox", { name: "表示名" })).toHaveValue("Test User")
+    expect(screen.getByText("test@example.com")).toBeVisible()
+    expect(screen.getByText("読み取り専用")).toBeVisible()
+    expect(screen.getByRole("button", { name: "アカウントの削除を予約" })).toBeEnabled()
+    expect(screen.queryByText("ログイン方法")).not.toBeInTheDocument()
   })
 
-  test("登録メールの読み込みに失敗しても削除操作が残り、再試行でメールを確認できる", async () => {
+  test("アカウント情報の読み込みに失敗しても削除操作が残り、再試行で表示名とメールを確認できる", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {})
     server.use(...createProfileHandlers({ get: { error: true } }))
     const { user } = renderSettingsPage("/settings/account")
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Could not load your email address.")
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Could not load your display name or email address.",
+    )
     expect(screen.getByRole("button", { name: "Schedule account deletion" })).toBeEnabled()
     server.use(
       ...createProfileHandlers({
@@ -229,6 +228,7 @@ describe("SettingsPage", () => {
     await user.click(screen.getByRole("button", { name: "Try again" }))
 
     expect(await screen.findByText("registered@example.com")).toBeVisible()
+    expect(screen.getByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   })
 

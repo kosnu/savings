@@ -57,7 +57,6 @@ export function Router() {
     return (
       <DeletionHandoff
         key={auth.authUserId}
-        initialState={auth.deletion}
         submission={auth.submission}
         onSignedOut={auth.onSignedOut}
         authUserId={auth.authUserId}

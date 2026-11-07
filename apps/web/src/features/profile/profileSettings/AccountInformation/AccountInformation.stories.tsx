@@ -21,7 +21,6 @@ function createProfileStoryParameters(options?: Parameters<typeof createProfileH
 const meta = {
   title: "Features/Profile/ProfileSettings/AccountInformation",
   component: AccountInformation,
-  args: { section: "profile" },
   decorators: [
     (Story) => {
       const queryClient = createQueryClient({
@@ -55,9 +54,4 @@ export const Loading: Story = {
 
 export const LoadError: Story = {
   parameters: createProfileStoryParameters({ get: { error: true } }),
-}
-
-export const RegisteredEmail: Story = {
-  args: { section: "account" },
-  parameters: createProfileStoryParameters(),
 }

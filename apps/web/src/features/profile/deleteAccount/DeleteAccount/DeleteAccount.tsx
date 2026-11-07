@@ -9,20 +9,12 @@ import {
   prepareAccountDeletion,
   requestAccountDeletion,
   type DeletionPreview,
-  type DeletionReceipt,
+  type DeletionSubmission,
   type DeletionResult,
 } from "../../../../lib/accountDeletion"
 import { deletionTime } from "../deletionTime"
 
-export function DeleteAccount({
-  receipt,
-  headingLevel = "h2",
-  onSubmitted,
-}: {
-  onSubmitted?: () => void
-  receipt?: DeletionReceipt
-  headingLevel?: "h2" | "h3"
-}) {
+export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "h3" }) {
   const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)
   const [preview, setPreview] = useState<DeletionPreview | null>(null)
@@ -36,10 +28,7 @@ export function DeleteAccount({
     setError(false)
     setPreview(null)
     try {
-      const next = await prepareAccountDeletion()
-      if (receipt && receipt.authUserId !== next.auth_user_id)
-        throw new Error("Account identity mismatch")
-      setPreview(next)
+      setPreview(await prepareAccountDeletion())
     } catch {
       setError(true)
     } finally {
@@ -51,13 +40,14 @@ export function DeleteAccount({
     setBusy(true)
     setError(false)
     try {
-      const requestReceipt = receipt ?? createDeletionReceipt(preview.auth_user_id)
+      const receipt = createDeletionReceipt(preview.auth_user_id)
       // 通常データを隠し、送信結果をログアウト・再確認の処理へ引き継ぐ。
-      const submission = requestAccountDeletion(requestReceipt, preview.explanation_version).catch(
+      const result = requestAccountDeletion(receipt, preview.explanation_version).catch(
         (): DeletionResult => ({ status: "not_confirmed" }),
       )
-      window.dispatchEvent(new CustomEvent(deletionReceiptEvent, { detail: submission }))
-      onSubmitted?.()
+      window.dispatchEvent(
+        new CustomEvent<DeletionSubmission>(deletionReceiptEvent, { detail: { receipt, result } }),
+      )
     } catch {
       setError(true)
       setBusy(false)
@@ -86,7 +76,7 @@ export function DeleteAccount({
               void load()
             }}
           >
-            {t(receipt ? "deletion.retryRequest" : "deletion.open")}
+            {t("deletion.open")}
           </Button>
         </Dialog.Trigger>
         <Dialog.Content

@@ -2,7 +2,8 @@ export const resources = {
   en: {
     translation: {
       "navigation.account": "Account",
-      "settings.accountDescription": "View your registered email address or delete your account.",
+      "settings.accountDescription":
+        "Edit your display name, view your registered email address, or delete your account.",
       "deletion.heading": "Delete account",
       "deletion.introduction": "Schedule deletion of your Burneto account.",
       "deletion.open": "Schedule account deletion",
@@ -24,7 +25,6 @@ export const resources = {
       "deletion.state.pending": "Your account deletion request was accepted.",
       "deletion.state.cancelled":
         "Account deletion was cancelled. Your original account can be used again.",
-      "deletion.retryRequest": "Review deletion request again",
       "deletion.cleanupError": "Could not sign out on this device.",
       "deletion.retryCleanup": "Retry sign-out",
       "app.name": "Burneto",
@@ -58,7 +58,7 @@ export const resources = {
       "privacy.storage.deletion":
         "You can delete individual payments and categories through the app. Disabling a budget does not erase past budget records. From Settings → Account, you can schedule account deletion when new requests are enabled. Scheduling suspends normal use immediately. Signing back in to the same account within 168 hours cancels the request. Physical deletion starts from the first 03:00 Japan time at or after that deadline, only from 03:00 to 03:59 each day, in batches of up to 10 per minute (up to 600 per day). Remaining and failed requests carry over to the next day; completion may be delayed. Deletion applies to your Burneto account and its data. Books with remaining members and their records are preserved. Empty books and all their records are deleted. Deleted data cannot be restored. For access, correction or unavailable deletion requests, contact the operator below.",
       "privacy.storage.retention":
-        "Information in backups and technical logs held by external infrastructure is managed separately from the records you see in the app. Deleting a record does not guarantee immediate removal of all related information from backups and logs. Retention and deletion conditions depend on the settings and terms of each infrastructure provider. Pending deletion requests are kept until processing finishes; cancellation and completion records are kept for 30 days. The browser keeps a receipt and confirmation key for at most 30 days and removes the key once the outcome is confirmed and no further checks are needed. Operator-managed backups are retained for at most 7 days; current request states and original deadlines are reapplied before restoration is made accessible. Inquiry emails are managed separately.",
+        "Information in backups and technical logs held by external infrastructure is managed separately from the records you see in the app. Deleting a record does not guarantee immediate removal of all related information from backups and logs. Retention and deletion conditions depend on the settings and terms of each infrastructure provider. Pending deletion requests are kept until processing finishes; cancellation and completion records are kept for 30 days. The request number and confirmation key are used only while the request page is open. Closing or reloading the page ends the check. Operator-managed backups are retained for at most 7 days; current request states and original deadlines are reapplied before restoration is made accessible. Inquiry emails are managed separately.",
       "privacy.contact.title": "Contact the operator",
       "privacy.contact.description":
         "For questions about personal information or requests for access, correction or deletion, please use the contact email below.",
@@ -71,7 +71,6 @@ export const resources = {
       "navigation.payments": "Payments",
       "navigation.settings": "Settings",
       "navigation.book": "Book",
-      "navigation.profile": "Profile",
       "navigation.appearance": "Appearance",
       "navigation.paymentsAria": "Navigate to Payments page",
       "navigation.settingsAria": "Navigate to Settings page",
@@ -149,7 +148,6 @@ export const resources = {
       "settings.sections": "Settings sections",
       "settings.overviewLinks": "Settings overview links",
       "settings.overviewDescription": "Choose a setting to manage.",
-      "settings.profileDescription": "Edit your display name.",
       "settings.appearanceDescription": "Manage language and theme.",
       "settings.bookDescription":
         "View the current book and manage its monthly budget and categories.",
@@ -160,9 +158,8 @@ export const resources = {
       "appearance.title": "Appearance",
       "profile.displayName": "Display name",
       "profile.email": "Email address",
-      "account.emailLoadError": "Could not load your email address.",
+      "account.loadError": "Could not load your display name or email address.",
       "profile.readOnly": "Read-only",
-      "profile.loadError": "Could not load profile information.",
       "profile.saveError": "Could not save your display name.",
       "profile.saveSuccess": "Display name updated.",
       "profile.retry": "Try again",
@@ -348,7 +345,7 @@ export const resources = {
   ja: {
     translation: {
       "navigation.account": "アカウント",
-      "settings.accountDescription": "登録メールアドレスの確認とアカウント削除",
+      "settings.accountDescription": "表示名の編集、登録メールアドレスの確認、アカウントの削除",
       "deletion.heading": "アカウントの削除",
       "deletion.introduction": "Burnetoのアカウント削除を予約します。",
       "deletion.open": "アカウントの削除を予約",
@@ -368,7 +365,6 @@ export const resources = {
       "deletion.state.not_confirmed": "削除予約の受付を確認できません。",
       "deletion.state.pending": "アカウント削除の予約を受け付けました。",
       "deletion.state.cancelled": "削除予約を取り消しました。元のアカウントを利用できます。",
-      "deletion.retryRequest": "削除予約をもう一度確認",
       "deletion.cleanupError": "この端末でログアウトできませんでした。",
       "deletion.retryCleanup": "ログアウトを再試行",
       "app.name": "Burneto",
@@ -401,7 +397,7 @@ export const resources = {
       "privacy.storage.deletion":
         "個別の支払いやカテゴリはアプリから削除できます。予算の無効化では過去の予算履歴を消去しません。受付中は「設定 → アカウント」からアカウント削除を予約でき、予約直後に通常利用を停止します。予約から168時間が経つ前に同じアカウントでログインし直すと、予約を取り消せます。期限以降で最初の日本時間午前3時から、毎日3:00〜3:59だけ毎分最大10件（最大600件／日）を物理削除します。残件・失敗分は翌日に回し、完了が遅れる場合があります。削除対象はBurnetoのアカウントとそのデータです。他のメンバーが残るブックと全履歴は保持し、無人のブックと全履歴を削除します。物理削除後の復元はできません。閲覧・訂正や受付停止中の削除依頼は、下記へお問い合わせください。",
       "privacy.storage.retention":
-        "バックアップに含まれる情報や、外部基盤に保存される技術ログは、画面で確認できる登録情報とは別に管理されます。登録情報を削除しても、バックアップやログから関連情報が直ちにすべて消去されることを保証するものではありません。保持・削除の条件は、各基盤の設定や契約によります。 削除要求は処理完了まで、取消・完了記録は30日間保持します。端末の受付番号と確認キーは最大30日で、受付や取消・完了を確認し、再試行に不要になった時点で消去します。運営者管理のバックアップは最大7日とし、復旧時は最新の要求状態と元の期限を再適用してから公開します。問い合わせメールは別管理です。",
+        "バックアップに含まれる情報や、外部基盤に保存される技術ログは、画面で確認できる登録情報とは別に管理されます。登録情報を削除しても、バックアップやログから関連情報が直ちにすべて消去されることを保証するものではありません。保持・削除の条件は、各基盤の設定や契約によります。 削除要求は処理完了まで、取消・完了記録は30日間保持します。受付番号と確認キーは申請ページを開いている間だけ使用します。ページを閉じたり再読み込みしたりすると確認は終了します。運営者管理のバックアップは最大7日とし、復旧時は最新の要求状態と元の期限を再適用してから公開します。問い合わせメールは別管理です。",
       "privacy.contact.title": "運営者へのお問い合わせ",
       "privacy.contact.description":
         "個人情報の取扱いに関するお問い合わせや、開示・訂正・削除等のご相談は、以下のメールアドレスへご連絡ください。",
@@ -414,7 +410,6 @@ export const resources = {
       "navigation.payments": "支払い",
       "navigation.settings": "設定",
       "navigation.book": "ブック",
-      "navigation.profile": "プロフィール",
       "navigation.appearance": "外観",
       "navigation.paymentsAria": "支払いページへ移動",
       "navigation.settingsAria": "設定ページへ移動",
@@ -492,7 +487,6 @@ export const resources = {
       "settings.sections": "設定セクション",
       "settings.overviewLinks": "設定概要のリンク",
       "settings.overviewDescription": "設定したい項目を選択してください。",
-      "settings.profileDescription": "表示名を編集します。",
       "settings.appearanceDescription": "言語とテーマを管理します。",
       "settings.bookDescription": "現在のブックを確認し、その月予算とカテゴリを管理します。",
       "books.current": "現在のブック",
@@ -502,9 +496,8 @@ export const resources = {
       "appearance.title": "外観",
       "profile.displayName": "表示名",
       "profile.email": "メールアドレス",
-      "account.emailLoadError": "メールアドレスを読み込めませんでした。",
+      "account.loadError": "表示名とメールアドレスを読み込めませんでした。",
       "profile.readOnly": "読み取り専用",
-      "profile.loadError": "プロフィール情報を読み込めませんでした。",
       "profile.saveError": "表示名を保存できませんでした。",
       "profile.saveSuccess": "表示名を更新しました。",
       "profile.retry": "もう一度試す",

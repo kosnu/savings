@@ -4,7 +4,7 @@ import { http, HttpResponse } from "msw"
 import { afterEach, expect, test, vi } from "vite-plus/test"
 
 import { Router } from "../../app/Router"
-import type { MyDeletionState } from "../../lib/accountDeletion"
+import { deletionReceiptKey, type MyDeletionState } from "../../lib/accountDeletion"
 import { completeExplicitLogin, getLoginAuth, startExplicitLogin } from "../../lib/explicitLogin"
 import { mockSession } from "../../test/data/supabaseSession"
 import { deletionRequestId } from "../../test/msw/handlers/accountDeletion"
@@ -265,6 +265,29 @@ test("保存済みsessionのない正常起動はエラーを表示せず未ロ�
   expect(p.connection.requests).toEqual([])
   p.unmount()
 })
+
+test.each([true, false])(
+  "旧受付の保存領域が拒否されても通常起動する（未ログイン=%s）",
+  async (withoutSession) => {
+    const read = localStorage.getItem.bind(localStorage)
+    const remove = localStorage.removeItem.bind(localStorage)
+    const reads = vi.spyOn(localStorage, "getItem").mockImplementation((key) => {
+      if (key === deletionReceiptKey) throw new DOMException("Storage denied", "SecurityError")
+      return read(key)
+    })
+    vi.spyOn(localStorage, "removeItem").mockImplementation((key) => {
+      if (key === deletionReceiptKey) throw new DOMException("Storage denied", "SecurityError")
+      remove(key)
+    })
+    const p = setup({ withoutSession, deletion: { status: "active" } })
+    expect(
+      await screen.findByText(withoutSession ? "Public home" : "Authenticated content"),
+    ).toBeVisible()
+    expect(reads).not.toHaveBeenCalledWith(deletionReceiptKey)
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    p.unmount()
+  },
+)
 
 test("無効な認証情報は認証済み画面へ進めず、再認証の理由とログイン操作を表示する", async () => {
   const p = setup({ invalidSession: true })

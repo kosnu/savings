@@ -62,48 +62,32 @@ export async function reactivateAccount(requestId: string, accessToken: string) 
 
 export const deletionReceiptKey = "burneto-account-deletion-receipt"
 export const deletionReceiptEvent = "burneto-account-deletion-receipt-changed"
-const receiptSchema = z.object({
-  requestId: z.uuid(),
-  secret: z.string().regex(/^[0-9a-f]{64}$/),
-  authUserId: z.uuid(),
-  createdAt: z.number().finite(),
-})
-export type DeletionReceipt = z.infer<typeof receiptSchema>
-
-export function readDeletionReceipt(): DeletionReceipt | null {
-  const raw = localStorage.getItem(deletionReceiptKey)
-  if (!raw) return null
-  let value: unknown
-  try {
-    value = JSON.parse(raw)
-  } catch {
-    clearDeletionReceipt()
-    return null
-  }
-  const parsed = receiptSchema.safeParse(value)
-  if (!parsed.success || Date.now() - parsed.data.createdAt >= 30 * 24 * 60 * 60 * 1000) {
-    clearDeletionReceipt()
-    return null
-  }
-  return parsed.data
+export interface DeletionReceipt {
+  authUserId: string
+  requestId: string
+  secret: string
 }
 
-export function clearDeletionReceipt() {
-  localStorage.removeItem(deletionReceiptKey)
+export interface DeletionSubmission {
+  receipt: DeletionReceipt
+  result: Promise<DeletionResult>
+}
+
+export function clearLegacyDeletionReceipt() {
+  try {
+    localStorage.removeItem(deletionReceiptKey)
+  } catch {
+    // 旧データを消去できない環境でも受付と通常利用を続ける。
+  }
 }
 
 export function createDeletionReceipt(authUserId: string): DeletionReceipt {
-  const existing = readDeletionReceipt()
-  if (existing) throw new Error("Check the existing account deletion request first")
   const bytes = crypto.getRandomValues(new Uint8Array(32))
-  const receipt = receiptSchema.parse({
+  return {
+    authUserId,
     requestId: crypto.randomUUID(),
     secret: Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(""),
-    authUserId,
-    createdAt: Date.now(),
-  })
-  localStorage.setItem(deletionReceiptKey, JSON.stringify(receipt))
-  return receipt
+  }
 }
 
 export async function requestAccountDeletion(receipt: DeletionReceipt, version: string) {

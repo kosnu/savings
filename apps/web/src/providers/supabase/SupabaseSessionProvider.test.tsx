@@ -674,25 +674,38 @@ test("送信開始でqueryを取消しcacheを消し、遅延した同一session
   await waitFor(() => expectSession(result, "authenticated", authId))
   queryClient.setQueryData(["private-data"], "sensitive")
   const cancelled = vi.spyOn(queryClient, "cancelQueries")
-  createDeletionReceipt(authId)
-  const submission = Promise.resolve({ status: "not_confirmed" as const })
+  const refreshing = createDeferred<{ data: { status: "active" }; error: null }>()
+  mockRpc.mockReturnValueOnce(refreshing.promise)
+  act(() => emit("TOKEN_REFRESHED", session))
+  await waitFor(() => expect(mockRpc).toHaveBeenCalledTimes(2))
+  const submission = {
+    receipt: createDeletionReceipt(authId),
+    result: Promise.resolve({ status: "not_confirmed" as const }),
+  }
   act(() => window.dispatchEvent(new CustomEvent(deletionReceiptEvent, { detail: submission })))
   expect(result.current).toMatchObject({ submission })
   expectSession(result, "suspended", null)
   expect(cancelled).toHaveBeenCalled()
   expect(queryClient.getQueryData(["private-data"])).toBeUndefined()
-  act(() => emit("TOKEN_REFRESHED", session))
-  await waitFor(() => expect(mockRpc).toHaveBeenCalledTimes(2))
+  await act(async () => {
+    refreshing.resolve({ data: { status: "active" }, error: null })
+    await refreshing.promise
+  })
   expectSession(result, "suspended", null)
   expect(mockEnsureAuthenticatedUser).toHaveBeenCalledTimes(1)
 })
 
 test("未確認の受付はsession失効後も再確認を継続し、別人のログインを止めない", async () => {
   const authId = "20870000-0000-4000-8000-000000000001"
-  createDeletionReceipt(authId)
   mockGetSession.mockResolvedValue({ data: { session: createSession(authId) }, error: null })
   const emit = captureAuthCallback()
   const { result } = renderSessionHook()
+  await waitFor(() => expectSession(result, "authenticated", authId))
+  const submission = {
+    receipt: createDeletionReceipt(authId),
+    result: Promise.resolve({ status: "not_confirmed" as const }),
+  }
+  act(() => window.dispatchEvent(new CustomEvent(deletionReceiptEvent, { detail: submission })))
   await waitFor(() => expectSession(result, "suspended", null))
   const suspended = result.current
   if (suspended.status !== "suspended") throw new Error("Expected suspended state")

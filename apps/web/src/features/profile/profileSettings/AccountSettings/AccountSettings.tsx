@@ -6,7 +6,7 @@ import { AccountInformation } from "../AccountInformation"
 export function AccountSettings() {
   return (
     <Flex direction="column" gap="4">
-      <AccountInformation section="account" />
+      <AccountInformation />
       <DeleteAccount headingLevel="h3" />
     </Flex>
   )

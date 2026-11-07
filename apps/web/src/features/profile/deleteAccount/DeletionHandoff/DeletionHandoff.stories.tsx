@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { AuthError } from "@supabase/supabase-js"
 import { fn, spyOn } from "storybook/test"
 
-import { deletionReceiptKey } from "../../../../lib/accountDeletion"
+import type { DeletionSubmission } from "../../../../lib/accountDeletion"
 import { getSupabaseClient } from "../../../../lib/supabase"
 import { mockSession } from "../../../../test/data/supabaseSession"
 import {
@@ -15,21 +15,15 @@ import {
 import { DeletionHandoff } from "./DeletionHandoff"
 
 const onSignedOut: () => void = fn()
+const submission: DeletionSubmission = {
+  receipt: { authUserId: deletionAuthUserId, requestId: deletionRequestId, secret: deletionSecret },
+  result: Promise.resolve({ status: "not_confirmed" }),
+}
 const meta = {
   title: "Features/Profile/DeletionHandoff",
   component: DeletionHandoff,
-  args: { authUserId: deletionAuthUserId, initialState: null, onSignedOut },
+  args: { authUserId: deletionAuthUserId, submission, onSignedOut },
   beforeEach: () => {
-    const previousReceipt = localStorage.getItem(deletionReceiptKey)
-    localStorage.setItem(
-      deletionReceiptKey,
-      JSON.stringify({
-        authUserId: deletionAuthUserId,
-        requestId: deletionRequestId,
-        secret: deletionSecret,
-        createdAt: Date.now(),
-      }),
-    )
     const session = mockSession()
     session.user.id = deletionAuthUserId
     const auth = getSupabaseClient().auth
@@ -39,8 +33,6 @@ const meta = {
     })
     const signOut = spyOn(auth, "signOut").mockResolvedValue({ error: null })
     return () => {
-      if (previousReceipt === null) localStorage.removeItem(deletionReceiptKey)
-      else localStorage.setItem(deletionReceiptKey, previousReceipt)
       getSession.mockRestore()
       signOut.mockRestore()
     }
@@ -75,15 +67,7 @@ export const NotConfirmed: Story = {
   parameters: { msw: { handlers: createAccountDeletionHandlers() } },
 }
 
-export const SignedOutNotConfirmed: Story = {
-  ...NotConfirmed,
-  beforeEach: () => {
-    spyOn(getSupabaseClient().auth, "getSession").mockResolvedValue({
-      data: { session: null },
-      error: null,
-    })
-  },
-}
+export const OtherDevice: Story = { args: { submission: undefined } }
 
 export const LookupError: Story = {
   parameters: {

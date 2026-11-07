@@ -25,11 +25,6 @@ export function SettingsPage() {
           <nav aria-label={t("settings.sections")}>
             <Flex direction="column" gap="2" align="stretch">
               <Button asChild variant="ghost" size="3">
-                <Link to="/settings/profile" className={styles.menuLink}>
-                  {t("navigation.profile")}
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" size="3">
                 <Link to="/settings/account" className={styles.menuLink}>
                   {t("navigation.account")}
                 </Link>

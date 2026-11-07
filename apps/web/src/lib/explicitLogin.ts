@@ -2,12 +2,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 
 import { env } from "../config/env"
 import { paths } from "../config/paths"
-import {
-  clearDeletionReceipt,
-  getMyDeletionState,
-  reactivateAccount,
-  readDeletionReceipt,
-} from "./accountDeletion"
+import { getMyDeletionState, reactivateAccount } from "./accountDeletion"
 import { diagnosticCode } from "./sentryPrivacy"
 
 const markerKey = "burneto-explicit-login"
@@ -82,9 +77,6 @@ export function completeExplicitLogin(
       if (state.status === "pending") {
         if (!state.can_reactivate) throw new Error("Account reactivation expired")
         await reactivateAccount(state.request_id, session.access_token)
-        const receipt = readDeletionReceipt()
-        if (receipt?.authUserId === session.user.id && receipt.requestId === state.request_id)
-          clearDeletionReceipt()
       }
       // SDKの一時保存を消去してから、通常sessionへ認証結果を引き継ぐ。
       clearLoginStorage()

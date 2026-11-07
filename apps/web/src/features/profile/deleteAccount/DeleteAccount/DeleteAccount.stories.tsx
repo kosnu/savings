@@ -50,14 +50,6 @@ export const Sending: Story = {
     })
     return () => mock.mockRestore()
   },
-  args: {
-    receipt: {
-      requestId: deletionRequestId,
-      secret: deletionSecret,
-      authUserId: deletionAuthUserId,
-      createdAt: Date.now(),
-    },
-  },
   parameters: parameters({
     request: {
       requestId: deletionRequestId,
@@ -69,7 +61,7 @@ export const Sending: Story = {
   }),
   play: async ({ canvasElement }) => {
     await userEvent.click(
-      within(canvasElement).getByRole("button", { name: i18next.t("deletion.retryRequest") }),
+      within(canvasElement).getByRole("button", { name: i18next.t("deletion.open") }),
     )
     await userEvent.click(
       await screen.findByRole("button", { name: i18next.t("deletion.confirm") }),
