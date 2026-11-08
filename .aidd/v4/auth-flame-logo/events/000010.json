@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "verify",
+  "source": "ユーザーのAudit No.1（白い縁）と最新の更新案「通常時は添付WebP、動きを減らす設定では既存ロゴ、旧GIFと専用PNGを削除」へのApprove。PR #2102の同じTask・baselineを継続。",
+  "paths": [
+    "apps/web/src/components/misc/Logo/"
+  ],
+  "fingerprint": "40a8e1bc55af67955ad07f398a7ea1c5147918d88c5e37d708550a669039af8a",
+  "status": "pass",
+  "checks": [
+    "Web lint・format-check・typecheck",
+    "Web unit-integration: 158 files / 1104 tests",
+    "Web production build: WebP出力",
+    "全16フレームのRGBA一致・半透明保持・黒白96px比較",
+    "PC/モバイルの認証画面・静止設定の初期値/切替/解除・通常ロゴ"
+  ],
+  "summary": "同一アプリ差分に対する必須Web4検証とbuildが成功。192px・16フレーム・各100msのWebPは縮小元RGBAと全フレーム完全一致し半透明を保持、黒白96pxの一覧に白い縁や帯状崩れなし。Chromiumの実StoryでPC/モバイル配置、WebP再生、静止設定の初期値と途中変更で既存/icon-192.png選択・画素不変、解除で再生復帰、通常32pxロゴを確認。描画用の一時出力を除去しアプリ差分は不変。Safari/Firefox・実OAuth・本番配信は未確認。",
+  "remaining": []
+}

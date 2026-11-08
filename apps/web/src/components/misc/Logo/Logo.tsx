@@ -1,5 +1,4 @@
-import animatedLogoUrl from "./logoAnimated.gif"
-import stillLogoUrl from "./logoStill.png"
+import animatedLogoUrl from "./logoAnimated.webp"
 
 interface LogoProps {
   width?: string | number | undefined
@@ -15,7 +14,7 @@ export function Logo({ width = 32, height = 32, alt = "Burneto", animated = fals
 
   return (
     <picture>
-      <source media="(prefers-reduced-motion: reduce)" srcSet={stillLogoUrl} />
+      <source media="(prefers-reduced-motion: reduce)" srcSet="/icon-192.png" />
       <img src={animatedLogoUrl} alt={alt} width={width} height={height} />
     </picture>
   )
