@@ -289,6 +289,54 @@
       "priority": 80
     },
     {
+      "id": "infrastructure.production-release",
+      "file": "docs/production-release/index.md",
+      "applies_to": {
+        "paths": ["docs/production-release/index.md", ".agents/skills/release/**"],
+        "topics": ["release", "deployment"]
+      },
+      "depends_on": ["infrastructure.overview", "documentation.policy"],
+      "overrides": [],
+      "priority": 80
+    },
+    {
+      "id": "infrastructure.production-release-internals",
+      "file": "docs/production-release/internals.md",
+      "applies_to": {
+        "paths": [
+          "docs/production-release/**",
+          "tools/production-release/**",
+          ".github/workflows/draft_production_release.yaml",
+          ".github/workflows/release_production.yaml",
+          ".github/workflows/deploy_production.yaml",
+          ".github/workflows/production_release_ci.yaml",
+          ".agents/skills/release/**"
+        ],
+        "topics": ["release", "versioning", "deployment"]
+      },
+      "depends_on": ["infrastructure.production-release"],
+      "overrides": [],
+      "priority": 80
+    },
+    {
+      "id": "infrastructure.production-release-verification",
+      "file": "docs/production-release/development.md",
+      "applies_to": {
+        "paths": [
+          "docs/production-release/development.md",
+          "tools/production-release/**",
+          ".github/workflows/draft_production_release.yaml",
+          ".github/workflows/release_production.yaml",
+          ".github/workflows/deploy_production.yaml",
+          ".github/workflows/production_release_ci.yaml"
+        ],
+        "topics": ["release", "verification"]
+      },
+      "depends_on": ["infrastructure.production-release-internals"],
+      "overrides": [],
+      "priority": 80
+    },
+    {
       "id": "ai-driven.overview",
       "file": "docs/ai-driven-development/overview.md",
       "applies_to": {

@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2106; current user Audit findings",
+  "paths": [
+    "docs/cloudflare-delivery.md",
+    "docs/infrastructure.md",
+    "docs/production-release.md",
+    "docs/production-release-initial.md",
+    "docs/production-release-recovery.md",
+    "docs/production-release-internals.md",
+    "docs/production-release-development.md",
+    "docs/harness/rule-map.json",
+    ".agents/skills/release/SKILL.md"
+  ],
+  "fingerprint": "4f72d067af52abd70470890c54c1b103131ab5fd9f21d5a9507cc62c3947020c",
+  "status": "unknown",
+  "checks": [
+    "PR2106 head一致、未解決threadなし、Bot要約は指摘なし",
+    "配置: 同一prefixの5文書を専用directoryへ移す追加要件",
+    "graph: draft.mjsの規約選択0件、deployにrelease固有規約なし。baseにも未登録",
+    "分析レビュー: 正確性・再発対策の範囲・適用先を照合済み"
+  ],
+  "summary": "2件を今修正候補と判断。docs/production-release/へindex・initial-setup・recovery・internals・developmentを配置し参照を同期する案。rule-mapへrelease仕様と開発検証の選択経路を追加し、初回・復旧は常時必須にしない。graph未登録は分割前から存在。共通policy追加とIssue2039変更は不要。PR返信・thread解決は対象なし。分析は完了、提案の適用は承認待ち。",
+  "remaining": [
+    "提案の手動承認と、同一Taskでの配置・索引・参照更新",
+    "変更後のリンク検査、規約選択の正例・反例、該当検証・選択eval、再Ship"
+  ]
+}

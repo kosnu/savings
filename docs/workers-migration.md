@@ -81,7 +81,7 @@ Worker `burneto` への同一ドメインの紐付け、および本番動作確
 1. 対象 commit の CI と事前検証を確認する。切替前に既存のログイン済みブラウザを維持しておく。
 2. Cloudflare Dashboard の Pages project `burneto` から `burneto.com` の Custom Domain を解除する。
    旧 Pages project、deployment、`savings-dyo.pages.dev` は保持する。
-3. [本番リリース手順](production-release.md)に従い、承認された commit の正式 Release を公開する。
+3. [本番リリース手順](production-release/index.md)に従い、承認された commit の正式 Release を公開する。
    `Deploy Production` が同じ commit の DB migration と Web を順に反映するため、DB 適用も承認対象に含める。
    API 側に未承認の migration が含まれない commit を選ぶ。
    Web job は一度だけビルドし、cf の dry-run 後に同じ配信物をデプロイする。

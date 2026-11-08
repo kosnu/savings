@@ -10,7 +10,7 @@ description: Prepare, publish, and verify production releases for kosnu/savings,
 ## 入口
 
 - 以下のパスは checkout のルート相対。`AGENTS.md`、`docs/harness/rule-map.json`、`docs/harness/policies/git-workflow.md` を適用し、
-  正本 `docs/production-release.md` と今回必要な確認・復旧の参照先を読む。採番・操作・復旧手順を本スキルで再定義しない。
+  正本 `docs/production-release/index.md` と今回必要な確認・復旧の参照先を読む。採番・操作・復旧手順を本スキルで再定義しない。
 - checkout と GitHub の対象が `kosnu/savings` で、必要な workflow が **GitHub 上の main** に導入済みか確認する。
   未導入なら必要な PR と不足を示す。リリース依頼を PR の merge・workflow 改修・Secret や保護設定の変更へ広げない。
 - 接続済み GitHub ツールを優先し、不足する操作には既存認証の `gh` または GitHub UI を使う。
