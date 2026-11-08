@@ -20,7 +20,7 @@ when_to_read:
 
 # 本番リリースの再実行と障害復旧
 
-[通常のリリース手順](production-release.md)で配信に失敗した場合や、配信後に障害が発生した場合に使う。
+[通常のリリース手順](index.md)で配信に失敗した場合や、配信後に障害が発生した場合に使う。
 
 ## 最初に確認すること
 
@@ -36,7 +36,7 @@ Release・SHA・成功済みの範囲・実反映を確認する。
   一時的な API 障害なら、同じ受付を再実行できる。
 - **DB 失敗：** Web は未配信。migration 履歴・ログから部分適用とデータへの影響を調べ、安全に再適用できる場合だけ再実行する。
 - **DB 成功、Web 失敗：** Worker の active version を確認する。新 DB と旧 Web の互換性を維持して、同じ Release を再実行する。
-- **Web 配信後の障害：** 新 DB と互換な場合に限り、[Web 切り戻し](cloudflare-delivery.md#必要なときに参照する詳細)で旧 Worker version へ戻す。
+- **Web 配信後の障害：** 新 DB と互換な場合に限り、[Web 切り戻し](../cloudflare-delivery.md#必要なときに参照する詳細)で旧 Worker version へ戻す。
   DB・Auth・データは戻らない。
 - **DB 復旧が必要：** 自動 down migration は行わず、原則は修正 migration を含む新 Release で前進復旧する。
   データ復元は、実在するバックアップ・復元時点・停止／損失範囲を確認して行う。

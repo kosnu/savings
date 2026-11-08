@@ -24,5 +24,5 @@ when_to_read:
 3. 最初のバージョンは、過去全履歴の type に関係なく **`v0.1.0`** になる。
    手動指定する場合は `v0.1.0` 以上を指定する。
 
-準備後は[通常のリリース手順](production-release.md)に進む。
-番号を手動指定する場合は[Draft の手動補正](production-release-internals.md#draft-の自動準備と手動補正)を参照する。
+準備後は[通常のリリース手順](index.md)に進む。
+番号を手動指定する場合は[Draft の手動補正](internals.md#draft-の自動準備と手動補正)を参照する。

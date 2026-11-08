@@ -1,0 +1,28 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/pull/2106; user Apptove approves preceding Audit proposals",
+  "paths": [
+    "docs/production-release.md",
+    "docs/production-release-initial.md",
+    "docs/production-release-recovery.md",
+    "docs/production-release-internals.md",
+    "docs/production-release-development.md",
+    "docs/production-release/",
+    "docs/infrastructure.md",
+    "docs/cloudflare-delivery.md",
+    "docs/workers-migration.md",
+    "docs/harness/rule-map.json",
+    ".agents/skills/release/SKILL.md"
+  ],
+  "fingerprint": "41afa6dc13c24cf850a403886c040f701c93d07c5fb14259015756f92c71b2ae",
+  "status": "pass",
+  "checks": [
+    "承認済み5文書を専用directoryへ移動し、関連4入口を同期",
+    "通常・内部仕様・開発検証の3 nodeで必要な依存だけを選択",
+    "初回・復旧文書は常時必須にせず、共通policyや実装は変更しない"
+  ],
+  "summary": "直前Auditの具体的配置・参照・graph案に対するユーザーApptoveを実行承認として採用。同一Taskの次cycleで配置と索引を改善する。検証は文書リンク・規約選択の正例反例・Core test/vetと関連eval比較。",
+  "remaining": []
+}

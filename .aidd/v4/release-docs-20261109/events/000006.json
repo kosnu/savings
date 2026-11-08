@@ -1,0 +1,35 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/2106; user Apptove approves preceding Audit proposals",
+  "paths": [
+    "docs/production-release.md",
+    "docs/production-release-initial.md",
+    "docs/production-release-recovery.md",
+    "docs/production-release-internals.md",
+    "docs/production-release-development.md",
+    "docs/infrastructure.md",
+    "docs/cloudflare-delivery.md",
+    "docs/workers-migration.md",
+    "docs/harness/rule-map.json",
+    ".agents/skills/release/SKILL.md",
+    "docs/production-release/development.md",
+    "docs/production-release/index.md",
+    "docs/production-release/initial-setup.md",
+    "docs/production-release/internals.md",
+    "docs/production-release/recovery.md"
+  ],
+  "fingerprint": "41afa6dc13c24cf850a403886c040f701c93d07c5fb14259015756f92c71b2ae",
+  "status": "unknown",
+  "checks": [
+    "Markdown・JSON計10ファイル整形、文書9ファイルのmetadataとリンク",
+    "規約選択8ケース: release3node・条件付き文書・対象外の反例",
+    "Core test/vet、差分検査、検証中の対象安定性",
+    "audit-rule-gap各2入力の前後評価: model_unavailableでenvironment_error"
+  ],
+  "summary": "必須の決定的検証はすべて成功。関連evalの前後比較は両側ともモデル利用不可であり、行動・判断への効果は未確認。全件passをShip条件にしない規約に従い、決定的な選択結果と意味レビューを根拠に限定範囲で配信する。",
+  "remaining": [
+    "AIモデル評価の効果比較は環境要因により未確認。実行・比較の成功とは報告しない。"
+  ]
+}

@@ -19,7 +19,7 @@ when_to_read:
 
 # 本番リリースの採番と内部仕様
 
-[通常のリリース手順](production-release.md)から参照する採番基準、Draft の操作方法、配信の内部仕様。
+[通常のリリース手順](index.md)から参照する採番基準、Draft の操作方法、配信の内部仕様。
 
 ## バージョンを上げる基準
 
@@ -87,16 +87,16 @@ Releases で未使用タグと完全な対象 SHA を指定して、手動 Draft
 
 ## Release ノート
 
-[通常のリリース手順](production-release.md)で本番への影響・migration・復旧方法を追記するときは、
+[通常のリリース手順](index.md)で本番への影響・migration・復旧方法を追記するときは、
 `production-release-draft:start` / `end` コメントの外に記載する。
 
-DB 変更時は[配備互換性の方針](harness/policies/transaction-boundaries.md#api契約変更と配備互換性)に従う。
+DB 変更時は[配備互換性の方針](../harness/policies/transaction-boundaries.md#api契約変更と配備互換性)に従う。
 DB/Web は一括で元に戻らないため、新 DB と旧 Web の互換性、または必要な停止範囲をノートに記載する。
 
 ## 起動と配信対象
 
-[Release Production](../.github/workflows/release_production.yaml) が `release.published` を受け、
-Release ID・公開時 SHA を main の [Deploy Production](../.github/workflows/deploy_production.yaml) へ渡す。
+[Release Production](../../.github/workflows/release_production.yaml) が `release.published` を受け、
+Release ID・公開時 SHA を main の [Deploy Production](../../.github/workflows/deploy_production.yaml) へ渡す。
 workflow の `GITHUB_TOKEN` で Release を公開しても後続イベントは起動しない。
 
 Draft 保存・タグ push・PR merge・プレリリース公開は配信しない。

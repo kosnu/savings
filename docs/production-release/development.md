@@ -18,7 +18,7 @@ when_to_read:
 # 本番リリース機構の開発者向け検証
 
 リリース機構のコードや workflow を変更したときの検証手順。
-通常の本番リリースでは、[通常のリリース手順](production-release.md)を使う。
+通常の本番リリースでは、[通常のリリース手順](index.md)を使う。
 
 ## 検証コマンド
 
@@ -30,4 +30,4 @@ node --test tools/production-release/*.test.mjs tools/dev-preview/*.test.mjs
 actionlint .github/workflows/release_production.yaml .github/workflows/deploy_production.yaml .github/workflows/draft_production_release.yaml .github/workflows/production_release_ci.yaml
 ```
 
-起動条件・配信対象・自動検証の仕様は[内部仕様](production-release-internals.md)を参照する。
+起動条件・配信対象・自動検証の仕様は[内部仕様](internals.md)を参照する。
