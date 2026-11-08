@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "audit",
+  "source": "ユーザーのAudit No.1（白い縁）と最新の更新案「通常時は添付WebP、動きを減らす設定では既存ロゴ、旧GIFと専用PNGを削除」へのApprove。PR #2102の同じTask・baselineを継続。",
+  "paths": [
+    "apps/web/src/components/misc/Logo/"
+  ],
+  "fingerprint": "dec82ed5549f4794e09a809e046a77a5fbc21b613f6b7120236361e61f5bc337",
+  "status": "unknown",
+  "checks": [
+    "GIF縮小による白の混入・全16フレーム",
+    "静止設定の既存ロゴ利用という訂正",
+    "分析の客観性・対策・適用先の照合"
+  ],
+  "summary": "白い縁は透明画素の白が縮小時に輪郭へ混入しGIF化で不透明になることが原因。暗背景での輪郭比較の証拠不足あり。添付WebPを透明度保持で縮小し、静止設定は既存ロゴを使用、旧GIFと専用PNGを削除する案をユーザーがApprove。画像内の白いハイライトを一括除去せず、黒白背景・全フレームと設定切替を検証する。共通ルール改定とPR返信は対象外。",
+  "remaining": [
+    "修正版の黒白背景での見た目と設定切替は承認後に検証。"
+  ]
+}

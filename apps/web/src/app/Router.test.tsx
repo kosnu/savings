@@ -42,17 +42,27 @@ beforeEach(() => {
   mockInvalidate.mockClear()
 })
 
-testCase("言語解決中は認証ローディング画面を表示する", () => {
+// 認証状態の途中遷移を確認するため、Storyではなくsession hookの境界を差し替える。
+testCase("認証確認中は状態を表示し、確認完了で画面を切り替える", () => {
   mockUseSupabaseSession.mockReturnValue({
     status: "loading",
     session: null,
   })
 
-  render(<Router />)
+  const { rerender } = render(<Router />)
 
-  expect(screen.getByText("Checking authentication status...")).toBeInTheDocument()
+  expect(screen.getByRole("status")).toHaveTextContent("Checking authentication status...")
   expect(screen.queryByText("router-provider")).not.toBeInTheDocument()
   expect(mockRouterProvider).not.toHaveBeenCalled()
+
+  mockUseSupabaseSession.mockReturnValue({
+    status: "authenticated",
+    session: { access_token: "token" },
+  })
+  rerender(<Router />)
+
+  expect(screen.queryByRole("status")).not.toBeInTheDocument()
+  expect(screen.getByText("router-provider")).toBeInTheDocument()
 })
 
 testCase("authStatus が確定したら RouterProvider を描画する", () => {

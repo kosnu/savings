@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "verify",
+  "source": "ユーザー「コンフリクト解消して」。承認済みWebP対応を維持し、同じTask・cycle 000009.json・PR #2102へmain c1d6a1feを統合する。Taskの既存baselineと採用判断は維持。",
+  "paths": [
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx"
+  ],
+  "fingerprint": "d4e63ea20e5868ecb6ae9ee6e035bbb135f75a83c5eb2846cb4dcacf079aa215",
+  "status": "pass",
+  "checks": [
+    "Web lint・format-check・typecheck",
+    "Web unit-integration: 161 files / 1149 tests",
+    "Web Storybook: 8 files / 32 tests",
+    "Web production build・競合マーカーなし・空白検査"
+  ],
+  "summary": "main c1d6a1fe統合後の必須Web4検証とbuildが成功。RouterのProvider付き認証状態遷移も成功。Storybookはsandbox内のChromium起動が権限拒否で未実行となったため、他の検証終了後に同じコマンドを必要権限で再実行し32件成功。WebP・Logo・AuthLoadingScreenはfe6120a1と内容不変で既存の黒白輪郭/静止設定検証を再利用。mainの機能は保持し競合マーカーなし。実OAuth・本番配信は未確認。",
+  "remaining": []
+}

@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "ユーザー最新添付GIF（e0b2d984）の認証確認中表示への採用依頼。PR #2102の同じTask・baselineを継続し、独自SVGアニメーションを置換する。",
+  "paths": [
+    "apps/web/src/components/misc/Logo/",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx"
+  ],
+  "fingerprint": "258e860303843e29681e48cd266b1ec4ef95d013303d49836ed4ca26f9d36ec5",
+  "status": "pass",
+  "checks": [
+    "Web lint・format-check・typecheck",
+    "Web unit-integration: 158 files / 1104 tests",
+    "Web production build: GIF・PNGの出力",
+    "Chromium: GIF再生・静止設定の初期値と切替・解除・通常ロゴ",
+    "GIFの16フレーム・1.6秒と差分の空白検査"
+  ],
+  "summary": "必須Web4検証とbuildが成功。最新添付GIFを192px・16フレーム・1.6秒の約202KBへ軽量化し、同じ素材の先頭フレームPNGを生成。Animated Storyの実描画で96pxの再生とフレーム差、静止設定の初期値・途中変更でPNG選択と画素不変、解除でGIF選択、Defaultで従来の32pxアイコンを確認。Routerの既存状態遷移テストも成功。独自SVG・変形helperの参照は残らない。browser-test対象Storyの通常分岐と設定に影響しないため専用suiteは対象外。実描画はChromiumのみ、実OAuthと本番配信は対象外。",
+  "remaining": []
+}

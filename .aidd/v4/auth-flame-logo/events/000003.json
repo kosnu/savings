@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "ユーザー最新添付GIF（e0b2d984）の認証確認中表示への採用依頼。PR #2102の同じTask・baselineを継続し、独自SVGアニメーションを置換する。",
+  "paths": [
+    "apps/web/src/components/misc/Logo/",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx"
+  ],
+  "fingerprint": "258e860303843e29681e48cd266b1ec4ef95d013303d49836ed4ca26f9d36ec5",
+  "status": "pass",
+  "checks": [
+    "rule-mapのpath・surface・依存closure全28規則",
+    "ユーザー指定GIF・認証待機への接続・不要な独自処理の撤去",
+    "アクセシビリティ・静止設定・再開・通常ロゴ",
+    "最終実装・検証・PR説明の対応"
+  ],
+  "summary": "指摘なし。比較元はLogoのDefault/SignInと既存AuthLoadingScreen。最新のユーザー指定GIFを認証待機の96pxロゴに使い、独自の炎描画を撤去する要求をpassとした。認証待機は明示指定の動画を優先し、素材置換に限定するため既存の全画面中央配置を維持。pictureの静止設定とGIF再選択はChromiumで確認。装飾画像の空altとstatusの文言を維持する。Routerの確認完了時切替・失敗表示は既存テストで確認。通常Logo分岐、認証・データ・保存境界は変更なし。削除テストは撤去helper専用で、ブラウザ標準の画像選択を写すテストは追加しない。必須Web検証・1104テスト・buildが成功。GIFの経時描画と先頭PNGは確認済み。Firefox/Safari、実OAuth、本番配信は未確認。",
+  "remaining": []
+}

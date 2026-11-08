@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザー最新添付GIF（e0b2d984）の認証確認中表示への採用依頼。PR #2102の同じTask・baselineを継続し、独自SVGアニメーションを置換する。",
+  "paths": [
+    "apps/web/src/components/misc/Logo/",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx"
+  ],
+  "fingerprint": "258e860303843e29681e48cd266b1ec4ef95d013303d49836ed4ca26f9d36ec5",
+  "status": "pass",
+  "checks": [
+    "同じTask・baseline・PR #2102を継続",
+    "ユーザー最新添付GIFの採用",
+    "認証確認中のみアニメーション・静止設定への切替"
+  ],
+  "summary": "最新添付e0b2d984のGIFを96px表示の2倍解像度へ縮小し、16フレーム・1.6秒のループを保持する。Logoのanimated分岐をpictureとGIFへ置換し、動きを減らす設定では同じ素材の先頭フレームPNGを選択する。通常ロゴ・認証状態の判定と完了後の遷移は既存のまま。独自SVG素材・変形処理・専用CSSと、その削除対象helperだけを検証するテストを撤去する。",
+  "remaining": []
+}

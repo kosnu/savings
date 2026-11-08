@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "design",
+  "source": "ユーザー「コンフリクト解消して」。承認済みWebP対応を維持し、同じTask・cycle 000009.json・PR #2102へmain c1d6a1feを統合する。Taskの既存baselineと採用判断は維持。",
+  "paths": [
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx"
+  ],
+  "fingerprint": "d4e63ea20e5868ecb6ae9ee6e035bbb135f75a83c5eb2846cb4dcacf079aa215",
+  "status": "pass",
+  "checks": [
+    "RouterテストのProviderとrerenderを両立",
+    "自動マージ後の翻訳hook import維持",
+    "承認済みWebP・既存ロゴ分岐とmain機能を維持"
+  ],
+  "summary": "mainのアカウント削除対応でRouterにSnackbar・翻訳hookが追加されたため、競合テストではProvider付きrenderと既存のrerender状態遷移検証を両立。RouterのuseTranslation importを保持し、mainの削除・復帰処理を変更せず共有AuthLoadingScreenを表示する。WebP素材・静止設定分岐は変更せず、main取込後のWeb4検証・Storybook suite・buildで統合結果を検証する。",
+  "remaining": []
+}

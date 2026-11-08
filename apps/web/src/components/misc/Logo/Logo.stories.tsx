@@ -15,3 +15,7 @@ export const Default: Story = {}
 export const SignIn: Story = {
   args: { width: 48, height: 48 },
 }
+
+export const Animated: Story = {
+  args: { width: 96, height: 96, animated: true },
+}
