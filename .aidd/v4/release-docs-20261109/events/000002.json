@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "conversation: release documentation simplification and Ship request",
+  "paths": [
+    "docs/cloudflare-delivery.md",
+    "docs/infrastructure.md",
+    "docs/production-release.md",
+    "docs/production-release-initial.md",
+    "docs/production-release-recovery.md",
+    "docs/production-release-internals.md",
+    "docs/production-release-development.md"
+  ],
+  "fingerprint": "4f72d067af52abd70470890c54c1b103131ab5fd9f21d5a9507cc62c3947020c",
+  "status": "pass",
+  "checks": [
+    "変更Markdown 7ファイルの整形",
+    "front matter・相対リンク・見出しリンク",
+    "差分の空白エラー・検証中の内容安定性"
+  ],
+  "summary": "整形、文書メタデータとローカルリンク、差分検査が成功。文書のみのためアプリ検証は対象外。",
+  "remaining": []
+}

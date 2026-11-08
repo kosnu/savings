@@ -196,14 +196,14 @@ build は本番 Sentry の hidden map を upload/delete し、配信 assets 内�
 合成設定の検証成果物を本番へ使わず、本番設定で一度ビルドした `.cloudflare/output/v0/` を再ビルドせずに配信する。
 Supabase CLI・DB migration・Auth 設定の変更はこの経路に含まれない。
 
-反映後は active version / domain、HTTPS とヘッダー、参照 JS/CSS の MIME・ETag・`Content-Encoding` を読み戻す。
+反映後は domain、HTTPS とヘッダー、参照 JS/CSS の MIME・ETag・`Content-Encoding` を読み戻す。
 HTML の実応答と zone の browser cache TTL は別に確認し、index.html の参照先が存在することも確かめる。
 `/payments` の直接アクセス・reload・旧タブからの操作、session を消去しない既存 session、
 Google → Supabase → `/auth` → `/`、通常 CRUD、Sentry の受信・map 解決と同条件の前後性能を確認する。
 map URL は SPA fallback で HTML 200 を返し得るため、status だけで公開 map の有無を判定しない。
 実施結果と不足は対象 Issue/PR に要約する。
 
-障害時は配信を止め、配信直前に確認した旧 version を
+障害時は配信を止め、旧 version を
 [Workers rollback](https://developers.cloudflare.com/workers/versions-and-deployments/rollbacks/) で100%へ戻す。
 Dashboard の Workers & Pages → `burneto` → Deployments から対象旧 version の Rollback を選び、
 表示・直接アクセス・既存 session・認証を再確認する。DB / Auth / 利用者データを戻す操作は含めない。

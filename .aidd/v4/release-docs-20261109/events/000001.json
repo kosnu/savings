@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "conversation: release documentation simplification and Ship request",
+  "paths": [
+    "docs/cloudflare-delivery.md",
+    "docs/infrastructure.md",
+    "docs/production-release.md",
+    "docs/production-release-initial.md",
+    "docs/production-release-recovery.md",
+    "docs/production-release-internals.md",
+    "docs/production-release-development.md"
+  ],
+  "fingerprint": "4f72d067af52abd70470890c54c1b103131ab5fd9f21d5a9507cc62c3947020c",
+  "status": "pass",
+  "checks": [
+    "通常手順はmain取り込み済みを前提に3操作へ限定",
+    "初回・復旧・内部仕様・開発者検証を責務別に分離",
+    "実装・設定は変更せず、既存の関連参照から到達可能"
+  ],
+  "summary": "会話の削除・分割指示に基づく文書変更として範囲を確定。完了済みIssue 2039の実装Taskは再開せず、今回の文書整理を独立TaskとしてShipする。",
+  "remaining": []
+}
