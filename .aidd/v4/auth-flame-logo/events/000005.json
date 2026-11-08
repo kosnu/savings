@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "ユーザー「No.1 はRetroで それ以外をApprove」に基づくAudit No.2のStory追加とNo.3のthread1件への返信・解決。No.1は対象外。同じTask・baseline・PR #2102を維持。",
+  "paths": [
+    "apps/web/src/app/AuthLoadingScreen/",
+    "apps/web/src/app/Router.tsx"
+  ],
+  "fingerprint": "2664653bde2ac76761bed68c571a9aeaf4652601b4560983fea1272d80ced536",
+  "status": "pass",
+  "checks": [
+    "手動承認されたNo.2の4ソースファイルとNo.3のthread1件に限定",
+    "AuthLoadingScreenをRouterとStoryで共有",
+    "既存SessionErrorと同じcomponent・Story配置"
+  ],
+  "summary": "認証待機の既存JSXをapp/AuthLoadingScreenへ切り出し、公開口からRouterが使う。App/AuthLoadingScreenのDefault Storyをfullscreenで定義し、ロゴ・認証確認文言・全画面配置を同じ実装で確認できるようにする。認証判定・翻訳・status・GIFと静止設定は維持する。モック状態・表示の複製は追加しない。Web必須4検証、build、既存Routerテスト、PC/モバイルと静止設定の実描画を確認する。Story追加をShip後、承認済みの理由を旧GLSL threadへ投稿し、公開状態と内容を確認して解決する。No.1のルール・eval変更とRetroの開始は含めない。",
+  "remaining": []
+}

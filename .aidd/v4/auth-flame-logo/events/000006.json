@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "ユーザー「No.1 はRetroで それ以外をApprove」に基づくAudit No.2のStory追加とNo.3のthread1件への返信・解決。No.1は対象外。同じTask・baseline・PR #2102を維持。",
+  "paths": [
+    "apps/web/src/app/AuthLoadingScreen/",
+    "apps/web/src/app/Router.tsx"
+  ],
+  "fingerprint": "2664653bde2ac76761bed68c571a9aeaf4652601b4560983fea1272d80ced536",
+  "status": "pass",
+  "checks": [
+    "Web lint・format-check・typecheck",
+    "Web unit-integration: 158 files / 1104 tests",
+    "Web production build",
+    "StoryのPC/モバイル全画面表示・横溢れなし",
+    "GIF再生・静止設定と再開・空alt"
+  ],
+  "summary": "承認範囲No.2の4ソースファイルで必須Web4検証とbuildが成功。App/AuthLoadingScreenのDefault StoryをChromiumで確認し、PC 1280x720・モバイル390x844でstatusが画面全体を占め、96pxロゴと日本語文言が中央に表示され、横溢れなし。GIFの経時フレーム差、静止設定でPNG選択と画素不変、解除でGIF選択、装飾ロゴの空altを確認。既存Routerの状態遷移テストも成功。カタログStoryでありbrowser-test対象Story・設定に影響しないため専用suiteは対象外。Logoの現行ソースにGLSL・描画helperの参照なし。No.1のdocs・eval・skill変更はない。Firefox/Safari・実OAuth・本番配信は未確認。",
+  "remaining": []
+}
