@@ -2,20 +2,19 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "design",
-  "source": "ユーザー明示指示: 認証確認中の画面全体を確認できるStoryを追加する。PR #2102とTask auth-flame-logoの同じ成果・baselineを継続する。",
+  "source": "ユーザー最新添付GIF（e0b2d984）の認証確認中表示への採用依頼。PR #2102の同じTask・baselineを継続し、独自SVGアニメーションを置換する。",
   "paths": [
-    "apps/web/src/app/AuthLoadingScreen/",
+    "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
-    "apps/web/src/app/Router.test.tsx",
-    "apps/web/src/components/misc/Logo/"
+    "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "2664653bde2ac76761bed68c571a9aeaf4652601b4560983fea1272d80ced536",
+  "fingerprint": "258e860303843e29681e48cd266b1ec4ef95d013303d49836ed4ca26f9d36ec5",
   "status": "pass",
   "checks": [
-    "同じTask・baselineを維持し、明示されたStory追加を実行",
-    "実画面をAuthLoadingScreenへ切り出して共有",
-    "隣接SessionErrorのcomponent・Story配置とfullscreen表示"
+    "同じTask・baseline・PR #2102を継続",
+    "ユーザー最新添付GIFの採用",
+    "認証確認中のみアニメーション・静止設定への切替"
   ],
-  "summary": "認証待機の表示をapp/AuthLoadingScreenへ切り出し、Routerから同じ公開口で使う。App/AuthLoadingScreenのDefault Storyをfullscreenで定義し、GIF・認証確認メッセージ・全画面中央配置をそのまま確認できるようにする。モック認証状態やStory用の本番UIは追加しない。待機画面は単純な表示なのでカタログStoryとし、browser-test収集設定は広げない。Web必須4検証、既存Router状態遷移、実ブラウザのPC/モバイル・静止設定・GIF再生を確認する。",
+  "summary": "最新添付e0b2d984のGIFを96px表示の2倍解像度へ縮小し、16フレーム・1.6秒のループを保持する。Logoのanimated分岐をpictureとGIFへ置換し、動きを減らす設定では同じ素材の先頭フレームPNGを選択する。通常ロゴ・認証状態の判定と完了後の遷移は既存のまま。独自SVG素材・変形処理・専用CSSと、その削除対象helperだけを検証するテストを撤去する。",
   "remaining": []
 }

@@ -2,21 +2,20 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "review",
-  "source": "ユーザー明示指示: 認証確認中の画面全体を確認できるStoryを追加する。PR #2102とTask auth-flame-logoの同じ成果・baselineを継続する。",
+  "source": "ユーザー最新添付GIF（e0b2d984）の認証確認中表示への採用依頼。PR #2102の同じTask・baselineを継続し、独自SVGアニメーションを置換する。",
   "paths": [
-    "apps/web/src/app/AuthLoadingScreen/",
+    "apps/web/src/components/misc/Logo/",
     "apps/web/src/app/Router.tsx",
-    "apps/web/src/app/Router.test.tsx",
-    "apps/web/src/components/misc/Logo/"
+    "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "2664653bde2ac76761bed68c571a9aeaf4652601b4560983fea1272d80ced536",
+  "fingerprint": "258e860303843e29681e48cd266b1ec4ef95d013303d49836ed4ca26f9d36ec5",
   "status": "pass",
   "checks": [
-    "全28規則とcomponent・Story配置の適用",
-    "RouterとStoryが同じ画面を使うこと",
-    "状態表示・翻訳・空alt・静止設定と再開",
-    "最終差分と検証・説明の対応"
+    "rule-mapのpath・surface・依存closure全28規則",
+    "ユーザー指定GIF・認証待機への接続・不要な独自処理の撤去",
+    "アクセシビリティ・静止設定・再開・通常ロゴ",
+    "最終実装・検証・PR説明の対応"
   ],
-  "summary": "今回の実装に追加指摘なし。比較元は従来のAuthLoadingScreenとApp/SessionErrorの共有component・Story配置。待機画面を同じJSXのまま兄弟ディレクトリへ切り出し、Routerとfullscreen Storyが同じ公開口を使う。認証判定、エラー・復帰、翻訳、status、96pxロゴと静止設定を維持。モック状態や表示の複製、不要な抽象化は追加していない。PC/モバイルの実描画と既存Routerテストで要求をpassとした。必須4検証・1104テスト・build成功。新Storyは単純な表示のカタログで、browser-test収集範囲は変更不要。旧GLSL指摘の未解決threadはAuditに保持し、現行実装の新しい不具合と混同しない。",
+  "summary": "指摘なし。比較元はLogoのDefault/SignInと既存AuthLoadingScreen。最新のユーザー指定GIFを認証待機の96pxロゴに使い、独自の炎描画を撤去する要求をpassとした。認証待機は明示指定の動画を優先し、素材置換に限定するため既存の全画面中央配置を維持。pictureの静止設定とGIF再選択はChromiumで確認。装飾画像の空altとstatusの文言を維持する。Routerの確認完了時切替・失敗表示は既存テストで確認。通常Logo分岐、認証・データ・保存境界は変更なし。削除テストは撤去helper専用で、ブラウザ標準の画像選択を写すテストは追加しない。必須Web検証・1104テスト・buildが成功。GIFの経時描画と先頭PNGは確認済み。Firefox/Safari、実OAuth、本番配信は未確認。",
   "remaining": []
 }

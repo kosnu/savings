@@ -1,8 +1,10 @@
+import { Flex, Text } from "@radix-ui/themes"
 import { RouterProvider } from "@tanstack/react-router"
 import { useEffect, useRef } from "react"
+import { useTranslation } from "react-i18next"
 
+import { Logo } from "../components/misc/Logo"
 import { useSupabaseSession } from "../providers/supabase/useSupabaseSession"
-import { AuthLoadingScreen } from "./AuthLoadingScreen"
 import { router } from "./routes"
 import { SessionError } from "./SessionError"
 import { usePageMetadata } from "./usePageMetadata"
@@ -40,5 +42,20 @@ export function Router() {
     <div ref={contentRef} tabIndex={-1}>
       <RouterProvider router={router} context={{ supabaseSession, authStatus }} />
     </div>
+  )
+}
+
+function AuthLoadingScreen() {
+  const { t } = useTranslation()
+
+  return (
+    <Flex align="center" direction="column" gap="3" justify="center" minHeight="100vh" asChild>
+      <output aria-live="polite">
+        <Logo width={96} height={96} animated alt="" />
+        <Text color="gray" size="2">
+          {t("auth.loading")}
+        </Text>
+      </output>
+    </Flex>
   )
 }
