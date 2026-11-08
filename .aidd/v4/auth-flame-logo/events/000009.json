@@ -2,17 +2,18 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000009.json",
   "kind": "design",
-  "source": "ユーザーのAudit No.1（白い縁）と最新の更新案「通常時は添付WebP、動きを減らす設定では既存ロゴ、旧GIFと専用PNGを削除」へのApprove。PR #2102の同じTask・baselineを継続。",
+  "source": "ユーザー「コンフリクト解消して」。承認済みWebP対応を維持し、同じTask・cycle 000009.json・PR #2102へmain c1d6a1feを統合する。Taskの既存baselineと採用判断は維持。",
   "paths": [
-    "apps/web/src/components/misc/Logo/"
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "40a8e1bc55af67955ad07f398a7ea1c5147918d88c5e37d708550a669039af8a",
+  "fingerprint": "d4e63ea20e5868ecb6ae9ee6e035bbb135f75a83c5eb2846cb4dcacf079aa215",
   "status": "pass",
   "checks": [
-    "承認対象と有限のLogo差分",
-    "提供WebPのブラウザデコードと半透明保持",
-    "既存ロゴを静止設定で再利用"
+    "RouterテストのProviderとrerenderを両立",
+    "自動マージ後の翻訳hook import維持",
+    "承認済みWebP・既存ロゴ分岐とmain機能を維持"
   ],
-  "summary": "添付f2c7ca72のWebPをChromiumで正しく合成して16フレーム・各100msを192pxへ縮小し、可逆WebPへ格納する。Logoのpictureは静止設定で既存/icon-192.pngを選び、通常時はWebPを表示。旧GIFと専用PNGを削除。既存Story・認証ロジック・通常ロゴの表示は維持する。黒白背景・全フレームと静止設定の初期値・切替・解除、必須Web4検証とbuildで確認する。",
+  "summary": "mainのアカウント削除対応でRouterにSnackbar・翻訳hookが追加されたため、競合テストではProvider付きrenderと既存のrerender状態遷移検証を両立。RouterのuseTranslation importを保持し、mainの削除・復帰処理を変更せず共有AuthLoadingScreenを表示する。WebP素材・静止設定分岐は変更せず、main取込後のWeb4検証・Storybook suite・buildで統合結果を検証する。",
   "remaining": []
 }

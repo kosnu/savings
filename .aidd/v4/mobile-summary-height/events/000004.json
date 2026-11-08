@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2101 と Codex会話: Audit再出力。ブレークポイント共通化は改善対象外。",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/Summary/Summary.tsx",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.module.css",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.module.css",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "acc54e41076aa2c4fc26779c7d31d147f2c7261fc6b3dd6cda954fb4d62367fa",
+  "status": "unknown",
+  "checks": [
+    "PR 2101・HEAD f6a380c8維持・CI成功・指摘threadなし",
+    "同HEADのPC幅1260px実測: 利用推移56px・カテゴリ28pxの余分な空き",
+    "768pxは既存Overlay定義とRadix smの境界に整合",
+    "課題・原因の正確さと客観性: pass",
+    "根本対策の再利用性と再発抑止: pass",
+    "適用先の妥当性: pass"
+  ],
+  "summary": "分析再提示。ブレークポイントの変数化・共通化はユーザー指定により対象外。PCの余白だけをP2の追加改善として扱う。元Intentはスマホ限定で、PC最低高維持を設計・検証していた。全幅で内容に高さを合わせ、不要な最低高とCSS参照を整理し、PC Storyの期待値も更新する5ファイルの案を提示。共通ガードレール変更は不要。0/1/5件とスマホ・PC幅、Web必須4検証とStorybookで修正後に確認する。本指摘は当初スマホ要件のマージ阻害なし。返信・Bot解決対象なし。",
+  "remaining": [
+    "PC余白対応5ファイルの手動承認待ち。実装・追加検証は未実施。"
+  ]
+}

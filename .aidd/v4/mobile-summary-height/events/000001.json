@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "Codex会話: スマホUIで利用推移とカテゴリ別合計額の高さを表示内容に合わせる修正依頼",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/Summary/Summary.module.css",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.module.css",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "acc54e41076aa2c4fc26779c7d31d147f2c7261fc6b3dd6cda954fb4d62367fa",
+  "status": "pass",
+  "checks": [
+    "Intent・baseline・適用規約・表示責務"
+  ],
+  "summary": "ユーザーのスマホUI修正依頼をIntentとしbaselineは9bf3d0e。ホームで使う既存CSSに768px未満の最低高解除を適用し、既存モバイルStoryを内容追従の検証へ同期。カード構造、通常padding、金額・日付・取得境界は維持する。PCの位置固定検証を残し、Web必須4検証とStorybook、幅境界の実寸で確認する。",
+  "remaining": []
+}

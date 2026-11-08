@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/pull/2101 と Codex会話のAudit再提示に対するユーザー発言 Approve。PC余白のみ、breakpoint共通化は対象外。",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/Summary/Summary.tsx",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.module.css",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.module.css",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "a281f5b26a650b6cf101e63d0bdfb9e9159e86be437115f91100debbea9e6a5c",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration 158 files 1104 tests",
+    "pnpm run web:test:storybook 8 files 32 tests",
+    "320/390/767/768/1280px: 両領域の余分な下部余白0px",
+    "git diff --check"
+  ],
+  "summary": "最終差分でWeb必須4検証とStorybookが成功。MSWのローカル日本語表示を実測し、利用推移328px・カテゴリ集計200pxで全確認幅の内容高と一致した。日本語カタログの既存playには英語ラベル前提の失敗があるが、表示測定は完了し、標準ブラウザsuiteは32件成功。",
+  "remaining": []
+}

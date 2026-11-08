@@ -25,13 +25,10 @@ describe("AccountInformationForm", () => {
     vi.clearAllMocks()
   })
 
-  test("Default Storyで初期値と読み取り専用値を表示する", async () => {
+  test("Default Storyで表示名の初期値を表示する", async () => {
     await renderStory(<Default />)
 
     expect(screen.getByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
-    expect(screen.getByText("test@example.com")).toBeInTheDocument()
-    expect(screen.getByText("Google")).toBeInTheDocument()
-    expect(screen.getAllByText("Read-only")).toHaveLength(2)
   })
 
   test("ValidationError Storyでvalidationとaria属性を表示する", async () => {

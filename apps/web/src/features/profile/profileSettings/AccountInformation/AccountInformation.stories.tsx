@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import type { Session } from "@supabase/supabase-js"
 import { QueryClientProvider } from "@tanstack/react-query"
 
 import { createQueryClient } from "../../../../lib/queryClient"
@@ -19,46 +18,23 @@ function createProfileStoryParameters(options?: Parameters<typeof createProfileH
   }
 }
 
-function isSession(value: unknown): value is Session {
-  return typeof value === "object" && value !== null && "user" in value
-}
-
-const identityProviderSession = mockSession({
-  user: {
-    ...mockSession().user,
-    app_metadata: {},
-    identities: [
-      {
-        id: "mock-identity-id",
-        user_id: "mock-user-id",
-        identity_id: "mock-identity-id",
-        provider: "google",
-      },
-    ],
-  },
-})
-
-const unavailableProviderSession = mockSession({
-  user: {
-    ...mockSession().user,
-    app_metadata: {},
-  },
-})
-
 const meta = {
   title: "Features/Profile/ProfileSettings/AccountInformation",
   component: AccountInformation,
   decorators: [
-    (Story, context) => {
+    (Story) => {
       const queryClient = createQueryClient({
         defaultOptions: { queries: { retry: false } },
       })
-      const profileSession = context.parameters.profileSession
-      const session = isSession(profileSession) ? profileSession : mockSession()
-
       return (
         <QueryClientProvider client={queryClient}>
-          <SupabaseSessionContext value={{ session, status: "authenticated" }}>
+          <SupabaseSessionContext
+            value={{
+              session: mockSession(),
+              status: "authenticated",
+              startAccountDeletion: () => undefined,
+            }}
+          >
             <ThemeProvider>
               <SnackbarProvider>
                 <Story />
@@ -84,18 +60,4 @@ export const Loading: Story = {
 
 export const LoadError: Story = {
   parameters: createProfileStoryParameters({ get: { error: true } }),
-}
-
-export const IdentityProviderFallback: Story = {
-  parameters: {
-    ...createProfileStoryParameters(),
-    profileSession: identityProviderSession,
-  },
-}
-
-export const UnavailableLoginMethod: Story = {
-  parameters: {
-    ...createProfileStoryParameters(),
-    profileSession: unavailableProviderSession,
-  },
 }

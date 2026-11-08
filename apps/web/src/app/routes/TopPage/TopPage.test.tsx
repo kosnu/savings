@@ -20,7 +20,7 @@ describe("TopPage", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: "Sign in to Burneto" }),
     ).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Continue with Google" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument()
   })
 
   test.each([

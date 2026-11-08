@@ -1,0 +1,46 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2093",
+  "paths": [
+    "apps/web/src/features/profile/deleteAccount/",
+    "apps/web/src/lib/accountDeletion.ts",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx",
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/test/msw/handlers/accountDeletion.ts",
+    "apps/api/supabase/migrations/20261106143708_account_deletion.sql",
+    "docs/design/account-deletion.md",
+    "apps/web/src/utils/auth/useSupabaseSignIn.tsx",
+    "apps/web/src/lib/explicitLogin.ts",
+    "apps/web/src/providers/supabase/useSupabaseSession.ts",
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.integration.test.tsx",
+    "apps/api/supabase/tests/account_deletion.test.sql"
+  ],
+  "fingerprint": "3e5cc9a525d044d36723f6ef8ea0b2725a3e93fd43c8b99b115de3ac5ba33b46",
+  "status": "unknown",
+  "checks": [
+    "PR #2093の3333b2ff・Issue #2087・前回の検証とレビューを照合。Bot thread4件は解決済み、新規返信対象なし。",
+    "サイド会話01a1b17e-d5ff-70a1-bbd9-6b5a684db55eのユーザー依頼「メインに伝えてAuditに加えて」を確認。",
+    "既存1〜3を維持。55000・23505の未確定化と説明応答の逆転は同一headで再現済み。新4〜7はコード読取による整理候補。",
+    "4：削除の送信元とProviderの受信先は各1つ。CustomEvent・Promiseの受渡しは既存Contextの明示操作へ整理可能。",
+    "5：hookのSDK取得・購読とProvider・authルートガードが重複。遷移先はhookが/payments、guardが/。一本化時に要照合。",
+    "6：callbackの戻り値tokenをProviderが復帰済みの印に使用。対象sessionを区別する役割は必要で、boolだけへの置換は不可。",
+    "7：件数はDBで集計・FE schemaで必須だが画面で未使用。既存FEと設計は件数を要求し、DB削減は契約変更となる。",
+    "分析レビュー3観点を照合。1・4は高、5・6は中、7は低の整理優先。構造だけを利用者不具合やマージ阻害と断定しない。",
+    "再発防止は操作の直接呼出し・認証判定の所有者・callback結果の契約を実装と挙動テストで確認。共通規則の追加は不要。"
+  ],
+  "summary": "5候補を統合し、既存1〜3と新4〜7の7項目へ更新。1・4は削除操作、5・6は認証の責務と契約を整理する案。2・3の現行要件違反は引き続きマージ前修正を提案。本人照合・遅延結果破棄・通知一回・DBの期限と原子性を保持する。7は#2087へ互換条件付き追跡を提案。構造の検出漏れの詳細原因と効果は未確定、テスト追加実行なし。分析レビュー3観点で成立と時期・手段を分け、未確認を残した。改善・コメント追記は未承認。",
+  "remaining": [
+    "1：HandoffのカウンターとEffect起動用状態を減らし、初回と再試行で同じ処理を直接呼ぶ。別人・通知・再送を確認。",
+    "2：送信の明示拒否を保ち、受付停止・既存予約・通信断の案内と呼ぶRPCを回帰検証する。",
+    "3：現在開いた回だけ説明の結果を反映し、古い成功・失敗・終了の順序逆転を回帰検証する。",
+    "4：DeleteAccount・Provider・Context型・Router/Handoff接続を明示的な開始操作へ整理し、独自DOMイベントを外す案。",
+    "5：SignIn hookのSDK監視をProvider/既存ガードへ統一し、通常遷移先とcallback検証・pending時の保護を実Routerで検証。",
+    "6：explicitLoginとProviderの戻り値を明示的な結果型へ整理し、セッション対応・古いcallback・失敗時維持を検証。",
+    "7：#2087コメントへ追跡を提案。旧FEが要求する件数の互換方針決定後、schema・fixture・追加migration・設計を同期する。",
+    "全改善は承認待ち。7のIssueコメントは未記入。修正後Web検証・実Router/SDK回帰、DB変更時の新旧FE試験は未実施。"
+  ]
+}

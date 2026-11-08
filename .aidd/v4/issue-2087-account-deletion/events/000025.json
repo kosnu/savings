@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000025.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/features/profile/deleteAccount/"
+  ],
+  "fingerprint": "7020438b7184b9005928caf29a19cc2786a661f51dddaf8001554f84925a5182",
+  "status": "pass",
+  "checks": [
+    "ユーザーのApprveをAudit No.13・14とIssue完了条件の追記への承認として照合",
+    "Issue #2087へ承認文言を追記し、本文・labels・open状態をread-backで確認",
+    "同じ削除sliceの専用hookへ処理を分離。Dialog/focusはUI、認証状態はProviderが所有",
+    "初回と再試行は同じ関数を使用。Effectは開始と無効化のみで、起動用stateやcounterを増やさない",
+    "既存のページ内受付・本人照合・旧応答破棄・通知1回・必要操作だけの再試行を維持する"
+  ],
+  "summary": "60aba70aを比較元に承認済みNo.13・14を同じTaskで実装する。Handoffの処理関数をEffect外へ出し、各非同期処理へ有効性確認を渡す。説明取得と確定制御は専用hook、表示・開閉・focusはcomponentに分ける。Web既定4検証と既存のStory/API境界の回帰確認、最終レビュー・PR/Dev配信確認まで行う。",
+  "remaining": []
+}

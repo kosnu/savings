@@ -1,0 +1,37 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/SettingsOverview/SettingsOverview.tsx",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.stories.tsx",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.test.tsx",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.tsx",
+    "apps/web/src/features/profile/deleteAccount/AccountActionCallback/AccountActionCallback.test.tsx",
+    "apps/web/src/features/profile/deleteAccount/AccountActionCallback/AccountActionCallback.tsx",
+    "apps/web/src/features/profile/deleteAccount/AccountDeletionStatus/AccountDeletionStatus.stories.tsx",
+    "apps/web/src/features/profile/deleteAccount/AccountDeletionStatus/AccountDeletionStatus.test.tsx",
+    "apps/web/src/features/profile/deleteAccount/AccountDeletionStatus/AccountDeletionStatus.tsx",
+    "apps/web/src/features/profile/deleteAccount/DeleteAccount/DeleteAccount.test.tsx",
+    "apps/web/src/features/profile/deleteAccount/DeleteAccount/DeleteAccount.tsx",
+    "apps/web/src/features/profile/index.ts",
+    "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.tsx",
+    "apps/web/src/i18n/resources.ts",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html",
+    "docs/design/account-deletion.md"
+  ],
+  "fingerprint": "64ab1f9057fe67bd1dd365b89c782676b0bf8ca1b51e5d0ac740734a12594e80",
+  "status": "pass",
+  "checks": [
+    "Web lint/format-check/typecheck",
+    "Web unit/integration 163 files 1133 tests",
+    "Settings Storybook 8 files 33 browser tests",
+    "日本語390px dialog/受付/通信失敗/logout失敗・横溢れなし",
+    "文書fmt・git diff whitespace・Core check-changes"
+  ],
+  "summary": "承認UI改善の必要検証は成功。受付とログアウトの遅延再試行、成功後focus、receiptなしpending本人だけのlogoutを確認。全体テストの既存画面3件は読込待ちで一度失敗し、同一差分の再実行で1133件成功。実Google/Hostedは対象外で未確認。",
+  "remaining": []
+}

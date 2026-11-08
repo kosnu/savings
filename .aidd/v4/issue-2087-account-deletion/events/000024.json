@@ -1,0 +1,34 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000021.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2093",
+  "paths": [
+    "apps/web/src/features/profile/deleteAccount/",
+    "apps/web/src/providers/supabase/",
+    "docs/design/account-deletion.md"
+  ],
+  "fingerprint": "182bbb8b3ac2bb4169dbf0d2ff7d856418afcf2f25f6dab936c1b81e847da32e",
+  "status": "unknown",
+  "checks": [
+    "60aba70aとPR #2093のhead一致、Issue #2087とユーザー訂正、元会話01a1b17eのAudit依頼を確認。",
+    "同cycleのverify/reviewはCore record-readでpass。No.1〜6・8〜12は完了、No.7は既存Issueコメントで追跡を保持。",
+    "最新PRコメント・review・threadを取得。Bot4件は解決済み、同headのBot要約は新指摘なし。返信・resolve対象なし。",
+    "13：DeletionHandoffのEffect内に照会・結果分岐・本人照合・通知・logout・再試行が残る。JSXから手順を分離する要件は未達。",
+    "14：DeleteAccountは説明取得と確定制御をDialog/focusの接続と同居。旧No.9の短さを根拠にhookを外す判断を訂正。",
+    "発生原因は非同期手順をcomponentに保持したこと。前AuditのNo.9は短さと追う場所の数を根拠にhookを除外。その他の判断過程は未確定。",
+    "既存feature-directoryは専用hookの配置を規定するが全handler分離は要求しない。共通ルール追加は不要、Issueの完了条件に今回の構造要件を提案。",
+    "同因の別例はDeleteAccountの取得・確定。反例は短いDialog開閉/focusと単発保存handlerで、一律hook化を要求しない。",
+    "分析レビューは事実pass・対象pass、手段は責務への対応を確認。動作同等性・読みやすさと将来の再発率低下は適用前のためunknown。",
+    "Coverage:policy.audit,policy.code-review,web.component-structure,web.feature-directory,web.test-policy。機能テスト合格を可読性の証明にしない。"
+  ],
+  "summary": "追加No.13・14を今修正案とする。Handoffの専用hookに受付結果からlogoutまでの明示的手順をまとめ、Effectは初回起動と無効化だけ、再試行は同じ処理を直接呼ぶ。DeleteAccountの専用hookに説明取得・旧応答破棄・確定制御を分離し、Dialog/focusはUIへ残す。Providerの認証権限と受付のページ内保持は維持する。新たな機能不具合は未確認で、機能面のマージ阻害とは判定しない。一方、今回求められたコンポーネントの責務分割は未達。共通規則は増やさず、Issueに有限の構造要件を提案。実装・Issue変更・返信は未承認。",
+  "remaining": [
+    "13：deleteAccount/useDeletionHandoff.tsを追加し、DeletionHandoffから照会・分岐・通知・logoutを分離。表示状態と再操作だけを返す案。",
+    "14：deleteAccount/useDeleteAccount.tsを追加し、DeleteAccountから取得・確定制御を分離。開閉・取消focusはcomponentへ保つ案。",
+    "Issue #2087のDoDへ、削除UIの表示・操作接続と専用hookの責務分離、同じ処理の再試行、本人照合・旧応答破棄・通知1回の維持を追記する案。",
+    "承認後は既存Story/API境界の回帰試験を維持し、通信断/明示拒否/再試行/本人切替/旧応答/取消focusとWeb既定4検証を確認する。",
+    "初回と再試行を同じ手順から追え、componentでSDK/RPC・結果分岐を読む必要がないことを実コードで評価。単なるEffect移設は完了にしない。",
+    "改善は承認待ち。修正後の動作と可読性、実Google/Hosted定時Cron・容量・実backup復旧は未確認。過去cycleと解決済みthreadは保持。"
+  ]
+}

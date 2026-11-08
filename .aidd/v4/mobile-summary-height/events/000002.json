@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "Codex会話: スマホUIで利用推移とカテゴリ別合計額の高さを表示内容に合わせる修正依頼",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/Summary/Summary.module.css",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.module.css",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "acc54e41076aa2c4fc26779c7d31d147f2c7261fc6b3dd6cda954fb4d62367fa",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration 158 files 1104 tests",
+    "web:test:storybook 8 files 32 tests",
+    "320/390/767px 内容下の余分な余白0px",
+    "768/1280px 既存最低高を維持",
+    "git diff --check"
+  ],
+  "summary": "最終差分で必須4検証とStorybookが成功。途中の全体実行で表示待機失敗が出たが、同じコマンドの最終単独実行で全1104件成功。StorybookはChromium起動権限を付けて32件成功。実寸は通常カード内余白を除き両領域0px。MSWのローカル表示で確認した。",
+  "remaining": []
+}

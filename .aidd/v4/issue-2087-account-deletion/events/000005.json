@@ -1,0 +1,35 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2087",
+  "paths": [
+    "apps/web/src/app/routes.ts",
+    "apps/web/src/app/routes/SettingsOverview/SettingsOverview.tsx",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.stories.tsx",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.test.tsx",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.tsx",
+    "apps/web/src/features/profile/deleteAccount/AccountActionCallback/AccountActionCallback.test.tsx",
+    "apps/web/src/features/profile/deleteAccount/AccountActionCallback/AccountActionCallback.tsx",
+    "apps/web/src/features/profile/deleteAccount/AccountDeletionStatus/AccountDeletionStatus.stories.tsx",
+    "apps/web/src/features/profile/deleteAccount/AccountDeletionStatus/AccountDeletionStatus.test.tsx",
+    "apps/web/src/features/profile/deleteAccount/AccountDeletionStatus/AccountDeletionStatus.tsx",
+    "apps/web/src/features/profile/deleteAccount/DeleteAccount/DeleteAccount.test.tsx",
+    "apps/web/src/features/profile/deleteAccount/DeleteAccount/DeleteAccount.tsx",
+    "apps/web/src/features/profile/index.ts",
+    "apps/web/src/features/profile/profileSettings/ProfileSettings/ProfileSettings.tsx",
+    "apps/web/src/i18n/resources.ts",
+    "docs/design/account-deletion-implementation-issue.md",
+    "docs/design/account-deletion.html",
+    "docs/design/account-deletion.md"
+  ],
+  "fingerprint": "64ab1f9057fe67bd1dd365b89c782676b0bf8ca1b51e5d0ac740734a12594e80",
+  "status": "pass",
+  "checks": [
+    "ユーザーApproveとAudit提案1-4・Issue2087更新後Intent",
+    "Settings既存menu/AccountInformation/Sidebarと比較",
+    "DB認可と自動照会は維持・UI変更のみ"
+  ],
+  "summary": "同じTaskの承認Audit改善。設定アカウントへ削除導線を移し、確認文は削除対象・共有ブック・7日以内の復帰へ短文化。運用説明とPrivacyリンク、番号キーの手入力と常設照会、通常時logout操作を除去する。受付・両時刻・復帰を主画面とし、通信/logout失敗時だけ再試行を表示。既存Radix状態と操作を維持し、Issue/設計/PrivacyとStory/testを同期する。",
+  "remaining": []
+}

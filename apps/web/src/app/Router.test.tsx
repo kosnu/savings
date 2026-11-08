@@ -49,7 +49,7 @@ testCase("認証確認中は状態を表示し、確認完了で画面を切り�
     session: null,
   })
 
-  const { rerender } = render(<Router />, { withProviders: false })
+  const { rerender } = render(<Router />)
 
   expect(screen.getByRole("status")).toHaveTextContent("Checking authentication status...")
   expect(screen.queryByText("router-provider")).not.toBeInTheDocument()
@@ -71,7 +71,7 @@ testCase("authStatus が確定したら RouterProvider を描画する", () => {
     session: { access_token: "token" },
   })
 
-  render(<Router />, { withProviders: false })
+  render(<Router />)
 
   expect(screen.getByText("router-provider")).toBeInTheDocument()
   expect(mockRouterProvider).toHaveBeenCalledTimes(1)
@@ -85,7 +85,7 @@ testCase("認証確認失敗はRouterを表示せず説明と再試行を表示�
     requiresSignIn: false,
     retry,
   })
-  const { user } = render(<Router />, { withProviders: false })
+  const { user } = render(<Router />)
   expect(screen.getByRole("alert")).toHaveTextContent("Check your connection and try again.")
   expect(mockRouterProvider).not.toHaveBeenCalled()
   expect(mockInvalidate).not.toHaveBeenCalled()

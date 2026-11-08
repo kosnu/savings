@@ -2,11 +2,12 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000009.json",
   "kind": "review",
-  "source": "ユーザーのAudit No.1（白い縁）と最新の更新案「通常時は添付WebP、動きを減らす設定では既存ロゴ、旧GIFと専用PNGを削除」へのApprove。PR #2102の同じTask・baselineを継続。",
+  "source": "ユーザー「コンフリクト解消して」。承認済みWebP対応を維持し、同じTask・cycle 000009.json・PR #2102へmain c1d6a1feを統合する。Taskの既存baselineと採用判断は維持。",
   "paths": [
-    "apps/web/src/components/misc/Logo/"
+    "apps/web/src/app/Router.tsx",
+    "apps/web/src/app/Router.test.tsx"
   ],
-  "fingerprint": "40a8e1bc55af67955ad07f398a7ea1c5147918d88c5e37d708550a669039af8a",
+  "fingerprint": "d4e63ea20e5868ecb6ae9ee6e035bbb135f75a83c5eb2846cb4dcacf079aa215",
   "status": "pass",
   "checks": [
     "ai-driven.glossary",
@@ -38,6 +39,6 @@
     "web.suspense-boundaries",
     "web.test-policy"
   ],
-  "summary": "Coverage: 適用28規則を最終差分と照合、Unresolvedなし。Approveは直前のWebP・既存ロゴ利用・不要素材削除に対応し、通常表示・認証判定への範囲拡大なし。原画像と縮小後全16フレームの透明度・色・時刻、実Storyの再生と静止設定/解除、黒白での輪郭を照合しpass。通常ロゴの呼出元はanimated未指定で従来画像を維持。旧GIF/PNG参照なし、不要なhelper・永続テスト・共通規則を追加せず、カタログStoryのためbrowser suite対象外。既存の解決済みGLSL指摘を維持。Safari/Firefox・実OAuth・本番は未確認。",
+  "summary": "Coverage: 前回と同じ適用28規則を最新mainとの差分へ照合、Unresolvedなし。手動競合はRouterテスト1箇所でProviderとrerenderを両立し、自動マージによるuseTranslation import欠落も修正。main側の削除・復帰・Snackbar処理を保持し、最新mainに対する差分は承認済みの認証待機UI・素材・状態遷移テストに限定。WebP/静止ロゴ分岐と共有Storyの内容は不変で余分なhelper・テストを追加せず。全Web検証とbrowser suite成功。履歴を保持するmerge commitで同じPRへ配信する。実OAuth・本番は未確認。",
   "remaining": []
 }

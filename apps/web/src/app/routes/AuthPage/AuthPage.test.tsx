@@ -38,7 +38,7 @@ describe("AuthPage", () => {
         "まずは今日の支払いから。記録を重ねて、毎月のお金の使い方を見ていきましょう。",
       ),
     ).toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: "Googleで続ける" }))
+    await user.click(screen.getByRole("button", { name: "ログイン" }))
     expect(signIn).toHaveBeenCalledOnce()
   })
 
