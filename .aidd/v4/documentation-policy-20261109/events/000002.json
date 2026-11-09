@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "conversation:Documentation Policyの省略基準具体化・重複整理・ship（2026-11-09）",
+  "paths": [
+    "docs/harness/policies/documentation-policy.md"
+  ],
+  "fingerprint": "6e63823daf282fc95cf7d8fa34fa7f8707a8627d519456b5f092c7f905a754d7",
+  "status": "pass",
+  "checks": [
+    "対象Markdownのvp check",
+    "git diff --check",
+    "相対リンク・見出し参照",
+    "ルールグラフの解決"
+  ],
+  "summary": "Documentation Policyだけの文書検証が正常終了し、対象内容の安定性と参照先を確認した。アプリコード変更はない。",
+  "remaining": []
+}
