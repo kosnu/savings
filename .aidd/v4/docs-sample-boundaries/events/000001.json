@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザー発言: 指摘した2件を修正して（2026-11-10）",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md",
+    "apps/web/docs/policies/feature-directory.md"
+  ],
+  "fingerprint": "b9e0782aa39bfb5aab3731767f5eda645a4a63fb5300a34d8e9d3061e2264803",
+  "status": "pass",
+  "checks": [
+    "指摘2件と現行契約の対応確認"
+  ],
+  "summary": "既存の照合記録を保持して採番の訂正を追記し、Feature構成図の任意要素を明示する。判断の所有・適用経路は変えず、索引変更は不要。",
+  "remaining": []
+}
