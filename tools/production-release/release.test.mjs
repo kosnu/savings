@@ -293,3 +293,12 @@ test("正式公開だけを受け付け、DB 成功後に同じ SHA の Web を�
   assert.match(report, /contents: write/)
   assert.doesNotMatch(report, /ref: \$\{\{ needs.release.outputs.sha \}\}|secrets\.|pnpm/)
 })
+
+// CLI 引数の静的な接続検査。Hosted DB への接続や migration の適用は行わない。
+test("本番 DB push はリンク先と非対話実行を明示する", () => {
+  const api = deploy.split("\n  deploy-api:\n")[1].split("\n  deploy-web:\n")[0]
+  assert.match(
+    api,
+    /name: Push Database Migrations\n        run: supabase db push --linked --yes\n        working-directory: apps\/api/,
+  )
+})
