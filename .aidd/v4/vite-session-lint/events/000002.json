@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "ChatGPT:Sentinel_0227f96c0fc08191979c8043c8a67986; https://github.com/kosnu/savings/pull/2122",
+  "paths": [
+    "apps/web/src/providers/supabase/SupabaseSessionProvider.tsx"
+  ],
+  "fingerprint": "ee8a407951d70a5d477a137ba201301be5627460eaea131739684f2f7413473c",
+  "status": "pass",
+  "checks": [
+    "web lint",
+    "web format-check",
+    "web typecheck",
+    "web unit/integration: 161 files, 1149 tests",
+    "Vite+1.5 baseline failure reproduced; patched lint and typecheck passed",
+    "git diff whitespace"
+  ],
+  "summary": "main依存環境の最終差分で全Web必須検証成功。#2122のVite+1.5環境でも同じソース修正後lintとtypecheckが成功。実Supabase認証E2Eは未実施。",
+  "remaining": []
+}

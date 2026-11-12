@@ -65,10 +65,10 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
   useEffect(() => {
     clearLegacyDeletionReceipt()
     const supabase = getSupabaseClient()
-    let isActive = true
-    let loginResult: ExplicitLoginResult | undefined
+    const isActive = { current: true }
+    const loginResult: { current: ExplicitLoginResult | undefined } = { current: undefined }
     loginCallback.current ??= completeExplicitLogin(supabase.auth)
-    let verifyingCallback = Boolean(loginCallback.current)
+    const verifyingCallback = { current: Boolean(loginCallback.current) }
 
     const setSessionState = (nextState: SupabaseSessionState) => {
       if (
@@ -89,13 +89,13 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         authUserId,
         submission,
         onCheckSession: () => {
-          if (!isActive || stateRef.current !== suspended) return
+          if (!isActive.current || stateRef.current !== suspended) return
           sessionGenerationRef.current += 1
           setSessionState(initialSessionState)
           void loadSession(sessionGenerationRef.current)
         },
         onSignedOut: () => {
-          if (!isActive || stateRef.current !== suspended) return
+          if (!isActive.current || stateRef.current !== suspended) return
           sessionGenerationRef.current += 1
           setSessionState(unauthenticatedSessionState)
         },
@@ -108,7 +108,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       sessionGeneration = sessionGenerationRef.current,
     ) => {
       captureSupabaseSessionError(error)
-      if (!isActive) return
+      if (!isActive.current) return
       if (sessionGenerationRef.current !== sessionGeneration) return
 
       if (stateRef.current.status !== "authenticated") {
@@ -122,7 +122,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     }
 
     const isCurrentSessionHandler = (sessionGeneration: number) =>
-      isActive && sessionGenerationRef.current === sessionGeneration
+      isActive.current && sessionGenerationRef.current === sessionGeneration
 
     const handleSessionVerificationError = (
       error: unknown,
@@ -179,10 +179,10 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
         if (!isCurrentSessionHandler(sessionGeneration)) return
 
         const reactivated =
-          loginResult?.status === "authenticated" &&
-          loginResult.reactivated &&
-          session.access_token === loginResult.accessToken
-        loginResult = undefined
+          loginResult.current?.status === "authenticated" &&
+          loginResult.current.reactivated &&
+          session.access_token === loginResult.current.accessToken
+        loginResult.current = undefined
         setSessionState({
           status: "authenticated",
           session,
@@ -210,7 +210,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     }
 
     const retry = () => {
-      if (!isActive || stateRef.current.status !== "error") return
+      if (!isActive.current || stateRef.current.status !== "error") return
 
       sessionGenerationRef.current += 1
       setSessionState(initialSessionState)
@@ -220,7 +220,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     const startAccountDeletion = (preview: DeletionPreview) => {
       const current = stateRef.current
       if (
-        !isActive ||
+        !isActive.current ||
         current.status !== "authenticated" ||
         current.session.user.id !== preview.auth_user_id
       )
@@ -235,10 +235,10 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
 
     if (loginCallback.current) {
       void loginCallback.current.then((result) => {
-        if (!isActive) return
+        if (!isActive.current) return
         loginCallback.current = undefined
-        loginResult = result
-        verifyingCallback = false
+        loginResult.current = result
+        verifyingCallback.current = false
         void loadSession(sessionGenerationRef.current)
       })
     } else {
@@ -249,7 +249,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       // 通常ログインの検証中は既存sessionも新規sessionもアプリへ公開しない。
-      if (verifyingCallback) return
+      if (verifyingCallback.current) return
       // 初期通知のnullは取得失敗でも届くため、未ログインの確定はgetSessionに任せる。
       if (event === "INITIAL_SESSION" && !session) return
 
@@ -278,7 +278,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
     })
 
     return () => {
-      isActive = false
+      isActive.current = false
       subscription.unsubscribe()
     }
   }, [queryClient])
