@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "会話でのSupabase CLI v3先行互換対応依頼。関連PR: https://github.com/kosnu/savings/pull/2116",
+  "paths": [
+    ".github/workflows/deploy_production.yaml",
+    "tools/production-release/release.test.mjs"
+  ],
+  "fingerprint": "dc676a3eacb8ed269b8233f5454d7e1bf4113d73a41dc284d2880089127a6f69",
+  "status": "pass",
+  "checks": [
+    "Release/Preview 83テスト",
+    "actionlint",
+    "Vite+ format/lint/typecheck",
+    "git diff --check",
+    "CLI 2.122.0/2.122.1/3.0.0の引数受理・未リンク拒否",
+    "修正前の回帰テスト失敗"
+  ],
+  "summary": "全対象検証が成功し内容・modeは不変。3版のCLIは--linked --yes --dry-runを受理し、空の隔離projectをProjectRefNotLinkedErrorで拒否した。Hosted接続・実配信は試験していない。",
+  "remaining": []
+}

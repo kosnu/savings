@@ -97,7 +97,7 @@ jobs:
         working-directory: apps/api
 
       - name: Push Database Migrations
-        run: supabase db push
+        run: supabase db push --linked --yes
         working-directory: apps/api
 
   # --- Frontend (React + Vite) のデプロイ ---

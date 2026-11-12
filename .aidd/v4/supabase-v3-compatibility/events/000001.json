@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話でのSupabase CLI v3先行互換対応依頼。関連PR: https://github.com/kosnu/savings/pull/2116",
+  "paths": [
+    ".github/workflows/deploy_production.yaml",
+    "tools/production-release/release.test.mjs"
+  ],
+  "fingerprint": "dc676a3eacb8ed269b8233f5454d7e1bf4113d73a41dc284d2880089127a6f69",
+  "status": "pass",
+  "checks": [
+    "v3公式移行ガイドと全CLI呼出箇所の照合",
+    "v2/v3のdb push help比較"
+  ],
+  "summary": "main起点で本番db pushに既存devと同じ--linked --yesを追加する。v2は--remote未対応、v3は--linked互換を維持。CLI版・DB定義・配信承認は変えず、既存workflow回帰検査で接続を保護する。 Hosted実配信は対象外。retryはmain反映待ち。",
+  "remaining": []
+}

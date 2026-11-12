@@ -1,0 +1,30 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "会話でのSupabase CLI v3先行互換対応依頼。関連PR: https://github.com/kosnu/savings/pull/2116",
+  "paths": [
+    ".github/workflows/deploy_production.yaml",
+    "tools/production-release/release.test.mjs"
+  ],
+  "fingerprint": "dc676a3eacb8ed269b8233f5454d7e1bf4113d73a41dc284d2880089127a6f69",
+  "status": "pass",
+  "checks": [
+    "architecture.overview",
+    "documentation.policy",
+    "infrastructure.overview",
+    "infrastructure.production-release",
+    "infrastructure.production-release-internals",
+    "infrastructure.production-release-verification",
+    "policy.audit",
+    "policy.git-workflow",
+    "policy.review-feedback-classification",
+    "policy.transaction-boundaries",
+    "policy.code-review",
+    "ai-driven.workflow",
+    "ai-driven.overview",
+    "ai-driven.glossary"
+  ],
+  "summary": "指摘なし。v2/v3でリンク先指定・CI確認を両立し、Release起動条件、同一SHA配信、production Environment、DB失敗時のWeb停止を維持。旧コマンドを拒否する静的回帰検査を追加し、CLI版・schema・権限は変更していない。Hosted実配信とGitHub側の設定は未検証で、それらの成功は主張しない。",
+  "remaining": []
+}
