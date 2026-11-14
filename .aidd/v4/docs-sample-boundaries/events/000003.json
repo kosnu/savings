@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "ユーザー発言: 指摘した2件を修正して（2026-11-10）",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md",
+    "apps/web/docs/policies/feature-directory.md"
+  ],
+  "fingerprint": "b9e0782aa39bfb5aab3731767f5eda645a4a63fb5300a34d8e9d3061e2264803",
+  "status": "pass",
+  "checks": [
+    "Checked rules: ai-driven.agent-evals, ai-driven.change-coverage, ai-driven.checker, ai-driven.glossary, ai-driven.issue-guidelines",
+    "Checked rules: ai-driven.overview, ai-driven.workflow, architecture.overview, documentation.policy, domain.amount",
+    "Checked rules: domain.book, domain.category, domain.date, domain.monthly-budget, domain.payment",
+    "Checked rules: domain.user, infrastructure.overview, policy.audit, policy.code-review, policy.git-workflow",
+    "Checked rules: policy.issue-template-selection, policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.design-rules",
+    "Checked rules: web.design-system-brand, web.error-presentation, web.query-cache, web.storybook-browser-tests, web.suspense-boundaries",
+    "Checked rules: web.test-policy",
+    "採番訂正と現行Core操作の一致",
+    "Feature共有要素の条件と本文の一致",
+    "照合履歴保持・参照経路維持"
+  ],
+  "summary": "指摘2件を満たし、既存の照合履歴・配置規則・責務を維持。新規の実行契約や索引変更はない。Unresolved: なし。アプリ動作・モデル誤選択率は評価対象外。",
+  "remaining": []
+}

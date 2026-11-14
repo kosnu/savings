@@ -36,16 +36,18 @@ feature 配下の配置は、実装の種類ではなく、利用範囲と責務
 
 `features/<feature-name>/` 配下は、機能全体で共有するコードと、具体的なユースケース単位の slice で構成します。
 
+次の図は配置先を示すもので、すべてのディレクトリやファイルを作成するものではありません。共有コード、hook、データ取得処理は、必要な場合だけ以下の配置ルールに従って追加します。
+
 ```
 features/<feature-name>/
   index.ts              # feature 外へ公開する入口
-  components/           # その機能の複数ユースケースで共有するUIコンポーネント
-  utils/                # その機能の複数ユースケースで共有するユーティリティ
-  types/                # その機能の複数ユースケースで共有する型定義
+  components/           # 共有UIコンポーネントが必要な場合
+  utils/                # 共有する小さな補助処理が必要な場合
+  types/                # 共有型定義が必要な場合
   <use-case-name>/      # 作成、一覧、詳細、更新などのユースケース単位のslice
     <ComponentName>/    # そのユースケースに特化したUIコンポーネント
-    useExample.ts       # そのユースケースに特化したhook
-    fetchExample.ts     # そのユースケースに特化したデータ取得
+    useExample.ts       # そのユースケースに特化したhookが必要な場合
+    fetchExample.ts     # そのユースケースに特化したデータ取得が必要な場合
 ```
 
 feature 直下の `index.ts` は、その feature の公開面として扱います。
