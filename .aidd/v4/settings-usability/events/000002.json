@@ -1,0 +1,34 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "会話で確認した設定画面の5件の改善を反映する。",
+  "paths": [
+    "apps/web/src/app/routes/SettingsOverview/SettingsOverview.tsx",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.stories.tsx",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.test.tsx",
+    "apps/web/src/features/profile/deleteAccount/DeleteAccount/DeleteAccount.tsx",
+    "apps/web/src/features/profile/deleteAccount/DeleteAccount/DeleteAccount.test.tsx",
+    "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.tsx",
+    "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+    "apps/web/src/features/payments/exportPayments/ExportPayments/ExportPayments.tsx",
+    "apps/web/src/features/payments/exportPayments/ExportPayments/ExportPayments.test.tsx",
+    "apps/web/src/features/payments/exportPayments/exportPaymentsSchema.ts",
+    "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.stories.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+    "apps/web/src/i18n/index.ts",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "bb69cae9222289fd7691b1d043fe922e8c450d950e39ba91c36a7dbaed8a7688",
+  "status": "pass",
+  "checks": [
+    "Web lint・整形・型検査",
+    "Web単体・結合テスト 1156件",
+    "Storybookブラウザテスト 32件",
+    "実画面で問い合わせ先への移動と期間エラー",
+    "今月の予算・言語名・概要の表示"
+  ],
+  "summary": "受付停止は案内と問い合わせ先を先に表示し、今月の予算はなし・未設定を区別する。CSVは送信前に日付エラーが出て修正で消えること、言語と概要の表示を確認した。",
+  "remaining": []
+}

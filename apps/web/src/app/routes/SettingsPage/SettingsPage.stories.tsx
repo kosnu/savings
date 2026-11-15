@@ -49,7 +49,7 @@ export const Default: Story = {
     const canvas = within(canvasElement)
 
     expect(await canvas.findByRole("heading", { name: "Settings" })).toBeInTheDocument()
-    expect(await canvas.findByText("Choose a setting to manage.")).toBeInTheDocument()
+    expect(canvas.queryByText("Choose a setting to manage.")).not.toBeInTheDocument()
     expect(
       canvas.getByRole("link", {
         name: /Account.*Edit your display name, view your registered email address, or delete your account/,
@@ -158,7 +158,7 @@ export const Account: Story = {
     msw: {
       handlers: [
         ...createProfileHandlers(),
-        ...createAccountDeletionHandlers({ preview: { response: { email: "test@example.com" } } }),
+        ...createAccountDeletionHandlers({ preview: { response: { accepting_requests: false } } }),
       ],
     },
   },
@@ -170,6 +170,16 @@ export const Account: Story = {
     expect(canvas.getByRole("heading", { name: "Delete account", level: 3 })).toBeInTheDocument()
     expect(canvas.getByRole("textbox", { name: "Display name" })).toHaveValue("Test User")
     expect(canvas.getByText("Read-only")).toBeVisible()
+    await userEvent.click(canvas.getByRole("button", { name: "Schedule account deletion" }))
+    const body = within(canvasElement.ownerDocument.body)
+    const dialog = await body.findByRole("dialog", { name: "Delete account" })
+    expect(dialog).toHaveAccessibleDescription("New deletion requests are currently unavailable.")
+    expect(within(dialog).getByRole("link", { name: "Contact the operator" })).toHaveAttribute(
+      "href",
+      "/privacy#privacy-contact",
+    )
+    expect(within(dialog).queryByRole("button", { name: "Confirm deletion schedule" })).toBeNull()
+    await userEvent.keyboard("{Escape}")
   },
 }
 
@@ -277,7 +287,7 @@ export const BookManagement: Story = {
 
     expect(await canvas.findByRole("heading", { name: "Default Book" })).toBeInTheDocument()
     expect(await canvas.findByText("Current book")).toBeInTheDocument()
-    expect(await canvas.findByText("Monthly Budgets")).toBeInTheDocument()
+    expect(await canvas.findByRole("heading", { name: "This month’s budget" })).toBeInTheDocument()
     expect(await canvas.findByText("Categories")).toBeInTheDocument()
     expect(await canvas.findByText("Food")).toBeInTheDocument()
     expect(await canvas.findByText("Name")).toBeInTheDocument()

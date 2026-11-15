@@ -33,7 +33,7 @@ export const Saving: Story = {
     const canvas = within(canvasElement)
     const body = within(document.body)
     await userEvent.click(canvas.getByRole("combobox", { name: "Language" }))
-    await userEvent.click(await body.findByRole("option", { name: "Japanese" }))
+    await userEvent.click(await body.findByRole("option", { name: "日本語" }))
     await expect(await canvas.findByRole("combobox", { name: "言語" })).toBeDisabled()
   },
 }
@@ -46,7 +46,7 @@ export const SaveError: Story = {
     const canvas = within(canvasElement)
     const body = within(document.body)
     await userEvent.click(canvas.getByRole("combobox", { name: "Language" }))
-    await userEvent.click(await body.findByRole("option", { name: "Japanese" }))
+    await userEvent.click(await body.findByRole("option", { name: "日本語" }))
     await expect(await body.findByText("Could not save your language.")).toBeVisible()
     await expect(canvas.getByRole("combobox", { name: "Language" })).toHaveTextContent("English")
   },

@@ -61,7 +61,7 @@ testCase("選択した言語をアカウントへ保存する", async () => {
   })
 
   await user.click(languageSelect)
-  await user.click(await screen.findByRole("option", { name: "Japanese" }))
+  await user.click(await screen.findByRole("option", { name: "日本語" }))
 
   expect(screen.getByRole("combobox", { name: "言語" })).toHaveTextContent("日本語")
   expect(screen.getByRole("combobox", { name: "テーマ" })).toHaveTextContent("ダーク")
@@ -78,7 +78,7 @@ testCase("保存失敗では表示言語を戻してエラーを表示する", a
 
   const { user } = render(<Default />)
   await user.click(screen.getByRole("combobox", { name: "Language" }))
-  await user.click(await screen.findByRole("option", { name: "Japanese" }))
+  await user.click(await screen.findByRole("option", { name: "日本語" }))
 
   expect(await screen.findByText("Could not save your language.")).toBeInTheDocument()
   expect(screen.getByRole("combobox", { name: "Language" })).toHaveTextContent("English")
@@ -92,13 +92,13 @@ testCase("日本語と英語の表示を切り替えられる", async () => {
   const { user } = render(<Default />)
 
   await user.click(screen.getByRole("combobox", { name: "Language" }))
-  await user.click(await screen.findByRole("option", { name: "Japanese" }))
+  await user.click(await screen.findByRole("option", { name: "日本語" }))
   await waitFor(() => {
     expect(screen.getByRole("combobox", { name: "言語" })).toHaveTextContent("日本語")
   })
 
   await user.click(screen.getByRole("combobox", { name: "言語" }))
-  await user.click(await screen.findByRole("option", { name: "英語" }))
+  await user.click(await screen.findByRole("option", { name: "English" }))
   await waitFor(() => {
     expect(screen.getByRole("combobox", { name: "Language" })).toHaveTextContent("English")
   })

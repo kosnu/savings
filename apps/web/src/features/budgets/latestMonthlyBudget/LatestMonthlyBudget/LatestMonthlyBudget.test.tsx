@@ -49,22 +49,26 @@ describe("LatestMonthlyBudget", () => {
 
     await renderLatestMonthlyBudget(<Default />)
 
-    expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "This month’s budget" })).toBeInTheDocument()
     expect(await screen.findByText("¥75,000")).toBeInTheDocument()
     expect(await screen.findByRole("button", { name: "Edit budget" })).toBeInTheDocument()
     expect(screen.queryByText("¥62,000")).not.toBeInTheDocument()
   })
 
-  test("月予算がない場合は作成導線を表示する", async () => {
+  test.each([
+    { response: null, state: "Not set" },
+    { response: { status: "none" as const, monthly_budget: null }, state: "No budget" },
+  ])("月予算が $state の場合は状態と作成導線を表示する", async ({ response, state }) => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
-        get: { response: null },
+        get: { response },
       }),
     )
 
     await renderLatestMonthlyBudget(<Empty />)
 
-    expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "This month’s budget" })).toBeInTheDocument()
+    expect(await screen.findByText(state)).toBeInTheDocument()
     expect(await screen.findByRole("button", { name: "Create budget" })).toBeInTheDocument()
   })
 

@@ -1,5 +1,5 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Button, Callout, Dialog, Flex, Heading, Skeleton, Text } from "@radix-ui/themes"
+import { Button, Callout, Dialog, Flex, Heading, Link, Skeleton, Text } from "@radix-ui/themes"
 import { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -12,6 +12,7 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
     useDeleteAccount()
   const [open, setOpen] = useState(false)
   const cancelRef = useRef<HTMLButtonElement>(null)
+  const requestsPaused = preview?.accepting_requests === false
 
   return (
     <Flex direction="column" gap="3">
@@ -45,9 +46,11 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
             if (isSubmitting) event.preventDefault()
           }}
         >
-          <Dialog.Title>{t("deletion.confirmTitle")}</Dialog.Title>
-          <Dialog.Description size="2" mb="4">
-            {t("deletion.introduction")}
+          <Dialog.Title>
+            {t(requestsPaused ? "deletion.heading" : "deletion.confirmTitle")}
+          </Dialog.Title>
+          <Dialog.Description size="2" mb="4" aria-live="polite">
+            {t(requestsPaused ? "deletion.requestsPaused" : "deletion.introduction")}
           </Dialog.Description>
           <Flex direction="column" gap="3">
             {isPreparing && (
@@ -67,7 +70,12 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
                 <Callout.Text>{t("deletion.prepareError")}</Callout.Text>
               </Callout.Root>
             )}
-            {preview && (
+            {requestsPaused && (
+              <Link href="/privacy#privacy-contact" size="2">
+                {t("privacy.contact.title")}
+              </Link>
+            )}
+            {preview?.accepting_requests && (
               <>
                 <Text as="p" weight="bold">
                   {preview.email}
@@ -90,9 +98,6 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
                 <Text as="p" size="2">
                   {t("deletion.purgeAfter")}: {deletionTime(preview.purge_after, i18n.language)}
                 </Text>
-                {!preview.accepting_requests && (
-                  <Text color="gray">{t("deletion.unavailable")}</Text>
-                )}
               </>
             )}
             <Flex justify="end" gap="3" wrap="wrap" mt="3">
@@ -118,12 +123,12 @@ export function DeleteAccount({ headingLevel = "h2" }: { headingLevel?: "h2" | "
                   {t("common.retry")}
                 </Button>
               )}
-              {preview && (
+              {preview?.accepting_requests && (
                 <Button
                   type="button"
                   color="red"
                   variant="solid"
-                  disabled={!preview.accepting_requests || isSubmitting}
+                  disabled={isSubmitting}
                   loading={isSubmitting}
                   onClick={confirm}
                 >

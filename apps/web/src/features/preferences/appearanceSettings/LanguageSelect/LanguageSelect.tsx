@@ -2,7 +2,7 @@ import { Flex, Select, Text } from "@radix-ui/themes"
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { appLanguageLabelKeys, appLanguages, toAppLanguage } from "../../../../i18n"
+import { appLanguageLabels, appLanguages, toAppLanguage } from "../../../../i18n"
 import { updateAccountLanguage } from "../../../../i18n/accountLanguage"
 import { useSnackbar } from "../../../../providers/snackbar/SnackbarProvider"
 import { useSupabaseSession } from "../../../../providers/supabase/useSupabaseSession"
@@ -57,7 +57,7 @@ export function LanguageSelect() {
         <Select.Content>
           {appLanguages.map((language) => (
             <Select.Item key={language} value={language}>
-              {t(appLanguageLabelKeys[language])}
+              <span lang={language}>{appLanguageLabels[language]}</span>
             </Select.Item>
           ))}
         </Select.Content>

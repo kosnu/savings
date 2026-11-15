@@ -13,7 +13,7 @@ import { useSupabaseSession } from "../../../../providers/supabase/useSupabaseSe
 import { getErrorMessages } from "../../../../utils/getErrorMessages"
 import { fetchSelectedBook } from "../../../books"
 import { downloadPaymentsCsv } from "../downloadPaymentsCsv"
-import { exportPaymentsSchema } from "../exportPaymentsSchema"
+import { exportPaymentsEditingSchema, exportPaymentsSchema } from "../exportPaymentsSchema"
 import { fetchExportPayments, PaymentExportLimitError } from "../fetchExportPayments"
 
 export function ExportPayments() {
@@ -29,7 +29,7 @@ export function ExportPayments() {
 
   const form = useForm({
     defaultValues: { startDate: "", endDate: "" },
-    validators: { onSubmit: exportPaymentsSchema },
+    validators: { onChange: exportPaymentsEditingSchema, onSubmit: exportPaymentsSchema },
     onSubmit: async ({ value }) => {
       if (!authUserId) return
       const controller = new AbortController()

@@ -1,5 +1,5 @@
 import { Pencil1Icon, PlusIcon, TrashIcon } from "@radix-ui/react-icons"
-import { Button, Flex, Skeleton, Text } from "@radix-ui/themes"
+import { Button, Flex, Heading, Skeleton, Text } from "@radix-ui/themes"
 import { Suspense, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
@@ -29,9 +29,9 @@ export function LatestMonthlyBudget() {
 
   return (
     <Flex direction="column" gap="3">
-      <Text as="p" size="4" weight="medium">
-        {t("budgets.title")}
-      </Text>
+      <Heading as="h3" size="4" weight="medium">
+        {t("budgets.thisMonthTitle")}
+      </Heading>
       {targetMonth === null ? (
         <Text color="red" role="alert">
           {t("date.outOfRange", { min: MIN_DATE_ONLY, max: MAX_DATE_ONLY })}
@@ -60,13 +60,18 @@ function LatestMonthlyBudgetContent({ targetMonth }: { targetMonth: string }) {
 
   if (monthlyBudgetState.status !== "amount") {
     return (
-      <CreateMonthlyBudgetModal
-        trigger={
-          <Button variant="soft">
-            <PlusIcon /> {t("budgets.create")}
-          </Button>
-        }
-      />
+      <Flex align="center" justify="between" gap="3" wrap="wrap">
+        <Text color="gray">
+          {t(monthlyBudgetState.status === "none" ? "common.noBudget" : "common.notSet")}
+        </Text>
+        <CreateMonthlyBudgetModal
+          trigger={
+            <Button variant="soft">
+              <PlusIcon /> {t("budgets.create")}
+            </Button>
+          }
+        />
+      </Flex>
     )
   }
 
