@@ -93,10 +93,15 @@ export const Default: Story = {
     const canvas = within(canvasElement)
     await expect(canvas.queryByRole("heading", { level: 1 })).not.toBeInTheDocument()
     const total = await canvas.findByLabelText("Total spending")
-    const graph = await canvas.findByRole("figure", { name: "Spending through the month" })
+    const summaryRegion = canvas.getByRole("region", { name: "Monthly summary" })
+    await expect(summaryRegion).toContainElement(total)
+    const summary = within(summaryRegion)
+    const graph = await summary.findByRole("figure", { name: "Spending through the month" })
     await expect(total).toBeVisible()
     await expect(graph).toBeVisible()
     await expect(await within(total).findByText("¥25,000")).toBeVisible()
+    await expect(within(total).getByText("¥20,000 remaining now (recorded payments)")).toBeVisible()
+    await expect(await summary.findByText("Estimated ¥20,000 left at month-end")).toBeVisible()
     await expect(
       await canvas.findByRole("progressbar", { name: "Food budget progress" }),
     ).toHaveAttribute("aria-valuenow", "1000")
@@ -106,10 +111,23 @@ export const Default: Story = {
     expect(graph.compareDocumentPosition(category) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(category.compareDocumentPosition(recent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     await expect(await within(recent).findAllByRole("button")).toHaveLength(4)
+    await expect(canvas.getByText("Across all dates")).toBeVisible()
     await expect(canvas.getByRole("button", { name: "Create payment" })).toBeVisible()
     await expect(
       canvas.queryByRole("combobox", { name: "Category filter" }),
     ).not.toBeInTheDocument()
+
+    const recentRows = within(recent)
+      .getAllByRole("button")
+      .map((row) => row.textContent)
+    await userEvent.click(summary.getByRole("button", { name: "Previous month" }))
+    await expect(await summary.findByText("Completed month: actual spending only.")).toBeVisible()
+    await expect(summary.queryByText(/remaining now|left at month-end/)).not.toBeInTheDocument()
+    expect(
+      within(recent)
+        .getAllByRole("button")
+        .map((row) => row.textContent),
+    ).toEqual(recentRows)
   },
 }
 export const Empty: Story = {

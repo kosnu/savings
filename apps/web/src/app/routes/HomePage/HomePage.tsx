@@ -84,9 +84,14 @@ function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cache
             reserveSpace
             chart={<MonthlySpendingChart bookId={book.id} />}
           />
-          <Heading as="h2" size="4" weight="medium">
-            {t("payments.recent")}
-          </Heading>
+          <Flex direction="column" gap="1">
+            <Heading as="h2" size="4" weight="medium">
+              {t("payments.recent")}
+            </Heading>
+            <Text as="p" size="2" color="gray">
+              {t("payments.recent.scope")}
+            </Text>
+          </Flex>
           <RecentPayments bookId={book.id} cacheScope={cacheScope} />
         </Flex>
       </Container>
@@ -112,9 +117,14 @@ function HomePageLoading() {
       <Container size="2">
         <Flex direction="column" gap="3" aria-busy="true" data-testid="home-loading">
           <Summary loading reserveSpace chart={<MonthlySpendingChart loading />} />
-          <Heading as="h2" size="4" weight="medium">
-            {t("payments.recent")}
-          </Heading>
+          <Flex direction="column" gap="1">
+            <Heading as="h2" size="4" weight="medium">
+              {t("payments.recent")}
+            </Heading>
+            <Text as="p" size="2" color="gray">
+              {t("payments.recent.scope")}
+            </Text>
+          </Flex>
           <Flex direction="column" gap="2" aria-hidden>
             {[0, 1, 2, 3, 4].map((row) => (
               <PaymentCard key={row} loading />

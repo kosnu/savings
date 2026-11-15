@@ -139,11 +139,13 @@ export function MonthlySpendingGraph({
       {difference !== null && (
         <Text as="p" size="2" color={difference < 0 ? "yellow" : "green"}>
           {t(
-            difference < 0
-              ? series.period === "current"
+            series.period === "current"
+              ? difference < 0
                 ? "summary.spendingChart.overForecast"
-                : "summary.spendingChart.over"
-              : "summary.spendingChart.within",
+                : "summary.spendingChart.remainingForecast"
+              : difference < 0
+                ? "summary.spendingChart.over"
+                : "summary.spendingChart.within",
             { amount: toCurrency(Math.abs(difference)) },
           )}
         </Text>

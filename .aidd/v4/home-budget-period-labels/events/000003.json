@@ -1,0 +1,28 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "Codexでのホーム画面レビュー 優先度中の2点の修正依頼（同じブランチでコミットまで）",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/HomePage.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/budgets/utils/monthlyBudgetUsage.ts",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.test.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.test.tsx",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.tsx"
+  ],
+  "fingerprint": "5c0996fb8662513e00f6631f69353915f7190ba89ef1772689ce4cf1ba25e855",
+  "status": "pass",
+  "checks": [
+    "Webデザインとブランド規則",
+    "当月の登録済み分と月末の見込みの文言",
+    "月別集計の見出しと全期間の直近支払い",
+    "モバイル幅と月切替の表示"
+  ],
+  "summary": "予算額の計算を維持しつつ、登録済み分の残額と月末の見込みを明示する。月の選択を月別の集計にまとめ、直近の支払いは全期間と示す。",
+  "remaining": []
+}

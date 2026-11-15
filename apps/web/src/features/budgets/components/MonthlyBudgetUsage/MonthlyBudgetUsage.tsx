@@ -62,13 +62,14 @@ function MonthlyBudgetUsageResolved({
 
   const budgetAmount =
     monthlyBudgetState.status === "amount" ? monthlyBudgetState.monthlyBudget.amount : null
-  const display = getMonthlyBudgetUsageDisplay(totalExpenditures, budgetAmount)
+  const isCurrentMonth = targetMonth === currentMonth
+  const display = getMonthlyBudgetUsageDisplay(totalExpenditures, budgetAmount, isCurrentMonth)
 
   const budgetText =
     budgetAmount === null
       ? t(monthlyBudgetState.status === "none" ? "common.noBudget" : "common.notSet")
       : toCurrency(budgetAmount)
-  const showSettingsLink = monthlyBudgetState.status === "unset" && targetMonth === currentMonth
+  const showSettingsLink = monthlyBudgetState.status === "unset" && isCurrentMonth
 
   return (
     <Flex direction="column" gap="1" width="100%">
