@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "会話で承認されたホームの予算カードの支払い・予算の右揃え",
+  "paths": [
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "67ff5bac659cf4b5cee1136cb21cfd9024b42ad369589006a7f0a83693f000d1",
+  "status": "pass",
+  "checks": [
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview",
+    "documentation.policy, domain.amount, domain.book, domain.category",
+    "domain.date, domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.overview, policy.audit, policy.code-review, policy.git-workflow",
+    "policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure",
+    "web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules",
+    "web.error-presentation, web.feature-directory, web.query-cache, web.storybook-browser-tests",
+    "web.suspense-boundaries, web.test-policy",
+    "未解決の規約の矛盾なし"
+  ],
+  "summary": "既存のFlexの右揃えで支払いと予算の組を移動した。残額とバーの順、グラフやカードの色と書体に影響しないことを差分で照合した。デスクトップと幅320pxのブラウザテストで左端、右端と横並びを確認した。",
+  "remaining": []
+}

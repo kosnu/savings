@@ -106,7 +106,7 @@ function MonthlyBudgetUsageResolved({
           status={display.status}
         />
       )}
-      <Flex align="baseline" gap="4" wrap="wrap">
+      <Flex align="baseline" justify="end" gap="4" wrap="wrap">
         <SpendingAmount amount={totalExpenditures} />
         <Flex align="baseline" gap="1" minWidth="0" wrap="wrap">
           {monthlyBudgetState.status !== "none" && (

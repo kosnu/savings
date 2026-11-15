@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "会話で承認されたホームの予算カードの支払い・予算の右揃え",
+  "paths": [
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "67ff5bac659cf4b5cee1136cb21cfd9024b42ad369589006a7f0a83693f000d1",
+  "status": "pass",
+  "checks": [
+    "実画面での残額の左揃えと内訳の右揃え",
+    "Web lint・整形・型検査",
+    "Web単体・結合テスト 1151件",
+    "Storybookブラウザテスト 32件"
+  ],
+  "summary": "残額とバーの左端、予算額とバーの右端、支払い額と予算額の同じ行での配置をデスクトップ・幅320pxで確認した。",
+  "remaining": []
+}
