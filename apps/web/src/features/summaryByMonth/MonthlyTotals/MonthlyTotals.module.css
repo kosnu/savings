@@ -2,3 +2,7 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
+
+.requestState:empty {
+  display: none;
+}

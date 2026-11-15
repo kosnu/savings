@@ -20,34 +20,34 @@ const {
 describe("MonthlySpendingGraph", () => {
   test("実績と見込みの金額を示し、予算線の凡例では金額を繰り返さない", () => {
     render(<Default />)
-    const figure = screen.getByRole("figure", { name: "Spending through the month" })
+    const figure = screen.getByRole("figure", { name: "Spending trend" })
     const caption = figure.querySelector("figcaption")
     if (!caption) throw new Error("凡例がありません")
     const legend = within(caption)
     for (const [label, amount] of [
-      ["Actual spending", "¥5,000"],
+      ["Actual", "¥5,000"],
       ["Month-end estimate", "¥10,000"],
     ]) {
       expect(legend.getByText(label)).toBeInTheDocument()
       expect(legend.getByText(amount)).toBeInTheDocument()
     }
-    expect(legend.getByText("Monthly budget")).toBeInTheDocument()
+    expect(legend.getByText("Budget")).toBeInTheDocument()
     expect(legend.queryByText("¥15,000")).not.toBeInTheDocument()
-    expect(screen.getByText("Estimated ¥5,000 left at month-end")).toBeInTheDocument()
+    expect(screen.getByText("Estimated ¥5,000 left")).toBeInTheDocument()
     expect(screen.queryByText(/spending patterns from recorded months/)).not.toBeInTheDocument()
     expect(figure).not.toHaveAttribute("aria-describedby")
   })
 
   test.each([
-    { Story: OverBudget, difference: "Estimated ¥2,000 over budget at month-end" },
-    { Story: ZeroBudget, difference: "Estimated ¥10,000 over budget at month-end" },
+    { Story: OverBudget, difference: "Estimated ¥2,000 over budget" },
+    { Story: ZeroBudget, difference: "Estimated ¥10,000 over budget" },
   ])("当月の超過は見込みと明示し、予算0円も未設定と区別する", ({ Story, difference }) => {
     render(<Story />)
     expect(screen.getByText(difference)).toBeInTheDocument()
     expect(screen.queryByText("Not set")).not.toBeInTheDocument()
   })
 
-  test("日本語でも実績が予算内のときに月末の超過見込みと短く表示する", async () => {
+  test("日本語でも実績が予算内のときに超過見込みと短く表示する", async () => {
     await i18next.changeLanguage("ja")
     try {
       render(
@@ -55,7 +55,7 @@ describe("MonthlySpendingGraph", () => {
           history={[{ month: "2025-05", payments: [{ date: "2025-05-20", amount: 68000 }] }]}
         />,
       )
-      expect(screen.getByText("月末の超過見込み ¥65,000")).toBeInTheDocument()
+      expect(screen.getByText("超過見込み ¥65,000")).toBeInTheDocument()
       expect(screen.queryByText("予算超過・¥65,000")).not.toBeInTheDocument()
       expect(screen.queryByText(/直近3完了月の履歴がある月の日別平均/)).not.toBeInTheDocument()
     } finally {
@@ -71,7 +71,7 @@ describe("MonthlySpendingGraph", () => {
       />,
     )
     expect(screen.getByText("Over budget · ¥2,000")).toBeInTheDocument()
-    expect(screen.queryByText(/at month-end/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Estimated ¥/)).not.toBeInTheDocument()
   })
 
   test.each([
@@ -79,13 +79,13 @@ describe("MonthlySpendingGraph", () => {
     { Story: UnsetBudget, status: "未設定" },
   ])("$status では予算線の凡例や比較結果を表示しない", ({ Story }) => {
     render(<Story />)
-    expect(screen.queryByText("Monthly budget")).not.toBeInTheDocument()
-    expect(screen.queryByText(/Within budget|Over budget|at month-end/i)).not.toBeInTheDocument()
+    expect(screen.queryByText("Budget")).not.toBeInTheDocument()
+    expect(screen.queryByText(/Within budget|Over budget|Estimated ¥/i)).not.toBeInTheDocument()
   })
 
   test("支払い0件の実績と見込みは0円として表示する", () => {
     render(<Empty />)
-    expect(screen.getByText("Estimated ¥15,000 left at month-end")).toBeInTheDocument()
+    expect(screen.getByText("Estimated ¥15,000 left")).toBeInTheDocument()
     expect(screen.getAllByText("¥0")).toHaveLength(3)
   })
 
@@ -97,10 +97,10 @@ describe("MonthlySpendingGraph", () => {
 
   test("未来月は登録済みの支払いと明示し、見込みや実績と呼ばない", () => {
     render(<FutureMonth />)
-    expect(screen.getByText("Recorded payments")).toBeInTheDocument()
-    expect(screen.queryByText("Actual spending")).not.toBeInTheDocument()
+    expect(screen.getByText("Recorded")).toBeInTheDocument()
+    expect(screen.queryByText("Actual")).not.toBeInTheDocument()
     expect(screen.queryByText("Month-end estimate")).not.toBeInTheDocument()
-    expect(screen.queryByText(/Within budget|Over budget|at month-end/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Within budget|Over budget|Estimated ¥/i)).not.toBeInTheDocument()
   })
   test("履歴がないときは0円の見込みや予算比較を作らない", () => {
     render(<NoHistory />)
@@ -110,6 +110,6 @@ describe("MonthlySpendingGraph", () => {
       ),
     ).toBeInTheDocument()
     expect(screen.queryByText("Month-end estimate")).not.toBeInTheDocument()
-    expect(screen.queryByText(/Within budget|Over budget|at month-end/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Within budget|Over budget|Estimated ¥/i)).not.toBeInTheDocument()
   })
 })

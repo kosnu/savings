@@ -30,15 +30,34 @@ export function MonthlyBudgetUsage({
     return <MonthlyBudgetUsageText loading />
   }
 
-  if (totalExpendituresError || targetDate === null || totalExpenditures === null) {
+  if (totalExpendituresError || targetDate === null) {
     return null
+  }
+
+  if (totalExpenditures === null) {
+    return <SpendingAmount amount={null} />
   }
 
   const targetMonth = formatTargetMonthKey(toTargetMonth(targetDate))
 
   return (
-    <ErrorBoundary fallback={<MonthlyBudgetUsageText error />} resetKeys={[targetMonth]}>
-      <Suspense fallback={<MonthlyBudgetUsageText loading />}>
+    <ErrorBoundary
+      fallback={
+        <Flex direction="column" gap="1">
+          <MonthlyBudgetUsageText error />
+          <SpendingAmount amount={totalExpenditures} />
+        </Flex>
+      }
+      resetKeys={[targetMonth]}
+    >
+      <Suspense
+        fallback={
+          <Flex direction="column" gap="1">
+            <MonthlyBudgetUsageText loading />
+            <SpendingAmount amount={totalExpenditures} />
+          </Flex>
+        }
+      >
         <MonthlyBudgetUsageResolved
           key={targetMonth}
           targetMonth={targetMonth}
@@ -63,7 +82,7 @@ function MonthlyBudgetUsageResolved({
   const budgetAmount =
     monthlyBudgetState.status === "amount" ? monthlyBudgetState.monthlyBudget.amount : null
   const isCurrentMonth = targetMonth === currentMonth
-  const display = getMonthlyBudgetUsageDisplay(totalExpenditures, budgetAmount, isCurrentMonth)
+  const display = getMonthlyBudgetUsageDisplay(totalExpenditures, budgetAmount)
 
   const budgetText =
     budgetAmount === null
@@ -73,20 +92,35 @@ function MonthlyBudgetUsageResolved({
 
   return (
     <Flex direction="column" gap="1" width="100%">
-      <Flex justify="between" align="baseline" gap="2" wrap="wrap">
-        <Text color="gray" size="2">
-          {t("summary.monthlyBudget")}
-        </Text>
-        <Text color={budgetAmount === null ? "gray" : undefined} size="2">
-          {budgetText}
-        </Text>
+      {display && <MonthlyBudgetUsageText status={display.status} text={display.text} />}
+      <Flex align="baseline" gap="4" wrap="wrap">
+        <SpendingAmount amount={totalExpenditures} />
+        <Flex align="baseline" gap="1" minWidth="0" wrap="wrap">
+          {monthlyBudgetState.status !== "none" && (
+            <Text color="gray" size="2">
+              {t("summary.monthlyBudget")}
+            </Text>
+          )}
+          <Text
+            color={budgetAmount === null ? "gray" : undefined}
+            size="3"
+            style={{ overflowWrap: "anywhere" }}
+          >
+            {budgetText}
+          </Text>
+        </Flex>
       </Flex>
-      {display && (
-        <MonthlyBudgetUsageText
+      {display && budgetAmount !== null && (
+        <BudgetProgress
           amount={totalExpenditures}
+          ariaLabel={t("summary.monthlyBudgetProgress")}
+          ariaValueText={t("summary.budgetProgressValue", {
+            amount: toCurrency(totalExpenditures),
+            budget: toCurrency(budgetAmount),
+            difference: display.text,
+          })}
           budget={budgetAmount}
           status={display.status}
-          text={display.text}
         />
       )}
       {showSettingsLink && (
@@ -100,9 +134,22 @@ function MonthlyBudgetUsageResolved({
   )
 }
 
+function SpendingAmount({ amount }: { amount: number | null }) {
+  const { t } = useTranslation()
+
+  return (
+    <Flex align="baseline" gap="1" minWidth="0" wrap="wrap">
+      <Text color="gray" size="2">
+        {t("payments.total.heading")}
+      </Text>
+      <Text size="3" style={{ overflowWrap: "anywhere" }}>
+        {amount === null ? "-" : toCurrency(amount)}
+      </Text>
+    </Flex>
+  )
+}
+
 interface MonthlyBudgetUsageTextProps {
-  amount?: number
-  budget?: number | null
   error?: boolean
   loading?: boolean
   status?: MonthlyBudgetUsageStatus
@@ -110,8 +157,6 @@ interface MonthlyBudgetUsageTextProps {
 }
 
 const MonthlyBudgetUsageText = memo(function MonthlyBudgetUsageText({
-  amount,
-  budget,
   error = false,
   loading = false,
   status,
@@ -119,25 +164,17 @@ const MonthlyBudgetUsageText = memo(function MonthlyBudgetUsageText({
 }: MonthlyBudgetUsageTextProps) {
   const { t } = useTranslation()
   const content = error ? t("common.failed") : (text ?? "\u00A0")
-  const canShowProgress =
-    !loading &&
-    !error &&
-    amount !== undefined &&
-    budget !== null &&
-    budget !== undefined &&
-    status !== undefined
-  const difference = (
+  return (
     <Skeleton
       loading={loading}
       data-testid={loading ? "budget-difference-skeleton" : undefined}
       style={{ maxWidth: "100%" }}
     >
       <Text
-        align="right"
         aria-hidden={loading}
         color={getTextColor(error, status)}
         role={error ? "status" : undefined}
-        size={status ? "3" : "1"}
+        size={status ? "4" : "1"}
         weight={status ? "medium" : undefined}
         style={{
           display: "inline-block",
@@ -150,27 +187,6 @@ const MonthlyBudgetUsageText = memo(function MonthlyBudgetUsageText({
         {content}
       </Text>
     </Skeleton>
-  )
-
-  return (
-    <Flex align="stretch" direction="column" gap="1" width="100%">
-      {canShowProgress && (
-        <BudgetProgress
-          amount={amount}
-          ariaLabel={t("summary.monthlyBudgetProgress")}
-          ariaValueText={t("summary.budgetProgressValue", {
-            amount: toCurrency(amount),
-            budget: toCurrency(budget),
-            difference: content,
-          })}
-          budget={budget}
-          status={status}
-        />
-      )}
-      <Flex justify="end" width="100%">
-        {difference}
-      </Flex>
-    </Flex>
   )
 })
 

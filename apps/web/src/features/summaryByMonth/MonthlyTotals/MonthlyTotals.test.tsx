@@ -34,15 +34,17 @@ describe("MonthlyTotals", () => {
     renderStory()
 
     expect(await screen.findByLabelText("Total spending")).toBeInTheDocument()
-    expect(await screen.findByText("¥10,000")).toBeInTheDocument()
+    const budget = await screen.findByText("¥30,000")
+    const spent = screen.getByText("¥10,000")
     const difference = await screen.findByText("¥20,000 left")
     const progress = await screen.findByRole("progressbar", {
       name: "Monthly total budget progress",
     })
-    const usage = progress.parentElement
-
-    expect(usage?.children[0]).toBe(progress)
-    expect(usage?.children[1]).toContainElement(difference)
+    expect(
+      difference.compareDocumentPosition(spent) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    expect(spent.compareDocumentPosition(budget) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(budget.compareDocumentPosition(progress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   test("月次合計が月予算を超えたら超過額を表示する", async () => {

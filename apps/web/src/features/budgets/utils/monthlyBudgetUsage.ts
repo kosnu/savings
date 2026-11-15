@@ -11,7 +11,6 @@ export interface MonthlyBudgetUsageDisplay {
 export function getMonthlyBudgetUsageDisplay(
   totalExpenditures: number | null,
   monthlyBudgetAmount: number | null,
-  isCurrentMonth = false,
 ): MonthlyBudgetUsageDisplay | null {
   if (totalExpenditures === null || monthlyBudgetAmount === null) {
     return null
@@ -21,7 +20,7 @@ export function getMonthlyBudgetUsageDisplay(
 
   if (difference >= 0) {
     return {
-      text: i18next.t(isCurrentMonth ? "summary.currentBudgetLeft" : "common.left", {
+      text: i18next.t("common.left", {
         amount: toCurrency(difference),
       }),
       status: "remaining",
@@ -29,7 +28,7 @@ export function getMonthlyBudgetUsageDisplay(
   }
 
   return {
-    text: i18next.t(isCurrentMonth ? "summary.currentBudgetOver" : "common.over", {
+    text: i18next.t("common.over", {
       amount: toCurrency(Math.abs(difference)),
     }),
     status: "over",

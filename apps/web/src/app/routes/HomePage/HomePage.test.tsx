@@ -305,9 +305,7 @@ describe("HomePage", () => {
       expect(
         await screen.findByRole("progressbar", { name: "Food budget progress" }),
       ).toHaveAttribute("aria-valuenow", "1000")
-      expect(
-        await screen.findByRole("figure", { name: "Spending through the month" }),
-      ).toBeInTheDocument()
+      expect(await screen.findByRole("figure", { name: "Spending trend" })).toBeInTheDocument()
       if (state === "loading") {
         expect(screen.getAllByLabelText("loading-payment-item")).toHaveLength(5)
       } else {
@@ -548,9 +546,7 @@ describe("HomePage", () => {
       expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥1,080")
     })
     await waitFor(() => {
-      expect(screen.getByRole("figure", { name: "Spending through the month" })).toHaveTextContent(
-        "¥1,080",
-      )
+      expect(screen.getByRole("figure", { name: "Spending trend" })).toHaveTextContent("¥1,080")
     })
   })
 })

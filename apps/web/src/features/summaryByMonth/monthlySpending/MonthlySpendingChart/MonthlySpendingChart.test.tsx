@@ -40,10 +40,8 @@ describe("MonthlySpendingChart", () => {
 
   test("指定月の支払いと予算を取得してグラフに表示する", async () => {
     render(<Default />)
-    expect(await screen.findByText("Estimated ¥10,000 left at month-end")).toBeInTheDocument()
-    expect(
-      screen.getByRole("heading", { level: 3, name: "Spending through the month" }),
-    ).toBeInTheDocument()
+    expect(await screen.findByText("Estimated ¥10,000 left")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { level: 3, name: "Spending trend" })).toBeInTheDocument()
   })
 
   test("前提データの読み込み中はグラフを取得しない", async () => {
@@ -92,9 +90,9 @@ describe("MonthlySpendingChart", () => {
     expect(screen.queryByRole("figure")).not.toBeInTheDocument()
     resetHandlers()
     await user.click(screen.getByRole("button", { name: "Try again" }))
-    expect(await screen.findByText("Estimated ¥10,000 left at month-end")).toBeInTheDocument()
+    expect(await screen.findByText("Estimated ¥10,000 left")).toBeInTheDocument()
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
-    expect(screen.getByRole("region", { name: "Spending through the month" })).toHaveFocus()
+    expect(screen.getByRole("region", { name: "Spending trend" })).toHaveFocus()
   })
 
   test("取得失敗後に月を変更すると、新しい対象月の取得で復帰する", async () => {
@@ -140,7 +138,7 @@ describe("MonthlySpendingChart", () => {
       await queryClient.invalidateQueries({ queryKey: paymentQueryKeys.book(1) })
     })
     const figure = await screen.findByRole("figure")
-    const actualRow = within(figure).getByText("Actual spending").parentElement?.parentElement
+    const actualRow = within(figure).getByText("Actual").parentElement?.parentElement
     if (!actualRow) throw new Error("実績額の行がありません")
     expect(actualRow).toHaveTextContent("¥7,000")
   })
@@ -159,6 +157,6 @@ describe("MonthlySpendingChart", () => {
     expect(screen.queryByText(/No estimate/)).not.toBeInTheDocument()
     resetHandlers()
     await user.click(screen.getByRole("button", { name: "Try again" }))
-    expect(await screen.findByText("Estimated ¥10,000 left at month-end")).toBeInTheDocument()
+    expect(await screen.findByText("Estimated ¥10,000 left")).toBeInTheDocument()
   })
 })

@@ -97,12 +97,12 @@ export const Default: Story = {
     await expect(summaryRegion).toContainElement(total)
     await expect(summaryRegion).not.toHaveTextContent("Monthly summary")
     const summary = within(summaryRegion)
-    const graph = await summary.findByRole("figure", { name: "Spending through the month" })
+    const graph = await summary.findByRole("figure", { name: "Spending trend" })
     await expect(total).toBeVisible()
     await expect(graph).toBeVisible()
     await expect(await within(total).findByText("¥25,000")).toBeVisible()
-    await expect(within(total).getByText("Budget remaining ¥20,000")).toBeVisible()
-    await expect(await summary.findByText("Estimated ¥20,000 left at month-end")).toBeVisible()
+    await expect(within(total).getByText("¥20,000 left")).toBeVisible()
+    await expect(await summary.findByText("Estimated ¥20,000 left")).toBeVisible()
     await expect(
       await canvas.findByRole("progressbar", { name: "Food budget progress" }),
     ).toHaveAttribute("aria-valuenow", "1000")
@@ -123,7 +123,7 @@ export const Default: Story = {
       .map((row) => row.textContent)
     await userEvent.click(summary.getByRole("button", { name: "Previous month" }))
     await expect(await summary.findByText("Completed month: actual spending only.")).toBeVisible()
-    await expect(summary.queryByText(/Budget remaining|left at month-end/)).not.toBeInTheDocument()
+    await expect(summary.queryByText(/Estimated ¥/)).not.toBeInTheDocument()
     expect(
       within(recent)
         .getAllByRole("button")
@@ -148,9 +148,7 @@ export const Empty: Story = {
       await canvas.findByText("No payments yet. Use “Create payment” to record one."),
     ).toBeVisible()
     await expect(canvas.getByRole("button", { name: "Create payment" })).toBeEnabled()
-    await expect(
-      await canvas.findByRole("figure", { name: "Spending through the month" }),
-    ).toBeVisible()
+    await expect(await canvas.findByRole("figure", { name: "Spending trend" })).toBeVisible()
     const total = within(canvas.getByLabelText("Total spending"))
     await expect(await total.findByText("Not set")).toBeVisible()
     await expect(total.getByRole("link", { name: "Go to budget settings" })).toHaveAttribute(
@@ -293,7 +291,7 @@ function loadingTransitionStory(count: number, mobile = false): Story {
 
       expect(create.getBoundingClientRect().top).toBeCloseTo(createTop, 0)
       const categoryItems = categoryContent.firstElementChild
-      const graph = await canvas.findByRole("figure", { name: "Spending through the month" })
+      const graph = await canvas.findByRole("figure", { name: "Spending trend" })
       const chart = graph.parentElement
       if (!categoryItems || !chart?.parentElement) {
         throw new globalThis.Error("集計の表示内容がありません")
@@ -376,6 +374,10 @@ function headerActionStory(mobile: boolean): Story {
       expect(within(header).queryByRole("button", { name: "Theme toggle" })).not.toBeInTheDocument()
       const recent = await canvas.findByLabelText("Recent payments")
       await within(recent).findAllByRole("button")
+      const total = within(await canvas.findByLabelText("Total spending"))
+      const spent = await total.findByText("¥5,000")
+      const budget = await total.findByText("¥25,000")
+      expect(spent.getBoundingClientRect().top).toBeCloseTo(budget.getBoundingClientRect().top, 0)
       const initial = create.getBoundingClientRect()
       const initialHeaderTop = header.getBoundingClientRect().top
       expect(initial.bottom).toBeLessThanOrEqual(window.innerHeight)
