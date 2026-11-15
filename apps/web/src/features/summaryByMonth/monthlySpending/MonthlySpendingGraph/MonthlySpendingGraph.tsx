@@ -125,7 +125,7 @@ export function MonthlySpendingGraph({
               />
             )}
             <AmountRow
-              label={t("summary.spendingChart.budget")}
+              label={t("summary.monthlyBudget")}
               amount={
                 budgetAmount === null
                   ? t(budget.status === "none" ? "common.noBudget" : "common.notSet")

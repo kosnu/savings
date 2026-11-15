@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "Codexでのホーム画面レビュー後の2点の修正依頼（コミットまで）",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/HomePage.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.tsx",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.module.css",
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.test.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "cf9371a2776b4dc27da88248754186024cdbcb1a35370560253c95da19f483cc",
+  "status": "pass",
+  "checks": [
+    "Web整形・lint・型チェック",
+    "単体・結合テスト1149件（3ワーカー）",
+    "Storybookブラウザテスト32件",
+    "Core差分検査"
+  ],
+  "summary": "実装と回帰テストを含む変更後のWeb検証がすべて成功。",
+  "remaining": []
+}

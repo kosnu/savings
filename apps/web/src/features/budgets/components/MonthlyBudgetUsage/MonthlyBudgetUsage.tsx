@@ -1,5 +1,6 @@
-import { Flex, Skeleton, Text } from "@radix-ui/themes"
-import { memo, Suspense } from "react"
+import { Flex, Link as ThemeLink, Skeleton, Text } from "@radix-ui/themes"
+import { Link } from "@tanstack/react-router"
+import { memo, Suspense, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
@@ -39,6 +40,7 @@ export function MonthlyBudgetUsage({
     <ErrorBoundary fallback={<MonthlyBudgetUsageText error />} resetKeys={[targetMonth]}>
       <Suspense fallback={<MonthlyBudgetUsageText loading />}>
         <MonthlyBudgetUsageResolved
+          key={targetMonth}
           targetMonth={targetMonth}
           totalExpenditures={totalExpenditures}
         />
@@ -54,23 +56,46 @@ function MonthlyBudgetUsageResolved({
   targetMonth: string
   totalExpenditures: number
 }) {
+  const { t } = useTranslation()
   const { data: monthlyBudgetState } = useEffectiveMonthlyBudget(targetMonth)
+  const [currentMonth] = useState(() => formatTargetMonthKey(toTargetMonth(new Date())))
 
   const budgetAmount =
     monthlyBudgetState.status === "amount" ? monthlyBudgetState.monthlyBudget.amount : null
   const display = getMonthlyBudgetUsageDisplay(totalExpenditures, budgetAmount)
 
-  if (display === null) {
-    return null
-  }
+  const budgetText =
+    budgetAmount === null
+      ? t(monthlyBudgetState.status === "none" ? "common.noBudget" : "common.notSet")
+      : toCurrency(budgetAmount)
+  const showSettingsLink = monthlyBudgetState.status === "unset" && targetMonth === currentMonth
 
   return (
-    <MonthlyBudgetUsageText
-      amount={totalExpenditures}
-      budget={budgetAmount}
-      status={display.status}
-      text={display.text}
-    />
+    <Flex direction="column" gap="1" width="100%">
+      <Flex justify="between" align="baseline" gap="2" wrap="wrap">
+        <Text color="gray" size="2">
+          {t("summary.monthlyBudget")}
+        </Text>
+        <Text color={budgetAmount === null ? "gray" : undefined} size="2">
+          {budgetText}
+        </Text>
+      </Flex>
+      {display && (
+        <MonthlyBudgetUsageText
+          amount={totalExpenditures}
+          budget={budgetAmount}
+          status={display.status}
+          text={display.text}
+        />
+      )}
+      {showSettingsLink && (
+        <Flex justify="end">
+          <ThemeLink asChild size="2">
+            <Link to="/settings/book">{t("budgets.openSettings")}</Link>
+          </ThemeLink>
+        </Flex>
+      )}
+    </Flex>
   )
 }
 

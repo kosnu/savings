@@ -96,13 +96,14 @@ export const Default: Story = {
     const graph = await canvas.findByRole("figure", { name: "Spending through the month" })
     await expect(total).toBeVisible()
     await expect(graph).toBeVisible()
+    await expect(await within(total).findByText("¥25,000")).toBeVisible()
     await expect(
       await canvas.findByRole("progressbar", { name: "Food budget progress" }),
     ).toHaveAttribute("aria-valuenow", "1000")
     const recent = await canvas.findByLabelText("Recent payments")
     const category = canvas.getByRole("progressbar", { name: "Food budget progress" })
-    expect(graph.compareDocumentPosition(total) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(total.compareDocumentPosition(category) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(total.compareDocumentPosition(graph) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(graph.compareDocumentPosition(category) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(category.compareDocumentPosition(recent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     await expect(await within(recent).findAllByRole("button")).toHaveLength(4)
     await expect(canvas.getByRole("button", { name: "Create payment" })).toBeVisible()
@@ -118,7 +119,7 @@ export const Empty: Story = {
         ...createBookHandlers(),
         ...createPaymentHandlers({ initialRows: [] }),
         ...createCategoryHandlers({ get: { paymentRows: [] } }),
-        ...createMonthlyBudgetHandlers(),
+        ...createMonthlyBudgetHandlers({ get: { response: null } }),
       ],
     },
   },
@@ -131,6 +132,19 @@ export const Empty: Story = {
     await expect(
       await canvas.findByRole("figure", { name: "Spending through the month" }),
     ).toBeVisible()
+    const total = within(canvas.getByLabelText("Total spending"))
+    await expect(await total.findByText("Not set")).toBeVisible()
+    await expect(total.getByRole("link", { name: "Go to budget settings" })).toHaveAttribute(
+      "href",
+      "/settings/book",
+    )
+
+    await userEvent.click(canvas.getByRole("button", { name: "Previous month" }))
+    await expect(await canvas.findByText("Completed month: actual spending only.")).toBeVisible()
+    await expect(await total.findByText("Not set")).toBeVisible()
+    await expect(
+      total.queryByRole("link", { name: "Go to budget settings" }),
+    ).not.toBeInTheDocument()
   },
 }
 export const Loading: Story = {

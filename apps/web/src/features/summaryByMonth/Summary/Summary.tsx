@@ -31,12 +31,12 @@ export function Summary({
           </Box>
         </Skeleton>
       </Flex>
-      {chart}
       <Card size="2">
         <Flex direction="column" width="100%" className={reserveSpace ? styles.monthly : undefined}>
           {loading ? <Skeleton height="var(--line-height-6)" width="100%" /> : <MonthlyTotals />}
         </Flex>
       </Card>
+      {chart}
       <Card size="2">
         <Box>
           {loading ? (

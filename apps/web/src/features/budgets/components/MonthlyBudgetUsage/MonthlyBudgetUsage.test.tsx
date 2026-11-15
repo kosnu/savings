@@ -4,7 +4,7 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 import { monthlyBudgets } from "../../../../test/data/monthlyBudgets"
 import { createMonthlyBudgetHandlers } from "../../../../test/msw/handlers/monthlyBudgets"
 import { server } from "../../../../test/msw/server"
-import { render, screen, waitFor } from "../../../../test/test-utils"
+import { render, screen } from "../../../../test/test-utils"
 import * as stories from "./MonthlyBudgetUsage.stories"
 
 const { FetchError, Loading, NoBudget, Over, Remaining } = composeStories(stories)
@@ -47,7 +47,7 @@ describe("MonthlyBudgetUsage", () => {
     ).toHaveAttribute("aria-valuetext", "Spent ¥45,000 of ¥30,000. ¥15,000 over.")
   })
 
-  test("月予算がない場合は利用状況を表示しない", async () => {
+  test("月予算が未設定の場合は差額の代わりに未設定と表示する", async () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
         get: { response: null },
@@ -55,13 +55,11 @@ describe("MonthlyBudgetUsage", () => {
     )
     render(<NoBudget />)
 
-    await waitFor(() => {
-      expect(screen.queryByText(/left|over|Failed/)).not.toBeInTheDocument()
-    })
+    expect(await screen.findByText("Not set")).toBeInTheDocument()
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
   })
 
-  test("予算なし状態の場合は利用状況を表示しない", async () => {
+  test("予算なし状態の場合は差額の代わりに予算なしと表示する", async () => {
     server.resetHandlers(
       ...createMonthlyBudgetHandlers({
         get: { response: { status: "none", monthly_budget: null } },
@@ -69,9 +67,7 @@ describe("MonthlyBudgetUsage", () => {
     )
     render(<NoBudget />)
 
-    await waitFor(() => {
-      expect(screen.queryByText(/left|over|Failed/)).not.toBeInTheDocument()
-    })
+    expect(await screen.findByText("No budget")).toBeInTheDocument()
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
   })
 

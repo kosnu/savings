@@ -68,7 +68,7 @@ function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cache
         <CreatePaymentModal
           bookId={book.id}
           trigger={
-            <Button>
+            <Button highContrast>
               <PlusIcon aria-hidden />
               {t("payments.create.trigger")}
             </Button>
@@ -102,7 +102,7 @@ function HomePageLoading() {
       stickyHeader
       headerAction={
         <Skeleton>
-          <Button disabled aria-hidden tabIndex={-1}>
+          <Button highContrast disabled aria-hidden tabIndex={-1}>
             <PlusIcon aria-hidden />
             {t("payments.create.trigger")}
           </Button>
