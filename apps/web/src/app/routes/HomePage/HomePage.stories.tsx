@@ -416,7 +416,8 @@ function headerActionStory(mobile: boolean): Story {
             ),
           ),
         ).toBe(false)
-        await userEvent.click(within(dialog).getByRole("button", { name: "Cancel" }))
+        await within(dialog).findByLabelText("Amount", { exact: false })
+        await userEvent.keyboard("{Escape}")
         await waitFor(async () => expect(body.queryByRole("dialog")).not.toBeInTheDocument())
         await expect(create).toHaveFocus()
 

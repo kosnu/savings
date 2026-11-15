@@ -1,4 +1,5 @@
 import { composeStories } from "@storybook/react-vite"
+import { HttpResponse, http } from "msw"
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { toDateOnlyString } from "../../../../domain/date"
@@ -15,6 +16,7 @@ import {
   waitFor,
   within,
 } from "../../../../test/test-utils"
+import { createDeferred } from "../../../../test/utils/createDeferred"
 import type { PaymentRow } from "../../../../types/payment"
 import * as stories from "./CreatePaymentModal.stories"
 
@@ -88,19 +90,73 @@ describe("CreatePaymentModal", () => {
     )
   })
 
-  test("should stay open when Escape is pressed", async () => {
+  test("初期値のままなら Escape で閉じ、トリガーへフォーカスを戻す", async () => {
     const { user, baseElement } = await renderStory(<Default />)
+    const trigger = screen.getByRole("button", { name: /create payment/i })
 
-    const dialog = await openCreatePaymentModal()
-    expect(dialog).toBeInTheDocument()
+    await user.click(trigger)
+    const dialog = await screen.findByRole("dialog", { name: /create payment/i })
+    await within(dialog).findByLabelText(/amount/i)
 
     fireEvent.pointerDown(baseElement) // モーダルの外をクリックするために baseElement をクリック
     fireEvent.click(baseElement) // モーダルの外をクリックするために baseElement をクリック
 
-    expect(screen.getByRole("dialog", { name: /create payment/i })).toBeInTheDocument()
+    expect(dialog).toBeInTheDocument()
     await user.keyboard("{Escape}")
 
-    expect(screen.getByRole("dialog", { name: /create payment/i })).toBeInTheDocument()
+    await waitFor(() => {
+      expect(dialog).not.toBeInTheDocument()
+      expect(trigger).toHaveFocus()
+    })
+  })
+
+  test("未保存の入力を保持し、初期値に戻すと Escape で閉じる", async () => {
+    const { user } = await renderStory(<Default />)
+    const dialog = await openCreatePaymentModal()
+    const note = await within(dialog).findByRole("textbox", { name: /note/i })
+
+    await user.type(note, "Draft")
+    await user.keyboard("{Escape}")
+
+    expect(dialog).toBeInTheDocument()
+    expect(note).toHaveValue("Draft")
+
+    await user.clear(note)
+    await user.keyboard("{Escape}")
+    expect(dialog).not.toBeInTheDocument()
+  })
+
+  test("保存中は入力を初期値に戻しても Escape で閉じない", async () => {
+    const save = createDeferred()
+    server.use(
+      http.post("*/rest/v1/payments*", async () => {
+        await save.promise
+        return new HttpResponse(null, { status: 201 })
+      }),
+    )
+
+    const { user } = await renderStory(<Default />)
+    const dialog = await openCreatePaymentModal()
+    const form = within(dialog)
+    const amount = await form.findByRole("textbox", { name: /amount/i })
+    await user.click(form.getByRole("checkbox", { name: /continue creating/i }))
+
+    try {
+      await user.type(amount, "1000")
+      await user.click(form.getByRole("button", { name: /^create$/i }))
+      await waitFor(() => expect(form.getByRole("button", { name: /cancel/i })).toBeDisabled())
+      await user.clear(amount)
+      expect(amount).toHaveValue("")
+
+      await user.keyboard("{Escape}")
+      expect(dialog).toBeInTheDocument()
+    } finally {
+      save.resolve()
+    }
+
+    await waitFor(() => expect(form.getByRole("button", { name: /cancel/i })).toBeEnabled())
+    await user.keyboard("{Escape}")
+    expect(dialog).not.toBeInTheDocument()
   })
 
   test("トリガー操作でダイアログと amount 入力欄を表示する", async () => {

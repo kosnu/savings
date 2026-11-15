@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "会話の支払い作成フォームのEscape操作の修正依頼 (codex/home-budget-overview)",
+  "paths": [
+    "apps/web/src/features/payments/createPayment/CreatePaymentForm/CreatePaymentForm.tsx",
+    "apps/web/src/features/payments/createPayment/CreatePaymentModal/CreatePaymentModal.tsx",
+    "apps/web/src/features/payments/createPayment/CreatePaymentModal/CreatePaymentModal.test.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "2c6b317dd0bb5b8f6f34c818d2b8e7a50503078a51e605432bf40e5677e7ae3a",
+  "status": "pass",
+  "checks": [
+    "Web lint・整形・型検査",
+    "Web単体・結合テスト 1151件",
+    "Storybookブラウザテスト 32件",
+    "差分の空白検査とCoreの規約照合"
+  ],
+  "summary": "未入力、入力を元に戻した場合、未保存の入力がある場合、保存中、連続作成の保存後、およびデスクトップとモバイルでのフォーカス復帰を確認した。",
+  "remaining": []
+}

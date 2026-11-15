@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話の支払い作成フォームのEscape操作の修正依頼 (codex/home-budget-overview)",
+  "paths": [
+    "apps/web/src/features/payments/createPayment/CreatePaymentForm/CreatePaymentForm.tsx",
+    "apps/web/src/features/payments/createPayment/CreatePaymentModal/CreatePaymentModal.tsx",
+    "apps/web/src/features/payments/createPayment/CreatePaymentModal/CreatePaymentModal.test.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "2c6b317dd0bb5b8f6f34c818d2b8e7a50503078a51e605432bf40e5677e7ae3a",
+  "status": "pass",
+  "checks": [
+    "DESIGN.md とWeb UIのDialog規約",
+    "フォーム初期値と保存中の判定",
+    "ホーム画面からのキーボード操作とフォーカス復帰"
+  ],
+  "summary": "既存の支払い作成フォームの値と保存状態を使い、Escape操作を許可する。",
+  "remaining": []
+}

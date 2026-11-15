@@ -1,5 +1,5 @@
 import { Button } from "@radix-ui/themes"
-import { type ReactElement, useCallback, useRef, useState } from "react"
+import { type ComponentRef, type ReactElement, useCallback, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ResponsiveOverlay } from "../../../../components/overlay/ResponsiveOverlay"
@@ -16,18 +16,14 @@ export function CreatePaymentModal({ bookId, onSuccess, trigger }: CreatePayment
   const { open, closeDialog, onOpenChange } = useDialog()
   const { t } = useTranslation()
   const [continuousMode, setContinuousMode] = useState(false)
-  const formResetRef = useRef<(() => void) | null>(null)
-
-  const handleResetReady = useCallback((resetFn: () => void) => {
-    formResetRef.current = resetFn
-  }, [])
+  const formRef = useRef<ComponentRef<typeof CreatePaymentForm>>(null)
 
   const handleSuccess = useCallback(() => {
     onSuccess?.()
 
     if (continuousMode) {
       // Reset the form for continuous creation
-      formResetRef.current?.()
+      formRef.current?.reset()
     } else {
       // Close the dialog (existing behavior)
       closeDialog()
@@ -47,16 +43,21 @@ export function CreatePaymentModal({ bookId, onSuccess, trigger }: CreatePayment
       open={open}
       onOpenChange={onOpenChange}
       dismissible={false}
+      onEscapeKeyDown={(event) => {
+        if (!event.defaultPrevented && formRef.current?.canCloseOnEscape()) {
+          closeDialog()
+        }
+      }}
       trigger={trigger ?? <Button>{t("payments.create.trigger")}</Button>}
       title={t("payments.create.title")}
       description={t("payments.create.description")}
     >
       <CreatePaymentForm
+        ref={formRef}
         bookId={bookId}
         onSuccess={handleSuccess}
         onError={handleError}
         onCancel={handleCancel}
-        onResetReady={handleResetReady}
         continuousMode={continuousMode}
         onContinuousModeChange={setContinuousMode}
       />

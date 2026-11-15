@@ -1,6 +1,6 @@
 import { Flex } from "@radix-ui/themes"
 import { useForm } from "@tanstack/react-form"
-import { useCallback, useEffect } from "react"
+import { type Ref, useCallback, useImperativeHandle } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CancelButton } from "../../../../components/buttons/CancelButton"
@@ -20,12 +20,17 @@ import { NoteField } from "../NoteField"
 import { PaymentDateField } from "../PaymentDateField"
 import { useCreatePayment } from "../useCreatePayment"
 
+interface CreatePaymentFormHandle {
+  reset: () => void
+  canCloseOnEscape: () => boolean
+}
+
 interface CreatePaymentFormProps {
   bookId: number
   onSuccess?: () => void
   onError?: (error?: Error) => void
   onCancel: () => void
-  onResetReady?: (resetFn: () => void) => void
+  ref?: Ref<CreatePaymentFormHandle>
   continuousMode?: boolean
   onContinuousModeChange?: (checked: boolean) => void
 }
@@ -35,11 +40,11 @@ export function CreatePaymentForm({
   onSuccess,
   onError,
   onCancel,
-  onResetReady,
+  ref,
   continuousMode,
   onContinuousModeChange,
 }: CreatePaymentFormProps) {
-  const { createPayment } = useCreatePayment(bookId, onSuccess, onError)
+  const { createPayment, isPending } = useCreatePayment(bookId, onSuccess, onError)
   const { t } = useTranslation()
   const defaultValues = createPaymentDefaultValues()
 
@@ -58,13 +63,14 @@ export function CreatePaymentForm({
     },
   })
 
-  const resetForm = useCallback(() => {
-    form.reset()
-  }, [form])
-
-  useEffect(() => {
-    onResetReady?.(resetForm)
-  }, [onResetReady, resetForm])
+  useImperativeHandle(
+    ref,
+    () => ({
+      reset: () => form.reset(),
+      canCloseOnEscape: () => form.state.isDefaultValue && !form.state.isSubmitting && !isPending,
+    }),
+    [form, isPending],
+  )
 
   const handleCancel = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
