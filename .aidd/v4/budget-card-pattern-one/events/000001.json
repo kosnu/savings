@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話で承認された予算カードのパターン1の実装",
+  "paths": [
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/summaryByMonth/MonthlyTotals/MonthlyTotals.test.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "d2cb4d073d84acb338c7af6b4aee2e5c5b0de7cc1f0d6f5042dcf361d0bfb806",
+  "status": "pass",
+  "checks": [
+    "DESIGN.md とカテゴリ予算との整列",
+    "支払い額と予算額を連続表示",
+    "予算の未設定・なし・超過の扱い"
+  ],
+  "summary": "月の予算を左、支払いと上限の組を右に配置し、残額をバー下の右に揃える。予算がない場合は支払い額と予算状態を表示する。",
+  "remaining": []
+}

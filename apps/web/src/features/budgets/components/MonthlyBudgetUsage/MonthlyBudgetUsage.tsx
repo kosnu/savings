@@ -84,15 +84,27 @@ function MonthlyBudgetUsageResolved({
   const isCurrentMonth = targetMonth === currentMonth
   const display = getMonthlyBudgetUsageDisplay(totalExpenditures, budgetAmount)
 
-  const budgetText =
-    budgetAmount === null
-      ? t(monthlyBudgetState.status === "none" ? "common.noBudget" : "common.notSet")
-      : toCurrency(budgetAmount)
   const showSettingsLink = monthlyBudgetState.status === "unset" && isCurrentMonth
 
   return (
     <Flex direction="column" gap="1" width="100%">
-      {display && <MonthlyBudgetUsageText status={display.status} text={display.text} />}
+      <Flex align="baseline" justify="between" gap="1" wrap="wrap">
+        <Flex align="baseline" gap="1" wrap="wrap">
+          <Text color="gray" size="2">
+            {t(
+              monthlyBudgetState.status === "none"
+                ? "common.noBudget"
+                : "summary.monthlyBudgetHeading",
+            )}
+          </Text>
+          {monthlyBudgetState.status === "unset" && (
+            <Text color="gray" size="2">
+              {t("common.notSet")}
+            </Text>
+          )}
+        </Flex>
+        <SpendingAmount amount={totalExpenditures} budget={budgetAmount} />
+      </Flex>
       {display && budgetAmount !== null && (
         <BudgetProgress
           amount={totalExpenditures}
@@ -106,23 +118,7 @@ function MonthlyBudgetUsageResolved({
           status={display.status}
         />
       )}
-      <Flex align="baseline" justify="end" gap="4" wrap="wrap">
-        <SpendingAmount amount={totalExpenditures} />
-        <Flex align="baseline" gap="1" minWidth="0" wrap="wrap">
-          {monthlyBudgetState.status !== "none" && (
-            <Text color="gray" size="2">
-              {t("summary.monthlyBudget")}
-            </Text>
-          )}
-          <Text
-            color={budgetAmount === null ? "gray" : undefined}
-            size="3"
-            style={{ overflowWrap: "anywhere" }}
-          >
-            {budgetText}
-          </Text>
-        </Flex>
-      </Flex>
+      {display && <MonthlyBudgetUsageText status={display.status} text={display.text} />}
       {showSettingsLink && (
         <Flex justify="end">
           <ThemeLink asChild size="2">
@@ -134,16 +130,28 @@ function MonthlyBudgetUsageResolved({
   )
 }
 
-function SpendingAmount({ amount }: { amount: number | null }) {
+function SpendingAmount({
+  amount,
+  budget = null,
+}: {
+  amount: number | null
+  budget?: number | null
+}) {
   const { t } = useTranslation()
 
   return (
-    <Flex align="baseline" gap="1" minWidth="0" wrap="wrap">
+    <Flex align="baseline" justify="end" gap="1" minWidth="0" ml="auto" wrap="wrap">
       <Text color="gray" size="2">
         {t("payments.total.heading")}
       </Text>
-      <Text size="3" style={{ overflowWrap: "anywhere" }}>
-        {amount === null ? "-" : toCurrency(amount)}
+      <Text size="3" align="right" style={{ overflowWrap: "anywhere" }}>
+        <span>{amount === null ? "-" : toCurrency(amount)}</span>
+        {budget !== null && (
+          <>
+            {t("summary.budgetAmountSeparator")}
+            <span>{toCurrency(budget)}</span>
+          </>
+        )}
       </Text>
     </Flex>
   )
@@ -171,6 +179,7 @@ const MonthlyBudgetUsageText = memo(function MonthlyBudgetUsageText({
       style={{ maxWidth: "100%" }}
     >
       <Text
+        align={status ? "right" : undefined}
         aria-hidden={loading}
         color={getTextColor(error, status)}
         role={error ? "status" : undefined}
