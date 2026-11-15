@@ -191,6 +191,67 @@ describe("PaymentsPage", () => {
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1)
   })
 
+  test("ブック取得失敗から選択中の年月とカテゴリを維持して復帰する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.use(...createBookHandlers({ error: true }))
+    const { router, user } = renderPaymentsPageRoute("/payments?year=2025&month=4&category=10")
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Could not load current book information.",
+    )
+    const search = screen.getByLabelText("Search filters")
+    expect(within(search).getByRole("combobox", { name: "Month" })).toHaveTextContent("April")
+    expect(within(search).getByRole("combobox", { name: "Category filter" })).toHaveTextContent(
+      "Food",
+    )
+    expect(screen.queryByRole("button", { name: "Create payment" })).not.toBeInTheDocument()
+
+    server.use(...createBookHandlers())
+    await user.click(screen.getByRole("button", { name: "Try again" }))
+
+    expect(await screen.findByRole("button", { name: /スーパー/ })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Create payment" })).toBeInTheDocument()
+    expect(screen.getByLabelText("Search filters")).toBe(search)
+    expect(screen.getByRole("region", { name: "Payments" })).toHaveFocus()
+    expect(router.state.location.search).toEqual({ year: "2025", month: "4", category: "10" })
+  })
+
+  test("明細を同じ条件で再試行し、再失敗後にも復帰できる", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    const requests: URL[] = []
+    const aprilPaymentRows = initialPaymentRows.filter(
+      (payment) => payment.date.startsWith("2025-04-") && payment.category_id === foodCat.id,
+    )
+    server.use(
+      http.get("*/rest/v1/payments", ({ request }) => {
+        requests.push(new URL(request.url))
+        if (requests.length <= 2) {
+          return HttpResponse.json({ message: "Failed to fetch payments." }, { status: 500 })
+        }
+
+        return HttpResponse.json(aprilPaymentRows)
+      }),
+    )
+    const { router, user } = renderPaymentsPageRoute("/payments?year=2025&month=4&category=10")
+    const list = await screen.findByLabelText("payment-list")
+
+    expect(await within(list).findByRole("alert")).toHaveTextContent("Could not load payments.")
+    await user.click(within(list).getByRole("button", { name: "Try again" }))
+    await waitFor(() => expect(requests).toHaveLength(2))
+    expect(await within(list).findByRole("alert")).toHaveTextContent("Could not load payments.")
+
+    await user.click(await within(list).findByRole("button", { name: "Try again" }))
+
+    expect(await within(list).findByRole("button", { name: /スーパー/ })).toBeInTheDocument()
+    expect(list).toHaveFocus()
+    expect(router.state.location.search).toEqual({ year: "2025", month: "4", category: "10" })
+    expect(requests).toHaveLength(3)
+    for (const request of requests) {
+      expect(request.searchParams.getAll("date")).toEqual(["gte.2025-04-01", "lte.2025-04-30"])
+      expect(request.searchParams.get("category_id")).toBe("eq.10")
+    }
+  })
+
   test("年月とカテゴリを組み合わせて変更しても他の検索条件を保持する", async () => {
     const requests: URL[] = []
     server.use(

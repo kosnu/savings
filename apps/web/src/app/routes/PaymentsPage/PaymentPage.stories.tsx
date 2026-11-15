@@ -43,7 +43,9 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
-    await canvas.findByRole("button", { name: /create payment/i })
+    const createPayment = await canvas.findByRole("button", { name: /create payment/i })
+    await expect(createPayment).toHaveClass("rt-variant-solid")
+    await expect(createPayment.querySelector("svg")).toHaveAttribute("aria-hidden", "true")
 
     await expect(canvas.getByRole("heading", { level: 1, name: "Payments" })).toBeInTheDocument()
     await expect(canvas.getAllByRole("heading", { level: 1 })).toHaveLength(1)
@@ -100,6 +102,7 @@ function searchFormStory(mobile: boolean): Story {
       const body = within(canvasElement.ownerDocument.body)
       const search = await canvas.findByLabelText("Search filters")
       const filters = within(search)
+      await expect(filters.queryByRole("heading")).not.toBeInTheDocument()
       const year = filters.getByRole("combobox", { name: "Year" })
       const month = filters.getByRole("combobox", { name: "Month" })
       const category = filters.getByRole("combobox", { name: "Category filter" })
