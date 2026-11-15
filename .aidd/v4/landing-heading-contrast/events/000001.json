@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "Codexでのサービス紹介ページのレビュー後に依頼された優先度の高い2点",
+  "paths": [
+    "apps/web/src/app/routes/TopPage/TopPage.tsx",
+    "apps/web/src/app/routes/TopPage/TopPage.stories.tsx",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/TopPage/TopPage.module.css",
+    "apps/web/src/features/profile/deleteAccount/DeleteAccount/DeleteAccount.integration.test.tsx"
+  ],
+  "fingerprint": "4d499054c3dab288ea2f70e6a014c3df30fd2ae28fb02465b1bacdf4c6b46fd3",
+  "status": "pass",
+  "checks": [
+    "紹介ページの主見出し",
+    "Radixのsolidボタンの高コントラスト設定"
+  ],
+  "summary": "紹介ページの主見出しに予算の残りを確認できる価値を示し、上下の主操作には既存の高コントラスト設定を使う。",
+  "remaining": []
+}

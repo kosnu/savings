@@ -11,6 +11,10 @@
   color: var(--accent-11);
 }
 
+.heroHeading {
+  word-break: keep-all;
+}
+
 .description {
   color: var(--gray-11);
   line-height: 1.9;

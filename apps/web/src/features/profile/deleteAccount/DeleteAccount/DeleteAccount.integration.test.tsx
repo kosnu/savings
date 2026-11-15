@@ -198,7 +198,9 @@ test.each([false, true])(
     const sessionWrites = vi.spyOn(Storage.prototype, "setItem").mockImplementation(deny)
     await view.user.click(await screen.findByRole("button", { name: "Confirm deletion schedule" }))
     expect(await screen.findByRole("link", { name: "Sign in" })).toBeVisible()
-    expect(screen.getByRole("heading", { name: "Burneto", level: 1 })).toBeVisible()
+    expect(
+      screen.getByRole("heading", { name: "How much can you still spend this month?", level: 1 }),
+    ).toBeVisible()
     expect(router.state.location.pathname).toBe("/")
     expect(await screen.findByText("Your account deletion request was accepted.")).toBeVisible()
     expect(

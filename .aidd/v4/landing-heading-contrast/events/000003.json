@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "Codexでのサービス紹介ページのレビュー後に依頼された優先度の高い2点",
+  "paths": [
+    "apps/web/src/app/routes/TopPage/TopPage.tsx",
+    "apps/web/src/app/routes/TopPage/TopPage.stories.tsx",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/TopPage/TopPage.module.css",
+    "apps/web/src/features/profile/deleteAccount/DeleteAccount/DeleteAccount.integration.test.tsx"
+  ],
+  "fingerprint": "4d499054c3dab288ea2f70e6a014c3df30fd2ae28fb02465b1bacdf4c6b46fd3",
+  "status": "pass",
+  "checks": [
+    "サービス紹介・Webデザイン・ブランドの規則",
+    "日英の主見出しとログイン導線",
+    "モバイルの折り返し",
+    "ライトとダークのボタンの文字コントラスト"
+  ],
+  "summary": "冒頭の主見出しが残額を確認できる価値を示し、上下の主ボタンは既存設定で文字コントラスト4.5:1以上。日本語は320pxでも句の切れ目で折り返す。",
+  "remaining": []
+}
