@@ -22,7 +22,7 @@ describe("MonthlyTotals", () => {
     vi.restoreAllMocks()
   })
 
-  test("月次合計を表示する", async () => {
+  test("残額、予算バー、支払い額と予算額の順に表示する", async () => {
     server.resetHandlers(
       ...createPaymentHandlers({
         getMonthlyTotalAmount: { response: 10000 },
@@ -41,10 +41,10 @@ describe("MonthlyTotals", () => {
       name: "Monthly total budget progress",
     })
     expect(
-      difference.compareDocumentPosition(spent) & Node.DOCUMENT_POSITION_FOLLOWING,
+      difference.compareDocumentPosition(progress) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy()
+    expect(progress.compareDocumentPosition(spent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(spent.compareDocumentPosition(budget) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(budget.compareDocumentPosition(progress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   test("月次合計が月予算を超えたら超過額を表示する", async () => {

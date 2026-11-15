@@ -93,6 +93,19 @@ function MonthlyBudgetUsageResolved({
   return (
     <Flex direction="column" gap="1" width="100%">
       {display && <MonthlyBudgetUsageText status={display.status} text={display.text} />}
+      {display && budgetAmount !== null && (
+        <BudgetProgress
+          amount={totalExpenditures}
+          ariaLabel={t("summary.monthlyBudgetProgress")}
+          ariaValueText={t("summary.budgetProgressValue", {
+            amount: toCurrency(totalExpenditures),
+            budget: toCurrency(budgetAmount),
+            difference: display.text,
+          })}
+          budget={budgetAmount}
+          status={display.status}
+        />
+      )}
       <Flex align="baseline" gap="4" wrap="wrap">
         <SpendingAmount amount={totalExpenditures} />
         <Flex align="baseline" gap="1" minWidth="0" wrap="wrap">
@@ -110,19 +123,6 @@ function MonthlyBudgetUsageResolved({
           </Text>
         </Flex>
       </Flex>
-      {display && budgetAmount !== null && (
-        <BudgetProgress
-          amount={totalExpenditures}
-          ariaLabel={t("summary.monthlyBudgetProgress")}
-          ariaValueText={t("summary.budgetProgressValue", {
-            amount: toCurrency(totalExpenditures),
-            budget: toCurrency(budgetAmount),
-            difference: display.text,
-          })}
-          budget={budgetAmount}
-          status={display.status}
-        />
-      )}
       {showSettingsLink && (
         <Flex justify="end">
           <ThemeLink asChild size="2">
