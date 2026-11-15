@@ -64,7 +64,7 @@ test("説明取得失敗中は確定せず、同じ画面の再取得で復帰�
   expect(await screen.findByRole("button", { name: "Confirm deletion schedule" })).toBeEnabled()
 })
 
-test("受付停止中は確定できない", async () => {
+test("受付停止中は問い合わせ先を示し、確定操作や予定日時を表示しない", async () => {
   server.use(
     ...createAccountDeletionHandlers({
       preview: { response: { accepting_requests: false } },
@@ -72,8 +72,16 @@ test("受付停止中は確定できない", async () => {
   )
   const { user } = render(<Default />)
   await user.click(screen.getByRole("button", { name: "Schedule account deletion" }))
-  expect(await screen.findByRole("button", { name: "Confirm deletion schedule" })).toBeDisabled()
-  expect(screen.getByText(/New deletion requests are currently unavailable/)).toBeInTheDocument()
+  const dialog = await screen.findByRole("dialog", { name: "Delete account" })
+  expect(dialog).toHaveAccessibleDescription("New deletion requests are currently unavailable.")
+  expect(screen.getByRole("link", { name: "Contact the operator" })).toHaveAttribute(
+    "href",
+    "/privacy#privacy-contact",
+  )
+  expect(
+    screen.queryByRole("button", { name: "Confirm deletion schedule" }),
+  ).not.toBeInTheDocument()
+  expect(screen.queryByText(/Deletion scheduled to start:/)).not.toBeInTheDocument()
 })
 
 test("Contextの開始操作を一度だけ呼び、送信中の二重確定と取消を防ぐ", async () => {
@@ -101,14 +109,15 @@ test.each(["success", "failure"])("開き直した後の古い説明取得の%s�
   expect(prepare).toHaveBeenCalledOnce()
   await user.keyboard("{Escape}")
   await user.click(open)
-  const confirm = await screen.findByRole("button", { name: "Confirm deletion schedule" })
-  expect(confirm).toBeDisabled()
+  await screen.findByText("New deletion requests are currently unavailable.")
   await act(async () => {
     if (outcome === "failure") first.reject(new Error("Old failure"))
     else first.resolve({ ...deletionPreview, accepting_requests: true })
     await first.promise.catch(() => undefined)
   })
-  expect(confirm).toBeDisabled()
+  expect(
+    screen.queryByRole("button", { name: "Confirm deletion schedule" }),
+  ).not.toBeInTheDocument()
   expect(screen.getByText(/New deletion requests are currently unavailable/)).toBeVisible()
   expect(screen.queryByRole("alert")).not.toBeInTheDocument()
 })

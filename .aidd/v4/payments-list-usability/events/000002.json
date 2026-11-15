@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "会話で確認した支払い一覧の改善。取得失敗時の再試行、作成ボタンの＋アイコン、絞り込みの見出しを反映する。",
+  "paths": [
+    "apps/web/src/app/routes/PaymentsPage/PaymentsPage.tsx",
+    "apps/web/src/app/routes/PaymentsPage/PaymentsPage.test.tsx",
+    "apps/web/src/app/routes/PaymentsPage/PaymentPage.stories.tsx",
+    "apps/web/src/features/payments/listPayment/PaymentList/PaymentList.tsx",
+    "apps/web/src/features/payments/listPayment/PaymentSearchForm/PaymentSearchForm.tsx",
+    "apps/web/src/features/books/index.ts",
+    "apps/web/src/features/books/useSelectedBook.ts"
+  ],
+  "fingerprint": "5b24c3b741ce44d85017f155255f542564752260b1fe8238cd377a86608f304f",
+  "status": "pass",
+  "checks": [
+    "Web lint・整形・型検査",
+    "Web単体・結合テスト 1154件",
+    "Storybookブラウザテスト 32件",
+    "PCと320pxで年・月・カテゴリを操作",
+    "ブック・明細の取得失敗と同じ条件での復帰",
+    "実画面の作成ボタンと検索条件"
+  ],
+  "summary": "ブックを再取得しても絞り込み欄が同じ要素として残り、明細は再失敗後も同条件で再試行できた。作成ボタンはsolidと＋を使い、検索欄は名前を読み上げられる。",
+  "remaining": []
+}

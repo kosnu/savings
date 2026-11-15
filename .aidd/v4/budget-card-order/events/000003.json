@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "会話で承認されたホームの予算カードの表示順の変更",
+  "paths": [
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/summaryByMonth/MonthlyTotals/MonthlyTotals.test.tsx"
+  ],
+  "fingerprint": "ac3da342858719461ec2fd6eb58c3a7118b3eab4cda0d3484314e40b5970204a",
+  "status": "pass",
+  "checks": [
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview",
+    "documentation.policy, domain.amount, domain.book, domain.category",
+    "domain.date, domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.overview, policy.audit, policy.code-review, policy.git-workflow",
+    "policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure",
+    "web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules",
+    "web.error-presentation, web.feature-directory, web.query-cache, web.storybook-browser-tests",
+    "web.suspense-boundaries, web.test-policy",
+    "未解決の規約の矛盾なし"
+  ],
+  "summary": "残額とバーの近接、バーと支払い・予算の読み順を実画面と結合テストで確認した。バーの値と読み上げ、予算未設定時の表示条件、デザイントークンを維持した。",
+  "remaining": []
+}

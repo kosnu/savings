@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "Codexでのホーム画面レビュー 優先度中の2点の修正依頼（同じブランチでコミットまで）",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/HomePage.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/budgets/utils/monthlyBudgetUsage.ts",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.test.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.test.tsx",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.tsx"
+  ],
+  "fingerprint": "5c0996fb8662513e00f6631f69353915f7190ba89ef1772689ce4cf1ba25e855",
+  "status": "pass",
+  "checks": [
+    "月次予算の差額ラベル",
+    "グラフの月末見込みラベル",
+    "月選択が適用される領域と全期間の直近支払い"
+  ],
+  "summary": "当月の登録済み分と月末の見込みを表示文言で区別し、月選択に従う集計と全期間の直近支払いにそれぞれ対象期間を示す。",
+  "remaining": []
+}

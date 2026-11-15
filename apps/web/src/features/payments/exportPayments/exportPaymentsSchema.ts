@@ -36,3 +36,8 @@ export const exportPaymentsSchema = z
   )
 
 export type ExportPaymentsPeriod = z.infer<typeof exportPaymentsSchema>
+
+export const exportPaymentsEditingSchema = z.preprocess(
+  (value: ExportPaymentsPeriod) => (value.startDate && value.endDate ? value : undefined),
+  exportPaymentsSchema.optional(),
+)

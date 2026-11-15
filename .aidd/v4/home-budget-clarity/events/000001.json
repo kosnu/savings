@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話でのホーム画面レビュー後の簡素化とhighContrast撤回の依頼",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/HomePage.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.tsx",
+    "apps/web/src/features/summaryByMonth/MonthlyTotals/MonthlyTotals.tsx",
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.test.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "6c0f5cefdb2d58ff4560f3385f9f6a7e444e4272c49ff60b56e6198aebf387b1",
+  "status": "pass",
+  "checks": [
+    "DESIGN.md とfrontend-designによる情報の優先順位",
+    "月の選択・グラフ・直近の支払いのラベル",
+    "既定のVioletと既存タイポグラフィ"
+  ],
+  "summary": "テキストと予算額の重複を除き、上段の予算残額と月末の残り見込みを区別する。作成ボタンを既定のVioletに戻す。",
+  "remaining": []
+}

@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話で確認した支払い一覧の改善。取得失敗時の再試行、作成ボタンの＋アイコン、絞り込みの見出しを反映する。",
+  "paths": [
+    "apps/web/src/app/routes/PaymentsPage/PaymentsPage.tsx",
+    "apps/web/src/app/routes/PaymentsPage/PaymentsPage.test.tsx",
+    "apps/web/src/app/routes/PaymentsPage/PaymentPage.stories.tsx",
+    "apps/web/src/features/payments/listPayment/PaymentList/PaymentList.tsx",
+    "apps/web/src/features/payments/listPayment/PaymentSearchForm/PaymentSearchForm.tsx",
+    "apps/web/src/features/books/index.ts",
+    "apps/web/src/features/books/useSelectedBook.ts"
+  ],
+  "fingerprint": "5b24c3b741ce44d85017f155255f542564752260b1fe8238cd377a86608f304f",
+  "status": "pass",
+  "checks": [
+    "ブックと明細の再試行を各取得領域で提供",
+    "絞り込みを同じ要素で表示し続ける",
+    "作成ボタンはsolidと＋アイコン",
+    "絞り込みは読み上げ用の名前を持つ"
+  ],
+  "summary": "ブックの取得状態を作成ボタンと明細の領域だけに反映するため、同じクエリ設定を共有したuseQueryをこのページで使う。明細では既存のSuspense境界と条件を保って再試行する。",
+  "remaining": []
+}

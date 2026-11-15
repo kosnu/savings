@@ -7,9 +7,9 @@ export type AppLanguage = keyof typeof resources
 
 export const appLanguages = ["en", "ja"] as const satisfies readonly AppLanguage[]
 
-export const appLanguageLabelKeys = {
-  en: "language.en",
-  ja: "language.ja",
+export const appLanguageLabels = {
+  en: "English",
+  ja: "日本語",
 } satisfies Record<AppLanguage, string>
 
 const LANGUAGE_STORAGE_KEY = "appLanguage"

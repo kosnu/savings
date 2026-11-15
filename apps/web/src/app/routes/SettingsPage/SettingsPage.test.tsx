@@ -119,7 +119,7 @@ describe("SettingsPage", () => {
     })
 
     expect(await screen.findByRole("heading", { name: "Settings" })).toBeInTheDocument()
-    expect(await screen.findByText("Choose a setting to manage.")).toBeInTheDocument()
+    expect(screen.queryByText("Choose a setting to manage.")).not.toBeInTheDocument()
 
     expect(screen.queryByRole("link", { name: /Profile/ })).not.toBeInTheDocument()
 
@@ -256,7 +256,7 @@ describe("SettingsPage", () => {
     expect(
       await screen.findByText("The monthly budget and categories below belong to this book."),
     ).toBeInTheDocument()
-    expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "This month’s budget" })).toBeInTheDocument()
     expect(await screen.findByText("¥75,000")).toBeInTheDocument()
     expect(screen.queryByText("¥62,000")).not.toBeInTheDocument()
     expect(await screen.findByText("Categories")).toBeInTheDocument()
@@ -283,7 +283,7 @@ describe("SettingsPage", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Could not load current book information.",
     )
-    expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "This month’s budget" })).toBeInTheDocument()
     expect(await screen.findByText("¥75,000")).toBeInTheDocument()
     expect(await screen.findByText("Categories")).toBeInTheDocument()
     expect(await screen.findByText("Food")).toBeInTheDocument()
@@ -299,7 +299,7 @@ describe("SettingsPage", () => {
 
     renderSettingsPage("/settings/book")
 
-    expect(await screen.findByText("Monthly Budgets")).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "This month’s budget" })).toBeInTheDocument()
     expect(await screen.findByRole("button", { name: "Create budget" })).toBeInTheDocument()
   })
 

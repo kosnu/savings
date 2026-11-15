@@ -20,13 +20,17 @@ export function getMonthlyBudgetUsageDisplay(
 
   if (difference >= 0) {
     return {
-      text: i18next.t("common.left", { amount: toCurrency(difference) }),
+      text: i18next.t("common.left", {
+        amount: toCurrency(difference),
+      }),
       status: "remaining",
     }
   }
 
   return {
-    text: i18next.t("common.over", { amount: toCurrency(Math.abs(difference)) }),
+    text: i18next.t("common.over", {
+      amount: toCurrency(Math.abs(difference)),
+    }),
     status: "over",
   }
 }

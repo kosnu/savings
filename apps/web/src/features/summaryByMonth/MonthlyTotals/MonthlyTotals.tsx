@@ -4,7 +4,6 @@ import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
 import { formatTargetMonthKey, toMonthStartDate, toTargetMonth } from "../../../domain/date"
-import { toCurrency } from "../../../utils/toCurrency"
 import { useDateRange } from "../../../utils/useDateRange"
 import { MonthlyBudgetUsage, usePrefetchEffectiveMonthlyBudget } from "../../budgets"
 import { usePrefetchTotalExpenditures, useTotalExpenditures } from "./useTotalExpenditures"
@@ -50,16 +49,13 @@ function MonthlyTotalsContent({
 
   return (
     <>
-      <Flex align="baseline" justify="between" width="100%">
-        <Text color="gray" mr="1" size="2">
-          {t("payments.total.heading")}
-        </Text>
+      <Flex className={styles.requestState}>
         <ErrorBoundary
           fallback={<Text color="red">{t("common.failed")}</Text>}
           resetKeys={[targetMonth]}
         >
           <Suspense fallback={<TotalMoneyText loading />}>
-            <MoneyText targetMonth={targetMonth} />
+            <MonthlyTotalRequestState targetMonth={targetMonth} />
           </Suspense>
         </ErrorBoundary>
       </Flex>
@@ -99,11 +95,13 @@ function MonthlyTotalsLoading() {
   )
 }
 
-const MoneyText = memo(function MoneyText({ targetMonth }: { targetMonth: string }) {
-  const { data } = useTotalExpenditures(targetMonth)
-  const text = getMoneyText(data, false)
-
-  return <TotalMoneyText text={text} />
+const MonthlyTotalRequestState = memo(function MonthlyTotalRequestState({
+  targetMonth,
+}: {
+  targetMonth: string
+}) {
+  useTotalExpenditures(targetMonth)
+  return null
 })
 
 function ResolvedMonthlyBudgetUsage({
@@ -139,23 +137,11 @@ function TotalMoneyText({ loading = false, text = "\u00A0" }: TotalMoneyTextProp
       data-testid={loading ? t("payments.total.skeleton") : undefined}
       style={{ minWidth: 0 }}
     >
-      <Text align="right" aria-hidden={loading} className={styles.amount} size="6" weight="bold">
+      <Text align="right" aria-hidden={loading} className={styles.amount} size="2">
         {text}
       </Text>
     </Skeleton>
   )
-}
-
-function getMoneyText(data: number | null, loading: boolean): string {
-  if (loading) {
-    return "\u00A0"
-  }
-
-  if (data === null) {
-    return "-"
-  }
-
-  return toCurrency(data)
 }
 
 const MemoisedMonthlyTotals = memo(MonthlyTotals)

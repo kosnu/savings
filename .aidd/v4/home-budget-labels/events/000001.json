@@ -1,0 +1,29 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話で承認されたホームの予算カードとグラフのラベル整理",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx",
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/budgets/utils/monthlyBudgetUsage.ts",
+    "apps/web/src/features/summaryByMonth/MonthlyTotals/MonthlyTotals.tsx",
+    "apps/web/src/features/summaryByMonth/MonthlyTotals/MonthlyTotals.test.tsx",
+    "apps/web/src/features/summaryByMonth/MonthlyTotals/MonthlyTotals.module.css",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.test.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.test.tsx",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.module.css",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.test.tsx"
+  ],
+  "fingerprint": "50c57d2cc366f1f5065a0778a179452ba7e9a8ede97be23ed1a929fd18b9c0c7",
+  "status": "pass",
+  "checks": [
+    "DESIGN.md と frontend-design",
+    "予算残額と比較する支払い額・予算額",
+    "実績・見込み・予算の短いラベルと非同期状態"
+  ],
+  "summary": "上段は予算の残りを先頭に、支払い額と予算額を同じ段に表示する。グラフは短い見出し、凡例、見込みの差額で構成する。",
+  "remaining": []
+}

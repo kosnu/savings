@@ -1,4 +1,4 @@
-import { Button } from "@radix-ui/themes"
+import { Button, Theme } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { createRoute } from "@tanstack/react-router"
 import { expect, userEvent, waitFor, within } from "storybook/test"
@@ -93,22 +93,54 @@ export const Default: Story = {
     const canvas = within(canvasElement)
     await expect(canvas.queryByRole("heading", { level: 1 })).not.toBeInTheDocument()
     const total = await canvas.findByLabelText("Total spending")
-    const graph = await canvas.findByRole("figure", { name: "Spending through the month" })
+    const summaryRegion = canvas.getByRole("region", { name: "Monthly summary" })
+    await expect(summaryRegion).toContainElement(total)
+    await expect(summaryRegion).not.toHaveTextContent("Monthly summary")
+    const summary = within(summaryRegion)
+    const graph = await summary.findByRole("figure", { name: "Cumulative spending" })
     await expect(total).toBeVisible()
     await expect(graph).toBeVisible()
+    const plot = within(graph).getByLabelText("Daily cumulative spending")
+    const bars = plot.querySelectorAll("rect")
+    if (bars.length < 2) throw new globalThis.Error("実績と見込みの棒がありません")
+    const actual = getComputedStyle(bars[0])
+    const forecast = getComputedStyle(bars[bars.length - 1])
+    const allowsMotion = window.matchMedia("(prefers-reduced-motion: no-preference)").matches
+    expect(parseFloat(actual.getPropertyValue("rx"))).toBeGreaterThan(0)
+    expect(parseFloat(forecast.getPropertyValue("rx"))).toBeGreaterThan(0)
+    expect(actual.strokeDasharray).toBe("none")
+    expect(forecast.strokeDasharray).not.toBe("none")
+    expect(actual.animationDuration).toBe(forecast.animationDuration)
+    expect(parseFloat(forecast.animationDuration) > 0).toBe(allowsMotion)
+    await expect(await within(total).findByText("¥25,000")).toBeVisible()
+    await expect(within(total).getByText("¥20,000 left")).toBeVisible()
+    await expect(await summary.findByText("Estimated ¥20,000 left")).toBeVisible()
     await expect(
       await canvas.findByRole("progressbar", { name: "Food budget progress" }),
     ).toHaveAttribute("aria-valuenow", "1000")
     const recent = await canvas.findByLabelText("Recent payments")
     const category = canvas.getByRole("progressbar", { name: "Food budget progress" })
-    expect(graph.compareDocumentPosition(total) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(total.compareDocumentPosition(category) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(total.compareDocumentPosition(graph) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(graph.compareDocumentPosition(category) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(category.compareDocumentPosition(recent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     await expect(await within(recent).findAllByRole("button")).toHaveLength(4)
+    await expect(canvas.queryByText("Across all dates")).not.toBeInTheDocument()
     await expect(canvas.getByRole("button", { name: "Create payment" })).toBeVisible()
     await expect(
       canvas.queryByRole("combobox", { name: "Category filter" }),
     ).not.toBeInTheDocument()
+
+    const recentRows = within(recent)
+      .getAllByRole("button")
+      .map((row) => row.textContent)
+    await userEvent.click(summary.getByRole("button", { name: "Previous month" }))
+    await expect(await summary.findByText("Completed month: actual spending only.")).toBeVisible()
+    await expect(summary.queryByText(/Estimated ¥/)).not.toBeInTheDocument()
+    expect(
+      within(recent)
+        .getAllByRole("button")
+        .map((row) => row.textContent),
+    ).toEqual(recentRows)
   },
 }
 export const Empty: Story = {
@@ -118,7 +150,7 @@ export const Empty: Story = {
         ...createBookHandlers(),
         ...createPaymentHandlers({ initialRows: [] }),
         ...createCategoryHandlers({ get: { paymentRows: [] } }),
-        ...createMonthlyBudgetHandlers(),
+        ...createMonthlyBudgetHandlers({ get: { response: null } }),
       ],
     },
   },
@@ -128,9 +160,20 @@ export const Empty: Story = {
       await canvas.findByText("No payments yet. Use “Create payment” to record one."),
     ).toBeVisible()
     await expect(canvas.getByRole("button", { name: "Create payment" })).toBeEnabled()
+    await expect(await canvas.findByRole("figure", { name: "Cumulative spending" })).toBeVisible()
+    const total = within(canvas.getByLabelText("Total spending"))
+    await expect(await total.findByText("Not set")).toBeVisible()
+    await expect(total.getByRole("link", { name: "Go to budget settings" })).toHaveAttribute(
+      "href",
+      "/settings/book",
+    )
+
+    await userEvent.click(canvas.getByRole("button", { name: "Previous month" }))
+    await expect(await canvas.findByText("Completed month: actual spending only.")).toBeVisible()
+    await expect(await total.findByText("Not set")).toBeVisible()
     await expect(
-      await canvas.findByRole("figure", { name: "Spending through the month" }),
-    ).toBeVisible()
+      total.queryByRole("link", { name: "Go to budget settings" }),
+    ).not.toBeInTheDocument()
   },
 }
 export const Loading: Story = {
@@ -260,7 +303,7 @@ function loadingTransitionStory(count: number, mobile = false): Story {
 
       expect(create.getBoundingClientRect().top).toBeCloseTo(createTop, 0)
       const categoryItems = categoryContent.firstElementChild
-      const graph = await canvas.findByRole("figure", { name: "Spending through the month" })
+      const graph = await canvas.findByRole("figure", { name: "Cumulative spending" })
       const chart = graph.parentElement
       if (!categoryItems || !chart?.parentElement) {
         throw new globalThis.Error("集計の表示内容がありません")
@@ -322,7 +365,7 @@ function headerActionStory(mobile: boolean): Story {
     render: () => {
       const { openSnackbar } = useSnackbar()
       return (
-        <>
+        <Theme appearance={mobile ? "dark" : "light"}>
           <Button
             variant="soft"
             onClick={() => openSnackbar("info", "Notification for positioning", 30000)}
@@ -330,17 +373,37 @@ function headerActionStory(mobile: boolean): Story {
             Show notification
           </Button>
           <HomePage />
-        </>
+        </Theme>
       )
     },
     play: async ({ canvasElement }) => {
       const canvas = within(canvasElement)
       const body = within(canvasElement.ownerDocument.body)
       const create = await canvas.findByRole("button", { name: "Create payment" })
+      await expect(create).toHaveClass("rt-variant-soft")
+      await expect(create).not.toHaveClass("rt-high-contrast")
       const header = canvas.getByRole("banner")
       expect(within(header).queryByRole("button", { name: "Theme toggle" })).not.toBeInTheDocument()
       const recent = await canvas.findByLabelText("Recent payments")
       await within(recent).findAllByRole("button")
+      const total = within(await canvas.findByLabelText("Total spending"))
+      const spent = await total.findByText("¥5,000")
+      const budget = await total.findByText("¥25,000")
+      const heading = total.getByText("Monthly budget")
+      const remaining = total.getByText("¥20,000 left")
+      const progress = total.getByRole("progressbar", { name: "Monthly total budget progress" })
+      const spentBounds = spent.getBoundingClientRect()
+      const budgetBounds = budget.getBoundingClientRect()
+      const progressBounds = progress.getBoundingClientRect()
+      const headingBounds = heading.getBoundingClientRect()
+      const remainingBounds = remaining.getBoundingClientRect()
+      expect(spentBounds.top).toBeCloseTo(budgetBounds.top, 0)
+      expect(spentBounds.bottom).toBeLessThanOrEqual(progressBounds.top)
+      expect(headingBounds.left).toBeCloseTo(progressBounds.left, 0)
+      expect(budgetBounds.right).toBeCloseTo(progressBounds.right, 0)
+      expect(remainingBounds.right).toBeCloseTo(progressBounds.right, 0)
+      expect(remainingBounds.top).toBeGreaterThanOrEqual(progressBounds.bottom)
+      expect(getComputedStyle(remaining).textAlign).toBe("right")
       const initial = create.getBoundingClientRect()
       const initialHeaderTop = header.getBoundingClientRect().top
       expect(initial.bottom).toBeLessThanOrEqual(window.innerHeight)
@@ -384,7 +447,8 @@ function headerActionStory(mobile: boolean): Story {
             ),
           ),
         ).toBe(false)
-        await userEvent.click(within(dialog).getByRole("button", { name: "Cancel" }))
+        await within(dialog).findByLabelText("Amount", { exact: false })
+        await userEvent.keyboard("{Escape}")
         await waitFor(async () => expect(body.queryByRole("dialog")).not.toBeInTheDocument())
         await expect(create).toHaveFocus()
 

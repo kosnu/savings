@@ -1,6 +1,6 @@
 .monthly {
-  /* 支出額・予算バー・差額が別々に読み込まれても後続の操作を移動させない。 */
+  /* 残額、支払いと予算の比較行、予算バーの領域を確保する。 */
   min-height: calc(
-    var(--line-height-6) + 3 * var(--space-1) + var(--space-2) + var(--line-height-1)
+    var(--line-height-4) + var(--line-height-3) + 2 * var(--space-1) + var(--space-2)
   );
 }

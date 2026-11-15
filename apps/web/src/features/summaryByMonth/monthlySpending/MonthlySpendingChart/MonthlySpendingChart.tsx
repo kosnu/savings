@@ -27,7 +27,7 @@ export function MonthlySpendingChart({ bookId, loading = false }: MonthlySpendin
     <Card size="2">
       <Flex asChild direction="column" gap="3">
         <section aria-labelledby={headingId} ref={sectionRef} tabIndex={-1}>
-          <Heading as="h2" size="4" weight="medium" id={headingId}>
+          <Heading as="h3" size="4" weight="medium" id={headingId}>
             {t("summary.spendingChart.title")}
           </Heading>
           <Box>

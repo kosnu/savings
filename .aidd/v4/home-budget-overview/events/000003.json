@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "Codexでのホーム画面レビュー後の2点の修正依頼（コミットまで）",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/HomePage.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.tsx",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.module.css",
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.test.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "cf9371a2776b4dc27da88248754186024cdbcb1a35370560253c95da19f483cc",
+  "status": "pass",
+  "checks": [
+    "Webデザインとブランド規則",
+    "月次予算・支出・差額の表示順",
+    "当月の未設定と前月・予算なしの区別",
+    "主ボタンの実画面測定と設定への遷移"
+  ],
+  "summary": "月選択の直下で支出と予算状況を確認でき、当月未設定から既存の設定画面に進める。Violetの主ボタンは既存設定でダーク時14.39:1。",
+  "remaining": []
+}

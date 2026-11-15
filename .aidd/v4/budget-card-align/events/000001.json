@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話で承認されたホームの予算カードの支払い・予算の右揃え",
+  "paths": [
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "67ff5bac659cf4b5cee1136cb21cfd9024b42ad369589006a7f0a83693f000d1",
+  "status": "pass",
+  "checks": [
+    "DESIGN.md に沿う位置関係",
+    "支払いと予算を一組にした右揃え",
+    "既存トークンと残額の左揃え"
+  ],
+  "summary": "残額とバーの並びを保ち、バー下の支払い額と予算額の組を右に揃える。",
+  "remaining": []
+}

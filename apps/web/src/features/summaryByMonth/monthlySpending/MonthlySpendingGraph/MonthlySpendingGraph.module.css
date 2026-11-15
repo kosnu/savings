@@ -15,23 +15,46 @@
   overflow: visible;
 }
 
-.actual,
-.forecast,
 .budget,
 .gridLine {
   fill: none;
   vector-effect: non-scaling-stroke;
 }
 
+.actual,
+.forecast {
+  rx: var(--radius-2);
+  ry: var(--radius-2);
+}
+
 .actual {
-  stroke: var(--accent-11);
-  stroke-width: 2;
+  fill: var(--accent-9);
 }
 
 .forecast {
+  fill: var(--accent-a3);
   stroke: var(--accent-11);
-  stroke-width: 2;
-  stroke-dasharray: 6 4;
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+  vector-effect: non-scaling-stroke;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .plot .actual,
+  .plot .forecast {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    animation: revealBars 300ms ease-out both;
+  }
+}
+
+@keyframes revealBars {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
 }
 
 .budget {

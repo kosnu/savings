@@ -1,6 +1,7 @@
 import { Button, Flex, Text } from "@radix-ui/themes"
+import { QueryErrorResetBoundary } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
-import { memo, Suspense, useCallback, useState } from "react"
+import { memo, Suspense, useCallback, useRef, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
@@ -27,6 +28,7 @@ export const PaymentList = memo(function PaymentList({ bookId, cacheScope }: Pay
   const navigate = useNavigate({ from: "/payments" })
   const { date } = useDateRange()
   const normalizedCacheScope = cacheScope ?? defaultPaymentListCacheScope
+  const listRef = useRef<HTMLDivElement>(null)
   const {
     hasPaymentDetailsRoute,
     selectedPaymentId,
@@ -58,23 +60,41 @@ export const PaymentList = memo(function PaymentList({ bookId, cacheScope }: Pay
 
   return (
     <>
-      <Flex aria-label={t("payments.list.label")} direction="column" gap="2" tabIndex={-1}>
+      <Flex
+        ref={listRef}
+        aria-label={t("payments.list.label")}
+        direction="column"
+        gap="2"
+        tabIndex={-1}
+      >
         {date ? (
-          <ErrorBoundary
-            fallback={<PaymentListError />}
-            resetKeys={[bookId, normalizedCacheScope, date.toISOString(), categoryId]}
-          >
-            <Suspense fallback={<SkeltonItems />}>
-              <Items
-                bookId={bookId}
-                cacheScope={normalizedCacheScope}
-                categoryId={categoryId}
-                onOpenPayment={openPaymentDetails}
-                filtered={categoryId !== undefined}
-                onClearCategory={handleClearCategory}
-              />
-            </Suspense>
-          </ErrorBoundary>
+          <QueryErrorResetBoundary>
+            {({ reset }) => (
+              <ErrorBoundary
+                onReset={reset}
+                resetKeys={[bookId, normalizedCacheScope, date.toISOString(), categoryId]}
+                fallbackRender={({ resetErrorBoundary }) => (
+                  <PaymentListError
+                    onRetry={() => {
+                      resetErrorBoundary()
+                      listRef.current?.focus({ preventScroll: true })
+                    }}
+                  />
+                )}
+              >
+                <Suspense fallback={<SkeltonItems />}>
+                  <Items
+                    bookId={bookId}
+                    cacheScope={normalizedCacheScope}
+                    categoryId={categoryId}
+                    onOpenPayment={openPaymentDetails}
+                    filtered={categoryId !== undefined}
+                    onClearCategory={handleClearCategory}
+                  />
+                </Suspense>
+              </ErrorBoundary>
+            )}
+          </QueryErrorResetBoundary>
         ) : (
           <SkeltonItems />
         )}
@@ -172,12 +192,17 @@ function SkeltonItems() {
   )
 }
 
-function PaymentListError() {
+function PaymentListError({ onRetry }: { onRetry: () => void }) {
   const { t } = useTranslation()
 
   return (
-    <Text color="red" role="alert">
-      {t("payments.list.loadError")}
-    </Text>
+    <Flex direction="column" gap="2" align="start">
+      <Text color="red" role="alert">
+        {t("payments.list.loadError")}
+      </Text>
+      <Button type="button" variant="soft" onClick={onRetry}>
+        {t("common.retry")}
+      </Button>
+    </Flex>
   )
 }

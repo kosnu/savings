@@ -1,0 +1,38 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "会話で確認した設定画面の5件の改善を反映する。",
+  "paths": [
+    "apps/web/src/app/routes/SettingsOverview/SettingsOverview.tsx",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.stories.tsx",
+    "apps/web/src/app/routes/SettingsPage/SettingsPage.test.tsx",
+    "apps/web/src/features/profile/deleteAccount/DeleteAccount/DeleteAccount.tsx",
+    "apps/web/src/features/profile/deleteAccount/DeleteAccount/DeleteAccount.test.tsx",
+    "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.tsx",
+    "apps/web/src/features/budgets/latestMonthlyBudget/LatestMonthlyBudget/LatestMonthlyBudget.test.tsx",
+    "apps/web/src/features/payments/exportPayments/ExportPayments/ExportPayments.tsx",
+    "apps/web/src/features/payments/exportPayments/ExportPayments/ExportPayments.test.tsx",
+    "apps/web/src/features/payments/exportPayments/exportPaymentsSchema.ts",
+    "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/LanguageSelect/LanguageSelect.stories.tsx",
+    "apps/web/src/features/preferences/appearanceSettings/AppearanceSettings/AppearanceSettings.test.tsx",
+    "apps/web/src/i18n/index.ts",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "bb69cae9222289fd7691b1d043fe922e8c450d950e39ba91c36a7dbaed8a7688",
+  "status": "pass",
+  "checks": [
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview",
+    "documentation.policy, domain.amount, domain.book, domain.category",
+    "domain.date, domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.overview, policy.audit, policy.code-review, policy.git-workflow",
+    "policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure",
+    "web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules",
+    "web.error-presentation, web.feature-directory, web.query-cache, web.storybook-browser-tests",
+    "web.suspense-boundaries, web.test-policy",
+    "未解決の規約の矛盾なし"
+  ],
+  "summary": "削除の受付停止は既存確認の最初に示し、プライバシーポリシーの問い合わせ先へつなげた。予算は既存状態を明示し、CSVの入力中と送信時は同じ制約を参照する。設定概要の短縮と言語の自称表記を照合した。",
+  "remaining": []
+}

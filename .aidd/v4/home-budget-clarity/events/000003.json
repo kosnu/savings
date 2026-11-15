@@ -1,0 +1,31 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "会話でのホーム画面レビュー後の簡素化とhighContrast撤回の依頼",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/HomePage.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.tsx",
+    "apps/web/src/features/summaryByMonth/MonthlyTotals/MonthlyTotals.tsx",
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.test.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "6c0f5cefdb2d58ff4560f3385f9f6a7e444e4272c49ff60b56e6198aebf387b1",
+  "status": "pass",
+  "checks": [
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview",
+    "documentation.policy, domain.amount, domain.book, domain.category",
+    "domain.date, domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.overview, policy.audit, policy.code-review, policy.git-workflow",
+    "policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure",
+    "web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules",
+    "web.error-presentation, web.feature-directory, web.query-cache, web.storybook-browser-tests",
+    "web.suspense-boundaries, web.test-policy",
+    "未解決の規約の矛盾なし"
+  ],
+  "summary": "月セレクターと集計領域名を維持し、画面内の見出しと期間の補足を削除した。カードの予算金額と異なる2種類の残額を維持しながら、グラフの予算線は金額なしの凡例にした。ライトの実画面と両テーマのブラウザテストでボタンとホームの経路を確認した。",
+  "remaining": []
+}

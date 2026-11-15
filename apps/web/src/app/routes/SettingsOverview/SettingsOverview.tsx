@@ -9,9 +9,6 @@ export function SettingsOverview() {
 
   return (
     <Flex direction="column" gap="4">
-      <Text as="p" size="3" color="gray">
-        {t("settings.overviewDescription")}
-      </Text>
       <nav aria-label={t("settings.overviewLinks")}>
         <Flex direction="column" gap="0">
           <Link to="/settings/account" className={styles.itemLink}>

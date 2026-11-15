@@ -92,9 +92,10 @@ describe("Summary", () => {
     await user.click(screen.getByRole("combobox", { name: "Month" }))
     await user.click(await screen.findByRole("option", { name: "May" }))
 
-    await waitFor(() => {
-      expect(screen.queryByText("Failed")).not.toBeInTheDocument()
-    })
-    expect(await screen.findByText("¥10,000")).toBeInTheDocument()
+    expect(
+      await screen.findByRole("progressbar", { name: "Monthly total budget progress" }),
+    ).toBeInTheDocument()
+    expect(screen.queryByText("Failed")).not.toBeInTheDocument()
+    expect(screen.getByText("¥10,000")).toBeInTheDocument()
   })
 })

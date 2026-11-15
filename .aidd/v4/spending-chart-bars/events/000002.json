@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "会話で依頼されたホームの支払い累計の修正。実績の棒にも見込みと同じアニメーションを適用する。",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.module.css",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.test.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.test.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "bef75a267a0bc284cd622fc8bfe84046f1729d85952de07b0deb7cb471364558",
+  "status": "pass",
+  "checks": [
+    "Web lint・整形・型検査",
+    "Web単体・結合テスト 1152件",
+    "Storybookブラウザテスト 32件",
+    "動きを抑えたブラウザのホーム表示 1件",
+    "実画面で両方の棒に300msを確認"
+  ],
+  "summary": "実績と見込みの両方で同じ300msの動きを確認した。動きを抑えるブラウザの設定では両方とも静止表示された。",
+  "remaining": []
+}

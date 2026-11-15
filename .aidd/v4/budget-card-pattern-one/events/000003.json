@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "会話で承認された予算カードのパターン1の実装",
+  "paths": [
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/summaryByMonth/MonthlyTotals/MonthlyTotals.test.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "d2cb4d073d84acb338c7af6b4aee2e5c5b0de7cc1f0d6f5042dcf361d0bfb806",
+  "status": "pass",
+  "checks": [
+    "ai-driven.glossary, ai-driven.overview, ai-driven.workflow, architecture.overview",
+    "documentation.policy, domain.amount, domain.book, domain.category",
+    "domain.date, domain.monthly-budget, domain.payment, domain.user",
+    "infrastructure.overview, policy.audit, policy.code-review, policy.git-workflow",
+    "policy.review-feedback-classification, policy.temporal-data, policy.transaction-boundaries, web.component-structure",
+    "web.design-rules, web.design-system-brand, web.domain-layer-rules, web.domain-ui-rules",
+    "web.error-presentation, web.feature-directory, web.query-cache, web.storybook-browser-tests",
+    "web.suspense-boundaries, web.test-policy",
+    "未解決の規約の矛盾なし"
+  ],
+  "summary": "日本語のラベルとスラッシュの表示を実画面で確認した。バーと残額の順、両端の整列、金額の同じ行での表示はブラウザテストで確認した。予算状態ごとの金額の区別と既存トークンを維持した。",
+  "remaining": []
+}

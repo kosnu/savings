@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "会話で承認されたホームの予算カードの表示順の変更",
+  "paths": [
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/summaryByMonth/MonthlyTotals/MonthlyTotals.test.tsx"
+  ],
+  "fingerprint": "ac3da342858719461ec2fd6eb58c3a7118b3eab4cda0d3484314e40b5970204a",
+  "status": "pass",
+  "checks": [
+    "実画面とアクセシビリティツリーでの表示順",
+    "Web lint・整形・型検査",
+    "Web単体・結合テスト 1151件",
+    "Storybookブラウザテスト 32件"
+  ],
+  "summary": "残額、バー、支払い額と予算額の順を実画面と結合テストで確認した。",
+  "remaining": []
+}

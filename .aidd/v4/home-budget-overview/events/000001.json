@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "Codexでのホーム画面レビュー後の2点の修正依頼（コミットまで）",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/HomePage.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.tsx",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.module.css",
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.test.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "cf9371a2776b4dc27da88248754186024cdbcb1a35370560253c95da19f483cc",
+  "status": "pass",
+  "checks": [
+    "月の集計と予算状態の表示順",
+    "既存の月次予算設定との接続",
+    "Radixのsolidボタンの高コントラスト設定"
+  ],
+  "summary": "月選択の直下に予算・支出・差額を配置し、当月の未設定状態から既存の設定へ案内する。支払い作成は既存設定でコントラストを改善する。",
+  "remaining": []
+}

@@ -76,13 +76,27 @@ describe("設定からの支払いCSV出力", () => {
     await user.click(screen.getByRole("button", { name: "Download CSV" }))
     expect(await screen.findAllByText("Enter a valid date.")).toHaveLength(2)
     await fillPeriod(user, "2026-10-31", "2026-10-01")
-    await user.click(screen.getByRole("button", { name: "Download CSV" }))
     expect(await screen.findByText("End date must be on or after start date.")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Download CSV" }))
     expect(createObjectURL).not.toHaveBeenCalled()
     expect(screen.getByLabelText(/End date/)).toHaveAttribute("aria-invalid", "true")
     expect(screen.getByLabelText(/End date/)).toHaveAccessibleDescription(
       "End date must be on or after start date.",
     )
+  })
+
+  it("期間が1年を超えたら入力中に知らせ、開始日を直すと解除する", async () => {
+    const { user } = render(<Default />)
+    const periodLimit = "Shorten the period to at most one year."
+    await selectDate(user, screen.getByLabelText(/Start date/), "2026-10-01")
+    expect(screen.queryByText("Enter a valid date.")).not.toBeInTheDocument()
+    await selectDate(user, screen.getByLabelText(/End date/), "2027-10-01")
+    expect(await screen.findByText(periodLimit)).toBeVisible()
+    expect(screen.getByLabelText(/End date/)).toHaveAccessibleDescription(periodLimit)
+    await selectDate(user, screen.getByLabelText(/Start date/), "2026-10-02")
+    expect(screen.queryByText(periodLimit)).not.toBeInTheDocument()
+    expect(screen.getByLabelText(/End date/)).toHaveAttribute("aria-invalid", "false")
+    expect(createObjectURL).not.toHaveBeenCalled()
   })
 
   it("取得中は期間と送信操作を無効化し、再操作できない", async () => {
