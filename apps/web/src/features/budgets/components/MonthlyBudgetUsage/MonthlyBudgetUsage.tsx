@@ -137,7 +137,8 @@ const MonthlyBudgetUsageText = memo(function MonthlyBudgetUsageText({
         aria-hidden={loading}
         color={getTextColor(error, status)}
         role={error ? "status" : undefined}
-        size="1"
+        size={status ? "3" : "1"}
+        weight={status ? "medium" : undefined}
         style={{
           display: "inline-block",
           maxWidth: "100%",

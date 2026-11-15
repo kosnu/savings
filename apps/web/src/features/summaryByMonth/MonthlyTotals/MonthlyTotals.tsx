@@ -139,7 +139,7 @@ function TotalMoneyText({ loading = false, text = "\u00A0" }: TotalMoneyTextProp
       data-testid={loading ? t("payments.total.skeleton") : undefined}
       style={{ minWidth: 0 }}
     >
-      <Text align="right" aria-hidden={loading} className={styles.amount} size="6" weight="bold">
+      <Text align="right" aria-hidden={loading} className={styles.amount} size="2">
         {text}
       </Text>
     </Skeleton>

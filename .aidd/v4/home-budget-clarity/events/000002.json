@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "会話でのホーム画面レビュー後の簡素化とhighContrast撤回の依頼",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/HomePage.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/features/summaryByMonth/Summary/Summary.tsx",
+    "apps/web/src/features/summaryByMonth/MonthlyTotals/MonthlyTotals.tsx",
+    "apps/web/src/features/budgets/components/MonthlyBudgetUsage/MonthlyBudgetUsage.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.test.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "6c0f5cefdb2d58ff4560f3385f9f6a7e444e4272c49ff60b56e6198aebf387b1",
+  "status": "pass",
+  "checks": [
+    "Web lint・整形・型検査",
+    "Web単体・結合テスト 1151件",
+    "Storybookブラウザテスト 32件",
+    "ライトテーマのローカル表示確認"
+  ],
+  "summary": "ライト表示とブラウザテストのライト・ダーク両条件でホームの構成と作成操作を確認し、単体・結合テストは再実行で全件通過した。",
+  "remaining": []
+}

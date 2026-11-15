@@ -18,19 +18,21 @@ const {
 } = composeStories(stories)
 
 describe("MonthlySpendingGraph", () => {
-  test("実績・見込み・予算を線種と読める金額で区別する", () => {
+  test("実績と見込みの金額を示し、予算線の凡例では金額を繰り返さない", () => {
     render(<Default />)
     const figure = screen.getByRole("figure", { name: "Spending through the month" })
+    const caption = figure.querySelector("figcaption")
+    if (!caption) throw new Error("凡例がありません")
+    const legend = within(caption)
     for (const [label, amount] of [
       ["Actual spending", "¥5,000"],
       ["Month-end estimate", "¥10,000"],
-      ["Monthly budget", "¥15,000"],
     ]) {
-      expect(within(figure).getByText(label)).toBeInTheDocument()
-      const caption = figure.querySelector("figcaption")
-      if (!caption) throw new Error("凡例がありません")
-      expect(within(caption).getByText(amount)).toBeInTheDocument()
+      expect(legend.getByText(label)).toBeInTheDocument()
+      expect(legend.getByText(amount)).toBeInTheDocument()
     }
+    expect(legend.getByText("Monthly budget")).toBeInTheDocument()
+    expect(legend.queryByText("¥15,000")).not.toBeInTheDocument()
     expect(screen.getByText("Estimated ¥5,000 left at month-end")).toBeInTheDocument()
     expect(screen.queryByText(/spending patterns from recorded months/)).not.toBeInTheDocument()
     expect(figure).not.toHaveAttribute("aria-describedby")
@@ -73,11 +75,11 @@ describe("MonthlySpendingGraph", () => {
   })
 
   test.each([
-    { Story: NoBudget, label: "No budget" },
-    { Story: UnsetBudget, label: "Not set" },
-  ])("$label は0円の予算や比較結果を作らない", ({ Story, label }) => {
+    { Story: NoBudget, status: "予算なし" },
+    { Story: UnsetBudget, status: "未設定" },
+  ])("$status では予算線の凡例や比較結果を表示しない", ({ Story }) => {
     render(<Story />)
-    expect(screen.getByText(label)).toBeInTheDocument()
+    expect(screen.queryByText("Monthly budget")).not.toBeInTheDocument()
     expect(screen.queryByText(/Within budget|Over budget|at month-end/i)).not.toBeInTheDocument()
   })
 

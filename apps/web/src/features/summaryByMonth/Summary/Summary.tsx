@@ -1,5 +1,5 @@
-import { Box, Card, Flex, Heading, Skeleton, Text } from "@radix-ui/themes"
-import { type ReactNode, useId } from "react"
+import { Box, Card, Flex, Skeleton, Text } from "@radix-ui/themes"
+import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CategoryTotals } from "../CategoryTotals"
@@ -24,14 +24,10 @@ export function Summary({
   chart,
 }: SummaryProps) {
   const { t } = useTranslation()
-  const headingId = useId()
 
   return (
     <Flex asChild direction="column" gap="3" width="100%">
-      <section aria-labelledby={headingId}>
-        <Heading as="h2" size="4" weight="medium" id={headingId}>
-          {t("summary.monthlyOverview")}
-        </Heading>
+      <section aria-label={t("summary.monthlyOverview")}>
         <Flex justify="center">
           <Skeleton loading={loading}>
             <Box inert={loading}>

@@ -68,7 +68,7 @@ function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cache
         <CreatePaymentModal
           bookId={book.id}
           trigger={
-            <Button highContrast>
+            <Button variant="soft">
               <PlusIcon aria-hidden />
               {t("payments.create.trigger")}
             </Button>
@@ -84,14 +84,9 @@ function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cache
             reserveSpace
             chart={<MonthlySpendingChart bookId={book.id} />}
           />
-          <Flex direction="column" gap="1">
-            <Heading as="h2" size="4" weight="medium">
-              {t("payments.recent")}
-            </Heading>
-            <Text as="p" size="2" color="gray">
-              {t("payments.recent.scope")}
-            </Text>
-          </Flex>
+          <Heading as="h2" size="4" weight="medium">
+            {t("payments.recent")}
+          </Heading>
           <RecentPayments bookId={book.id} cacheScope={cacheScope} />
         </Flex>
       </Container>
@@ -107,7 +102,7 @@ function HomePageLoading() {
       stickyHeader
       headerAction={
         <Skeleton>
-          <Button highContrast disabled aria-hidden tabIndex={-1}>
+          <Button variant="soft" disabled aria-hidden tabIndex={-1}>
             <PlusIcon aria-hidden />
             {t("payments.create.trigger")}
           </Button>
@@ -117,14 +112,9 @@ function HomePageLoading() {
       <Container size="2">
         <Flex direction="column" gap="3" aria-busy="true" data-testid="home-loading">
           <Summary loading reserveSpace chart={<MonthlySpendingChart loading />} />
-          <Flex direction="column" gap="1">
-            <Heading as="h2" size="4" weight="medium">
-              {t("payments.recent")}
-            </Heading>
-            <Text as="p" size="2" color="gray">
-              {t("payments.recent.scope")}
-            </Text>
-          </Flex>
+          <Heading as="h2" size="4" weight="medium">
+            {t("payments.recent")}
+          </Heading>
           <Flex direction="column" gap="2" aria-hidden>
             {[0, 1, 2, 3, 4].map((row) => (
               <PaymentCard key={row} loading />

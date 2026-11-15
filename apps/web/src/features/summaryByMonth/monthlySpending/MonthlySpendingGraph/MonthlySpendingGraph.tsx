@@ -112,27 +112,21 @@ export function MonthlySpendingGraph({
         </Grid>
         <Flex asChild direction="column" gap="1" mt="3">
           <figcaption>
-            <AmountRow
+            <LegendRow
               label={actualLabel}
               amount={toCurrency(series.actualTotal)}
               lineClass={styles.actual}
             />
             {series.forecastTotal !== null && (
-              <AmountRow
+              <LegendRow
                 label={t("summary.spendingChart.forecast")}
                 amount={toCurrency(series.forecastTotal)}
                 lineClass={styles.forecast}
               />
             )}
-            <AmountRow
-              label={t("summary.monthlyBudget")}
-              amount={
-                budgetAmount === null
-                  ? t(budget.status === "none" ? "common.noBudget" : "common.notSet")
-                  : toCurrency(budgetAmount)
-              }
-              lineClass={styles.budget}
-            />
+            {budgetAmount !== null && (
+              <LegendRow label={t("summary.monthlyBudget")} lineClass={styles.budget} />
+            )}
           </figcaption>
         </Flex>
       </figure>
@@ -159,13 +153,13 @@ export function MonthlySpendingGraph({
   )
 }
 
-function AmountRow({
+function LegendRow({
   label,
   amount,
   lineClass,
 }: {
   label: string
-  amount: string
+  amount?: string
   lineClass: string
 }) {
   return (
@@ -178,9 +172,11 @@ function AmountRow({
           {label}
         </Text>
       </Flex>
-      <Text size="2" weight="medium" className={styles.amount}>
-        {amount}
-      </Text>
+      {amount !== undefined && (
+        <Text size="2" weight="medium" className={styles.amount}>
+          {amount}
+        </Text>
+      )}
     </Flex>
   )
 }

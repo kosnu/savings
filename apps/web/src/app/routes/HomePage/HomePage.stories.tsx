@@ -1,4 +1,4 @@
-import { Button } from "@radix-ui/themes"
+import { Button, Theme } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { createRoute } from "@tanstack/react-router"
 import { expect, userEvent, waitFor, within } from "storybook/test"
@@ -95,12 +95,13 @@ export const Default: Story = {
     const total = await canvas.findByLabelText("Total spending")
     const summaryRegion = canvas.getByRole("region", { name: "Monthly summary" })
     await expect(summaryRegion).toContainElement(total)
+    await expect(summaryRegion).not.toHaveTextContent("Monthly summary")
     const summary = within(summaryRegion)
     const graph = await summary.findByRole("figure", { name: "Spending through the month" })
     await expect(total).toBeVisible()
     await expect(graph).toBeVisible()
     await expect(await within(total).findByText("¥25,000")).toBeVisible()
-    await expect(within(total).getByText("¥20,000 remaining now (recorded payments)")).toBeVisible()
+    await expect(within(total).getByText("Budget remaining ¥20,000")).toBeVisible()
     await expect(await summary.findByText("Estimated ¥20,000 left at month-end")).toBeVisible()
     await expect(
       await canvas.findByRole("progressbar", { name: "Food budget progress" }),
@@ -111,7 +112,7 @@ export const Default: Story = {
     expect(graph.compareDocumentPosition(category) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(category.compareDocumentPosition(recent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     await expect(await within(recent).findAllByRole("button")).toHaveLength(4)
-    await expect(canvas.getByText("Across all dates")).toBeVisible()
+    await expect(canvas.queryByText("Across all dates")).not.toBeInTheDocument()
     await expect(canvas.getByRole("button", { name: "Create payment" })).toBeVisible()
     await expect(
       canvas.queryByRole("combobox", { name: "Category filter" }),
@@ -122,7 +123,7 @@ export const Default: Story = {
       .map((row) => row.textContent)
     await userEvent.click(summary.getByRole("button", { name: "Previous month" }))
     await expect(await summary.findByText("Completed month: actual spending only.")).toBeVisible()
-    await expect(summary.queryByText(/remaining now|left at month-end/)).not.toBeInTheDocument()
+    await expect(summary.queryByText(/Budget remaining|left at month-end/)).not.toBeInTheDocument()
     expect(
       within(recent)
         .getAllByRole("button")
@@ -354,7 +355,7 @@ function headerActionStory(mobile: boolean): Story {
     render: () => {
       const { openSnackbar } = useSnackbar()
       return (
-        <>
+        <Theme appearance={mobile ? "dark" : "light"}>
           <Button
             variant="soft"
             onClick={() => openSnackbar("info", "Notification for positioning", 30000)}
@@ -362,13 +363,15 @@ function headerActionStory(mobile: boolean): Story {
             Show notification
           </Button>
           <HomePage />
-        </>
+        </Theme>
       )
     },
     play: async ({ canvasElement }) => {
       const canvas = within(canvasElement)
       const body = within(canvasElement.ownerDocument.body)
       const create = await canvas.findByRole("button", { name: "Create payment" })
+      await expect(create).toHaveClass("rt-variant-soft")
+      await expect(create).not.toHaveClass("rt-high-contrast")
       const header = canvas.getByRole("banner")
       expect(within(header).queryByRole("button", { name: "Theme toggle" })).not.toBeInTheDocument()
       const recent = await canvas.findByLabelText("Recent payments")
