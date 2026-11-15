@@ -31,7 +31,9 @@ export const Default: Story = {
   args: {},
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByRole("heading", { level: 1 })).toHaveTextContent("Burneto")
+    await expect(await canvas.findByRole("heading", { level: 1 })).toHaveTextContent(
+      "How much can you still spend this month?",
+    )
     await expect(canvas.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/auth")
     await expect(canvas.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "68000")
     await expect(canvas.getByRole("progressbar")).toHaveAttribute("aria-valuemax", "100000")
@@ -52,7 +54,9 @@ export const Japanese: Story = {
   ],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByRole("heading", { level: 1 })).toHaveTextContent("Burneto")
+    await expect(await canvas.findByRole("heading", { level: 1 })).toHaveTextContent(
+      "今月、あといくら使えるか。",
+    )
     await expect(canvas.getByRole("link", { name: "ログイン" })).toHaveAttribute("href", "/auth")
     await expect(canvas.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "68000")
   },

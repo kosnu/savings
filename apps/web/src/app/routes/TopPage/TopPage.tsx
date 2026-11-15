@@ -11,7 +11,7 @@ import {
   Text,
 } from "@radix-ui/themes"
 import { Link } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 
 import { Logo } from "../../../components/misc/Logo"
 import { BudgetProgress } from "../../../features/budgets"
@@ -33,9 +33,9 @@ export function TopPage() {
           <header>
             <Flex align="center" gap="2">
               <Logo width={32} height={32} alt="" />
-              <Heading as="h1" size="4" weight="bold">
+              <Text size="4" weight="bold">
                 {t("app.name")}
-              </Heading>
+              </Text>
             </Flex>
             <Button asChild variant="ghost" size="2">
               <Link to="/auth">
@@ -53,11 +53,19 @@ export function TopPage() {
           py={{ initial: "6", md: "9" }}
         >
           <Flex direction="column" align="start" gap="5" className={styles.heroCopy}>
+            <Heading
+              as="h1"
+              size={{ initial: "7", md: "8" }}
+              wrap="balance"
+              className={styles.heroHeading}
+            >
+              <Trans t={t} i18nKey="introduction.heading" components={{ lineBreak: <wbr /> }} />
+            </Heading>
             <Text as="p" size="3" className={styles.description}>
               {t("introduction.description", { appName: t("app.name") })}
             </Text>
             <Flex direction="column" align="start" gap="3" pt="2">
-              <Button asChild size="3">
+              <Button asChild size="3" highContrast>
                 <Link to="/auth">
                   {t("introduction.start", { appName: t("app.name") })}
                   <ArrowRightIcon aria-hidden="true" />
@@ -226,7 +234,7 @@ export function TopPage() {
           mb="7"
           className={styles.closing}
         >
-          <Button asChild size="3" className={styles.closingAction}>
+          <Button asChild size="3" highContrast className={styles.closingAction}>
             <Link to="/auth">
               {t("introduction.start", { appName: t("app.name") })}
               <ArrowRightIcon aria-hidden="true" />

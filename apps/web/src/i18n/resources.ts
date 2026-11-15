@@ -111,10 +111,10 @@ export const resources = {
       "introduction.everyday.budgetTitle": "Set a monthly budget",
       "introduction.everyday.recordTitle": "Record a payment",
       "introduction.everyday.reviewTitle": "Look back at your spending",
+      "introduction.heading": "How much can you still spend this month?",
       "introduction.description":
-        "{{appName}} is a budgeting app where you record your monthly budget and payments. Check what’s left before shopping or eating out.",
+        "{{appName}} is a budgeting app for tracking your monthly budget and everyday spending.",
       "introduction.start": "Get started with {{appName}}",
-      "introduction.example.title": "Your remaining budget, at a glance.",
       "introduction.example.caption": "An example month with sample amounts",
       "introduction.example.budget": "Monthly budget",
       "introduction.example.description":
@@ -454,10 +454,9 @@ export const resources = {
       "introduction.everyday.budgetTitle": "月の予算を決める",
       "introduction.everyday.recordTitle": "支払いを記録する",
       "introduction.everyday.reviewTitle": "使い道を振り返る",
-      "introduction.description":
-        "{{appName}}は、月の予算と日々の支払いを記録する家計簿です。買い物や外食の前に、残りの予算を確かめられます。",
+      "introduction.heading": "今月、<lineBreak />あといくら使えるか。",
+      "introduction.description": "{{appName}}は、月の予算と日々の支払いを記録する家計簿です。",
       "introduction.start": "{{appName}}をはじめる",
-      "introduction.example.title": "残りの予算を、ひと目で。",
       "introduction.example.caption": "ある月の利用例（金額はサンプルです）",
       "introduction.example.budget": "月の予算",
       "introduction.example.description":
