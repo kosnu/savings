@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話で依頼されたホームの支払い累計の修正。実績の棒にも見込みと同じアニメーションを適用する。",
+  "paths": [
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.module.css",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingGraph/MonthlySpendingGraph.test.tsx",
+    "apps/web/src/features/summaryByMonth/monthlySpending/MonthlySpendingChart/MonthlySpendingChart.test.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.test.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "bef75a267a0bc284cd622fc8bfe84046f1729d85952de07b0deb7cb471364558",
+  "status": "pass",
+  "checks": [
+    "実績と見込みに既存の300msアニメーションを適用",
+    "凡例・予算線は静止表示",
+    "動きを抑える設定では全ての棒を静止表示"
+  ],
+  "summary": "実績と見込みの棒が同時に下から伸びるよう、同じキーフレームと表示条件を使う。アニメーションの対象はグラフ内の棒に限る。",
+  "remaining": []
+}

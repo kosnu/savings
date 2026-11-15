@@ -18,9 +18,24 @@ const {
 } = composeStories(stories)
 
 describe("MonthlySpendingGraph", () => {
+  test("当日までの累積実績と翌日からの見込みを日ごとの棒で表示する", () => {
+    render(<Default />)
+
+    const plot = screen.getByLabelText("Daily cumulative spending")
+    const bars = Array.from(plot.querySelectorAll("rect"))
+    expect(plot.querySelector("polyline")).not.toBeInTheDocument()
+    expect(bars).toHaveLength(29)
+    expect(Number(bars[0].getAttribute("height"))).toBeCloseTo(12)
+    expect(Number(bars[13].getAttribute("x"))).toBeCloseTo(283.5)
+    expect(Number(bars[13].getAttribute("height"))).toBeCloseTo(60)
+    expect(Number(bars[14].getAttribute("x"))).toBeCloseTo(303.5)
+    expect(Number(bars[14].getAttribute("height"))).toBeCloseTo(60)
+    expect(Number(bars[28].getAttribute("height"))).toBeCloseTo(120)
+  })
+
   test("実績と見込みの金額を示し、予算線の凡例では金額を繰り返さない", () => {
     render(<Default />)
-    const figure = screen.getByRole("figure", { name: "Spending trend" })
+    const figure = screen.getByRole("figure", { name: "Cumulative spending" })
     const caption = figure.querySelector("figcaption")
     if (!caption) throw new Error("凡例がありません")
     const legend = within(caption)
@@ -85,12 +100,16 @@ describe("MonthlySpendingGraph", () => {
 
   test("支払い0件の実績と見込みは0円として表示する", () => {
     render(<Empty />)
+    const plot = screen.getByLabelText("Daily cumulative spending")
+    expect(plot.querySelector("rect")).not.toBeInTheDocument()
     expect(screen.getByText("Estimated ¥15,000 left")).toBeInTheDocument()
     expect(screen.getAllByText("¥0")).toHaveLength(3)
   })
 
   test("過去月に見込みを作らず、実績と予算を比較する", () => {
     render(<PastMonth />)
+    const plot = screen.getByLabelText("Daily cumulative spending")
+    expect(plot.querySelectorAll("rect")).toHaveLength(29)
     expect(screen.queryByText("Month-end estimate")).not.toBeInTheDocument()
     expect(screen.getByText("Within budget · ¥10,000 remaining")).toBeInTheDocument()
   })

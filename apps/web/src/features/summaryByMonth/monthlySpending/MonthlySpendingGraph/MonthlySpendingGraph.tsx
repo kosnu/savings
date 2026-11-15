@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { toCurrency } from "../../../../utils/toCurrency"
 import type { MonthlyBudgetState } from "../../../budgets"
-import { buildSpendingSeries, type SpendingMonth, type SpendingPoint } from "../buildSpendingSeries"
+import { buildSpendingSeries, type SpendingMonth } from "../buildSpendingSeries"
 
 import styles from "./MonthlySpendingGraph.module.css"
 
@@ -28,10 +28,14 @@ export function MonthlySpendingGraph({
   const series = buildSpendingSeries(payments, targetDate, today, history)
   const budgetAmount = budget.status === "amount" ? budget.monthlyBudget.amount : null
   const maximum = Math.max(series.actualTotal, series.forecastTotal ?? 0, budgetAmount ?? 0, 1)
-  const x = (day: number) => (day / series.days) * 600
-  const y = (amount: number) => 180 - (amount / maximum) * 180
-  const points = (values: SpendingPoint[]) =>
-    values.map(({ day, amount }) => `${x(day)},${y(amount)}`).join(" ")
+  const plotWidth = 600
+  const baseline = 180
+  const dayWidth = plotWidth / series.days
+  const barWidth = dayWidth * 0.65
+  const y = (amount: number) => baseline - (amount / maximum) * baseline
+  const bars = [...series.actual.slice(1), ...series.forecast.slice(1)].filter(
+    ({ amount }) => amount > 0,
+  )
   const actualLabel = t(
     series.period === "future" ? "summary.spendingChart.recorded" : "summary.spendingChart.actual",
   )
@@ -69,32 +73,36 @@ export function MonthlySpendingGraph({
             className={styles.plot}
             viewBox="-2 -4 604 188"
             preserveAspectRatio="none"
-            aria-label={
-              series.period === "future" ? actualLabel : t("summary.spendingChart.graphLabel")
-            }
+            aria-label={t("summary.spendingChart.graphLabel")}
           >
             {[0, maximum / 2, maximum].map((amount) => (
               <line
                 key={amount}
                 x1="0"
                 y1={y(amount)}
-                x2="600"
+                x2={plotWidth}
                 y2={y(amount)}
                 className={styles.gridLine}
+              />
+            ))}
+            {bars.map(({ day, amount }) => (
+              <rect
+                key={day}
+                x={(day - 0.5) * dayWidth - barWidth / 2}
+                y={y(amount)}
+                width={barWidth}
+                height={baseline - y(amount)}
+                className={day > series.throughDay ? styles.forecast : styles.actual}
               />
             ))}
             {budgetAmount !== null && (
               <line
                 x1="0"
                 y1={y(budgetAmount)}
-                x2="600"
+                x2={plotWidth}
                 y2={y(budgetAmount)}
                 className={styles.budget}
               />
-            )}
-            <polyline points={points(series.actual)} className={styles.actual} />
-            {series.forecast.length > 0 && (
-              <polyline points={points(series.forecast)} className={styles.forecast} />
             )}
           </svg>
           <span />
@@ -115,17 +123,17 @@ export function MonthlySpendingGraph({
             <LegendRow
               label={actualLabel}
               amount={toCurrency(series.actualTotal)}
-              lineClass={styles.actual}
+              series="actual"
             />
             {series.forecastTotal !== null && (
               <LegendRow
                 label={t("summary.spendingChart.forecast")}
                 amount={toCurrency(series.forecastTotal)}
-                lineClass={styles.forecast}
+                series="forecast"
               />
             )}
             {budgetAmount !== null && (
-              <LegendRow label={t("summary.monthlyBudget")} lineClass={styles.budget} />
+              <LegendRow label={t("summary.monthlyBudget")} series="budget" />
             )}
           </figcaption>
         </Flex>
@@ -156,17 +164,21 @@ export function MonthlySpendingGraph({
 function LegendRow({
   label,
   amount,
-  lineClass,
+  series,
 }: {
   label: string
   amount?: string
-  lineClass: string
+  series: "actual" | "forecast" | "budget"
 }) {
   return (
     <Flex justify="between" gap="3" wrap="wrap">
       <Flex align="center" gap="2">
         <svg width="24" height="12" aria-hidden="true">
-          <line x1="0" y1="6" x2="24" y2="6" className={lineClass} />
+          {series === "budget" ? (
+            <line x1="0" y1="6" x2="24" y2="6" className={styles.budget} />
+          ) : (
+            <rect x="8" y="1" width="8" height="10" className={styles[series]} />
+          )}
         </svg>
         <Text size="2" color="gray">
           {label}

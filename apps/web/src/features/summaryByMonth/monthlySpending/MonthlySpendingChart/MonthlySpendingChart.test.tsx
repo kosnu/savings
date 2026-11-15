@@ -41,7 +41,9 @@ describe("MonthlySpendingChart", () => {
   test("指定月の支払いと予算を取得してグラフに表示する", async () => {
     render(<Default />)
     expect(await screen.findByText("Estimated ¥10,000 left")).toBeInTheDocument()
-    expect(screen.getByRole("heading", { level: 3, name: "Spending trend" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { level: 3, name: "Cumulative spending" }),
+    ).toBeInTheDocument()
   })
 
   test("前提データの読み込み中はグラフを取得しない", async () => {
@@ -92,7 +94,7 @@ describe("MonthlySpendingChart", () => {
     await user.click(screen.getByRole("button", { name: "Try again" }))
     expect(await screen.findByText("Estimated ¥10,000 left")).toBeInTheDocument()
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
-    expect(screen.getByRole("region", { name: "Spending trend" })).toHaveFocus()
+    expect(screen.getByRole("region", { name: "Cumulative spending" })).toHaveFocus()
   })
 
   test("取得失敗後に月を変更すると、新しい対象月の取得で復帰する", async () => {

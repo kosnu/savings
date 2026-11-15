@@ -97,9 +97,21 @@ export const Default: Story = {
     await expect(summaryRegion).toContainElement(total)
     await expect(summaryRegion).not.toHaveTextContent("Monthly summary")
     const summary = within(summaryRegion)
-    const graph = await summary.findByRole("figure", { name: "Spending trend" })
+    const graph = await summary.findByRole("figure", { name: "Cumulative spending" })
     await expect(total).toBeVisible()
     await expect(graph).toBeVisible()
+    const plot = within(graph).getByLabelText("Daily cumulative spending")
+    const bars = plot.querySelectorAll("rect")
+    if (bars.length < 2) throw new globalThis.Error("実績と見込みの棒がありません")
+    const actual = getComputedStyle(bars[0])
+    const forecast = getComputedStyle(bars[bars.length - 1])
+    const allowsMotion = window.matchMedia("(prefers-reduced-motion: no-preference)").matches
+    expect(parseFloat(actual.getPropertyValue("rx"))).toBeGreaterThan(0)
+    expect(parseFloat(forecast.getPropertyValue("rx"))).toBeGreaterThan(0)
+    expect(actual.strokeDasharray).toBe("none")
+    expect(forecast.strokeDasharray).not.toBe("none")
+    expect(actual.animationDuration).toBe(forecast.animationDuration)
+    expect(parseFloat(forecast.animationDuration) > 0).toBe(allowsMotion)
     await expect(await within(total).findByText("¥25,000")).toBeVisible()
     await expect(within(total).getByText("¥20,000 left")).toBeVisible()
     await expect(await summary.findByText("Estimated ¥20,000 left")).toBeVisible()
@@ -148,7 +160,7 @@ export const Empty: Story = {
       await canvas.findByText("No payments yet. Use “Create payment” to record one."),
     ).toBeVisible()
     await expect(canvas.getByRole("button", { name: "Create payment" })).toBeEnabled()
-    await expect(await canvas.findByRole("figure", { name: "Spending trend" })).toBeVisible()
+    await expect(await canvas.findByRole("figure", { name: "Cumulative spending" })).toBeVisible()
     const total = within(canvas.getByLabelText("Total spending"))
     await expect(await total.findByText("Not set")).toBeVisible()
     await expect(total.getByRole("link", { name: "Go to budget settings" })).toHaveAttribute(
@@ -291,7 +303,7 @@ function loadingTransitionStory(count: number, mobile = false): Story {
 
       expect(create.getBoundingClientRect().top).toBeCloseTo(createTop, 0)
       const categoryItems = categoryContent.firstElementChild
-      const graph = await canvas.findByRole("figure", { name: "Spending trend" })
+      const graph = await canvas.findByRole("figure", { name: "Cumulative spending" })
       const chart = graph.parentElement
       if (!categoryItems || !chart?.parentElement) {
         throw new globalThis.Error("集計の表示内容がありません")
