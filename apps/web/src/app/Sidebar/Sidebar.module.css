@@ -44,6 +44,8 @@
 }
 
 .sidebar[data-permanent="true"] {
+  --sidebar-collapsed-width: 3.5rem;
+  --sidebar-nav-padding: var(--space-2);
   box-sizing: border-box;
   width: var(--sidebar-width, 15rem);
   height: 100dvh;
@@ -55,11 +57,11 @@
 }
 
 .sidebar[data-permanent="true"][data-open="false"] {
-  width: var(--sidebar-width, 3.5rem);
+  width: var(--sidebar-width, var(--sidebar-collapsed-width));
 }
 
 .sidebar[data-permanent="true"] .sidebarContents {
-  padding-inline: var(--space-2);
+  padding-inline: var(--sidebar-nav-padding);
 }
 
 .sidebar[data-permanent="true"] .sidebarContents > a {
