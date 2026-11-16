@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2137",
+  "paths": [
+    "apps/web/docs/policies/design-rules.md"
+  ],
+  "fingerprint": "45abfa0f0dd71c20f11e9e566c3eec1ef65772c97d28a78ba7c27d7489ff8dcb",
+  "status": "pass",
+  "checks": [
+    "Core verifyでMarkdown整形とgit diff --check",
+    "ChromiumでPR #2135の変更前・途中案・採用案の全画面を比較"
+  ],
+  "summary": "標準ケースに複数UI変更の比較判断を採点する入力がないため、対象に合うPR #2135の実画面で前後を比較した。Storybookの同一データ、2025年6月、日本語、390×844で、途中案の予算額重複と残額の弱い表示、採用案の月選択直下の金額集約と見込みの区別を確認した。過去版のStorybook自動操作には言語不一致があり、描画の観察のみを根拠とした。",
+  "remaining": []
+}

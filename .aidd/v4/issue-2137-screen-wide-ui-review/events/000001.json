@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2137",
+  "paths": [
+    "apps/web/docs/policies/design-rules.md"
+  ],
+  "fingerprint": "45abfa0f0dd71c20f11e9e566c3eec1ef65772c97d28a78ba7c27d7489ff8dcb",
+  "status": "pass",
+  "checks": [
+    "Issueの完了条件と変更範囲の照合",
+    "比較基準と確認条件の決定"
+  ],
+  "summary": "最新mainを起点にWeb Design Rulesの実装前チェックへ設計基準の引き継ぎと画面全体の比較・見直しを追加する。PR #2135のホーム画面3版を同じ月・データ・表示条件で比較し、選択月の支払い額・予算額・残額の関係が読み取れるか確認する。",
+  "remaining": []
+}
