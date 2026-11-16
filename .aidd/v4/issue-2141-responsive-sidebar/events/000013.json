@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/AppLayout/AppLayout.module.css",
+    "apps/web/src/app/Header/Header.tsx",
+    "apps/web/src/app/Sidebar/Sidebar.module.css",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "a7c2c5a62a3b835e2785789e3c86475fe160eb6be21d3ef1b3c6306ce8ba6675",
+  "status": "pass",
+  "checks": [
+    "承認済みのIssue #2141の完了条件を照合",
+    "既存モバイルの切替とshadcn/uiのデスクトップのスライド・アイコンを比較",
+    "比較元はDev Previewの 764d27c7"
+  ],
+  "summary": "PCの既存の固定幅と開閉状態を使い、左パネルの移動と本文側の余白に同じ200msの遷移を適用する。端末の動きを減らす設定では両方即時に切り替える。PCのトリガーは左パネルの図柄を両状態で使用する。開いた状態と閉じた状態の既存のStorybook検証を維持し、追加テストは作らない。開閉の自然さと図柄はプレビューで比較する。",
+  "remaining": []
+}

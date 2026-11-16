@@ -424,7 +424,8 @@ function headerActionStory(mobile: boolean): Story {
         if (!brandHeader) throw new globalThis.Error("サイドバーのヘッダーがありません")
         const main = canvas.getByRole("main")
         const openBounds = main.getBoundingClientRect()
-        expect(sidebar.getBoundingClientRect().right).toBeLessThanOrEqual(openBounds.left)
+        const sidebarBounds = sidebar.getBoundingClientRect()
+        expect(sidebarBounds.right).toBeLessThanOrEqual(openBounds.left)
         expect(brandHeader.getBoundingClientRect().height).toBeCloseTo(
           header.getBoundingClientRect().height,
           0,
@@ -440,13 +441,17 @@ function headerActionStory(mobile: boolean): Story {
           within(header).getByRole("button", { name: t("header.closeSidebar") }),
         )
         expect(canvas.queryByRole("complementary")).toBeNull()
-        const closedBounds = main.getBoundingClientRect()
-        expect(closedBounds.width).toBeGreaterThan(openBounds.width)
-        expect(closedBounds.top).toBeCloseTo(openBounds.top, 0)
+        await waitFor(() => {
+          const closedBounds = main.getBoundingClientRect()
+          expect(closedBounds.width).toBeCloseTo(openBounds.width + sidebarBounds.width, 0)
+          expect(closedBounds.top).toBeCloseTo(openBounds.top, 0)
+        })
         expect(within(header).getByRole("button", { name: t("header.openSidebar") })).toHaveFocus()
         await userEvent.keyboard("{Enter}")
         expect(canvas.getByRole("complementary")).toBeVisible()
-        expect(main.getBoundingClientRect().width).toBeCloseTo(openBounds.width, 0)
+        await waitFor(() => {
+          expect(main.getBoundingClientRect().width).toBeCloseTo(openBounds.width, 0)
+        })
       }
       expect(
         within(header).queryByRole("button", { name: /^(Theme toggle|テーマ切り替え)$/ }),

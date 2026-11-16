@@ -1,4 +1,4 @@
-import { Cross1Icon, HamburgerMenuIcon } from "@radix-ui/react-icons"
+import { HamburgerMenuIcon } from "@radix-ui/react-icons"
 import { Box, IconButton } from "@radix-ui/themes"
 import { Link } from "@tanstack/react-router"
 import type { ReactNode, Ref } from "react"
@@ -33,7 +33,6 @@ export function Header({
 
   if (!onMenuClick && !action) return null
 
-  const MenuIcon = desktopMenu && sidebarOpen ? Cross1Icon : HamburgerMenuIcon
   const menuLabel = desktopMenu
     ? t(sidebarOpen ? "header.closeSidebar" : "header.openSidebar")
     : t("header.menu")
@@ -48,10 +47,26 @@ export function Header({
             aria-expanded={sidebarOpen}
             aria-controls={sidebarId}
             size={desktopMenu ? "2" : "3"}
+            color={desktopMenu ? "gray" : undefined}
             variant="ghost"
             onClick={onMenuClick}
           >
-            <MenuIcon {...iconSize} />
+            {desktopMenu ? (
+              <svg
+                aria-hidden="true"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M9 3v18" />
+              </svg>
+            ) : (
+              <HamburgerMenuIcon {...iconSize} />
+            )}
           </IconButton>
           {!desktopMenu && (
             <IconButton
