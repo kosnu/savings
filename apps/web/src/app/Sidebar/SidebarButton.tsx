@@ -37,7 +37,7 @@ export function SidebarButton({
         className={styles.sidebarButtonLink}
         title={iconOnly ? ariaLabel : undefined}
       >
-        {icon && <span className={styles.iconFrame}>{icon}</span>}
+        {icon && <span className={styles.icon}>{icon}</span>}
         {!iconOnly && label}
       </Link>
     </Button>

@@ -435,10 +435,11 @@ function headerActionStory(mobile: boolean): Story {
         expect(navigation.querySelectorAll(".rt-Separator")).toHaveLength(1)
         const homeLink = within(navigation).getByRole("link", { name: t("navigation.homeAria") })
         expect(homeLink).toHaveAttribute("aria-current", "page")
-        const iconFrame = homeLink.firstElementChild
-        if (!iconFrame) throw new globalThis.Error("ナビゲーションのアイコン枠がありません")
-        const openIconBounds = iconFrame.getBoundingClientRect()
+        await waitFor(() => {
+          expect(getComputedStyle(homeLink).backgroundColor).not.toBe("rgba(0, 0, 0, 0)")
+        })
         const openRowHeight = homeLink.getBoundingClientRect().height
+        const activeRowBackground = getComputedStyle(homeLink).backgroundColor
 
         await userEvent.click(
           within(header).getByRole("button", { name: t("header.closeSidebar") }),
@@ -451,8 +452,7 @@ function headerActionStory(mobile: boolean): Story {
           expect(collapsedBounds.width).toBeGreaterThan(0)
           expect(homeLink.getBoundingClientRect().right).toBeLessThanOrEqual(collapsedBounds.right)
           expect(homeLink.getBoundingClientRect().height).toBeCloseTo(openRowHeight, 0)
-          expect(iconFrame.getBoundingClientRect().width).toBeCloseTo(openIconBounds.width, 0)
-          expect(iconFrame.getBoundingClientRect().height).toBeCloseTo(openIconBounds.height, 0)
+          expect(getComputedStyle(homeLink).backgroundColor).toBe(activeRowBackground)
           expect(collapsedBounds.right).toBeCloseTo(closedBounds.left, 0)
           expect(closedBounds.top).toBeCloseTo(openBounds.top, 0)
         })
