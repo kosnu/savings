@@ -5,6 +5,7 @@ import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { paymentsSearchSchema } from "../../../features/payments"
 import { AppearanceSettings } from "../../../features/preferences"
+import { i18next } from "../../../i18n"
 import { useSnackbar } from "../../../providers/snackbar/SnackbarProvider"
 import { SupabaseSessionContext } from "../../../providers/supabase/SupabaseSessionProvider"
 import { monthlyBudgets } from "../../../test/data/monthlyBudgets"
@@ -90,17 +91,18 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   play: async ({ canvasElement }) => {
+    const { t } = i18next
     const canvas = within(canvasElement)
     await expect(canvas.queryByRole("heading", { level: 1 })).not.toBeInTheDocument()
-    const total = await canvas.findByLabelText("Total spending")
-    const summaryRegion = canvas.getByRole("region", { name: "Monthly summary" })
+    const total = await canvas.findByLabelText(t("payments.total.label"))
+    const summaryRegion = canvas.getByRole("region", { name: t("summary.monthlyOverview") })
     await expect(summaryRegion).toContainElement(total)
-    await expect(summaryRegion).not.toHaveTextContent("Monthly summary")
+    await expect(summaryRegion).not.toHaveTextContent(t("summary.monthlyOverview"))
     const summary = within(summaryRegion)
-    const graph = await summary.findByRole("figure", { name: "Cumulative spending" })
+    const graph = await summary.findByRole("figure", { name: t("summary.spendingChart.title") })
     await expect(total).toBeVisible()
     await expect(graph).toBeVisible()
-    const plot = within(graph).getByLabelText("Daily cumulative spending")
+    const plot = within(graph).getByLabelText(t("summary.spendingChart.graphLabel"))
     const bars = plot.querySelectorAll("rect")
     if (bars.length < 2) throw new globalThis.Error("実績と見込みの棒がありません")
     const actual = getComputedStyle(bars[0])
@@ -113,29 +115,41 @@ export const Default: Story = {
     expect(actual.animationDuration).toBe(forecast.animationDuration)
     expect(parseFloat(forecast.animationDuration) > 0).toBe(allowsMotion)
     await expect(await within(total).findByText("¥25,000")).toBeVisible()
-    await expect(within(total).getByText("¥20,000 left")).toBeVisible()
-    await expect(await summary.findByText("Estimated ¥20,000 left")).toBeVisible()
+    await expect(within(total).getByText(t("common.left", { amount: "¥20,000" }))).toBeVisible()
     await expect(
-      await canvas.findByRole("progressbar", { name: "Food budget progress" }),
+      await summary.findByText(t("summary.spendingChart.remainingForecast", { amount: "¥20,000" })),
+    ).toBeVisible()
+    await expect(
+      await canvas.findByRole("progressbar", {
+        name: t("summary.categoryBudgetProgress", { category: "Food" }),
+      }),
     ).toHaveAttribute("aria-valuenow", "1000")
-    const recent = await canvas.findByLabelText("Recent payments")
-    const category = canvas.getByRole("progressbar", { name: "Food budget progress" })
+    const recent = await canvas.findByLabelText(t("payments.recent"))
+    const category = canvas.getByRole("progressbar", {
+      name: t("summary.categoryBudgetProgress", { category: "Food" }),
+    })
     expect(total.compareDocumentPosition(graph) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(graph.compareDocumentPosition(category) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(category.compareDocumentPosition(recent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     await expect(await within(recent).findAllByRole("button")).toHaveLength(4)
-    await expect(canvas.queryByText("Across all dates")).not.toBeInTheDocument()
-    await expect(canvas.getByRole("button", { name: "Create payment" })).toBeVisible()
+    await expect(canvas.queryByText(/^(Across all dates|全期間)$/)).not.toBeInTheDocument()
+    await expect(canvas.getByRole("button", { name: t("payments.create.trigger") })).toBeVisible()
     await expect(
-      canvas.queryByRole("combobox", { name: "Category filter" }),
+      canvas.queryByRole("combobox", { name: t("payments.category.filter") }),
     ).not.toBeInTheDocument()
 
     const recentRows = within(recent)
       .getAllByRole("button")
       .map((row) => row.textContent)
-    await userEvent.click(summary.getByRole("button", { name: "Previous month" }))
-    await expect(await summary.findByText("Completed month: actual spending only.")).toBeVisible()
-    await expect(summary.queryByText(/Estimated ¥/)).not.toBeInTheDocument()
+    await userEvent.click(summary.getByRole("button", { name: t("date.previousMonth") }))
+    await expect(await summary.findByText(t("summary.spendingChart.past"))).toBeVisible()
+    const forecastPrefixes = [
+      t("summary.spendingChart.remainingForecast", { amount: "¥" }),
+      t("summary.spendingChart.overForecast", { amount: "¥" }),
+    ].map((label) => label.slice(0, label.indexOf("¥") + 1))
+    await expect(
+      summary.queryByText((label) => forecastPrefixes.some((prefix) => label.startsWith(prefix))),
+    ).not.toBeInTheDocument()
     expect(
       within(recent)
         .getAllByRole("button")
@@ -155,24 +169,25 @@ export const Empty: Story = {
     },
   },
   play: async ({ canvasElement }) => {
+    const { t } = i18next
     const canvas = within(canvasElement)
+    await expect(await canvas.findByText(t("payments.recent.empty"))).toBeVisible()
+    await expect(canvas.getByRole("button", { name: t("payments.create.trigger") })).toBeEnabled()
     await expect(
-      await canvas.findByText("No payments yet. Use “Create payment” to record one."),
+      await canvas.findByRole("figure", { name: t("summary.spendingChart.title") }),
     ).toBeVisible()
-    await expect(canvas.getByRole("button", { name: "Create payment" })).toBeEnabled()
-    await expect(await canvas.findByRole("figure", { name: "Cumulative spending" })).toBeVisible()
-    const total = within(canvas.getByLabelText("Total spending"))
-    await expect(await total.findByText("Not set")).toBeVisible()
-    await expect(total.getByRole("link", { name: "Go to budget settings" })).toHaveAttribute(
+    const total = within(canvas.getByLabelText(t("payments.total.label")))
+    await expect(await total.findByText(t("common.notSet"))).toBeVisible()
+    await expect(total.getByRole("link", { name: t("budgets.openSettings") })).toHaveAttribute(
       "href",
       "/settings/book",
     )
 
-    await userEvent.click(canvas.getByRole("button", { name: "Previous month" }))
-    await expect(await canvas.findByText("Completed month: actual spending only.")).toBeVisible()
-    await expect(await total.findByText("Not set")).toBeVisible()
+    await userEvent.click(canvas.getByRole("button", { name: t("date.previousMonth") }))
+    await expect(await canvas.findByText(t("summary.spendingChart.past"))).toBeVisible()
+    await expect(await total.findByText(t("common.notSet"))).toBeVisible()
     await expect(
-      total.queryByRole("link", { name: "Go to budget settings" }),
+      total.queryByRole("link", { name: t("budgets.openSettings") }),
     ).not.toBeInTheDocument()
   },
 }
@@ -202,7 +217,7 @@ export const Error: Story = {
   play: async ({ canvasElement }) => {
     await expect(
       await within(canvasElement).findByRole("alert", {}, { timeout: 5000 }),
-    ).toHaveTextContent("Failed")
+    ).toHaveTextContent(i18next.t("common.failed"))
   },
 }
 export const Unauthenticated: Story = {
@@ -281,19 +296,26 @@ function loadingTransitionStory(count: number, mobile = false): Story {
     },
     globals: { viewport: { value: mobile ? "mobile" : "desktop" } },
     play: async ({ canvasElement }) => {
+      const { t } = i18next
       expect(window.innerWidth).toBe(mobile ? 320 : 1280)
       const canvas = within(canvasElement)
       await canvas.findByTestId("home-loading")
-      expect(canvas.queryByRole("button", { name: "Create payment" })).not.toBeInTheDocument()
+      expect(
+        canvas.queryByRole("button", { name: t("payments.create.trigger") }),
+      ).not.toBeInTheDocument()
 
-      const create = await canvas.findByRole("button", { name: "Create payment" })
+      const create = await canvas.findByRole("button", { name: t("payments.create.trigger") })
       const createTop = create.getBoundingClientRect().top
-      const categoryContent = canvas.getByLabelText("loading category totals").parentElement
+      const categoryContent = canvas.getByLabelText(
+        t("summary.loadingCategoryTotals"),
+      ).parentElement
       if (!categoryContent) throw new globalThis.Error("カテゴリ集計の表示領域がありません")
       expect(canvas.getByTestId("budget-difference-skeleton")).toBeInTheDocument()
       await waitFor(
         () => {
-          expect(canvas.queryByLabelText("loading category totals")).not.toBeInTheDocument()
+          expect(
+            canvas.queryByLabelText(t("summary.loadingCategoryTotals")),
+          ).not.toBeInTheDocument()
           expect(canvas.queryByTestId("skeleton")).not.toBeInTheDocument()
           expect(canvas.queryByTestId("budget-difference-skeleton")).not.toBeInTheDocument()
           expect(canvas.queryAllByLabelText("loading-payment-item")).toHaveLength(0)
@@ -303,7 +325,7 @@ function loadingTransitionStory(count: number, mobile = false): Story {
 
       expect(create.getBoundingClientRect().top).toBeCloseTo(createTop, 0)
       const categoryItems = categoryContent.firstElementChild
-      const graph = await canvas.findByRole("figure", { name: "Cumulative spending" })
+      const graph = await canvas.findByRole("figure", { name: t("summary.spendingChart.title") })
       const chart = graph.parentElement
       if (!categoryItems || !chart?.parentElement) {
         throw new globalThis.Error("集計の表示内容がありません")
@@ -323,12 +345,10 @@ function loadingTransitionStory(count: number, mobile = false): Story {
         expect(bounds.left).toBeGreaterThanOrEqual(0)
         expect(bounds.right).toBeLessThanOrEqual(window.innerWidth)
       }
-      const recent = canvas.getByLabelText("Recent payments")
+      const recent = canvas.getByLabelText(t("payments.recent"))
       expect(within(recent).queryAllByRole("button")).toHaveLength(count)
       if (count === 0) {
-        expect(
-          within(recent).getByText("No payments yet. Use “Create payment” to record one."),
-        ).toBeVisible()
+        expect(within(recent).getByText(t("payments.recent.empty"))).toBeVisible()
       }
     },
   }
@@ -377,21 +397,24 @@ function headerActionStory(mobile: boolean): Story {
       )
     },
     play: async ({ canvasElement }) => {
+      const { t } = i18next
       const canvas = within(canvasElement)
       const body = within(canvasElement.ownerDocument.body)
-      const create = await canvas.findByRole("button", { name: "Create payment" })
+      const create = await canvas.findByRole("button", { name: t("payments.create.trigger") })
       await expect(create).toHaveClass("rt-variant-soft")
       await expect(create).not.toHaveClass("rt-high-contrast")
       const header = canvas.getByRole("banner")
-      expect(within(header).queryByRole("button", { name: "Theme toggle" })).not.toBeInTheDocument()
-      const recent = await canvas.findByLabelText("Recent payments")
+      expect(
+        within(header).queryByRole("button", { name: /^(Theme toggle|テーマ切り替え)$/ }),
+      ).not.toBeInTheDocument()
+      const recent = await canvas.findByLabelText(t("payments.recent"))
       await within(recent).findAllByRole("button")
-      const total = within(await canvas.findByLabelText("Total spending"))
+      const total = within(await canvas.findByLabelText(t("payments.total.label")))
       const spent = await total.findByText("¥5,000")
       const budget = await total.findByText("¥25,000")
-      const heading = total.getByText("Monthly budget")
-      const remaining = total.getByText("¥20,000 left")
-      const progress = total.getByRole("progressbar", { name: "Monthly total budget progress" })
+      const heading = total.getByText(t("summary.monthlyBudgetHeading"))
+      const remaining = total.getByText(t("common.left", { amount: "¥20,000" }))
+      const progress = total.getByRole("progressbar", { name: t("summary.monthlyBudgetProgress") })
       const spentBounds = spent.getBoundingClientRect()
       const budgetBounds = budget.getBoundingClientRect()
       const progressBounds = progress.getBoundingClientRect()
@@ -437,7 +460,7 @@ function headerActionStory(mobile: boolean): Story {
         await userEvent.click(within(toast).getByRole("button"))
 
         await userEvent.click(create)
-        const dialog = await body.findByRole("dialog", { name: "Create payment" })
+        const dialog = await body.findByRole("dialog", { name: t("payments.create.title") })
         const bounds = create.getBoundingClientRect()
         expect(
           create.contains(
@@ -447,50 +470,60 @@ function headerActionStory(mobile: boolean): Story {
             ),
           ),
         ).toBe(false)
-        await within(dialog).findByLabelText("Amount", { exact: false })
+        await within(dialog).findByLabelText(t("amount.label"), { exact: false })
         await userEvent.keyboard("{Escape}")
         await waitFor(async () => expect(body.queryByRole("dialog")).not.toBeInTheDocument())
         await expect(create).toHaveFocus()
 
         await userEvent.click(create)
-        const reopened = await body.findByRole("dialog", { name: "Create payment" })
-        await userEvent.type(within(reopened).getByLabelText("Amount", { exact: false }), "1080")
+        const reopened = await body.findByRole("dialog", { name: t("payments.create.title") })
         await userEvent.type(
-          within(reopened).getByLabelText("Note", { exact: false }),
+          within(reopened).getByLabelText(t("amount.label"), { exact: false }),
+          "1080",
+        )
+        await userEvent.type(
+          within(reopened).getByLabelText(t("payments.note.label"), { exact: false }),
           "Header payment",
         )
-        await userEvent.click(within(reopened).getByRole("button", { name: /^Create$/ }))
+        await userEvent.click(within(reopened).getByRole("button", { name: t("common.create") }))
         await waitFor(async () => expect(body.queryByRole("dialog")).not.toBeInTheDocument())
         await expect(await within(recent).findByText("Header payment")).toBeVisible()
 
-        await userEvent.click(within(header).getByRole("button", { name: "Menu button" }))
-        await userEvent.click(canvas.getByRole("link", { name: "Navigate to Payments page" }))
-        await canvas.findByRole("heading", { name: "Payments", level: 1 })
+        await userEvent.click(within(header).getByRole("button", { name: t("header.menu") }))
+        await userEvent.click(canvas.getByRole("link", { name: t("navigation.paymentsAria") }))
+        await canvas.findByRole("heading", { name: t("navigation.payments"), level: 1 })
         let otherHeader = await canvas.findByRole("banner")
         expect(within(otherHeader).getAllByRole("button")).toHaveLength(1)
         expect(
-          within(otherHeader).queryByRole("button", { name: "Create payment" }),
+          within(otherHeader).queryByRole("button", { name: t("payments.create.trigger") }),
         ).not.toBeInTheDocument()
         expect(
-          within(otherHeader).queryByRole("button", { name: "Theme toggle" }),
+          within(otherHeader).queryByRole("button", { name: /^(Theme toggle|テーマ切り替え)$/ }),
         ).not.toBeInTheDocument()
 
-        await userEvent.click(within(otherHeader).getByRole("button", { name: "Menu button" }))
-        await userEvent.click(canvas.getByRole("link", { name: "Navigate to Settings page" }))
-        await canvas.findByRole("heading", { name: "Settings", level: 1 })
+        await userEvent.click(within(otherHeader).getByRole("button", { name: t("header.menu") }))
+        await userEvent.click(canvas.getByRole("link", { name: t("navigation.settingsAria") }))
+        await canvas.findByRole("heading", { name: t("settings.title"), level: 1 })
         otherHeader = await canvas.findByRole("banner")
         expect(within(otherHeader).getAllByRole("button")).toHaveLength(1)
         await userEvent.click(
-          within(canvas.getByRole("navigation", { name: "Settings sections" })).getByRole("link", {
-            name: "Appearance",
+          within(canvas.getByRole("navigation", { name: t("settings.sections") })).getByRole(
+            "link",
+            {
+              name: t("navigation.appearance"),
+            },
+          ),
+        )
+        expect(await canvas.findByRole("combobox", { name: t("theme.label") })).toBeVisible()
+
+        await userEvent.click(
+          within(otherHeader).getByRole("link", {
+            name: t("header.logo", { appName: t("app.name") }),
           }),
         )
-        expect(await canvas.findByRole("combobox", { name: "Theme" })).toBeVisible()
-
-        await userEvent.click(within(otherHeader).getByRole("link", { name: "Burneto — Home" }))
         expect(
           await canvas.findByRole("button", {
-            name: "Create payment",
+            name: t("payments.create.trigger"),
           }),
         ).toBeEnabled()
       } finally {

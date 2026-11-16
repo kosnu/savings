@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2103",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "aa77c22e35f4951bf3be39beae864bc634a6c4d558bd9789a2c03cbf9f2b3b10",
+  "status": "pass",
+  "checks": [
+    "Issueの完了条件とHomePageのplay呼出経路",
+    "存在・不在の照合と日英の実行結果",
+    "rule-mapのpath／surface一致と依存規則",
+    "本番UI・言語設定・API・Story収集範囲の差分確認"
+  ],
+  "summary": "HomePageの翻訳対象の照合は表示言語に追従し、金額・fixture名・技術ラベルと既存の存在／不在条件を保持する。日本語のHomePageと英語の標準ブラウザテストで各完了条件を確認した。指摘なし。",
+  "remaining": []
+}

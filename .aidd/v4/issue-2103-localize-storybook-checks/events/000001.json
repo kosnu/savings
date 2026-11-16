@@ -1,0 +1,16 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2103",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "bb69cae9222289fd7691b1d043fe922e8c450d950e39ba91c36a7dbaed8a7688",
+  "status": "pass",
+  "checks": [
+    "Issue #2103 と HomePage の play の照合"
+  ],
+  "summary": "表示中の言語の翻訳をStoryの照合に使い、現行辞書にない非表示対象は日英の文言を同じ条件で検査する。ホームの全Storyを日英で実行し、標準ブラウザテストも実行する。",
+  "remaining": []
+}
