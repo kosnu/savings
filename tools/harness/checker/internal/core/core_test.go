@@ -58,6 +58,61 @@ func TestRulesClosureAndFailure(t *testing.T) {
 		t.Fatal("malformed glob accepted")
 	}
 }
+
+func TestReviewFeedbackRouting(t *testing.T) {
+	root := filepath.Join("..", "..", "..", "..", "..")
+	feedback := "policy.review-feedback-classification"
+	audit := "policy.audit"
+	for _, tc := range []struct {
+		path     string
+		required []string
+		excluded []string
+	}{
+		{"apps/web/src/app/routes/HomePage/HomePage.stories.tsx", []string{"policy.code-review", "web.storybook-browser-tests"}, []string{feedback, audit}},
+		{"docs/architecture.md", []string{"documentation.policy"}, []string{feedback, audit}},
+		{".github/workflows/harness_checker_ci.yaml", []string{"ai-driven.checker"}, []string{feedback, audit}},
+		{"docs/harness/policies/review-feedback-classification.md", []string{feedback, audit, "policy.git-workflow"}, nil},
+		{".agents/skills/audit/SKILL.md", []string{"ai-driven.audit", audit, feedback}, nil},
+		{".agents/skills/guardrail-improvement/SKILL.md", []string{"ai-driven.audit", audit, feedback}, nil},
+	} {
+		t.Run(tc.path, func(t *testing.T) {
+			rules, err := ResolveRules(root, []string{tc.path})
+			if err != nil {
+				t.Fatal(err)
+			}
+			selected := map[string]bool{}
+			for _, rule := range rules {
+				selected[rule.ID] = true
+			}
+			for _, id := range tc.required {
+				if !selected[id] {
+					t.Errorf("required rule %s was not selected", id)
+				}
+			}
+			for _, id := range tc.excluded {
+				if selected[id] {
+					t.Errorf("unrelated rule %s was selected", id)
+				}
+			}
+		})
+	}
+}
+
+func TestReviewFeedbackPolicyEntryPoints(t *testing.T) {
+	root := filepath.Join("..", "..", "..", "..", "..", "docs", "harness", "policies")
+	for _, path := range []string{"code-review.md", "git-workflow.md", "audit.md"} {
+		t.Run(path, func(t *testing.T) {
+			body, err := os.ReadFile(filepath.Join(root, path))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !strings.Contains(string(body), "](review-feedback-classification.md)") {
+				t.Error("review feedback policy link is missing")
+			}
+		})
+	}
+}
+
 func TestADRHistorySelectsCanonicalPolicyOnly(t *testing.T) {
 	root := t.TempDir()
 	put(t, root, "docs/harness/policies/documentation-policy.md", "current")

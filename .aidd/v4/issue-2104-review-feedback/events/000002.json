@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2104",
+  "paths": [
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md",
+    "docs/harness/policies/audit.md",
+    "tools/harness/checker/internal/core/core_test.go",
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "6d3b8b03318a386f7d4d3736a143e5b5ff0ead15ce70055d87e4d29b2698959a",
+  "status": "pass",
+  "checks": [
+    "Core verify: 安定した差分で6項目成功",
+    "規約選択の回帰: 変更前に通常pathの3例で失敗",
+    "隔離eval: 通常修正・指摘分析・手動承認"
+  ],
+  "summary": "Goテスト・vet、整形、索引・実差分検査は成功。evalは修正候補の全6試行が合格。基準は5件合格、通常修正の1件が時間切れで、観測できた5件で悪化なし。変更の影響がないケースとWeb/APIの実行は対象外。",
+  "remaining": []
+}
