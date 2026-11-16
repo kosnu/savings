@@ -1,3 +1,4 @@
+import { GearIcon, HomeIcon, ListBulletIcon } from "@radix-ui/react-icons"
 import { Separator } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { AuthError } from "@supabase/supabase-js"
@@ -43,10 +44,20 @@ export const Closed: Story = {
 
 const navigationLinks = (
   <>
-    <SidebarButton to="/" ariaLabel="Home" label="Home" />
-    <SidebarButton to="/payments" ariaLabel="Payments" label="Payments" />
+    <SidebarButton to="/" ariaLabel="Home" label="Home" icon={<HomeIcon aria-hidden />} />
+    <SidebarButton
+      to="/payments"
+      ariaLabel="Payments"
+      label="Payments"
+      icon={<ListBulletIcon aria-hidden />}
+    />
     <Separator orientation="horizontal" size="4" decorative />
-    <SidebarButton to="/settings" ariaLabel="Settings" label="Settings" />
+    <SidebarButton
+      to="/settings"
+      ariaLabel="Settings"
+      label="Settings"
+      icon={<GearIcon aria-hidden />}
+    />
   </>
 )
 

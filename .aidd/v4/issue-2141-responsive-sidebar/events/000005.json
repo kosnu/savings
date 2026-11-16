@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/AppLayout/AppLayout.tsx",
+    "apps/web/src/app/AppLayout/AppLayout.test.tsx",
+    "apps/web/src/app/Sidebar/SidebarButton.tsx",
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "ba9c5039b775dbf2b73a8b278943ab175739e4089035647a2d62c1857b3adc13",
+  "status": "pass",
+  "checks": [
+    "Issue #2141の最新完了条件と承認対象を照合",
+    "PC・スマホの比較条件と確認する操作を決定"
+  ],
+  "summary": "PR #2143の794df416を比較元とする。共通SidebarButtonで既存のRadix Iconsと文字を組み合わせ、最初のリンクとロゴの日本語読み上げをホームで統一する。1142×826と390×844の日本語・ダーク表示で、同じ月とデータの変更前後を比較する。3項目の意味と現在地が読み取れ、移動後のドロワー閉鎖と予算表示への到達に支障がないことを確認する。",
+  "remaining": []
+}

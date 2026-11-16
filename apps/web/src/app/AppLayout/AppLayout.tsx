@@ -1,3 +1,4 @@
+import { GearIcon, HomeIcon, ListBulletIcon } from "@radix-ui/react-icons"
 import { Flex, Separator } from "@radix-ui/themes"
 import { Outlet } from "@tanstack/react-router"
 import { useCallback, useEffect, useId, useRef, type ReactNode } from "react"
@@ -43,12 +44,14 @@ export function AppLayout({ children, headerAction, stickyHeader = false }: AppL
           to="/"
           ariaLabel={t("navigation.homeAria")}
           label={t("navigation.home")}
+          icon={<HomeIcon aria-hidden />}
           onClick={dismissSidebar}
         />
         <SidebarButton
           to="/payments"
           ariaLabel={t("navigation.paymentsAria")}
           label={t("navigation.payments")}
+          icon={<ListBulletIcon aria-hidden />}
           onClick={dismissSidebar}
         />
         <Separator orientation="horizontal" size="4" decorative />
@@ -56,6 +59,7 @@ export function AppLayout({ children, headerAction, stickyHeader = false }: AppL
           to="/settings"
           ariaLabel={t("navigation.settingsAria")}
           label={t("navigation.settings")}
+          icon={<GearIcon aria-hidden />}
           onClick={dismissSidebar}
         />
       </Sidebar>

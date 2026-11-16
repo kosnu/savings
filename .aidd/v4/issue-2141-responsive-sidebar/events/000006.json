@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/AppLayout/AppLayout.tsx",
+    "apps/web/src/app/AppLayout/AppLayout.test.tsx",
+    "apps/web/src/app/Sidebar/SidebarButton.tsx",
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "ba9c5039b775dbf2b73a8b278943ab175739e4089035647a2d62c1857b3adc13",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration（1157件）",
+    "pnpm run web:test:storybook（32件）",
+    "git diff --check・Core check-changes",
+    "Chromiumで日本語・ダーク表示の前後比較"
+  ],
+  "summary": "2025年6月の同一のStorybookデータを1142×826と390×844で比較。両幅でホーム・支払い・設定と対応アイコンを同じ順序で表示し、ホームの現在地、予算・グラフと支払い作成の配置を確認した。アイコンは読み上げ対象から外し、スマホの支払い・設定への移動後にドロワーが閉じた。",
+  "remaining": []
+}

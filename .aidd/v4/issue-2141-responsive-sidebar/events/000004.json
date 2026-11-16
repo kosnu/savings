@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2143",
+  "paths": [
+    "apps/web/src/app/AppLayout/",
+    "apps/web/src/app/Header/",
+    "apps/web/src/app/Sidebar/",
+    "apps/web/src/i18n/resources.ts",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "29ee50cc5db78d9fd08d294c0c26281fdde0345a9d6fe5e1849027105ccc5530",
+  "status": "pass",
+  "checks": [
+    "現行PRのheadと成功したPreviewのSHA・GitHubレビューthreadを照合",
+    "IssueのPC常時表示と実装・プレビュー注釈を照合",
+    "分析レビューの正確さ・再利用性・反映先を確認"
+  ],
+  "summary": "ブラウザー指摘1は1142pxで1024px以上の常設表示。閉じる操作はスマホ用という#2141の現行要件と一致する。PCで折りたたむ要望の有無は未確認。指摘2は既存の「トップ」等と文字だけのリンクを継承し、既存検証の比較基準に名称とアイコンが含まれていなかった。Issue #2141にホーム・支払い・設定の文字と対応アイコンを明記し、既存のナビゲーションと翻訳・テストに反映する案を提示。共通ルール追加は不要。既存要件上のマージ阻害と返信対象のGitHub threadはなし。直後のユーザー発言「Approve」により指摘2のIssueと実装・検証への反映を承認。",
+  "remaining": []
+}

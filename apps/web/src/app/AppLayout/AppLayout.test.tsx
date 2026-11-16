@@ -125,15 +125,17 @@ describe("AppLayout", () => {
     )
     const { user } = renderAppLayout()
     const navigation = await screen.findByRole("navigation", { name: "Main navigation" })
+    const home = within(navigation).getByRole("link", { name: "Navigate to Home page" })
     const payments = within(navigation).getByRole("link", { name: "Navigate to Payments page" })
     const settings = within(navigation).getByRole("link", { name: "Navigate to Settings page" })
 
     expect(screen.queryByRole("button", { name: "Menu button" })).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Close sidebar" })).not.toBeInTheDocument()
     expect(payments).toHaveAttribute("aria-current", "page")
-    expect(
-      within(navigation).getByRole("link", { name: "Navigate to Home page" }),
-    ).not.toHaveAttribute("aria-current")
+    expect(home).not.toHaveAttribute("aria-current")
+    for (const link of [home, payments, settings]) {
+      expect(link.querySelector("svg")).toHaveAttribute("aria-hidden", "true")
+    }
 
     await user.click(settings)
     expect(await screen.findByText("Settings page")).toBeVisible()

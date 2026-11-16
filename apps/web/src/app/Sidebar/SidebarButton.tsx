@@ -7,11 +7,12 @@ import styles from "./SidebarButton.module.css"
 interface SidebarButtonProps {
   to: string
   label: ReactNode
+  icon?: ReactNode
   ariaLabel: string
   onClick?: () => void
 }
 
-export function SidebarButton({ to, label, ariaLabel, onClick }: SidebarButtonProps) {
+export function SidebarButton({ to, label, icon, ariaLabel, onClick }: SidebarButtonProps) {
   return (
     <Button
       asChild
@@ -27,6 +28,7 @@ export function SidebarButton({ to, label, ariaLabel, onClick }: SidebarButtonPr
         activeOptions={{ exact: to === "/", includeSearch: false }}
         className={styles.sidebarButtonLink}
       >
+        {icon}
         {label}
       </Link>
     </Button>
