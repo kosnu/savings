@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000017.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/AppLayout/",
+    "apps/web/src/app/Sidebar/",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "9990383677711f6d4c3472024a93b03b10c8e953a744c50363b36aa7c53cc775",
+  "status": "pass",
+  "checks": [
+    "承認されたIssue #2141の3件と配信済みhead a0ab0f98を照合",
+    "既存のブラウザ設定の保存、PCとモバイルの操作、折りたたみ時の幅を比較"
+  ],
+  "summary": "PC表示の開閉を専用キーで保存し、未保存時は展開する。折りたたみ時は3.5remの列にロゴとホーム・支払い・設定のアイコンを表示し、展開時にログアウトを表示する。項目の縦marginをリセットして既存のgapを適用し、区切り線を残す。列と本文幅を同期し、動きを減らす設定に従う。既存のPC回帰テストとStorybookの完了状態を更新し、同じDevプレビューで再読み込みと移動を確認する。",
+  "remaining": []
+}

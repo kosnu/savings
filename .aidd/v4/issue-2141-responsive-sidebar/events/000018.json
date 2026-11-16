@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000017.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/AppLayout/",
+    "apps/web/src/app/Sidebar/",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "9990383677711f6d4c3472024a93b03b10c8e953a744c50363b36aa7c53cc775",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration 1,157件",
+    "web:test:storybook Chromium 32件",
+    "Core check-changes と git diff --check"
+  ],
+  "summary": "最終差分で既存テストを実行した。PCのアイコンから別レイアウトへ移動した後も折りたたみ状態と現在地が復元され、既存のブラウザーテストで折りたたんだ際にアイコンの列を残して本文が広がることと、キーボードによる展開を確認した。スマホで移動後に閉じる既存テストも通過した。",
+  "remaining": []
+}

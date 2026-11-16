@@ -8,11 +8,19 @@ interface SidebarButtonProps {
   to: string
   label: ReactNode
   icon?: ReactNode
+  iconOnly?: boolean
   ariaLabel: string
   onClick?: () => void
 }
 
-export function SidebarButton({ to, label, icon, ariaLabel, onClick }: SidebarButtonProps) {
+export function SidebarButton({
+  to,
+  label,
+  icon,
+  iconOnly = false,
+  ariaLabel,
+  onClick,
+}: SidebarButtonProps) {
   return (
     <Button
       asChild
@@ -27,9 +35,10 @@ export function SidebarButton({ to, label, icon, ariaLabel, onClick }: SidebarBu
         to={to}
         activeOptions={{ exact: to === "/", includeSearch: false }}
         className={styles.sidebarButtonLink}
+        title={iconOnly ? ariaLabel : undefined}
       >
         {icon}
-        {label}
+        {!iconOnly && label}
       </Link>
     </Button>
   )

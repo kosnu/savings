@@ -116,7 +116,7 @@ describe("AppLayout", () => {
     expect(screen.queryByRole("navigation", { name: "Main navigation" })).not.toBeInTheDocument()
   })
 
-  test("PC ではメニューを開かずに移動でき、現在の画面を示す", async () => {
+  test("PC では折りたたんだまま移動でき、別レイアウトでも状態を復元する", async () => {
     const matchMedia = window.matchMedia.bind(window)
     vi.spyOn(window, "matchMedia").mockImplementation((query) =>
       Object.defineProperty(matchMedia(query), "matches", {
@@ -145,14 +145,21 @@ describe("AppLayout", () => {
     const close = screen.getByRole("button", { name: "Hide sidebar" })
     expect(close).toHaveAttribute("aria-expanded", "true")
     await user.click(close)
-    expect(screen.queryByRole("navigation", { name: "Main navigation" })).not.toBeInTheDocument()
+    expect(navigation).toBeVisible()
+    expect(home).not.toHaveTextContent("Home")
     const open = screen.getByRole("button", { name: "Show sidebar" })
     expect(open).toHaveAttribute("aria-expanded", "false")
     expect(open).toHaveFocus()
 
-    await user.keyboard("{Enter}")
-    expect(await screen.findByRole("navigation", { name: "Main navigation" })).toBeVisible()
-    expect(screen.getByRole("button", { name: "Hide sidebar" })).toHaveFocus()
-    expect(settings).toHaveAttribute("aria-current", "page")
+    await user.click(home)
+    expect(await screen.findByText("Home page")).toBeVisible()
+    expect(screen.getByRole("button", { name: "Show sidebar" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    )
+    expect(screen.getByRole("link", { name: "Navigate to Home page" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    )
   })
 })

@@ -440,10 +440,13 @@ function headerActionStory(mobile: boolean): Story {
         await userEvent.click(
           within(header).getByRole("button", { name: t("header.closeSidebar") }),
         )
-        expect(canvas.queryByRole("complementary")).toBeNull()
+        expect(navigation).toBeVisible()
         await waitFor(() => {
           const closedBounds = main.getBoundingClientRect()
-          expect(closedBounds.width).toBeCloseTo(openBounds.width + sidebarBounds.width, 0)
+          const collapsedBounds = sidebar.getBoundingClientRect()
+          expect(closedBounds.width).toBeGreaterThan(openBounds.width)
+          expect(collapsedBounds.width).toBeGreaterThan(0)
+          expect(collapsedBounds.right).toBeCloseTo(closedBounds.left, 0)
           expect(closedBounds.top).toBeCloseTo(openBounds.top, 0)
         })
         expect(within(header).getByRole("button", { name: t("header.openSidebar") })).toHaveFocus()

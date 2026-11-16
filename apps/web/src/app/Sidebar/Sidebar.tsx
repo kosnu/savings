@@ -27,6 +27,8 @@ export function Sidebar({ children, id, open, permanent = false, onClose }: Side
   const [logoutFailed, setLogoutFailed] = useState(false)
   const closeButton = useRef<HTMLButtonElement>(null)
   const drawerOpen = open && !permanent
+  const collapsed = permanent && !open
+  const drawerHidden = !permanent && !open
 
   useEffect(() => {
     if (!drawerOpen) return
@@ -76,19 +78,21 @@ export function Sidebar({ children, id, open, permanent = false, onClose }: Side
       ) : null}
       <aside
         id={id}
-        aria-hidden={open ? undefined : true}
-        inert={!open}
+        aria-hidden={drawerHidden || undefined}
+        inert={drawerHidden}
         data-open={open}
         data-permanent={permanent}
         className={styles.sidebar}
       >
         <Flex className={styles.sidebarHeader} p="4" justify="between" align="center" gap="4">
           <Button asChild variant="ghost" size="3" color="gray">
-            <Link to="/" onClick={onClose}>
+            <Link to="/" aria-label={t("app.name")} onClick={onClose}>
               <Logo width={24} height={24} alt="" />
-              <Text size="3" weight="bold">
-                {t("app.name")}
-              </Text>
+              {!collapsed && (
+                <Text size="3" weight="bold">
+                  {t("app.name")}
+                </Text>
+              )}
             </Link>
           </Button>
           {!permanent && (

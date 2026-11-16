@@ -14,6 +14,7 @@ import styles from "./AppLayout.module.css"
 
 // Radix Themes の md から、本文と並べてメニューを表示する。
 const DESKTOP_SIDEBAR_MEDIA_QUERY = "(min-width: 1024px)"
+const DESKTOP_SIDEBAR_STORAGE_KEY = "desktopSidebarOpen"
 
 interface AppLayoutProps {
   children?: ReactNode
@@ -24,8 +25,9 @@ interface AppLayoutProps {
 export function AppLayout({ children, headerAction, stickyHeader = false }: AppLayoutProps) {
   const desktop = useMediaQuery(DESKTOP_SIDEBAR_MEDIA_QUERY)
   const { open: drawerOpen, openSidebar, closeSidebar } = useSidebar()
-  const { open: desktopSidebarOpen, toggleSidebar } = useSidebar(true)
+  const { open: desktopSidebarOpen, toggleSidebar } = useSidebar(true, DESKTOP_SIDEBAR_STORAGE_KEY)
   const sidebarOpen = desktop ? desktopSidebarOpen : drawerOpen
+  const iconOnly = desktop && !desktopSidebarOpen
   const sidebarId = useId()
   const menuButton = useRef<HTMLButtonElement>(null)
   const { t } = useTranslation()
@@ -53,6 +55,7 @@ export function AppLayout({ children, headerAction, stickyHeader = false }: AppL
           to="/"
           ariaLabel={t("navigation.homeAria")}
           label={t("navigation.home")}
+          iconOnly={iconOnly}
           icon={<HomeIcon aria-hidden />}
           onClick={dismissSidebar}
         />
@@ -60,6 +63,7 @@ export function AppLayout({ children, headerAction, stickyHeader = false }: AppL
           to="/payments"
           ariaLabel={t("navigation.paymentsAria")}
           label={t("navigation.payments")}
+          iconOnly={iconOnly}
           icon={<ListBulletIcon aria-hidden />}
           onClick={dismissSidebar}
         />
@@ -68,6 +72,7 @@ export function AppLayout({ children, headerAction, stickyHeader = false }: AppL
           to="/settings"
           ariaLabel={t("navigation.settingsAria")}
           label={t("navigation.settings")}
+          iconOnly={iconOnly}
           icon={<GearIcon aria-hidden />}
           onClick={dismissSidebar}
         />

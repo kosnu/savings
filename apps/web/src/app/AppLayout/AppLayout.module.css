@@ -14,6 +14,7 @@
   --sidebar-width: 15rem;
   --sidebar-transition: 200ms ease;
   --app-header-height: calc(var(--space-4) * 2 + var(--space-6) + env(safe-area-inset-top) + 1px);
+  padding-inline-start: var(--sidebar-width);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -22,8 +23,8 @@
   }
 }
 
-.layout[data-desktop="true"][data-sidebar-open="true"] {
-  padding-inline-start: var(--sidebar-width);
+.layout[data-desktop="true"][data-sidebar-open="false"] {
+  --sidebar-width: 3.5rem;
 }
 
 /* Mainのスタイル */

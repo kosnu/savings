@@ -60,7 +60,7 @@ export const resources = {
       "privacy.storage.access":
         "Account information and the data you register are stored on servers for use of the service. Authentication and access controls restrict access to your own account information and the records of books you belong to.",
       "privacy.storage.browser":
-        "Your browser’s local storage keeps your sign-in session, language and theme preferences. Language preferences are also stored with your account. Clearing browser storage or signing out does not delete the account or records stored on the servers.",
+        "Your browser’s local storage keeps your sign-in session, language and theme preferences, and whether the desktop sidebar is expanded. Language preferences are also stored with your account. Clearing browser storage or signing out does not delete the account or records stored on the servers.",
       "privacy.storage.deletion":
         "You can delete individual payments and categories through the app. Disabling a budget does not erase past budget records. From Settings → Account, you can schedule account deletion when new requests are enabled. Scheduling suspends normal use immediately. Signing back in to the same account within 168 hours cancels the request. Physical deletion starts from the first 03:00 Japan time at or after that deadline, only from 03:00 to 03:59 each day, in batches of up to 10 per minute (up to 600 per day). Remaining and failed requests carry over to the next day; completion may be delayed. Deletion applies to your Burneto account and its data. Books with remaining members and their records are preserved. Empty books and all their records are deleted. Deleted data cannot be restored. For access, correction or unavailable deletion requests, contact the operator below.",
       "privacy.storage.retention":
@@ -409,7 +409,7 @@ export const resources = {
       "privacy.storage.access":
         "アカウント情報と登録したデータは、サービスを利用するためにサーバー上に保存します。認証とアクセス制御により、本人のアカウント情報と、所属するブックの記録にアクセスできる範囲を制限します。",
       "privacy.storage.browser":
-        "ログイン状態と言語・テーマの設定を、ブラウザのローカルストレージに保存します。言語設定はアカウントにも保存します。ブラウザの保存情報の消去やログアウトでは、サーバー上のアカウントや記録は削除されません。",
+        "ログイン状態、言語・テーマの設定、PCのサイドバーの開閉状態を、ブラウザのローカルストレージに保存します。言語設定はアカウントにも保存します。ブラウザの保存情報の消去やログアウトでは、サーバー上のアカウントや記録は削除されません。",
       "privacy.storage.deletion":
         "個別の支払いやカテゴリはアプリから削除できます。予算の無効化では過去の予算履歴を消去しません。受付中は「設定 → アカウント」からアカウント削除を予約でき、予約直後に通常利用を停止します。予約から168時間が経つ前に同じアカウントでログインし直すと、予約を取り消せます。期限以降で最初の日本時間午前3時から、毎日3:00〜3:59だけ毎分最大10件（最大600件／日）を物理削除します。残件・失敗分は翌日に回し、完了が遅れる場合があります。削除対象はBurnetoのアカウントとそのデータです。他のメンバーが残るブックと全履歴は保持し、無人のブックと全履歴を削除します。物理削除後の復元はできません。閲覧・訂正や受付停止中の削除依頼は、下記へお問い合わせください。",
       "privacy.storage.retention":

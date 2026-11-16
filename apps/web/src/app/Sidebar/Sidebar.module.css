@@ -51,11 +51,33 @@
   border-inline-end: 1px solid var(--gray-6);
   border-radius: 0;
   box-shadow: none;
-  transition: transform var(--sidebar-transition);
+  transition: width var(--sidebar-transition);
 }
 
 .sidebar[data-permanent="true"][data-open="false"] {
-  transform: translateX(-100%);
+  width: var(--sidebar-width, 3.5rem);
+}
+
+.sidebar[data-permanent="true"] .sidebarContents {
+  padding-inline: var(--space-2);
+}
+
+.sidebar[data-permanent="true"] .sidebarContents > a {
+  /* ghost の負の余白を除き、ボタン間の gap を確保する。 */
+  margin: 0;
+}
+
+.sidebar[data-permanent="true"][data-open="false"] .sidebarHeader {
+  padding-inline: var(--space-2);
+}
+
+.sidebar[data-permanent="true"][data-open="false"] .sidebarHeader > a {
+  margin-inline: 0;
+  padding-inline: var(--space-2);
+}
+
+.sidebar[data-permanent="true"][data-open="false"] .sidebarFooter {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
