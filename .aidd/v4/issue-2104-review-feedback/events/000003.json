@@ -1,0 +1,32 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2104",
+  "paths": [
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md",
+    "docs/harness/policies/audit.md",
+    "tools/harness/checker/internal/core/core_test.go",
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "6d3b8b03318a386f7d4d3736a143e5b5ff0ead15ce70055d87e4d29b2698959a",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.audit",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.retrospective",
+    "policy.review-feedback-classification"
+  ],
+  "summary": "通常のUI・文書・CI設定で分類とAuditの過剰選択が消え、各面の必須規則を維持。分析・修正・返信・解決はCode ReviewとGit Workflowから分類正本へ、明示Auditは専用入口・依存から到達する。権限・承認条件の変更なし。回帰テストは索引選択と文書リンクを検査し、実PRへの投稿・解決は対象外。指摘・未解決の規則矛盾なし。",
+  "remaining": []
+}

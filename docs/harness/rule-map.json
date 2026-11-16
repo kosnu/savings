@@ -535,7 +535,7 @@
       "id": "policy.review-feedback-classification",
       "file": "docs/harness/policies/review-feedback-classification.md",
       "applies_to": {
-        "paths": [".github/**", "docs/**", "apps/**"],
+        "paths": ["docs/harness/policies/review-feedback-classification.md"],
         "domains": ["repository", "review", "github"],
         "activities": [
           "address_review_comment",

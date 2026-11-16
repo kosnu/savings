@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2104",
+  "paths": [
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md",
+    "docs/harness/policies/audit.md",
+    "tools/harness/checker/internal/core/core_test.go",
+    "docs/harness/policies/git-workflow.md"
+  ],
+  "fingerprint": "6d3b8b03318a386f7d4d3736a143e5b5ff0ead15ce70055d87e4d29b2698959a",
+  "status": "pass",
+  "checks": [
+    "規約索引と参照入口の確認",
+    "通常変更・レビュー対応・Auditの回帰検証設計"
+  ],
+  "summary": "レビュー対応分類のpath一致を正本文書に限定し、既存コメントの対応と明示Auditは各入口から直接参照する。必須規則の解決方式・依存・承認境界を維持し、実規約索引の選択結果と分類正本への参照をテストする。",
+  "remaining": []
+}
