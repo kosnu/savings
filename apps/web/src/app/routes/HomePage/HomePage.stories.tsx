@@ -404,6 +404,29 @@ function headerActionStory(mobile: boolean): Story {
       await expect(create).toHaveClass("rt-variant-soft")
       await expect(create).not.toHaveClass("rt-high-contrast")
       const header = canvas.getByRole("banner")
+      const navigateFromSidebar = async (linkName: string) => {
+        if (mobile) await userEvent.click(canvas.getByRole("button", { name: t("header.menu") }))
+        const navigation = canvas.getByRole("navigation", { name: t("navigation.main") })
+        await userEvent.click(within(navigation).getByRole("link", { name: linkName }))
+        if (mobile) {
+          expect(canvas.queryByRole("navigation", { name: t("navigation.main") })).toBeNull()
+        }
+      }
+
+      if (mobile) {
+        expect(canvas.queryByRole("navigation", { name: t("navigation.main") })).toBeNull()
+        expect(within(header).getByRole("button", { name: t("header.menu") })).toBeVisible()
+      } else {
+        expect(within(header).queryByRole("button", { name: t("header.menu") })).toBeNull()
+        const sidebar = canvas.getByRole("complementary")
+        const navigation = within(sidebar).getByRole("navigation", { name: t("navigation.main") })
+        expect(sidebar.getBoundingClientRect().right).toBeLessThanOrEqual(
+          canvas.getByRole("main").getBoundingClientRect().left,
+        )
+        expect(
+          within(navigation).getByRole("link", { name: t("navigation.homeAria") }),
+        ).toHaveAttribute("aria-current", "page")
+      }
       expect(
         within(header).queryByRole("button", { name: /^(Theme toggle|テーマ切り替え)$/ }),
       ).not.toBeInTheDocument()
@@ -443,6 +466,9 @@ function headerActionStory(mobile: boolean): Story {
           expect(window.scrollY).toBeGreaterThan(0)
           expect(header.getBoundingClientRect().top).toBeCloseTo(0, 0)
           expect(create.getBoundingClientRect().top).toBeCloseTo(initial.top - initialHeaderTop, 0)
+          if (!mobile) {
+            expect(canvas.getByRole("complementary").getBoundingClientRect().top).toBeCloseTo(0, 0)
+          }
           const paymentButtons = within(recent).getAllByRole("button")
           const lastPayment = paymentButtons[paymentButtons.length - 1]
           expect(lastPayment.getBoundingClientRect().top).toBeGreaterThan(
@@ -489,23 +515,24 @@ function headerActionStory(mobile: boolean): Story {
         await waitFor(async () => expect(body.queryByRole("dialog")).not.toBeInTheDocument())
         await expect(await within(recent).findByText("Header payment")).toBeVisible()
 
-        await userEvent.click(within(header).getByRole("button", { name: t("header.menu") }))
-        await userEvent.click(canvas.getByRole("link", { name: t("navigation.paymentsAria") }))
+        await navigateFromSidebar(t("navigation.paymentsAria"))
         await canvas.findByRole("heading", { name: t("navigation.payments"), level: 1 })
-        let otherHeader = await canvas.findByRole("banner")
-        expect(within(otherHeader).getAllByRole("button")).toHaveLength(1)
-        expect(
-          within(otherHeader).queryByRole("button", { name: t("payments.create.trigger") }),
-        ).not.toBeInTheDocument()
-        expect(
-          within(otherHeader).queryByRole("button", { name: /^(Theme toggle|テーマ切り替え)$/ }),
-        ).not.toBeInTheDocument()
+        if (mobile) {
+          const paymentsHeader = canvas.getByRole("banner")
+          expect(within(paymentsHeader).getAllByRole("button")).toHaveLength(1)
+          expect(
+            within(paymentsHeader).getByRole("button", { name: t("header.menu") }),
+          ).toBeVisible()
+        } else {
+          expect(canvas.queryByRole("banner")).toBeNull()
+          expect(canvas.getByRole("link", { name: t("navigation.paymentsAria") })).toHaveAttribute(
+            "aria-current",
+            "page",
+          )
+        }
 
-        await userEvent.click(within(otherHeader).getByRole("button", { name: t("header.menu") }))
-        await userEvent.click(canvas.getByRole("link", { name: t("navigation.settingsAria") }))
+        await navigateFromSidebar(t("navigation.settingsAria"))
         await canvas.findByRole("heading", { name: t("settings.title"), level: 1 })
-        otherHeader = await canvas.findByRole("banner")
-        expect(within(otherHeader).getAllByRole("button")).toHaveLength(1)
         await userEvent.click(
           within(canvas.getByRole("navigation", { name: t("settings.sections") })).getByRole(
             "link",
@@ -516,11 +543,17 @@ function headerActionStory(mobile: boolean): Story {
         )
         expect(await canvas.findByRole("combobox", { name: t("theme.label") })).toBeVisible()
 
-        await userEvent.click(
-          within(otherHeader).getByRole("link", {
-            name: t("header.logo", { appName: t("app.name") }),
-          }),
-        )
+        if (mobile) {
+          await userEvent.click(
+            canvas.getByRole("link", { name: t("header.logo", { appName: t("app.name") }) }),
+          )
+        } else {
+          expect(canvas.getByRole("link", { name: t("navigation.settingsAria") })).toHaveAttribute(
+            "aria-current",
+            "page",
+          )
+          await navigateFromSidebar(t("navigation.homeAria"))
+        }
         expect(
           await canvas.findByRole("button", {
             name: t("payments.create.trigger"),

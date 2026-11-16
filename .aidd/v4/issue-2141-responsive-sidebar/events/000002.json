@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/AppLayout/",
+    "apps/web/src/app/Header/",
+    "apps/web/src/app/Sidebar/",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "29ee50cc5db78d9fd08d294c0c26281fdde0345a9d6fe5e1849027105ccc5530",
+  "status": "pass",
+  "checks": [
+    "pnpm run web:lint",
+    "pnpm run web:format-check",
+    "pnpm run web:typecheck",
+    "pnpm run web:test:unit-integration（1157件）",
+    "pnpm run web:test:storybook（32件）",
+    "git diff --check・Core check-changes",
+    "Chromium Storybookの変更前後比較"
+  ],
+  "summary": "1280×900と390×844のChromiumで、同じ英語表示、2025年6月の予算・支払いデータを使い、ホーム→支払い→設定を比較した。PCは直接移動、本文との重なりなし、最下部スクロールで固定を確認した。スマホは開閉、遷移後の閉鎖、Escape後のフォーカス復帰を確認した。1023pxから1024pxに広げて戻してもドロワーは閉じていた。",
+  "remaining": []
+}

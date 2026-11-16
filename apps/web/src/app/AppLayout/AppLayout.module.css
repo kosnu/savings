@@ -4,9 +4,16 @@
   height: 100vh;
 }
 
-.layout[data-sticky-header="true"] {
+.layout[data-sticky-header="true"],
+.layout[data-desktop="true"] {
   height: auto;
   min-height: 100dvh;
+}
+
+.layout[data-desktop="true"] {
+  --sidebar-width: 15rem;
+
+  padding-inline-start: var(--sidebar-width);
 }
 
 /* Mainのスタイル */

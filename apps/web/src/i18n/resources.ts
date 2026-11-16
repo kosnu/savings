@@ -72,6 +72,7 @@ export const resources = {
         "The operator handles inquiries and replies from a personal email address.",
       "privacy.contact.operator":
         "The operator’s name and address will be provided without delay upon request from the user concerned.",
+      "navigation.main": "Main navigation",
       "navigation.home": "Home",
       "navigation.homeAria": "Navigate to Home page",
       "navigation.payments": "Payments",
@@ -418,6 +419,7 @@ export const resources = {
         "お問い合わせは運営者が対応し、返信は運営者の個人メールアドレスから行います。",
       "privacy.contact.operator":
         "運営者の氏名・住所は、利用者本人からの求めに応じて遅滞なく回答します。",
+      "navigation.main": "メインナビゲーション",
       "navigation.home": "トップ",
       "navigation.homeAria": "トップページへ移動",
       "navigation.payments": "支払い",

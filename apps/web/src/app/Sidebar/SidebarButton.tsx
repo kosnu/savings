@@ -18,10 +18,15 @@ export function SidebarButton({ to, label, ariaLabel, onClick }: SidebarButtonPr
       aria-label={ariaLabel}
       className={styles.sidebarButton}
       variant="ghost"
+      color="gray"
       size="3"
       onClick={onClick}
     >
-      <Link to={to} className={styles.sidebarButtonLink}>
+      <Link
+        to={to}
+        activeOptions={{ exact: to === "/", includeSearch: false }}
+        className={styles.sidebarButtonLink}
+      >
         {label}
       </Link>
     </Button>

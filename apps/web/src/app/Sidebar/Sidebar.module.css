@@ -34,13 +34,30 @@
 
 .sidebar[data-open="true"] {
   /* 開いているときの幅 */
-  width: min(240px, 100vw);
+  width: min(15rem, 100vw);
 }
 
 .sidebar[data-open="false"] {
   /* 閉じているときの幅 */
   width: 0px;
   box-shadow: none;
+}
+
+.sidebar[data-permanent="true"] {
+  box-sizing: border-box;
+  width: var(--sidebar-width, 15rem);
+  height: 100dvh;
+  z-index: auto;
+  border-inline-end: 1px solid var(--gray-6);
+  border-radius: 0;
+  box-shadow: none;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
 }
 
 /* Sidebar Headerのスタイル */
@@ -68,7 +85,3 @@
 }
 
 /* リンクのスタイル */
-.link {
-  /* リンクの下線を削除 */
-  text-decoration: none;
-}

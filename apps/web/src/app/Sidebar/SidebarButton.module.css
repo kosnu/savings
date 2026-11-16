@@ -10,3 +10,8 @@
   display: flex;
   justify-content: flex-start;
 }
+
+.sidebar-button[aria-current="page"] {
+  background-color: var(--gray-a4);
+  font-weight: var(--font-weight-medium);
+}

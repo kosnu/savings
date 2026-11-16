@@ -41,6 +41,19 @@ export const Closed: Story = {
   },
 }
 
+const navigationLinks = (
+  <>
+    <SidebarButton to="/" ariaLabel="Home" label="Home" />
+    <SidebarButton to="/payments" ariaLabel="Payments" label="Payments" />
+    <Separator orientation="horizontal" size="4" decorative />
+    <SidebarButton to="/settings" ariaLabel="Settings" label="Settings" />
+  </>
+)
+
+export const Permanent: Story = {
+  args: { open: false, permanent: true, children: navigationLinks },
+}
+
 // 実際のナビゲーションの高さとviewport内の操作可能領域をブラウザで確認する。
 export const ShortViewport: Story = {
   tags: ["browser-test"],
@@ -56,14 +69,7 @@ export const ShortViewport: Story = {
   globals: { viewport: { value: "short" } },
   args: {
     open: true,
-    children: (
-      <>
-        <SidebarButton to="/" ariaLabel="Home" label="Home" />
-        <SidebarButton to="/payments" ariaLabel="Payments" label="Payments" />
-        <Separator orientation="horizontal" size="4" decorative />
-        <SidebarButton to="/settings" ariaLabel="Settings" label="Settings" />
-      </>
-    ),
+    children: navigationLinks,
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)

@@ -2,26 +2,43 @@ import { Cross1Icon, ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Button, Callout, Flex, IconButton, Separator, Text } from "@radix-ui/themes"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { useCallback, useState, type ReactNode } from "react"
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
+import { Logo } from "../../components/misc/Logo"
 import { getSupabaseClient } from "../../lib/supabase"
 
 import styles from "./Sidebar.module.css"
 
 interface SidebarProps {
   children?: ReactNode
+  id?: string
   open: boolean
+  permanent?: boolean
   onClose: () => void
 }
 
-export function Sidebar({ children, open, onClose }: SidebarProps) {
+export function Sidebar({ children, id, open, permanent = false, onClose }: SidebarProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const supabase = getSupabaseClient()
   const { t } = useTranslation()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [logoutFailed, setLogoutFailed] = useState(false)
+  const closeButton = useRef<HTMLButtonElement>(null)
+  const drawerOpen = open && !permanent
+  const visible = permanent || drawerOpen
+
+  useEffect(() => {
+    if (!drawerOpen) return
+
+    closeButton.current?.focus()
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !event.defaultPrevented) onClose()
+    }
+    document.addEventListener("keydown", closeOnEscape)
+    return () => document.removeEventListener("keydown", closeOnEscape)
+  }, [drawerOpen, onClose])
 
   const handleLogout = useCallback(async () => {
     if (isLoggingOut) return
@@ -50,7 +67,7 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
 
   return (
     <>
-      {open ? (
+      {drawerOpen ? (
         <div
           aria-hidden="true"
           className={styles.backdrop}
@@ -58,31 +75,39 @@ export function Sidebar({ children, open, onClose }: SidebarProps) {
           onClick={onClose}
         />
       ) : null}
-      <aside data-open={open} className={styles.sidebar}>
-        {/* Sidebar Header */}
+      <aside
+        id={id}
+        aria-hidden={visible ? undefined : true}
+        inert={!visible}
+        data-open={visible}
+        data-permanent={permanent}
+        className={styles.sidebar}
+      >
         <Flex className={styles.sidebarHeader} p="4" justify="between" align="center" gap="4">
-          <Link to="/" className={styles.link}>
-            <Button className={styles.sidebarButton} variant="ghost" size="3">
+          <Button asChild variant="ghost" size="3" color="gray">
+            <Link to="/" onClick={onClose}>
+              <Logo width={24} height={24} alt="" />
               <Text size="3" weight="bold">
                 {t("app.name")}
               </Text>
-            </Button>
-          </Link>
-          <IconButton
-            aria-label={t("common.close", { target: "sidebar" })}
-            variant="ghost"
-            onClick={onClose}
-          >
-            <Cross1Icon />
-          </IconButton>
+            </Link>
+          </Button>
+          {!permanent && (
+            <IconButton
+              ref={closeButton}
+              aria-label={t("common.close", { target: "sidebar" })}
+              variant="ghost"
+              onClick={onClose}
+            >
+              <Cross1Icon />
+            </IconButton>
+          )}
         </Flex>
         <Separator size="4" />
-        {/* Sidebar Contents */}
-        <Flex className={styles.sidebarContents} align="start" direction="column" gap="4" p="4">
-          {children}
+        <Flex asChild className={styles.sidebarContents} direction="column" gap="3" p="4">
+          <nav aria-label={t("navigation.main")}>{children}</nav>
         </Flex>
         <Separator size="4" />
-        {/* Sidebar Footer */}
         <Flex className={styles.sidebarFooter} direction="column" gap="3" p="4">
           {logoutFailed ? (
             <Callout.Root
