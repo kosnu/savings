@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2103",
+  "paths": [
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "aa77c22e35f4951bf3be39beae864bc634a6c4d558bd9789a2c03cbf9f2b3b10",
+  "status": "pass",
+  "checks": [
+    "Web整形・lint・整形チェック・型チェック",
+    "単体・結合テスト 1156件",
+    "標準Storybook 32件",
+    "日本語ロケールのHomePage Story 14件",
+    "差分の空白と規約ルーティング"
+  ],
+  "summary": "macOSのChromiumで標準ブラウザテストと、日本語ロケールのHomePage Storyが成功した。Webのlint、整形、型、単体・結合テストも成功した。",
+  "remaining": []
+}
