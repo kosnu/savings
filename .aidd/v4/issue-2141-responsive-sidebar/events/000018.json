@@ -9,7 +9,7 @@
     "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
     "apps/web/src/i18n/resources.ts"
   ],
-  "fingerprint": "9990383677711f6d4c3472024a93b03b10c8e953a744c50363b36aa7c53cc775",
+  "fingerprint": "d476f3399822877a281c7b3f8a2315c6b2d3580b2db72be1b69f94ff85635cde",
   "status": "pass",
   "checks": [
     "web:lint",
@@ -19,6 +19,6 @@
     "web:test:storybook Chromium 32件",
     "Core check-changes と git diff --check"
   ],
-  "summary": "最終差分で既存テストを実行した。PCのアイコンから別レイアウトへ移動した後も折りたたみ状態と現在地が復元され、既存のブラウザーテストで折りたたんだ際にアイコンの列を残して本文が広がることと、キーボードによる展開を確認した。スマホで移動後に閉じる既存テストも通過した。",
+  "summary": "最終差分で既存テストを実行した。PCのアイコンから別レイアウトへ移動した後も折りたたみ状態と現在地が復元され、既存のブラウザーテストで折りたたんだ際にアイコンの列を残して本文が広がることと、キーボードによる展開を確認した。スマホで移動後に閉じる既存テストも通過した。 アイコン列の内側に選択中のボタンが収まることも既存Storybookで確認した。",
   "remaining": []
 }

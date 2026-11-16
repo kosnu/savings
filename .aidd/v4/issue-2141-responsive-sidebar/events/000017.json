@@ -9,7 +9,7 @@
     "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
     "apps/web/src/i18n/resources.ts"
   ],
-  "fingerprint": "9990383677711f6d4c3472024a93b03b10c8e953a744c50363b36aa7c53cc775",
+  "fingerprint": "d476f3399822877a281c7b3f8a2315c6b2d3580b2db72be1b69f94ff85635cde",
   "status": "pass",
   "checks": [
     "承認されたIssue #2141の3件と配信済みhead a0ab0f98を照合",

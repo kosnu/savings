@@ -433,9 +433,8 @@ function headerActionStory(mobile: boolean): Story {
         expect(getComputedStyle(header).borderBottomWidth).toBe("1px")
         expect(sidebar.querySelectorAll(".rt-Separator")).toHaveLength(1)
         expect(navigation.querySelectorAll(".rt-Separator")).toHaveLength(1)
-        expect(
-          within(navigation).getByRole("link", { name: t("navigation.homeAria") }),
-        ).toHaveAttribute("aria-current", "page")
+        const homeLink = within(navigation).getByRole("link", { name: t("navigation.homeAria") })
+        expect(homeLink).toHaveAttribute("aria-current", "page")
 
         await userEvent.click(
           within(header).getByRole("button", { name: t("header.closeSidebar") }),
@@ -446,6 +445,7 @@ function headerActionStory(mobile: boolean): Story {
           const collapsedBounds = sidebar.getBoundingClientRect()
           expect(closedBounds.width).toBeGreaterThan(openBounds.width)
           expect(collapsedBounds.width).toBeGreaterThan(0)
+          expect(homeLink.getBoundingClientRect().right).toBeLessThanOrEqual(collapsedBounds.right)
           expect(collapsedBounds.right).toBeCloseTo(closedBounds.left, 0)
           expect(closedBounds.top).toBeCloseTo(openBounds.top, 0)
         })

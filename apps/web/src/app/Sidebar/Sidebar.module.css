@@ -65,6 +65,7 @@
 .sidebar[data-permanent="true"] .sidebarContents > a {
   /* ghost の負の余白を除き、ボタン間の gap を確保する。 */
   margin: 0;
+  box-sizing: border-box;
 }
 
 .sidebar[data-permanent="true"][data-open="false"] .sidebarHeader {
