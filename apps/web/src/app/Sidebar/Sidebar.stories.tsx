@@ -62,7 +62,7 @@ const navigationLinks = (
 )
 
 export const Permanent: Story = {
-  args: { open: false, permanent: true, children: navigationLinks },
+  args: { open: true, permanent: true, children: navigationLinks },
 }
 
 // 実際のナビゲーションの高さとviewport内の操作可能領域をブラウザで確認する。

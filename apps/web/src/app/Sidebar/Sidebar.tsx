@@ -27,7 +27,6 @@ export function Sidebar({ children, id, open, permanent = false, onClose }: Side
   const [logoutFailed, setLogoutFailed] = useState(false)
   const closeButton = useRef<HTMLButtonElement>(null)
   const drawerOpen = open && !permanent
-  const visible = permanent || drawerOpen
 
   useEffect(() => {
     if (!drawerOpen) return
@@ -77,9 +76,9 @@ export function Sidebar({ children, id, open, permanent = false, onClose }: Side
       ) : null}
       <aside
         id={id}
-        aria-hidden={visible ? undefined : true}
-        inert={!visible}
-        data-open={visible}
+        aria-hidden={open ? undefined : true}
+        inert={!open}
+        data-open={open}
         data-permanent={permanent}
         className={styles.sidebar}
       >
@@ -103,11 +102,11 @@ export function Sidebar({ children, id, open, permanent = false, onClose }: Side
             </IconButton>
           )}
         </Flex>
-        <Separator size="4" />
+        {!permanent && <Separator size="4" />}
         <Flex asChild className={styles.sidebarContents} direction="column" gap="3" p="4">
           <nav aria-label={t("navigation.main")}>{children}</nav>
         </Flex>
-        <Separator size="4" />
+        {!permanent && <Separator size="4" />}
         <Flex className={styles.sidebarFooter} direction="column" gap="3" p="4">
           {logoutFailed ? (
             <Callout.Root

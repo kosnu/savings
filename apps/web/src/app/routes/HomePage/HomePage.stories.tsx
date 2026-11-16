@@ -420,12 +420,33 @@ function headerActionStory(mobile: boolean): Story {
         expect(within(header).queryByRole("button", { name: t("header.menu") })).toBeNull()
         const sidebar = canvas.getByRole("complementary")
         const navigation = within(sidebar).getByRole("navigation", { name: t("navigation.main") })
-        expect(sidebar.getBoundingClientRect().right).toBeLessThanOrEqual(
-          canvas.getByRole("main").getBoundingClientRect().left,
+        const brandHeader = within(sidebar).getByRole("link", { name: t("app.name") }).parentElement
+        if (!brandHeader) throw new globalThis.Error("サイドバーのヘッダーがありません")
+        const main = canvas.getByRole("main")
+        const openBounds = main.getBoundingClientRect()
+        expect(sidebar.getBoundingClientRect().right).toBeLessThanOrEqual(openBounds.left)
+        expect(brandHeader.getBoundingClientRect().height).toBeCloseTo(
+          header.getBoundingClientRect().height,
+          0,
         )
+        expect(getComputedStyle(header).borderBottomWidth).toBe("1px")
+        expect(sidebar.querySelectorAll(".rt-Separator")).toHaveLength(1)
+        expect(navigation.querySelectorAll(".rt-Separator")).toHaveLength(1)
         expect(
           within(navigation).getByRole("link", { name: t("navigation.homeAria") }),
         ).toHaveAttribute("aria-current", "page")
+
+        await userEvent.click(
+          within(header).getByRole("button", { name: t("header.closeSidebar") }),
+        )
+        expect(canvas.queryByRole("complementary")).toBeNull()
+        const closedBounds = main.getBoundingClientRect()
+        expect(closedBounds.width).toBeGreaterThan(openBounds.width)
+        expect(closedBounds.top).toBeCloseTo(openBounds.top, 0)
+        expect(within(header).getByRole("button", { name: t("header.openSidebar") })).toHaveFocus()
+        await userEvent.keyboard("{Enter}")
+        expect(canvas.getByRole("complementary")).toBeVisible()
+        expect(main.getBoundingClientRect().width).toBeCloseTo(openBounds.width, 0)
       }
       expect(
         within(header).queryByRole("button", { name: /^(Theme toggle|テーマ切り替え)$/ }),
@@ -524,7 +545,11 @@ function headerActionStory(mobile: boolean): Story {
             within(paymentsHeader).getByRole("button", { name: t("header.menu") }),
           ).toBeVisible()
         } else {
-          expect(canvas.queryByRole("banner")).toBeNull()
+          expect(
+            within(canvas.getByRole("banner")).getByRole("button", {
+              name: t("header.closeSidebar"),
+            }),
+          ).toBeVisible()
           expect(canvas.getByRole("link", { name: t("navigation.paymentsAria") })).toHaveAttribute(
             "aria-current",
             "page",

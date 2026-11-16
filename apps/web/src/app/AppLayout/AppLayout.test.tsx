@@ -141,5 +141,18 @@ describe("AppLayout", () => {
     expect(await screen.findByText("Settings page")).toBeVisible()
     expect(settings).toHaveAttribute("aria-current", "page")
     expect(payments).not.toHaveAttribute("aria-current")
+
+    const close = screen.getByRole("button", { name: "Hide sidebar" })
+    expect(close).toHaveAttribute("aria-expanded", "true")
+    await user.click(close)
+    expect(screen.queryByRole("navigation", { name: "Main navigation" })).not.toBeInTheDocument()
+    const open = screen.getByRole("button", { name: "Show sidebar" })
+    expect(open).toHaveAttribute("aria-expanded", "false")
+    expect(open).toHaveFocus()
+
+    await user.keyboard("{Enter}")
+    expect(await screen.findByRole("navigation", { name: "Main navigation" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Hide sidebar" })).toHaveFocus()
+    expect(settings).toHaveAttribute("aria-current", "page")
   })
 })

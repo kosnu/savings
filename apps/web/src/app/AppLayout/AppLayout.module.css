@@ -12,7 +12,10 @@
 
 .layout[data-desktop="true"] {
   --sidebar-width: 15rem;
+  --app-header-height: calc(var(--space-4) * 2 + var(--space-6) + env(safe-area-inset-top) + 1px);
+}
 
+.layout[data-desktop="true"][data-sidebar-open="true"] {
   padding-inline-start: var(--sidebar-width);
 }
 

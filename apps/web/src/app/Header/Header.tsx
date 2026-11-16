@@ -1,4 +1,4 @@
-import { HamburgerMenuIcon } from "@radix-ui/react-icons"
+import { Cross1Icon, HamburgerMenuIcon } from "@radix-ui/react-icons"
 import { Box, IconButton } from "@radix-ui/themes"
 import { Link } from "@tanstack/react-router"
 import type { ReactNode, Ref } from "react"
@@ -10,6 +10,7 @@ import styles from "./Header.module.css"
 
 interface HeaderProps {
   onMenuClick?: () => void
+  desktopMenu?: boolean
   menuButtonRef?: Ref<HTMLButtonElement>
   sidebarId?: string
   sidebarOpen?: boolean
@@ -21,6 +22,7 @@ const iconSize = { width: "22", height: "22" }
 
 export function Header({
   onMenuClick,
+  desktopMenu = false,
   menuButtonRef,
   sidebarId,
   sidebarOpen,
@@ -31,32 +33,39 @@ export function Header({
 
   if (!onMenuClick && !action) return null
 
+  const MenuIcon = desktopMenu && sidebarOpen ? Cross1Icon : HamburgerMenuIcon
+  const menuLabel = desktopMenu
+    ? t(sidebarOpen ? "header.closeSidebar" : "header.openSidebar")
+    : t("header.menu")
+
   return (
-    <header className={styles.header} data-sticky={sticky}>
+    <header className={styles.header} data-desktop-menu={desktopMenu} data-sticky={sticky}>
       {onMenuClick && (
         <>
           <IconButton
             ref={menuButtonRef}
-            aria-label={t("header.menu")}
+            aria-label={menuLabel}
             aria-expanded={sidebarOpen}
             aria-controls={sidebarId}
-            size="3"
+            size={desktopMenu ? "2" : "3"}
             variant="ghost"
             onClick={onMenuClick}
           >
-            <HamburgerMenuIcon {...iconSize} />
+            <MenuIcon {...iconSize} />
           </IconButton>
-          <IconButton
-            asChild
-            aria-label={t("header.logo", { appName: t("app.name") })}
-            size="3"
-            radius="full"
-            variant="ghost"
-          >
-            <Link to="/">
-              <Logo width={32} height={32} alt="" />
-            </Link>
-          </IconButton>
+          {!desktopMenu && (
+            <IconButton
+              asChild
+              aria-label={t("header.logo", { appName: t("app.name") })}
+              size="3"
+              radius="full"
+              variant="ghost"
+            >
+              <Link to="/">
+                <Logo width={32} height={32} alt="" />
+              </Link>
+            </IconButton>
+          )}
         </>
       )}
       <Box style={{ flexGrow: 1 }} />

@@ -23,7 +23,9 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, headerAction, stickyHeader = false }: AppLayoutProps) {
   const desktop = useMediaQuery(DESKTOP_SIDEBAR_MEDIA_QUERY)
-  const { open, openSidebar, closeSidebar } = useSidebar()
+  const { open: drawerOpen, openSidebar, closeSidebar } = useSidebar()
+  const { open: desktopSidebarOpen, toggleSidebar } = useSidebar(true)
+  const sidebarOpen = desktop ? desktopSidebarOpen : drawerOpen
   const sidebarId = useId()
   const menuButton = useRef<HTMLButtonElement>(null)
   const { t } = useTranslation()
@@ -33,13 +35,20 @@ export function AppLayout({ children, headerAction, stickyHeader = false }: AppL
   }, [closeSidebar, desktop])
 
   const dismissSidebar = useCallback(() => {
+    if (desktop) return
+
     closeSidebar()
     menuButton.current?.focus()
-  }, [closeSidebar])
+  }, [closeSidebar, desktop])
 
   return (
-    <Flex className={styles.layout} data-desktop={desktop} data-sticky-header={stickyHeader}>
-      <Sidebar id={sidebarId} permanent={desktop} open={open} onClose={dismissSidebar}>
+    <Flex
+      className={styles.layout}
+      data-desktop={desktop}
+      data-sidebar-open={sidebarOpen}
+      data-sticky-header={stickyHeader}
+    >
+      <Sidebar id={sidebarId} permanent={desktop} open={sidebarOpen} onClose={dismissSidebar}>
         <SidebarButton
           to="/"
           ariaLabel={t("navigation.homeAria")}
@@ -66,10 +75,11 @@ export function AppLayout({ children, headerAction, stickyHeader = false }: AppL
 
       <Flex direction="column" flexGrow="1" minWidth="0">
         <Header
-          onMenuClick={desktop ? undefined : openSidebar}
+          onMenuClick={desktop ? toggleSidebar : openSidebar}
+          desktopMenu={desktop}
           menuButtonRef={menuButton}
           sidebarId={sidebarId}
-          sidebarOpen={open}
+          sidebarOpen={sidebarOpen}
           action={headerAction}
           sticky={stickyHeader}
         />

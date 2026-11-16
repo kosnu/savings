@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/AppLayout/",
+    "apps/web/src/app/Header/",
+    "apps/web/src/app/Sidebar/",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "8df047f71a3496077635dfca0bdb8bc8b44d970ae08383733353e67b6ff4cae2",
+  "status": "pass",
+  "checks": [
+    "Issue #2141の開閉・ヘッダー・罫線の完了条件を照合",
+    "比較元と画面全体で確認する操作を決定"
+  ],
+  "summary": "比較元はPR #2143のac93d75d。PCの初期状態は開き、本文ヘッダーの同じボタンで閉じて再表示する。閉じた分を本文に割り当て、共通の高さ基準で開閉時の本文の縦位置を揃える。PCのロゴ下とログアウト上の罫線を省き、項目間と本文側の下線を残す。同データの1142×826日本語・ダーク表示で比較し、390×844ではドロワーからの移動を確認する。",
+  "remaining": []
+}
