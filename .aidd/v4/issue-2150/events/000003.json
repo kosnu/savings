@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2150",
+  "paths": [
+    ".github/workflows/assign_pr_author.yaml",
+    ".github/workflows/deploy_preview.yaml",
+    "docs/development-preview.md",
+    "tools/dev-preview/authorize.test.mjs",
+    "tools/dev-preview/cleanup.mjs",
+    "tools/dev-preview/cleanup.test.mjs",
+    "tools/dev-preview/lifecycle.mjs",
+    "tools/dev-preview/lifecycle.test.mjs"
+  ],
+  "fingerprint": "1a5459b2485f9ed1859294cf3e18c16e59b2f1c5644e8e7e81c0d2d5a902456d",
+  "status": "pass",
+  "checks": [
+    "Semantic review: event gating, trusted checkout, same PR concurrency, manual cleanup isolation",
+    "Parent review: report skipped deploy fix and before-delete recheck incorporated"
+  ],
+  "summary": "対象をIssueの範囲へ限定。cleanupは配信せず、開いたPR・不明状態で削除しない。既存Environment、legacy共有保護、本番を変更しない。外部API間の原子性と実配送は未保証。",
+  "remaining": []
+}

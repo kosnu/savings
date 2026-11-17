@@ -18,7 +18,7 @@ export function validatePR(pr, repository) {
 
 export async function resolveLifecycle(event, env, get) {
   const repository = env.GITHUB_REPOSITORY
-  const pullRequest = ["pull_request", "pull_request_target"].includes(env.GITHUB_EVENT_NAME)
+  const pullRequest = env.GITHUB_EVENT_NAME === "pull_request"
   const number = String(pullRequest ? event.number : event.inputs?.pr_number)
   if (
     !/^[1-9][0-9]*$/u.test(number) ||
@@ -26,11 +26,14 @@ export async function resolveLifecycle(event, env, get) {
       !(env.GITHUB_EVENT_NAME === "workflow_dispatch" && env.GITHUB_REF === "refs/heads/main"))
   )
     throw new Error("main の PR lifecycle event または手動実行が必要です。")
+  const operation = event.inputs?.operation ?? "deploy"
+  if (!pullRequest && !["deploy", "cleanup"].includes(operation))
+    throw new Error("配信または削除を指定してください。")
   if (pullRequest) {
     validatePR(event.pull_request, repository)
     if (
       !(
-        (env.GITHUB_EVENT_NAME === "pull_request_target" && event.action === "closed") ||
+        event.action === "closed" ||
         (env.GITHUB_EVENT_NAME === "pull_request" &&
           event.action === "labeled" &&
           event.label?.name === "preview")
@@ -43,7 +46,11 @@ export async function resolveLifecycle(event, env, get) {
   // 古い配信要求が終了通知を置き換えても、終了済みなら配信せず削除へ進める。
   const branch = pullRequest ? event.pull_request.head.ref : pr.head.ref
   previewName(branch)
-  if (event.action === "closed" || pr.state === "closed") {
+  if (
+    event.action === "closed" ||
+    pr.state === "closed" ||
+    (!pullRequest && operation === "cleanup")
+  ) {
     return { number, branch, sha: pr.head.sha, deploy: false }
   }
   const request = deploymentRequest(

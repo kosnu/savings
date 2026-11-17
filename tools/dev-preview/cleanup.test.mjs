@@ -427,3 +427,22 @@ test("parent未作成は不在で成功、parentがある一覧404はAPI障害�
     }
   }
 })
+
+test("Preview照会中のreopenと削除直前の照会失敗はDELETEしない", async () => {
+  for (const fail of [false, true]) {
+    const f = fixture()
+    let reads = 0
+    const get = async (path) => {
+      if (path.includes("?")) return []
+      if (++reads === 1) return pr
+      if (fail) throw new Error("GitHub unavailable")
+      return { ...pr, state: "open" }
+    }
+    const run = cleanupPreview(env, get, f.fetcher, f.report)
+    if (fail) await assert.rejects(run, /GitHub unavailable/u)
+    else await run
+    assert.equal(reads, 2)
+    assert.equal(f.calls.filter((c) => c.method === "DELETE").length, 0)
+    assert.ok(f.resources.has("pr-1927"))
+  }
+})

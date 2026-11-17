@@ -70,7 +70,7 @@ URL表示の修復のために配信jobを再実行する必要はない。
 同じPRは `pr-<PR番号>` の同じURLへ更新され、別PRは同じブランチでも別URLになる。
 branch renameでも対象名は変わらない。導入前のbranch名方式のURLは次の配信時に切り替わる。
 pushだけでは再配信されない。更新時は `preview` ラベルを外して付け直す。
-main導入後はmainからworkflowを手動実行し、PR番号だけを入力する方法も使える。
+main導入後はmainからworkflowを手動実行し、`operation: deploy`（既定）とPR番号を指定する方法も使える。
 CloudもこのActions経路を使うため、Cloudへの配信用Secret登録は不要。
 
 Actionsは各デプロイjobの開始時にPR状態と要求のSHA・branchを照合し、検証したSHAをcheckoutする。
@@ -249,8 +249,13 @@ open PRの正常配信では削除stepを実行せず、既存のChecks URL登�
 runの手動キャンセルやAPI障害では残存し得るため、対象の終了runを再実行して確認する。
 
 配信要求は同一repository限定の `pull_request` の `labeled` で受け付け、workflow定義もPRの検証・レビュー対象とする。
-終了通知だけは `pull_request_target` の `closed` で受け付ける。
-競合PRでは `pull_request` のworkflowが起動しないため、配信後に競合してそのままcloseした場合も削除要求を届ける。
+終了通知も `pull_request` の `closed` で受け付ける。`pull_request_target` は使わない。
+競合PRではworkflowが起動しない。必要なPR情報が通知に含まれない場合も自動削除しない。
+削除runが作成されなかった場合は、Actionsの `Deploy Dev Preview` → Run workflow で
+branchを `main`、`operation` を `cleanup`、`pr_number` を対象の終了済みPR番号にして実行する。
+これは配信jobを実行せず、現在のPRが同一repository・main宛て・closedであることを再確認して削除する。
+reopen済みなら削除せず終了する。入力不正・PR不明・API障害は失敗として扱う。
+定期実行や残存Previewの一括削除は行わない。
 この終了経路ではforkを拒否し、配信jobへ進まず、mainの補助コードだけを実行する。
 受付・状態確認・削除の補助コードはPR eventのbase SHAから取得し、mainからの手動実行ではその実行SHAを使う。
 削除jobは独立runnerで実行し、PRコード・依存install script・配信jobの成果物を実行しない。

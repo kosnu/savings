@@ -104,6 +104,15 @@ export async function cleanupPreview(env, get, fetcher = fetch, report = () => {
         report(name, "Preview は不在（正常終了）")
         continue
       }
+      // 一覧取得中の reopen も保護する。GitHub と Cloudflare 間の原子性は保証できない。
+      const latest = validatePR(
+        await get(`/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}`),
+        GITHUB_REPOSITORY,
+      )
+      if (latest.state !== "closed") {
+        report(name, "open PR のため削除しない")
+        return
+      }
       // Worker・DB・Auth の削除 endpoint や force は使わない。
       try {
         await request(`${base}/${encodeURIComponent(name)}`, "DELETE")
