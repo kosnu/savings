@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2108",
+  "paths": [
+    "tools/harness/checker/",
+    "docs/ai-driven-development/aidd-checker.md"
+  ],
+  "fingerprint": "1a0908f9852338d2ac93499c74812f5bc3dce7f8b3f5e46d9988ef0429c2aac4",
+  "status": "pass",
+  "checks": [
+    "外部照合の呼び出し経路",
+    "期限・子プロセス終了の設計"
+  ],
+  "summary": "Shipのgit ls-remoteとgh pr viewに各30秒の期限を設け、既存のプロセスグループ管理で子も終了させる。期限超過は照合未完了として返し、通常の検証実行時間と既存の配信操作の権限境界を維持する。",
+  "remaining": []
+}

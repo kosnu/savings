@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2108",
+  "paths": [
+    "tools/harness/checker/",
+    "docs/ai-driven-development/aidd-checker.md"
+  ],
+  "fingerprint": "1a0908f9852338d2ac93499c74812f5bc3dce7f8b3f5e46d9988ef0429c2aac4",
+  "status": "pass",
+  "checks": [
+    "Issue #2108の全完了条件",
+    "CLIと外部照合の呼出経路",
+    "通常の検証との境界",
+    "規約のpath一致と依存関係"
+  ],
+  "summary": "Shipで外部照合に各30秒の期限を適用する。正常時の照合と不一致時の拒否を維持し、期限超過時の子プロセス終了と照合未完了をmacOSで確認した。CLIはエラーを終了コード1で返し、書き込みの再実行経路はない。Linuxの実行はCIの検証範囲。",
+  "remaining": []
+}
