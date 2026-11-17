@@ -113,7 +113,10 @@ func events(a response, proofs ...proof) []byte {
 }
 
 func TestApprovalTargetAndCompletion(t *testing.T) {
-	for _, name := range []string{"explain", "reply-only", "approved", "missing-permission", "audit-acknowledgement", "audit-explicit-approval"} {
+	for _, name := range []string{
+		"explain", "reply-only", "approved", "missing-permission", "audit-acknowledgement", "audit-explicit-approval",
+		"audit-proposal-correction", "audit-review-scope-selection", "audit-execution-selection",
+	} {
 		c := findCase(t, name)
 		a := answer(c)
 		// 説明・返信・判断を完了したことと、将来の修正や既存の検証状態を混同しない。

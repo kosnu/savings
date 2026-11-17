@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2107",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/cases.go",
+    "tools/harness/evals/main_test.go",
+    "tools/harness/evals/analysis_test.go"
+  ],
+  "fingerprint": "6f83d7e1536695f91ecf36616cf9f791761a53a3db934460523ad754a1a1c96f",
+  "status": "pass",
+  "checks": [
+    "evals Go test・vet",
+    "Markdown整形・差分検査・Core verify",
+    "gpt-5.6-sol low 選択的evalの変更前後比較"
+  ],
+  "summary": "最終の同一suiteでmain 49bacefaと候補が各12/12合格。追加3ケースと既存の相づち・明示承認・継続3ケースを各2入力で確認。初回の読み取り調査と変更の判定対象の混同を受け、対照の質問文で変更操作を特定して両側を再測定した。評価範囲は仮想入力への行動選択と承認要否。",
+  "remaining": []
+}

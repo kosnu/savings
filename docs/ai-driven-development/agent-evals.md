@@ -32,11 +32,18 @@ when_to_read:
 | 小さな修正の完遂 | 累積値の期間増減を修正し、空・1件・減少を含む動作を満たす。別作業の未コミット変更と対象外のファイルを保持する。      |
 
 [cases.go](../../tools/harness/evals/cases.go)が入力と期待判定を所有する。
-行動evalは判断9ケースと実修正2ケース、分析evalはAudit 3ケースとRetrospective 3ケースを持つ。
-Audit後の承認判断は行動evalの`audit-acknowledgement`と`audit-explicit-approval`で、相づち・理解確認への肯定と具体的な実行承認を区別する。
+行動evalは判断12ケースと実修正2ケース、分析evalはAudit 3ケースとRetrospective 3ケースを持つ。
 各ケースには条件・表現の異なる2入力がある。分析ケースの入力・期待値は[analysis.go](../../tools/harness/evals/analysis.go)が所有する。
 初期状態は、先頭区間を欠落させるJavaScript実装、公開の検証script、別作業の未コミットメモで固定する。
 実修正の評価はローカルの修正・検証・レビュー・報告までを対象とし、実プロダクト全体の開発やShipの評価ではない。
+
+### Audit後の承認判断
+
+`audit-acknowledgement`と`audit-explicit-approval`は、相づちや理解確認への肯定と具体的な実行承認を照合する。
+`audit-proposal-correction`は、提案への訂正を受けた後の適用判断を確認する。
+`audit-review-scope-selection`と`audit-execution-selection`は、同じ選択回答を確認範囲への回答と実行承認への回答に置き、次の操作と追加承認の要否を照合する。
+`approved`は有効な既存承認に基づく作業継続を確認する。
+提案への訂正の反映や既存作業の継続を含む回答の意味は、[意味レビュー事例](semantic-review-cases.md#audit案の訂正と選択式の回答)で照合する。設定変更・データ削除は仮想入力での判断だけを扱う。
 
 ## 分析のeval
 
@@ -80,7 +87,7 @@ Auditでは、確認できた検証漏れと、その発生・見逃しの原因
 説明文の完全一致は求めない。根拠の文章の意味・十分性を自動採点したとは扱わず、LLM judgeも使わない。
 回答schemaは次の対象を分ける。対象外の将来作業や過去の成功から、現在の判定を補わない。
 
-- `action`: 依頼で選ぶ操作。行動判断だけの依頼では「判断を説明した」という現在の行為ではなく、次に取ると判断した操作を記す。説明そのものは`explain`、返信案作成は`reply`、修正実行は`implement`、範囲・追加承認の確認と取得までの保留は`clarify`、起動済み処理の追跡・終了待ちは`wait`、現行対象の検証は`verify`、元処理や副作用の調査は`investigate`とする。
+- `action`: 依頼で選ぶ操作。行動判断だけの依頼では「判断を説明した」という現在の行為ではなく、次に取ると判断した操作を記す。説明そのものは`explain`、返信案作成は`reply`、コード・設定・データなどの変更の実行は`implement`、範囲・追加承認の確認と取得までの保留は`clarify`、起動済み処理の追跡・終了待ちは`wait`、現行対象の検証は`verify`、元処理や副作用の調査は`investigate`とする。
 - `requires_approval`: 入力が明示する「承認の判定対象」への追加承認の要否。返信案作成の依頼では返信案作成だけを判定し、将来の修正や投稿を混ぜない。未承認の配信について判断するケースでは、配信の実行を対象とする。
 - `completion`: 今回依頼された作業の完了。説明・返信案・行動選択は、その回答を終えれば`complete`。実修正では修正・検証・レビュー・報告の完了が必要である。
 - `verification_state`: 判断を求められた検証対象の現在の状態。`not_run`・`running`・`passed`・`failed`・`unknown`を区別する。検証中の処理について判断を回答できた場合は、`completion=complete`と`verification_state=running`が両立する。検証状態を問わない承認判断等では`not_applicable`を用い、このfieldを採点しない。
@@ -160,7 +167,7 @@ CLIのJSONLとstdout/stderrはメモリ内で処理し、生出力・回答全�
 対応する手順や判断基準を変更したときに、影響するケースだけを選ぶ。共通指示や規則選択の変更では、影響する領域を合わせる。
 
 - `--case`は関連する個別ケースを指定する。複数指定できる。
-- `--suite behavior`は行動11ケース、`--suite audit`はAudit 3ケース、`--suite retrospective`はRetrospective 3ケース。`--suite`も複数指定できる。
+- `--suite behavior`は行動14ケース、`--suite audit`はAudit 3ケース、`--suite retrospective`はRetrospective 3ケース。`--suite`も複数指定できる。
 - 対象の指定は必須で、`--case`と`--suite`は併用しない。全件は`--suite all`と明示した場合だけ実行する。
 - 標準は各ケース2試行、各入力1回。Auditだけなら片側6試行、前後比較で12回のCodex呼出しになる。両分析領域なら前後計24回。追加の採点用モデルは呼ばない。
 - 新しい悪化や試行間の不一致があり判断材料が足りない場合は、関係するケース・反復数だけ増やす。少数試行は回帰の兆候を調べるもので、統計的な優劣の証明ではない。

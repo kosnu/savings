@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2107",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/cases.go",
+    "tools/harness/evals/main_test.go",
+    "tools/harness/evals/analysis_test.go"
+  ],
+  "fingerprint": "45abfa0f0dd71c20f11e9e566c3eec1ef65772c97d28a78ba7c27d7489ff8dcb",
+  "status": "pass",
+  "checks": [
+    "最新Issueと実行委任",
+    "現行のAudit手動承認・既存ケースとの照合",
+    "変更対象と選択的evalの設計"
+  ],
+  "summary": "新Task。main 49bacefaを比較元とし、訂正・確認範囲の選択・実行案の選択を仮想事例と行動evalに追加する。選択回答を対にして元の質問で判定が変わることを確認し、既存の相づち・明示承認・継続ケースを回帰対照とする。採点器と実行規則は変更しない。",
+  "remaining": []
+}
