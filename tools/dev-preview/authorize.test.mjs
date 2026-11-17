@@ -118,8 +118,8 @@ test("workflow text connects allowed requests to one PR check before checkout an
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
   )
-  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled\]/)
-  assert.match(yaml, /pull_request_target:[^\n]*\n    branches: \[main\]\n    types: \[closed\]/)
+  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled, closed\]/)
+  assert.doesNotMatch(yaml, /pull_request_target:/)
   assert.doesNotMatch(yaml, /types:.*synchronize|secrets: inherit/)
   assert.match(yaml, /environment: development/)
   assert.match(yaml, /ref: \$\{\{ steps.pr.outputs.sha \}\}/)

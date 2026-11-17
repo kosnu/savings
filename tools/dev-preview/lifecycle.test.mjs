@@ -20,7 +20,7 @@ const pr = {
 const event = { number: 1927, action: "labeled", label: { name: "preview" }, pull_request: pr }
 const closedEnv = {
   ...env,
-  GITHUB_EVENT_NAME: "pull_request_target",
+  GITHUB_EVENT_NAME: "pull_request",
   GITHUB_REF: "refs/heads/main",
 }
 const get = (value) => async (path) => {
@@ -45,9 +45,8 @@ test("信頼済み受付は event SHA を固定し、open PR の要求に deploy
   }
 })
 
-test("競合close・mergeはtargetで削除対象を解決し、古いlabel要求も配信しない", async () => {
+test("届いたclose・mergeで削除対象を解決し、古いlabel要求も配信しない", async () => {
   for (const closed of [
-    { ...pr, state: "closed", merged: false, mergeable: false },
     { ...pr, state: "closed", merged: false, mergeable: true },
     { ...pr, state: "closed", merged: true },
   ]) {
@@ -102,8 +101,11 @@ test("fork・別base・別label・未対応event・出力注入を信頼済み�
     { ...event, pull_request: { ...pr, head: { ...pr.head, ref: "bad\nbranch" } } },
   ])
     await assert.rejects(resolveLifecycle(invalid, env, get(pr)))
-  await assert.rejects(resolveLifecycle(event, closedEnv, get(pr)))
-  await assert.rejects(resolveLifecycle({ ...event, action: "closed" }, env, get(pr)))
+  await assert.rejects(
+    resolveLifecycle(event, { ...env, GITHUB_EVENT_NAME: "pull_request_target" }, get(pr)),
+  )
+  await assert.rejects(resolveLifecycle({}, closedEnv, get(pr)))
+  await assert.rejects(resolveLifecycle({ number: 1927, action: "closed" }, closedEnv, get(pr)))
   for (const context of [env, closedEnv]) {
     const fork = { ...pr, head: { ...pr.head, repo: { full_name: "fork/savings" } } }
     const action = context === env ? "labeled" : "closed"
@@ -127,8 +129,8 @@ test("配信はPR要求、削除は同じPRの終了通知と配信後確認か�
   )
   const deploy = yaml.split("\n  deploy-web:\n")[1].split("\n  cleanup:\n")[0]
   const cleanup = yaml.split("\n  cleanup:\n")[1].split("\n  report:\n")[0]
-  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled\]/u)
-  assert.match(yaml, /pull_request_target:[^\n]*\n    branches: \[main\]\n    types: \[closed\]/u)
+  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled, closed\]/u)
+  assert.doesNotMatch(yaml, /pull_request_target:|schedule:/u)
   assert.match(
     deploy,
     /github.event_name == 'workflow_dispatch' && github.ref == 'refs\/heads\/main'/u,
@@ -148,10 +150,7 @@ test("配信はPR要求、削除は同じPRの終了通知と配信後確認か�
   assert.match(cleanup, /needs: deploy-web/u)
   assert.match(cleanup, /always\(\) &&/u)
   assert.match(cleanup, /needs.deploy-web.result != 'skipped'/u)
-  assert.match(
-    cleanup,
-    /github.event_name == 'pull_request_target' && github.event.action == 'closed'/u,
-  )
+  assert.match(cleanup, /github.event_name == 'pull_request' && github.event.action == 'closed'/u)
   assert.match(cleanup, /ref: \$\{\{ github.event.pull_request.base.sha \|\| github.sha \}\}/u)
   assert.match(cleanup, /persist-credentials: false/u)
   assert.match(cleanup, /run: node tools\/dev-preview\/lifecycle.mjs reconcile/u)
@@ -161,7 +160,10 @@ test("配信はPR要求、削除は同じPRの終了通知と配信後確認か�
   assert.match(cleanup, /gh api "repos\/\$GITHUB_REPOSITORY\/pulls\/\$PR_NUMBER" --jq '.head.ref'/u)
   assert.doesNotMatch(cleanup, /needs.deploy-web.outputs|pnpm|npm|uses:.*\.\//u)
   assert.doesNotMatch(cleanup, /SUPABASE|VITE_|statuses: write|pull-requests: write/u)
-  assert.match(yaml.split("\n  report:\n")[1], /if: needs.cleanup.outputs.closed == 'false'/u)
+  assert.match(
+    yaml.split("\n  report:\n")[1],
+    /if: needs.deploy-web.result == 'success' && needs.cleanup.outputs.closed == 'false'/u,
+  )
 })
 
 test("Prodを基準とする配信jobはPR確認・checkout・build・検査・配信を順に実行する", () => {
@@ -193,4 +195,46 @@ test("Prodを基準とする配信jobはPR確認・checkout・build・検査・�
     deploy,
     /node "\$RUNNER_TEMP\/preview-control\/report.mjs" "\$RUNNER_TEMP\/preview.json"/u,
   )
+})
+
+test("手動cleanupは競合closeにも使え、open/reopenでも配信しない", async () => {
+  const context = { ...env, GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main" }
+  const manual = { inputs: { pr_number: "1927", operation: "cleanup" } }
+  for (const state of [pr, { ...pr, state: "closed", mergeable: false }]) {
+    assert.equal((await resolveLifecycle(manual, context, get(state))).deploy, false)
+  }
+  for (const inputs of [
+    { pr_number: "0", operation: "cleanup" },
+    { pr_number: "1927", operation: "other" },
+    {},
+  ]) {
+    await assert.rejects(resolveLifecycle({ inputs }, context, get(pr)))
+  }
+  await assert.rejects(
+    resolveLifecycle(manual, { ...context, GITHUB_REF: "refs/heads/other" }, get(pr)),
+  )
+  const yaml = readFileSync(
+    new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
+    "utf8",
+  )
+  const deploy = yaml.split("\n  deploy-web:\n")[1].split("\n  cleanup:\n")[0]
+  const cleanup = yaml.split("\n  cleanup:\n")[1].split("\n  report:\n")[0]
+  assert.match(deploy, /inputs.operation == 'deploy' \|\| inputs.operation == ''/u)
+  assert.match(
+    cleanup,
+    /github.event_name == 'workflow_dispatch' && github.ref == 'refs\/heads\/main' &&\s+inputs.operation == 'cleanup'/u,
+  )
+  assert.match(yaml, /default: deploy/u)
+})
+
+test("自動assignは同一repoの非bot openedだけでcheckoutしない", () => {
+  const yaml = readFileSync(
+    new URL("../../.github/workflows/assign_pr_author.yaml", import.meta.url),
+    "utf8",
+  )
+  assert.match(yaml, /pull_request:/u)
+  assert.doesNotMatch(yaml, /pull_request_target|checkout@/u)
+  assert.match(yaml, /opened/u)
+  assert.match(yaml, /github.event.pull_request.head.repo.full_name == github.repository/u)
+  assert.match(yaml, /github.event.pull_request.user.type != 'Bot'/u)
 })

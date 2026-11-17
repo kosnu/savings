@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2150",
+  "paths": [
+    ".github/workflows/assign_pr_author.yaml",
+    ".github/workflows/deploy_preview.yaml",
+    "docs/development-preview.md",
+    "tools/dev-preview/authorize.test.mjs",
+    "tools/dev-preview/cleanup.mjs",
+    "tools/dev-preview/cleanup.test.mjs",
+    "tools/dev-preview/lifecycle.mjs",
+    "tools/dev-preview/lifecycle.test.mjs"
+  ],
+  "fingerprint": "1a5459b2485f9ed1859294cf3e18c16e59b2f1c5644e8e7e81c0d2d5a902456d",
+  "status": "pass",
+  "checks": [
+    "Dev Preview fixture tests: 40 passed",
+    "actionlint: passed",
+    "zizmor offline: no findings, 8 existing suppressions",
+    "git diff check and harness scoped verification: passed"
+  ],
+  "summary": "通常close/manual cleanupと配信の分離、reopen/API失敗、欠落payload、main限定、既存共有Preview保護をfixtureとworkflow静的検査で確認。 実イベント配送・実削除は検証対象外。",
+  "remaining": []
+}

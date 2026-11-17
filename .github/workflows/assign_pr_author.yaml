@@ -1,7 +1,7 @@
 name: Assign PR author
 
-on: # zizmor: ignore[dangerous-triggers] PRのコードを取得・実行せず、作成者のアサインだけを行う
-  pull_request_target:
+on:
+  pull_request:
     types: [opened]
 
 permissions:
@@ -12,7 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Assign PR author
-        if: github.event.pull_request.user.type != 'Bot'
+        if: >-
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event.pull_request.user.type != 'Bot'
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}

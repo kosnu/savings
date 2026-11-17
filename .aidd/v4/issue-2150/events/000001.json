@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2150",
+  "paths": [
+    ".github/workflows/assign_pr_author.yaml",
+    ".github/workflows/deploy_preview.yaml",
+    "docs/development-preview.md",
+    "tools/dev-preview/authorize.test.mjs",
+    "tools/dev-preview/cleanup.mjs",
+    "tools/dev-preview/cleanup.test.mjs",
+    "tools/dev-preview/lifecycle.mjs",
+    "tools/dev-preview/lifecycle.test.mjs"
+  ],
+  "fingerprint": "1a5459b2485f9ed1859294cf3e18c16e59b2f1c5644e8e7e81c0d2d5a902456d",
+  "status": "pass",
+  "checks": [
+    "Issue scope and lifecycle design"
+  ],
+  "summary": "targetを廃止し通常closeとmainからの明示cleanupへ分離。既存Environment/concurrencyを維持。",
+  "remaining": []
+}
