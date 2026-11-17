@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000025.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/Sidebar/SidebarButton.tsx",
+    "apps/web/src/app/Sidebar/SidebarButton.module.css",
+    "apps/web/src/app/Sidebar/Sidebar.module.css",
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx",
+    "apps/web/src/app/Header/Header.stories.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "0753f18f552c6929fd7a38a6071678a05e98f95c330a8d194e2fa69c15c169eb",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration 1,157件",
+    "web:test:storybook Chromium 32件",
+    "ローカルStorybookの追加3状態を表示",
+    "Core check-changes と git diff --check"
+  ],
+  "summary": "既存のブラウザーテストで、PCの展開・折りたたみの行高が同じで、現在地の背景が項目全体に付き、アイコン列に収まることを確認した。Sidebar単体の折りたたみ表示とHeader単体の開閉2状態の表示・操作名を通常のStorybookで確認した。",
+  "remaining": []
+}

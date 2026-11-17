@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000025.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/Sidebar/SidebarButton.tsx",
+    "apps/web/src/app/Sidebar/SidebarButton.module.css",
+    "apps/web/src/app/Sidebar/Sidebar.module.css",
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx",
+    "apps/web/src/app/Header/Header.stories.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "0753f18f552c6929fd7a38a6071678a05e98f95c330a8d194e2fa69c15c169eb",
+  "status": "pass",
+  "checks": [
+    "Issue #2141の訂正後の完了条件と配信済み2517604bを照合",
+    "既存の行高・余白とghost・現在地の表示を使う",
+    "SidebarとHeaderのStoryで不足しているPC状態を確認"
+  ],
+  "summary": "PCのアイコンを、既存の文字行高を下限とする行内の要素に戻す。余白はRadixのボタンをそのまま使い、横幅は従来の列幅に従う。選択・ホバー・フォーカスは項目全体へ戻す。既存のStorybookで両状態の高さと選択背景を比較し、追加の単体StoryでSidebar折りたたみとHeader開閉を確認した後、同じPRを再配信する。",
+  "remaining": []
+}

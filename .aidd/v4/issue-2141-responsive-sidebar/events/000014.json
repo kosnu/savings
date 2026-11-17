@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/AppLayout/AppLayout.module.css",
+    "apps/web/src/app/Header/Header.tsx",
+    "apps/web/src/app/Sidebar/Sidebar.module.css",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "a7c2c5a62a3b835e2785789e3c86475fe160eb6be21d3ef1b3c6306ce8ba6675",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration 1,157件",
+    "web:test:storybook Chromium 32件",
+    "Core check-changes と git diff --check"
+  ],
+  "summary": "既存テストでPCの開閉完了後の本文幅・縦位置・キーボード再表示と、スマホのナビゲーションを確認した。既存の寸法検証を完了状態まで待つ形へ更新した。アニメーション途中の値・図柄は配信後の実画面で確認する。",
+  "remaining": []
+}

@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000017.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2143",
+  "paths": [
+    "apps/web/src/app/Sidebar/SidebarButton.tsx",
+    "apps/web/src/app/Sidebar/SidebarButton.module.css",
+    "apps/web/src/app/Sidebar/Sidebar.module.css",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "d476f3399822877a281c7b3f8a2315c6b2d3580b2db72be1b69f94ff85635cde",
+  "status": "pass",
+  "checks": [
+    "原因: 最新の0ff9aeeaを1142pxで測定し、全3項目が展開時223×36px・折りたたみ時39×27pxと確認",
+    "原因: リンク幅は列幅に追従し、ラベルを除くとボタン高さが24pxの行高から15pxのアイコンに依存する",
+    "再発抑止: Issueに見える枠と行高の共通化を明記し、既存の安定した完了状態の比較を補う案",
+    "適用先: PCの3リンクのアイコン枠と選択背景、展開時ラベル、既存Storybook。スマホと列幅・項目間隔は維持する案",
+    "PR返信・解決対象なし。ユーザーのApproveで見える枠と行の寸法を揃える案を承認"
+  ],
+  "summary": "PR #2143のメニューボタン寸法差をマージ前に修正する案。PCはアイコンのボタン枠と選択背景を開閉で同じ大きさにする。測定条件では現行の折りたたみ幅39pxと展開高さ36pxを基準にする。展開時は枠の右に名称を並べ、名称も同じリンクで操作できる。行高・余白を揃え、前回のはみ出し確認に加え、同じ3項目の両状態の寸法と移動を確認する。承認後は同じPRの更新とプレビュー再配信を行う。",
+  "remaining": []
+}

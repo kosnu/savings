@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/AppLayout/",
+    "apps/web/src/app/Header/",
+    "apps/web/src/app/Sidebar/",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "29ee50cc5db78d9fd08d294c0c26281fdde0345a9d6fe5e1849027105ccc5530",
+  "status": "pass",
+  "checks": [
+    "Issue #2141・直前のWeb Design Rules・shadcn/ui Sidebarを照合",
+    "PCとスマホで画面全体の比較基準を決定"
+  ],
+  "summary": "比較元は #2137 を反映した main の49bacefa。ホームの2025年6月と同じStorybookデータで、PCは左の常設メニューから開く操作なしで支払い・設定へ移動でき、現在地と本文が分かることを確認する。スマホは本文の上にドロワーを開き、選択後に閉じて遷移先を読めることを確認する。既存のAppLayout・Sidebarを共用し、Radix Themesのmd（1024px）から固定ナビゲーションと本文の専用列を使う。",
+  "remaining": []
+}

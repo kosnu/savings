@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2143",
+  "paths": [
+    "apps/web/src/app/AppLayout/AppLayout.module.css",
+    "apps/web/src/app/Header/Header.tsx",
+    "apps/web/src/app/Sidebar/Sidebar.module.css",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "8df047f71a3496077635dfca0bdb8bc8b44d970ae08383733353e67b6ff4cae2",
+  "status": "pass",
+  "checks": [
+    "配信済みhead 764d27c7のPC CSS・Headerとshadcn/ui SidebarTriggerを照合",
+    "開閉途中の寸法を測るテストはタイミングに依存し、見た目の評価に適さない。配信後の目視を採用する案",
+    "適用先はIssue #2141の完了条件、PCのAppLayout・Sidebar・Header。Storybookは必要な場合に既存の完了状態の待機だけ調整",
+    "PR review threadなし。ユーザーの再提示へのApproveで修正2件と検証範囲を承認"
+  ],
+  "summary": "PR #2143のPC開閉2件はマージ前に修正する案。PC CSSは遷移を無効にして閉じた時点で非表示にし、Headerはアイコンを切り替えている。サイドメニューと本文幅を同期して動かし、動きを減らす設定では即時切替。開閉ボタンは参考例の左パネルの図柄で統一し、両要件をIssueの完了条件へ明記する。既存テストは開閉後の幅とキーボード操作を確認する。承認後に同じPRへ反映・プレビュー再配信を行い、開閉の動き・アイコン・動きを減らす設定は目視で確かめる。",
+  "remaining": []
+}

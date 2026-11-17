@@ -1,3 +1,4 @@
+import { GearIcon, HomeIcon, ListBulletIcon } from "@radix-ui/react-icons"
 import { Separator } from "@radix-ui/themes"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { AuthError } from "@supabase/supabase-js"
@@ -41,6 +42,41 @@ export const Closed: Story = {
   },
 }
 
+const navigationLinks = (iconOnly = false) => (
+  <>
+    <SidebarButton
+      to="/"
+      ariaLabel="Home"
+      label="Home"
+      iconOnly={iconOnly}
+      icon={<HomeIcon aria-hidden />}
+    />
+    <SidebarButton
+      to="/payments"
+      ariaLabel="Payments"
+      label="Payments"
+      iconOnly={iconOnly}
+      icon={<ListBulletIcon aria-hidden />}
+    />
+    <Separator orientation="horizontal" size="4" decorative />
+    <SidebarButton
+      to="/settings"
+      ariaLabel="Settings"
+      label="Settings"
+      iconOnly={iconOnly}
+      icon={<GearIcon aria-hidden />}
+    />
+  </>
+)
+
+export const Permanent: Story = {
+  args: { open: true, permanent: true, children: navigationLinks() },
+}
+
+export const PermanentCollapsed: Story = {
+  args: { open: false, permanent: true, children: navigationLinks(true) },
+}
+
 // 実際のナビゲーションの高さとviewport内の操作可能領域をブラウザで確認する。
 export const ShortViewport: Story = {
   tags: ["browser-test"],
@@ -56,14 +92,7 @@ export const ShortViewport: Story = {
   globals: { viewport: { value: "short" } },
   args: {
     open: true,
-    children: (
-      <>
-        <SidebarButton to="/" ariaLabel="Home" label="Home" />
-        <SidebarButton to="/payments" ariaLabel="Payments" label="Payments" />
-        <Separator orientation="horizontal" size="4" decorative />
-        <SidebarButton to="/settings" ariaLabel="Settings" label="Settings" />
-      </>
-    ),
+    children: navigationLinks(),
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)

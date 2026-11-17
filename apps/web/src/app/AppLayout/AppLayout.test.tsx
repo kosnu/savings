@@ -1,8 +1,8 @@
 import { createRoute } from "@tanstack/react-router"
-import { beforeEach, describe, expect, test } from "vite-plus/test"
+import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test"
 
 import { renderWithRouter } from "../../test/helpers/renderWithRouter"
-import { screen, waitFor } from "../../test/test-utils"
+import { screen, waitFor, within } from "../../test/test-utils"
 import { AppLayout } from "./AppLayout"
 
 function renderAppLayout(initialEntry = "/payments") {
@@ -45,10 +45,18 @@ describe("AppLayout", () => {
     window.localStorage.clear()
   })
 
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   test("初期表示では Sidebar を閉じた状態にする", async () => {
     renderAppLayout()
 
-    expect(await screen.findByRole("complementary")).toHaveAttribute("data-open", "false")
+    expect(await screen.findByRole("button", { name: "Menu button" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    )
+    expect(screen.queryByRole("navigation", { name: "Main navigation" })).not.toBeInTheDocument()
     expect(screen.queryByTestId("sidebar-backdrop")).not.toBeInTheDocument()
   })
 
@@ -58,21 +66,27 @@ describe("AppLayout", () => {
       window.localStorage.setItem("sidebarOpen", "true")
       const { user } = renderAppLayout(initialEntry)
 
-      const sidebar = await screen.findByRole("complementary")
-      expect(sidebar).toHaveAttribute("data-open", "false")
+      const menu = await screen.findByRole("button", { name: "Menu button" })
+      expect(menu).toHaveAttribute("aria-expanded", "false")
       expect(screen.queryByTestId("sidebar-backdrop")).not.toBeInTheDocument()
 
-      await user.click(screen.getByLabelText("Menu button"))
-      expect(sidebar).toHaveAttribute("data-open", "true")
+      await user.click(menu)
+      expect(menu).toHaveAttribute("aria-expanded", "true")
+      const close = screen.getByRole("button", { name: "Close sidebar" })
+      expect(close).toHaveFocus()
+      await user.click(close)
+      expect(menu).toHaveAttribute("aria-expanded", "false")
+      expect(menu).toHaveFocus()
 
-      await user.click(screen.getByLabelText("Close sidebar"))
-      expect(sidebar).toHaveAttribute("data-open", "false")
+      await user.click(menu)
+      expect(menu).toHaveAttribute("aria-expanded", "true")
+      await user.keyboard("{Escape}")
+      expect(menu).toHaveAttribute("aria-expanded", "false")
+      expect(menu).toHaveFocus()
 
-      await user.click(screen.getByLabelText("Menu button"))
-      expect(sidebar).toHaveAttribute("data-open", "true")
-
+      await user.click(menu)
       await user.click(screen.getByTestId("sidebar-backdrop"))
-      expect(sidebar).toHaveAttribute("data-open", "false")
+      expect(menu).toHaveAttribute("aria-expanded", "false")
       expect(screen.queryByTestId("sidebar-backdrop")).not.toBeInTheDocument()
     },
   )
@@ -99,5 +113,53 @@ describe("AppLayout", () => {
       expect(router.state.location.pathname).toBe("/settings")
     })
     expect(await screen.findByText("Settings page")).toBeInTheDocument()
+    expect(screen.queryByRole("navigation", { name: "Main navigation" })).not.toBeInTheDocument()
+  })
+
+  test("PC では折りたたんだまま移動でき、別レイアウトでも状態を復元する", async () => {
+    const matchMedia = window.matchMedia.bind(window)
+    vi.spyOn(window, "matchMedia").mockImplementation((query) =>
+      Object.defineProperty(matchMedia(query), "matches", {
+        value: query === "(min-width: 1024px)",
+      }),
+    )
+    const { user } = renderAppLayout()
+    const navigation = await screen.findByRole("navigation", { name: "Main navigation" })
+    const home = within(navigation).getByRole("link", { name: "Navigate to Home page" })
+    const payments = within(navigation).getByRole("link", { name: "Navigate to Payments page" })
+    const settings = within(navigation).getByRole("link", { name: "Navigate to Settings page" })
+
+    expect(screen.queryByRole("button", { name: "Menu button" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Close sidebar" })).not.toBeInTheDocument()
+    expect(payments).toHaveAttribute("aria-current", "page")
+    expect(home).not.toHaveAttribute("aria-current")
+    for (const link of [home, payments, settings]) {
+      expect(link.querySelector("svg")).toHaveAttribute("aria-hidden", "true")
+    }
+
+    await user.click(settings)
+    expect(await screen.findByText("Settings page")).toBeVisible()
+    expect(settings).toHaveAttribute("aria-current", "page")
+    expect(payments).not.toHaveAttribute("aria-current")
+
+    const close = screen.getByRole("button", { name: "Hide sidebar" })
+    expect(close).toHaveAttribute("aria-expanded", "true")
+    await user.click(close)
+    expect(navigation).toBeVisible()
+    expect(home).not.toHaveTextContent("Home")
+    const open = screen.getByRole("button", { name: "Show sidebar" })
+    expect(open).toHaveAttribute("aria-expanded", "false")
+    expect(open).toHaveFocus()
+
+    await user.click(home)
+    expect(await screen.findByText("Home page")).toBeVisible()
+    expect(screen.getByRole("button", { name: "Show sidebar" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    )
+    expect(screen.getByRole("link", { name: "Navigate to Home page" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    )
   })
 })

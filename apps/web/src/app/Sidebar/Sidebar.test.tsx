@@ -87,13 +87,13 @@ describe("Sidebar", () => {
     expect(sidebar).toHaveAttribute("data-open", "true")
   })
 
-  test("Closed story では閉じた状態を表示する", async () => {
+  test("Closed story では閉じたメニューを操作対象から外す", async () => {
     render(<Closed />)
 
-    const sidebar = await screen.findByRole("complementary")
-    expect(await screen.findByText("Burneto")).toBeInTheDocument()
-    expect(await screen.findByText("Sidebar Content")).toBeInTheDocument()
+    const sidebar = await screen.findByRole("complementary", { hidden: true })
     expect(sidebar).toHaveAttribute("data-open", "false")
+    expect(sidebar).toHaveAttribute("inert")
+    expect(screen.queryByRole("navigation", { name: "Main navigation" })).not.toBeInTheDocument()
   })
 
   test("開いている状態でサイドバー領域外をクリックすると onClose を呼ぶ", async () => {

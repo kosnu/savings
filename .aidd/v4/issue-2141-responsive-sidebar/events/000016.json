@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000013.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2143",
+  "paths": [
+    "apps/web/src/app/AppLayout/",
+    "apps/web/src/app/Sidebar/",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "a7c2c5a62a3b835e2785789e3c86475fe160eb6be21d3ef1b3c6306ce8ba6675",
+  "status": "pass",
+  "checks": [
+    "原因: a0ab0f98でPCの閉状態が画面移動・再読み込みで初期化される。1142pxで先頭2項目のボタン間隔0pxを実測",
+    "原因: 12pxのgapを各ghostボタンの-6pxの上下余白が相殺する。閉状態のPCはtransformで画面外へ移動し、inertになる",
+    "再発抑止: Issue #2141の完了条件へ3件を反映する案。折りたたみ状態からの遷移と再読み込みを既存テストとプレビューで確認",
+    "適用先: PCのみに限定。区切り線、アニメーションと動きを減らす設定、スマホのドロワー挙動を確認する案",
+    "PRの返信・解決対象なし。最新の3件の提案はユーザーのApproveで承認"
+  ],
+  "summary": "PR #2143のPCの指摘3件はマージ前に修正する案。専用キーへPCの展開状態を保存し、画面移動・再読み込みで復元する。既存のPCの項目間gapが実寸で空くようghostの負の縦marginを調整する。PC折りたたみ時はホーム・支払い・設定のアイコンで直接移動できる細い列を残す。ロゴは図柄のみ、ログアウトは展開時に表示する案。項目間の罫線を保ち、本文幅を列幅と同期させる。承認後は既存テストを新しい完了状態に合わせ、プレビュー再配信と実画面の確認まで行う。",
+  "remaining": []
+}

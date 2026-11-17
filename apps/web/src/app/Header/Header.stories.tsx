@@ -33,3 +33,11 @@ export const WithAction: Story = {
     ),
   },
 }
+
+export const DesktopExpanded: Story = {
+  args: { ...WithAction.args, desktopMenu: true, sidebarOpen: true },
+}
+
+export const DesktopCollapsed: Story = {
+  args: { ...DesktopExpanded.args, sidebarOpen: false },
+}

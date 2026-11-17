@@ -34,7 +34,7 @@
 
 .sidebar[data-open="true"] {
   /* 開いているときの幅 */
-  width: min(240px, 100vw);
+  width: min(15rem, 100vw);
 }
 
 .sidebar[data-open="false"] {
@@ -43,10 +43,60 @@
   box-shadow: none;
 }
 
+.sidebar[data-permanent="true"] {
+  box-sizing: border-box;
+  width: var(--sidebar-width, 15rem);
+  height: 100dvh;
+  z-index: auto;
+  border-inline-end: 1px solid var(--gray-6);
+  border-radius: 0;
+  box-shadow: none;
+  transition: width var(--sidebar-transition);
+}
+
+.sidebar[data-permanent="true"][data-open="false"] {
+  width: var(--sidebar-width, 3.5rem);
+}
+
+.sidebar[data-permanent="true"] .sidebarContents {
+  padding-inline: var(--space-2);
+}
+
+.sidebar[data-permanent="true"] .sidebarContents > a {
+  /* ghost の負の余白を除き、ボタン間の gap を確保する。 */
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.sidebar[data-permanent="true"][data-open="false"] .sidebarHeader {
+  padding-inline: var(--space-2);
+}
+
+.sidebar[data-permanent="true"][data-open="false"] .sidebarHeader > a {
+  margin-inline: 0;
+  padding-inline: var(--space-2);
+}
+
+.sidebar[data-permanent="true"][data-open="false"] .sidebarFooter {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .sidebar[data-permanent="true"] {
+    transition: none;
+  }
+}
+
 /* Sidebar Headerのスタイル */
 .sidebarHeader {
   flex-shrink: 0;
   padding-top: calc(var(--space-4) + env(safe-area-inset-top));
+}
+
+.sidebar[data-permanent="true"] .sidebarHeader {
+  box-sizing: border-box;
+  min-block-size: var(--app-header-height);
 }
 
 /* Sidebar Contentsのスタイル */
@@ -68,7 +118,3 @@
 }
 
 /* リンクのスタイル */
-.link {
-  /* リンクの下線を削除 */
-  text-decoration: none;
-}

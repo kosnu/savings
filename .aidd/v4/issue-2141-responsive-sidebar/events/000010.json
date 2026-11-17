@@ -1,0 +1,26 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000009.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/AppLayout/",
+    "apps/web/src/app/Header/",
+    "apps/web/src/app/Sidebar/",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "8df047f71a3496077635dfca0bdb8bc8b44d970ae08383733353e67b6ff4cae2",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration 1,157件",
+    "web:test:storybook Chromium 32件",
+    "Core check-changes と git diff --check",
+    "Chromium 日本語ダーク表示の変更前後の比較"
+  ],
+  "summary": "1142×826で左右のヘッダー下端が65pxに揃い、PCサイドバーの罫線はナビ内の1本のみ。閉じると本文幅が902pxから1142pxに広がり、上端は65pxのまま。Enterで再表示できる。390×844では支払いへの移動でドロワーが閉じる。ローカルは同一データのStorybookで確認した。",
+  "remaining": []
+}

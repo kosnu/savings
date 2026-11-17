@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000021.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/Sidebar/SidebarButton.tsx",
+    "apps/web/src/app/Sidebar/SidebarButton.module.css",
+    "apps/web/src/app/Sidebar/Sidebar.module.css",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "1041fe175301048aca99e500dd1853a5d7c53a2a3637cbdafd3ae6402c005254",
+  "status": "pass",
+  "checks": [
+    "承認済みIssue #2141の完了条件と配信済みhead 0ff9aeeaの寸法を照合",
+    "PCで選択・ホバー・フォーカスを同じアイコン枠に適用し、リンクと展開時ラベルの操作を維持"
+  ],
+  "summary": "PCのアイコン枠は折りたたみ列の内幅を基準とし、行高は現行の展開時を基準にする。1142px画面の既定スケールでは39×36px。ラベルは展開時だけ枠の右に並べ、アイコンと同じリンクで操作可能にする。モバイルのボタン描画は従来のスタイルを使用する。既存Storybookで開閉前後の寸法を確認し、同じプレビューで3項目の表示・操作を比較する。",
+  "remaining": []
+}

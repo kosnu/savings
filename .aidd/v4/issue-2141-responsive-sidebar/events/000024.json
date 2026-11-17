@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000021.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2143",
+  "paths": [
+    "apps/web/src/app/Sidebar/SidebarButton.tsx",
+    "apps/web/src/app/Sidebar/SidebarButton.module.css",
+    "apps/web/src/app/Sidebar/Sidebar.module.css",
+    "apps/web/src/app/Sidebar/Sidebar.stories.tsx",
+    "apps/web/src/app/Header/Header.stories.tsx",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "1041fe175301048aca99e500dd1853a5d7c53a2a3637cbdafd3ae6402c005254",
+  "status": "pass",
+  "checks": [
+    "原因: 0ff9aeeaから2517604bへの差分で項目全体の選択・ホバー・フォーカス表示が子のアイコン枠に移った",
+    "再発抑止: Issue #2141の条件を、既存の文字行高と余白を基準に開閉後の縦寸法を揃えることへ訂正する案。既存Storybookで両状態の相対比較と項目全体の選択表示を確認する。",
+    "適用先: 現行のcomponent-structureが求める状態と現行Storyを比較し、SidebarのPC折りたたみとHeaderのPC開閉が欠けていると確認",
+    "対象スレッドは未解決の Sidebar PRRT_kwDOM0p88s64BNwX と Header PRRT_kwDOM0p88s64BuzW。対応後に理由・確認結果を返信し解決する案",
+    "数値固定を外した訂正版と既存のStory・レビュー対応方針をユーザーのApproveで承認"
+  ],
+  "summary": "PR #2143の3件はマージ前に修正する案。PCメニューの縦寸法は既存の文字行高と余白を基準に、開閉前後で同じにする。選択・ホバー・フォーカスは項目全体に表示する0ff9aeeaの仕様へ戻す。横幅は既存のサイドバーの列に従う。前回は子の枠の寸法を検証しており、表示の適用先の変更を欠点として捉えられなかった。SidebarとHeaderはページ側の確認で単体Storyを代替できないため、既存カタログに各状態を追加する。承認後は検証、同じPRへの反映、プレビュー再配信、2件への返信と解決を行う。",
+  "remaining": []
+}

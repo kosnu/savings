@@ -1,12 +1,28 @@
-.sidebar-button-link {
+.sidebarButtonLink {
   /* ボタンのスタイル */
   width: 100%;
   cursor: pointer;
   text-decoration: none;
 }
 
-.sidebar-button {
+.sidebarButton {
   width: 100%;
   display: flex;
   justify-content: flex-start;
+}
+
+.sidebarButton[aria-current="page"] {
+  background-color: var(--gray-a4);
+  font-weight: var(--font-weight-medium);
+}
+
+.icon {
+  display: contents;
+}
+
+[data-permanent="true"] .icon {
+  display: inline-flex;
+  align-items: center;
+  /* ラベルを省略しても、同じ文字行高の領域を確保する。 */
+  min-block-size: 1lh;
 }

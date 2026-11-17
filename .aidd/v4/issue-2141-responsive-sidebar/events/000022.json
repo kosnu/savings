@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000021.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2141",
+  "paths": [
+    "apps/web/src/app/Sidebar/SidebarButton.tsx",
+    "apps/web/src/app/Sidebar/SidebarButton.module.css",
+    "apps/web/src/app/Sidebar/Sidebar.module.css",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx"
+  ],
+  "fingerprint": "1041fe175301048aca99e500dd1853a5d7c53a2a3637cbdafd3ae6402c005254",
+  "status": "pass",
+  "checks": [
+    "web:lint",
+    "web:format-check",
+    "web:typecheck",
+    "web:test:unit-integration 1,157件",
+    "web:test:storybook Chromium 32件",
+    "Core check-changes と git diff --check"
+  ],
+  "summary": "既存のPC用ブラウザーテストで、展開・折りたたみでアイコン枠の幅・高さとリンクの行高が等しく、列内に収まることを確認した。キーボードでの展開やスマホで移動後にドロワーが閉じる操作も成功した。実プレビューでは3項目の寸法・選択表示と移動を確認する。",
+  "remaining": []
+}

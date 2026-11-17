@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000005.json",
+  "kind": "audit",
+  "source": "https://github.com/kosnu/savings/pull/2143",
+  "paths": [
+    "apps/web/src/app/AppLayout/",
+    "apps/web/src/app/Header/",
+    "apps/web/src/app/Sidebar/",
+    "apps/web/src/app/routes/HomePage/HomePage.stories.tsx",
+    "apps/web/src/i18n/resources.ts"
+  ],
+  "fingerprint": "ba9c5039b775dbf2b73a8b278943ab175739e4089035647a2d62c1857b3adc13",
+  "status": "pass",
+  "checks": [
+    "最新PRとPreview・未解決review threadを照合",
+    "Issueの常時表示とPCの開閉操作の実装・検証を照合",
+    "分析の正確さ・共通規則の改善要否・反映先を確認",
+    "PCの画像とヘッダー・罫線の実装箇所を照合"
+  ],
+  "summary": "指摘1はPCの常時表示を初期表示＋任意の開閉へ改訂する案。側面の列を隠して本文を広げ、ヘッダーの操作から再表示する。旧実装は1024px以上で閉じるボタンを出さず、直近のサイクルはラベル・アイコンを対象に検証した。指摘2は1142pxの画像でPCの両ヘッダーの下端がずれる。縦幅を共有し、サイドバーのロゴ直下とログアウト直上の罫線を削除、支払いと設定の間とコンテンツヘッダーの下線を保持する案。既存ヘッダーとSidebarは別の内容・余白・罫線で高さを決め、検証記録に下端の照合がない。いずれも#2141の完了条件と既存レイアウト・テストを対象にマージ前に確認する。共通ルール変更とGitHub thread対応は不要。直後のユーザー発言「Approve」で指摘1・2の反映を承認。",
+  "remaining": []
+}
