@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2108",
+  "paths": [
+    "tools/harness/checker/",
+    "docs/ai-driven-development/aidd-checker.md"
+  ],
+  "fingerprint": "1a0908f9852338d2ac93499c74812f5bc3dce7f8b3f5e46d9988ef0429c2aac4",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "Core go test ./...",
+    "Core go vet ./...",
+    "共有Gitゲートのユニットテスト",
+    "規約グラフと実差分"
+  ],
+  "summary": "macOSで全コマンドが終了コード0。正常な配信照合と、リモートSHA・PRの期限超過および子プロセスの終了を確認した。検証中の内容とmodeは一致。",
+  "remaining": []
+}

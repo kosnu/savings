@@ -7,6 +7,6 @@ import (
 	"os/exec"
 )
 
-func runVerification(c *exec.Cmd) error {
-	return fmt.Errorf("verification process cleanup is supported on macOS and Linux only")
+func runProcessGroup(c *exec.Cmd, operation string) error {
+	return fmt.Errorf("%s process cleanup is supported on macOS and Linux only", operation)
 }

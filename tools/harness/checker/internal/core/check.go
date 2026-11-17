@@ -1,13 +1,18 @@
 package core
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"os/exec"
 	"strings"
+	"time"
 )
+
+const shipLookupTimeout = 30 * time.Second
 
 // CheckChangesは実際の差分の規約を解決する。過去の検証やレビューの成功は証明しない。
 func CheckChanges(root, baseRef string) error {
@@ -85,7 +90,8 @@ func (s *Checker) Verify(plan VerificationPlan, diagnostics io.Writer) (Verifica
 		c.Dir = s.Root
 		c.Stdout = diagnostics
 		c.Stderr = diagnostics
-		err := runVerification(c)
+		// 親終了後の出力待ちだけを制限する。通常の検証実行時間には上限を設けない。
+		err := runProcessGroup(c, "verification")
 		exit := 0
 		if err != nil {
 			exit = -1
@@ -130,6 +136,10 @@ func (s *Checker) ShipCheck() error {
 
 // Shipは配信済みのcommit・remote・PRを照合し、追加ファイルを作らない。
 func (s *Checker) Ship(ship Ship) error {
+	return s.ship(ship, shipLookupTimeout)
+}
+
+func (s *Checker) ship(ship Ship, timeout time.Duration) error {
 	if e := required(ship.Commit, ship.Remote, ship.Branch, ship.PR, ship.Base); e != nil {
 		return e
 	}
@@ -154,7 +164,7 @@ func (s *Checker) Ship(ship Ship) error {
 	if digest(commit) != digest(work) {
 		return fmt.Errorf("commit differs from worktree")
 	}
-	remote, e := git(s.Root, "ls-remote", ship.Remote, "refs/heads/"+ship.Branch)
+	remote, e := s.shipLookup(timeout, "remote SHA", "git", "ls-remote", ship.Remote, "refs/heads/"+ship.Branch)
 	if e != nil {
 		return e
 	}
@@ -162,11 +172,9 @@ func (s *Checker) Ship(ship Ship) error {
 	if len(fields) != 2 || fields[0] != ship.Commit || fields[1] != "refs/heads/"+ship.Branch {
 		return fmt.Errorf("remote branch does not match ship commit")
 	}
-	c := exec.Command("gh", "pr", "view", ship.PR, "--json", "headRefOid,headRefName,baseRefName,state")
-	c.Dir = s.Root
-	b, e := c.Output()
+	b, e := s.shipLookup(timeout, "PR", "gh", "pr", "view", ship.PR, "--json", "headRefOid,headRefName,baseRefName,state")
 	if e != nil {
-		return fmt.Errorf("cannot verify PR: %w", e)
+		return e
 	}
 	var pr struct{ HeadRefOid, HeadRefName, BaseRefName, State string }
 	if e = json.Unmarshal(b, &pr); e != nil {
@@ -176,4 +184,21 @@ func (s *Checker) Ship(ship Ship) error {
 		return fmt.Errorf("PR head, base branch or state mismatch")
 	}
 	return nil
+}
+
+func (s *Checker) shipLookup(timeout time.Duration, target, name string, args ...string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	c := exec.CommandContext(ctx, name, args...)
+	c.Dir = s.Root
+	var output bytes.Buffer
+	c.Stdout = &output
+	err := runProcessGroup(c, "ship lookup")
+	if ctx.Err() != nil {
+		return nil, fmt.Errorf("ship verification incomplete: %s lookup timed out after %s: %w", target, timeout, errors.Join(ctx.Err(), err))
+	}
+	if err != nil {
+		return nil, fmt.Errorf("cannot verify %s: %w", target, err)
+	}
+	return output.Bytes(), nil
 }
