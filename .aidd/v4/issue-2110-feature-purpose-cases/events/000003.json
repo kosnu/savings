@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2110",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "b4edf9fa8f0ac7f49c48a31f69c518b2d99a0dfaa8a035197f5ca7fc88eaa04d",
+  "status": "pass",
+  "checks": [
+    "Issue完了条件4件: pass",
+    "維持・簡略化・撤去の目的と失う機能",
+    "本文固定後の別入力3件と反例",
+    "Checked rules: ai-driven.change-coverage/checker/glossary/issue-guidelines/overview/workflow; documentation.policy; policy.code-review/git-workflow/issue-template-selection"
+  ],
+  "summary": "指摘・未解決矛盾なし。再訪不要なら保存・専用画面を撤去、再訪必須なら追跡を保持、資料不足ならunknown。別入力ではメール経由の追跡を残す保存撤去はpass、必須操作の代替なしの画面撤去はfail、利用0件のみではunknownと照合。既存workflow参照で到達可能。有限事例の自己レビューであり独立評価・実運用効果は未検証。",
+  "remaining": []
+}
