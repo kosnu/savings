@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "chatgpt:Sentinel_cfff4d5bb8e08191a20f7b81f9c5e3b8",
+  "paths": [
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml"
+  ],
+  "fingerprint": "0e04c9a2cef48286ee7e80c5544543c02eade7e28a5d55a49e90b2674d397c91",
+  "status": "pass",
+  "checks": [
+    "frozen install・公開日確認",
+    "Web lint・format・typecheck",
+    "unit/integration 161 files・1157 tests",
+    "Web build",
+    "Seroval正常値roundtrip・Solid signal",
+    "差分・Core境界検査"
+  ],
+  "summary": "既存の互換範囲で6パッケージ群を修正版へ更新し、通常動作とWeb検証が成功。ビルドはloopback制限の解除後に成功。glob/minimatchは今回変更せず残存。",
+  "remaining": []
+}

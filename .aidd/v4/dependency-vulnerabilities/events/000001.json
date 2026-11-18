@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "chatgpt:Sentinel_cfff4d5bb8e08191a20f7b81f9c5e3b8",
+  "paths": [
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml"
+  ],
+  "fingerprint": "0e04c9a2cef48286ee7e80c5544543c02eade7e28a5d55a49e90b2674d397c91",
+  "status": "pass",
+  "checks": [
+    "公開日・互換範囲・依存経路の確認"
+  ],
+  "summary": "対象6パッケージ群を既存互換範囲のlockfile更新で修正版へ解決。glob/minimatchは互換範囲外のため変更しない。",
+  "remaining": []
+}
