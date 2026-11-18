@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "Sentinel_614175461f408191be84f1d19ff62a57",
+  "paths": [
+    "tools/dev-preview/deploy.mjs",
+    "tools/dev-preview/deploy.test.mjs",
+    ".github/workflows/deploy_preview.yaml",
+    "docs/development-preview.md",
+    "tools/dev-preview/lifecycle.test.mjs"
+  ],
+  "fingerprint": "6bcc8a19b5b54378dd0cc147a7e1c730d723f0f63222d860fb51e905d46a9b73",
+  "status": "pass",
+  "checks": [
+    "Preview fixture 46件",
+    "cf beta.28/beta.29 helpと生成引数",
+    "vp check",
+    "actionlint",
+    "Core verify"
+  ],
+  "summary": "最終変更で両CLIへの名指定、失敗時停止、JSON出力を確認。実配信・実認証は委任範囲外で未実施。",
+  "remaining": []
+}

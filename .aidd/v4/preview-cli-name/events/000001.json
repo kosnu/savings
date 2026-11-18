@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "Sentinel_614175461f408191be84f1d19ff62a57",
+  "paths": [
+    "tools/dev-preview/deploy.mjs",
+    "tools/dev-preview/deploy.test.mjs",
+    ".github/workflows/deploy_preview.yaml",
+    "docs/development-preview.md",
+    "tools/dev-preview/lifecycle.test.mjs"
+  ],
+  "fingerprint": "7e34fd24bb207ecb205c83a9f8c4f272fe3958925677c6dd2694cd479117f1e8",
+  "status": "pass",
+  "checks": [
+    "CLI help beta.28/beta.29",
+    "信頼済み補助コードの保持経路"
+  ],
+  "summary": "mainの既存CLIとRenovate更新後のCLIで同じPR名を維持する。既知help構文で引数を選び、不明・取得失敗は配信しない。認証・起動条件は変更しない。",
+  "remaining": []
+}

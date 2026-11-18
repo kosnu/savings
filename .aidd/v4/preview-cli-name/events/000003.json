@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "Sentinel_614175461f408191be84f1d19ff62a57",
+  "paths": [
+    "tools/dev-preview/deploy.mjs",
+    "tools/dev-preview/deploy.test.mjs",
+    ".github/workflows/deploy_preview.yaml",
+    "docs/development-preview.md",
+    "tools/dev-preview/lifecycle.test.mjs"
+  ],
+  "fingerprint": "6bcc8a19b5b54378dd0cc147a7e1c730d723f0f63222d860fb51e905d46a9b73",
+  "status": "pass",
+  "checks": [
+    "Intentとmain起点の限定差分",
+    "trusted helperと新旧CLI契約",
+    "独立レビュー",
+    "全適用規則"
+  ],
+  "summary": "既存の権限・起動条件・cleanup/reportを変更せず配信名の解釈変更だけを吸収。信頼済みbaseのhelperを保持。未解決指摘なし。実配信・Environment設定は対象外。",
+  "remaining": []
+}
