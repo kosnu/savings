@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2111",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "1a26b3a0292d4a26ad28469c78869e873831f098f07b91588a6f069737c0c32c",
+  "status": "pass",
+  "checks": [
+    "git diff --check",
+    "vp check: 変更Markdownの整形検査",
+    "Core規約graph・差分範囲・検証中の安定性",
+    "追加節の参照先2件と見出し"
+  ],
+  "summary": "文書検査と参照照合が成功。アプリ/設定/規則の変更はなくWeb検証と実モデルeval比較は対象外。既存方針の有限な適用例を照合し、仮想動作の実行は主張しない。",
+  "remaining": []
+}

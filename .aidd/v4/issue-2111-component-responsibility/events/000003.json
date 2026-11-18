@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2111",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "1a26b3a0292d4a26ad28469c78869e873831f098f07b91588a6f069737c0c32c",
+  "status": "pass",
+  "checks": [
+    "Issue #2111の4完了条件: pass",
+    "Component StructureとCode Review Policy: pass",
+    "path/surface一致と依存closure・既存参照経路: pass",
+    "未見3入力の責務/経路/既存動作と分割不要反例: pass"
+  ],
+  "summary": "全適用規則と最終差分を照合し指摘なし。命名/Effect移動だけをfail、責務と経路を維持する候補と薄い描画をpass、証拠不足をunknownと区別。既存規則の適用例のみで索引同期・実モデル比較は不要。仮想照合の範囲を明示。",
+  "remaining": []
+}
