@@ -2,24 +2,20 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "verify",
-  "source": "ユーザーの依頼「全て進めて」及び直前の Lint 3案",
+  "source": "ユーザーの依頼「全て進めて」とPR #2157のCI通過・レビュー完了後のマージ条件",
   "paths": [
     "vite.config.ts",
     "tools/lint/feature-boundaries.mjs",
-    "apps/web/src/features/payments/paymentDetails/CategoryField/CategoryField.test.tsx"
+    "apps/web/src/features/payments/paymentDetails/CategoryField/CategoryField.test.tsx",
+    "tools/harness/tests/test_shared_gate.py"
   ],
-  "fingerprint": "92336c016db999231c7ef66d329c8fbc33accf1a7bddb452504910bf4d2ee59a",
+  "fingerprint": "b2b61d9f2c55313beed6748d4dc02e9c671de483adc40decee8afb53553d00a4",
   "status": "pass",
   "checks": [
-    "Web Lint",
-    "Web整形チェック",
-    "Web型検査",
-    "Web単体・結合テスト",
-    "ルートの変更ファイル検査",
-    "Lintの違反例・許可例",
-    "Coreの差分・規約評価",
+    "共有Gitゲート8件",
+    "Core差分・規約検査",
     "差分の空白検査"
   ],
-  "summary": "単体・結合テスト161ファイル1157件が成功。ルートとWebの両方で同じ違反が検出され、許可例は通過した。",
+  "summary": "Lintプラグインをfixtureへ含め、共有Gitゲートの失敗を修正した。共有ゲート8件が成功。WebのLint・整形・型検査・単体結合テスト1157件は直前の検証で成功し、Web側の検証対象コードは同一。",
   "remaining": []
 }
