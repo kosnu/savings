@@ -58,6 +58,7 @@ export default defineConfig({
         name: "react-hooks-js",
         specifier: "eslint-plugin-react-hooks",
       },
+      "./tools/lint/feature-boundaries.mjs",
     ],
     categories: {
       correctness: "error",
@@ -111,6 +112,7 @@ export default defineConfig({
         },
       ],
       "typescript/no-non-null-assertion": "error",
+      "feature-boundaries/public-imports": "error",
     },
     settings: {
       "jsx-a11y": {
@@ -135,6 +137,52 @@ export default defineConfig({
       "apps/web/public/mockServiceWorker.js",
     ],
     overrides: [
+      {
+        files: ["src/**/*.{ts,tsx}", "apps/web/src/**/*.{ts,tsx}"],
+        rules: {
+          "eslint/no-restricted-properties": [
+            "error",
+            { property: "setQueryData", message: "データは再取得または無効化で反映してください。" },
+            {
+              property: "setQueriesData",
+              message: "データは再取得または無効化で反映してください。",
+            },
+          ],
+          "eslint/no-restricted-imports": [
+            "error",
+            {
+              paths: [
+                {
+                  name: "@supabase/supabase-js",
+                  importNames: ["createClient"],
+                  message: "既存の Supabase クライアント生成箇所を使ってください。",
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        files: [
+          "**/*.test.{ts,tsx}",
+          "**/*.stories.{ts,tsx}",
+          "src/test/**",
+          "apps/web/src/test/**",
+        ],
+        rules: {
+          "eslint/no-restricted-properties": "off",
+          "eslint/no-restricted-imports": "off",
+        },
+      },
+      {
+        files: [
+          "src/lib/{supabase,explicitLogin,accountDeletion}.ts",
+          "apps/web/src/lib/{supabase,explicitLogin,accountDeletion}.ts",
+        ],
+        rules: {
+          "eslint/no-restricted-imports": "off",
+        },
+      },
       {
         files: ["**/*.stories.tsx"],
         rules: {

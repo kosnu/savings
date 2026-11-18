@@ -1,0 +1,25 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "ユーザーの依頼「全て進めて」及び直前の Lint 3案",
+  "paths": [
+    "vite.config.ts",
+    "tools/lint/feature-boundaries.mjs",
+    "apps/web/src/features/payments/paymentDetails/CategoryField/CategoryField.test.tsx"
+  ],
+  "fingerprint": "92336c016db999231c7ef66d329c8fbc33accf1a7bddb452504910bf4d2ee59a",
+  "status": "pass",
+  "checks": [
+    "Web Lint",
+    "Web整形チェック",
+    "Web型検査",
+    "Web単体・結合テスト",
+    "ルートの変更ファイル検査",
+    "Lintの違反例・許可例",
+    "Coreの差分・規約評価",
+    "差分の空白検査"
+  ],
+  "summary": "単体・結合テスト161ファイル1157件が成功。ルートとWebの両方で同じ違反が検出され、許可例は通過した。",
+  "remaining": []
+}

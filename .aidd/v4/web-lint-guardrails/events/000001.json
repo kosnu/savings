@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザーの依頼「全て進めて」及び直前の Lint 3案",
+  "paths": [
+    "vite.config.ts",
+    "tools/lint/feature-boundaries.mjs",
+    "apps/web/src/features/payments/paymentDetails/CategoryField/CategoryField.test.tsx"
+  ],
+  "fingerprint": "92336c016db999231c7ef66d329c8fbc33accf1a7bddb452504910bf4d2ee59a",
+  "status": "pass",
+  "checks": [
+    "現行方針と3件のLint適用範囲",
+    "既存テストの責務"
+  ],
+  "summary": "組み込みルールでキャッシュ直接更新とクライアント生成を制限し、ローカルルールでfeature間の内部参照を検出する。カテゴリ選択の表示とスタイルをそれぞれ所有側のテストで確認する。",
+  "remaining": []
+}
