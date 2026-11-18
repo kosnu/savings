@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2110",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "b4edf9fa8f0ac7f49c48a31f69c518b2d99a0dfaa8a035197f5ca7fc88eaa04d",
+  "status": "pass",
+  "checks": [
+    "Intent・委任範囲と比較元",
+    "3条件の案比較と既存参照経路"
+  ],
+  "summary": "Issue #2110の独立Task。比較元6865b895。受付追跡の3条件を既存の意味レビュー事例へ追加し、保存・画面と利用目的を区別する。既存workflowから到達でき、規約索引・実装・過去記録は変更不要。",
+  "remaining": []
+}

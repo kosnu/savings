@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2110",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "b4edf9fa8f0ac7f49c48a31f69c518b2d99a0dfaa8a035197f5ca7fc88eaa04d",
+  "status": "pass",
+  "checks": [
+    "Core rules・check-changes",
+    "Core verify: whitespace・Markdown format",
+    "変更内容・modeの安定性"
+  ],
+  "summary": "変更対象は意味レビュー事例のみ。差分範囲・規約closure・空白・Markdown整形を確認し、検証中の対象変更なし。例の追加で判断の正本・必須工程・実行制御を変えないため行動evalとアプリ検証は対象外。実機能の撤去・改善効果は未検証。",
+  "remaining": []
+}
