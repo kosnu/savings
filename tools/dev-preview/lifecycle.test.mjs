@@ -188,7 +188,7 @@ test("Prodを基準とする配信jobはPR確認・checkout・build・検査・�
   )
   assert.match(
     deploy,
-    /cp tools\/dev-preview\/preview.mjs tools\/dev-preview\/report.mjs "\$RUNNER_TEMP\/preview-control\/"/u,
+    /cp tools\/dev-preview\/preview.mjs tools\/dev-preview\/report.mjs tools\/dev-preview\/deploy.mjs "\$RUNNER_TEMP\/preview-control\/"/u,
   )
   assert.match(deploy, /node "\$RUNNER_TEMP\/preview-control\/preview.mjs" check-build/u)
   assert.match(

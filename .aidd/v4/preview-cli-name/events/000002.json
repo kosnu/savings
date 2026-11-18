@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "Sentinel_614175461f408191be84f1d19ff62a57",
+  "paths": [
+    "tools/dev-preview/deploy.mjs",
+    "tools/dev-preview/deploy.test.mjs",
+    ".github/workflows/deploy_preview.yaml",
+    "docs/development-preview.md",
+    "tools/dev-preview/lifecycle.test.mjs"
+  ],
+  "fingerprint": "7e34fd24bb207ecb205c83a9f8c4f272fe3958925677c6dd2694cd479117f1e8",
+  "status": "unknown",
+  "checks": [
+    "Preview fixture 46件",
+    "cf beta.28/beta.29 helpと生成引数",
+    "vp check",
+    "actionlint",
+    "Core verify"
+  ],
+  "summary": "確認中に対象内容またはmodeが変わったため、成功は未確認。",
+  "remaining": []
+}

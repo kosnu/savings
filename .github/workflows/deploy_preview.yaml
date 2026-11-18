@@ -64,7 +64,7 @@ jobs:
       - name: Preserve trusted Preview helpers
         run: |
           mkdir -p "$RUNNER_TEMP/preview-control"
-          cp tools/dev-preview/preview.mjs tools/dev-preview/report.mjs "$RUNNER_TEMP/preview-control/"
+          cp tools/dev-preview/preview.mjs tools/dev-preview/report.mjs tools/dev-preview/deploy.mjs "$RUNNER_TEMP/preview-control/"
 
       - name: Checkout validated commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -128,7 +128,7 @@ jobs:
           PREVIEW_BRANCH: ${{ steps.pr.outputs.branch }}
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
         run: |
-          pnpm --filter web exec cf previews deploy "$PREVIEW_NAME" --prebuilt --mode development > "$RUNNER_TEMP/preview.json"
+          node "$RUNNER_TEMP/preview-control/deploy.mjs" > "$RUNNER_TEMP/preview.json"
           test -s "$RUNNER_TEMP/preview.json"
           node "$RUNNER_TEMP/preview-control/report.mjs" "$RUNNER_TEMP/preview.json"
 
