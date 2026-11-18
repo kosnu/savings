@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2111",
+  "paths": [
+    "docs/ai-driven-development/semantic-review-cases.md"
+  ],
+  "fingerprint": "1a26b3a0292d4a26ad28469c78869e873831f098f07b91588a6f069737c0c32c",
+  "status": "pass",
+  "checks": [
+    "Issue #2111の完了条件とComponent Structureの照合",
+    "変更範囲と既存参照経路"
+  ],
+  "summary": "一覧画面の責務・初回と再試行経路、命名/Effect移動の不適合、分割不要の反例、別担当の未見入力3件を事例文書に追加。既存規則の説明に限定し索引・実装・過去記録は変更しない。",
+  "remaining": []
+}
