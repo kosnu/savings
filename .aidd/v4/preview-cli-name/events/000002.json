@@ -10,8 +10,8 @@
     "docs/development-preview.md",
     "tools/dev-preview/lifecycle.test.mjs"
   ],
-  "fingerprint": "7e34fd24bb207ecb205c83a9f8c4f272fe3958925677c6dd2694cd479117f1e8",
-  "status": "unknown",
+  "fingerprint": "6bcc8a19b5b54378dd0cc147a7e1c730d723f0f63222d860fb51e905d46a9b73",
+  "status": "pass",
   "checks": [
     "Preview fixture 46件",
     "cf beta.28/beta.29 helpと生成引数",
@@ -19,6 +19,6 @@
     "actionlint",
     "Core verify"
   ],
-  "summary": "確認中に対象内容またはmodeが変わったため、成功は未確認。",
+  "summary": "最終変更で両CLIへの名指定、失敗時停止、JSON出力を確認。実配信・実認証は委任範囲外で未実施。",
   "remaining": []
 }
