@@ -49,6 +49,7 @@ class SharedGateTests(unittest.TestCase):
         self.write("remove.txt", "remove me\n")
         (self.root / "node_modules").symlink_to(REPOSITORY / "node_modules", target_is_directory=True)
         shutil.copy2(REPOSITORY / "vite.config.ts", self.root / "vite.config.ts")
+        shutil.copytree(REPOSITORY / "tools/lint", self.root / "tools/lint")
         shutil.copytree(REPOSITORY / ".vite-hooks", self.root / ".vite-hooks")
         self.run_command("git", "add", ".")
         self.run_command("git", "-c", "core.hooksPath=/dev/null", "commit", "-qm", "fixture")

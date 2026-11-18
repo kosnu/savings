@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザーの依頼「全て進めて」とPR #2157のCI通過・レビュー完了後のマージ条件",
+  "paths": [
+    "vite.config.ts",
+    "tools/lint/feature-boundaries.mjs",
+    "apps/web/src/features/payments/paymentDetails/CategoryField/CategoryField.test.tsx",
+    "tools/harness/tests/test_shared_gate.py"
+  ],
+  "fingerprint": "b2b61d9f2c55313beed6748d4dc02e9c671de483adc40decee8afb53553d00a4",
+  "status": "pass",
+  "checks": [
+    "共有Gitゲートの失敗ログとfixtureの設定",
+    "現行のLint適用範囲"
+  ],
+  "summary": "3件のLintルールを有効にし、共通Gitゲートの一時リポジトリへ実際の設定・フックに加えてLintプラグインもコピーする。",
+  "remaining": []
+}
