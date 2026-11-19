@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2136",
+  "paths": [
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "95018b972a296d7534b8c6adecf80d57adb2fcd383ded359b6016c755934036a",
+  "status": "pass",
+  "checks": [
+    "Code Review Policyの適用範囲と比較手順",
+    "#2135のvariant不一致を検出する根拠",
+    "規約索引・Copilot入口からの既存経路"
+  ],
+  "summary": "対象画面へ共通の見た目と動作の期待を当て、同じ条件で照合する基準を確認した。画面別テストの成功と横断比較の不一致を区別でき、指摘・未解決のルール競合はない。確認範囲の補足。 実モデルによるレビューの検出率は未確認。",
+  "remaining": []
+}
