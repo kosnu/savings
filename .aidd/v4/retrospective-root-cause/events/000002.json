@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "ユーザーの直接依頼",
+  "paths": [
+    "docs/harness/policies/retrospective.md"
+  ],
+  "fingerprint": "4e9bee72d1a0c229dcda6f2a1b2868be9d5a971b5c1370113f131272c5d0de63",
+  "status": "unknown",
+  "checks": [
+    "Markdown整形",
+    "差分の空白検査",
+    "規約graphと適用規約",
+    "Core verify"
+  ],
+  "summary": "静的検証は成功。隔離の起動条件を満たさずモデルevalの前後比較は未実行。",
+  "remaining": [
+    "実モデルでのRetrospectiveの前後比較"
+  ]
+}
