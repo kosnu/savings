@@ -1,0 +1,16 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ユーザーの直接依頼",
+  "paths": [
+    "docs/harness/policies/retrospective.md"
+  ],
+  "fingerprint": "4e9bee72d1a0c229dcda6f2a1b2868be9d5a971b5c1370113f131272c5d0de63",
+  "status": "pass",
+  "checks": [
+    "現行方針と失敗事例の照合"
+  ],
+  "summary": "根拠と原因に作用する変更、前後比較と反例の確認を承認後の新Taskへ引き継ぐ。既存の権限境界と工程を維持する。",
+  "remaining": []
+}

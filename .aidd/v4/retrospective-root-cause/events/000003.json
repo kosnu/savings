@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "ユーザーの直接依頼",
+  "paths": [
+    "docs/harness/policies/retrospective.md"
+  ],
+  "fingerprint": "4e9bee72d1a0c229dcda6f2a1b2868be9d5a971b5c1370113f131272c5d0de63",
+  "status": "unknown",
+  "checks": [
+    "原因判明・正常な反例・原因不明の3事例で意味を照合",
+    "既存の手動承認と別Taskへの引継ぎを確認"
+  ],
+  "summary": "原因に作用する変更と前後比較を完了条件に結び付ける。既存の入口・権限・過去記録は変更しない。実モデルでの改善は未確認。",
+  "remaining": [
+    "実モデルevalの前後比較は未実行"
+  ]
+}
