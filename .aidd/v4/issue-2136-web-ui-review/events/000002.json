@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2136",
+  "paths": [
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "95018b972a296d7534b8c6adecf80d57adb2fcd383ded359b6016c755934036a",
+  "status": "pass",
+  "checks": [
+    "差分・Markdown整形のCore検証",
+    "PR #2135の実装・Story期待値・CIの照合",
+    "Webレビューの規約ルーティング"
+  ],
+  "summary": "当時のStorybook CIは成功し、画面個別の期待には一致したが、ホームsoft・支払い一覧solidの差を共通期待との照合で検出した。確認範囲の補足。 旧画面のブラウザーでの再実行は未実施。既存の実モデルevalにWeb UIレビューのケースなし。",
+  "remaining": []
+}

@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2136",
+  "paths": [
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "b2b61d9f2c55313beed6748d4dc02e9c671de483adc40decee8afb53553d00a4",
+  "status": "pass",
+  "checks": [
+    "Issue #2136の適用条件",
+    "既存レビュー入口と正本",
+    "PR #2135の当時の実装とStory"
+  ],
+  "summary": "既存Code Review Policy内に、複数画面で同じ操作を揃える場合の共通期待・表示条件・実際の表示と動作を照合する基準を追加する。",
+  "remaining": []
+}
