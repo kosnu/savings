@@ -59,7 +59,7 @@ func TestRulesClosureAndFailure(t *testing.T) {
 	}
 }
 
-func TestReviewFeedbackRouting(t *testing.T) {
+func TestRepositoryReviewRouting(t *testing.T) {
 	root := filepath.Join("..", "..", "..", "..", "..")
 	feedback := "policy.review-feedback-classification"
 	audit := "policy.audit"
@@ -68,6 +68,11 @@ func TestReviewFeedbackRouting(t *testing.T) {
 		required []string
 		excluded []string
 	}{
+		{"apps/web/src/assets/reset.css", []string{"policy.code-review", "web.design-system-brand", "web.design-rules"}, []string{"domain.payment", "domain.monthly-budget", "domain.user", "policy.temporal-data", "policy.transaction-boundaries", "web.query-cache", "web.storybook-browser-tests"}},
+		{"apps/web/src/features/payments/listPayment/PaymentCategoryFilter/PaymentCategoryFilter.module.css", []string{"web.design-rules"}, []string{"domain.payment", "web.feature-directory", "web.domain-ui-rules"}},
+		{"apps/web/src/features/payments/monthlySpending/fetchMonthlySpending.ts", []string{"domain.payment", "domain.date", "domain.amount", "domain.category"}, []string{"domain.user", "web.storybook-browser-tests"}},
+		{"apps/api/supabase/migrations/20260901000000_enforce_monthly_budget_record_write_boundary.sql", []string{"domain.monthly-budget", "policy.temporal-data", "policy.transaction-boundaries", "policy.query-performance"}, []string{"domain.payment"}},
+		{"apps/api/supabase/tests/ensure_authenticated_user.test.sql", []string{"domain.user", "policy.transaction-boundaries"}, []string{"domain.monthly-budget", "domain.payment"}},
 		{"apps/web/src/app/routes/HomePage/HomePage.stories.tsx", []string{"policy.code-review", "web.storybook-browser-tests"}, []string{feedback, audit}},
 		{"docs/architecture.md", []string{"documentation.policy"}, []string{feedback, audit}},
 		{".github/workflows/harness_checker_ci.yaml", []string{"ai-driven.checker"}, []string{feedback, audit}},

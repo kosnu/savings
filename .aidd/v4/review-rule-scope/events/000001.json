@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話依頼「まずはそのズレを改善してほしい」および直前の照合結果",
+  "paths": [
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md",
+    "tools/harness/checker/internal/core/core_test.go"
+  ],
+  "fingerprint": "4e1911e32e023222cdc405ac87259c6dc6940e5f0a7f60d726073677b35324d1",
+  "status": "pass",
+  "checks": [
+    "変更元の規約選択とWeb/APIのレビュー基準"
+  ],
+  "summary": "広域のアプリパスを担当領域のパスに絞り、CSS・業務コード・DB・複数面の選択を実索引で比較する。パスだけで判断できない変更面は実差分から既存の必須規約を補う。",
+  "remaining": []
+}

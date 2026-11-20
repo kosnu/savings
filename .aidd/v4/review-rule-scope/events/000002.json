@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "会話依頼のレビュー規約選択、比較元4afc67ef",
+  "paths": [
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md",
+    "tools/harness/checker/internal/core/core_test.go"
+  ],
+  "fingerprint": "4bebdf869eb5ebbe2b57ded6b9878f4ad9b315280a536a92f8e788721180939c",
+  "status": "unknown",
+  "checks": [
+    "Go Core test/vet",
+    "規約選択の変更前後・複数pathの和集合",
+    "差分・文書整形・check-changes"
+  ],
+  "summary": "共通CSS 26→4、支払い画面CSS 28→4。月次予算SQL・認証SQLで必須依存を保持。Core検証5件は成功・stable。",
+  "remaining": [
+    "audit-rule-gapの実モデル比較は外部送信に対する自動承認拒否で未確認。モデルの判断品質・所要時間は評価していない。"
+  ]
+}

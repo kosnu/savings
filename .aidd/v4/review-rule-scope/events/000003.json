@@ -1,0 +1,20 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "会話依頼の実差分と選択結果",
+  "paths": [
+    "docs/harness/rule-map.json",
+    "docs/harness/policies/code-review.md",
+    "tools/harness/checker/internal/core/core_test.go"
+  ],
+  "fingerprint": "4bebdf869eb5ebbe2b57ded6b9878f4ad9b315280a536a92f8e788721180939c",
+  "status": "pass",
+  "checks": [
+    "参照規約と実索引の一致",
+    "必須依存・複数変更面・意味による追加選択",
+    "実モデル比較の未確認範囲"
+  ],
+  "summary": "CSS・業務実装・SQL・Storyで必須と除外を照合。汎用名や表示変更では実差分から該当面を補う。規約件数の改善は実装で確認済み。実モデル比較は未確認のため判断品質への効果は主張しない。",
+  "remaining": []
+}
