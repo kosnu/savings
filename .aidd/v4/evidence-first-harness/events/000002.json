@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "会話依頼。一次資料を基に開発基盤を再設計する。比較元 a2066e17",
+  "paths": [
+    "AGENTS.md",
+    "docs/adr/0010-evidence-first-development.md",
+    "docs/ai-driven-development/",
+    "docs/harness/policies/",
+    "tools/harness/checker/",
+    ".agents/skills/audit/SKILL.md"
+  ],
+  "fingerprint": "a645e3b7b5d6fd0ce74846e886bd2a6d41eb0fa45bccfe17e734cd3998dbab22",
+  "status": "pass",
+  "checks": [
+    "実差分のCLI検証と範囲外拒否、Go test/vet",
+    "共有Git gate 8件、ADR履歴、文書リンク",
+    "PR #2172実差分の再現、実モデル3ケース各2回の前後比較"
+  ],
+  "summary": "対象差分で必須3コマンドが成功し、実行前後の内容とmodeは一致。#2172の成果を元の範囲で再現し、31変更pathから規約19件を導出、工程ファイル追加ゼロで3検査成功。説明・修正・Audit選択は前後とも6/6成功。",
+  "remaining": []
+}

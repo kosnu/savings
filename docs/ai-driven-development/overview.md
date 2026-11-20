@@ -33,7 +33,7 @@ AI駆動開発は広い説明語として使えるが、AIDDを各社共通の�
 - [Core](aidd-checker.md)と[操作](aidd-checker-operations.md): Goによるその場の差分・検証・stage・配信先の検査。
 - [Audit policy](../harness/policies/audit.md): Ship後の指摘分析と手動承認の境界。
 - [Retrospective](../harness/policies/retrospective.md): Merge / Close後の作業過程の振り返り。通常サイクル外の明示依頼で行う。
-- [調査と採否](research-v4.md)、[ADR 0009](../adr/0009-rebuild-aidd-v4.md): 選択の根拠。
+- [調査と採否](research-v4.md)、[ADR 0009](../adr/0009-rebuild-aidd-v4.md)、[ADR 0010](../adr/0010-evidence-first-development.md): 開発サイクル、実差分からの検証、引き継ぎを採用した根拠。
 - [要求の伝達](issue-guidelines.md)、[用語](glossary.md)、[Codex](codex-adapter.md): 入力とhost連携。
 - [Agent evals](agent-evals.md): ハーネス変更時に依頼・権限、失敗後の回復、小さな修正の完遂を評価・比較する方法。
 

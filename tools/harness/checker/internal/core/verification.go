@@ -42,10 +42,10 @@ func (s *Checker) mandatoryCommands(paths []string) [][]string {
 	}
 	return out
 }
-func (s *Checker) requireCommands(paths []string, d VerificationPlan) error {
-	for _, want := range s.mandatoryCommands(paths) {
+func requireCommandSet(required, commands [][]string) error {
+	for _, want := range required {
 		found := false
-		for _, got := range d.Commands {
+		for _, got := range commands {
 			normalized := []string{}
 			for _, arg := range got {
 				if arg != "-count=1" || len(got) < 4 || got[0] != "go" || got[3] != "test" {

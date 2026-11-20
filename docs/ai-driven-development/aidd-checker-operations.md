@@ -44,32 +44,19 @@ rm /tmp/harness-rule-paths.json
 
 変更対象の既存formatterを検証前に適用する。Markdownは`vp fmt <変更path...> --write`、Goは`gofmt -w <変更Goファイル...>`を使う。
 
-必要な検証は[AGENTS.md](../../AGENTS.md#verification)と適用規約から選ぶ。
-Coreでまとめて実行する場合、`verify --base <比較元commit/ref> --input <一時JSON>`を使う。
-工程結果は`record-begin`で検証を開始し、`verify`を実行してから`record-finish`で成否を保存する。入力の`paths`には実際の変更対象を指定する。[Coreの検査範囲](aidd-checker.md#検査の責務)に従い、所定の工程結果の追加・更新を`paths`へ足す必要はない。他の範囲外変更や検証中の内容・mode変更は引き続き失敗となる。
-たとえばCore変更の入力は次の形にする。`rules`は実際の差分に必要なrule IDを指定する。
+委任された対象をrepository rootからの相対pathで指定する。ディレクトリには末尾の `/` が必要。比較元はTask開始時に決めたcommitを使う。次はCoreだけを変更した場合の例。
 
-```json
-{
-  "paths": ["tools/harness/checker/"],
-  "commands": [
-    ["git", "diff", "--check"],
-    ["go", "-C", "tools/harness/checker", "test", "./..."],
-    ["go", "-C", "tools/harness/checker", "vet", "./..."]
-  ],
-  "rules": [
-    "ai-driven.workflow",
-    "ai-driven.checker",
-    "documentation.policy",
-    "ai-driven.change-coverage",
-    "ai-driven.overview",
-    "ai-driven.glossary"
-  ]
-}
+```sh
+/tmp/harness-checker plan --base HEAD -- tools/harness/checker/
+/tmp/harness-checker verify --base HEAD -- tools/harness/checker/
 ```
 
-入力はその場の実行にだけ使用し、Task本文・snapshot・生出力・操作履歴を生成しない。入力ファイルを使った場合は実行後に削除する。
-結果は各commandのindexと終了コード、`stable`のみ。診断出力は実行中に確認し、要約は検証名・成否・必要な未確認事項に絞る。
+この例の `HEAD` は最初のcommit前を想定する。commit後や再開時も同じ比較元SHAを使う。`plan` で規約本文の参照先と必須コマンドを確認し、`verify` は実行時の差分から同じ情報を導出する。ADR変更では、実際の配信先ブランチを使って下記のADR履歴検査も実行する。Gitの空白検査は追跡対象を比較するため、新規ファイルの空白はstage後の `ship-check` でも確認する。対象外のpathが出たら変更の出所と委任範囲を確認する。検査を通すために差分一覧をそのまま委任範囲へ渡さない。
+
+`verify` のJSONでは `context.commands` と `results` のindexが対応する。成否は終了コードと検証中の安定性で判断する。通常の開発は工程ファイルを作らず、PRまたは会話に検証結果と未確認事項を示す。
+
+機械で選べる必須コマンドに加え、Intentや規約が求める実動作、追加テスト、evalを個別に実行する。既存の `verify --base <比較元> --input <一時JSON>` も利用できる。入力は委任範囲の `paths`、実行するargv配列の `commands`、実差分に必要な規約IDの `rules`。既存形式では不足する必須コマンド・規約を拒否し、所定の工程記録の追加・更新を補助差分として扱う。path指定方式では工程記録も明示的に範囲へ含める。
+
 Webの整形は検証batchの前に行う。失敗修正後は開始済みbatchを終えてから必要な検証をやり直す。
 同一差分で確認済みの検証を、記録更新のために再実行しない。
 
@@ -78,6 +65,8 @@ Webの整形は検証batchの前に行う。失敗修正後は開始済みbatch�
 Coreは意味的な適用要否や評価点による自動gateを追加せず、比較結果と未確認事項を既存の検証・レビュー要約へ含める。
 
 ## 工程結果の更新
+
+[Workflowの引き継ぎ条件](workflow.md#intentと実行権限)を満たす場合に以下を使う。通常の開発ではこの節を省く。
 
 ### Taskと記録先の選択
 

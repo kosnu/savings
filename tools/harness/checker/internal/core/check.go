@@ -34,65 +34,132 @@ func CheckChanges(root, baseRef string) error {
 		return e
 	}
 	paths := changed(before, after)
-	for _, p := range paths {
-		if _, present := after[p]; present && path.Dir(p) == "docs" && strings.EqualFold(path.Ext(p), ".md") && p != "docs/README.md" && p != "docs/architecture.md" {
-			return fmt.Errorf("%s: 文書の責務に合うディレクトリへ配置してください (docs/harness/policies/documentation-policy.md#配置先)", p)
-		}
+	if e = checkPlacement(paths, after); e != nil {
+		return e
 	}
 	_, e = ResolveRules(root, paths)
 	return e
 }
 
-// Verifyは出力を診断用streamへ渡すだけで、結果や履歴に取り込まない。
-func (s *Checker) Verify(plan VerificationPlan, diagnostics io.Writer) (Verification, error) {
-	result := Verification{Results: []Result{}}
-	if required(s.Base) != nil {
-		return result, fmt.Errorf("base ref required")
-	}
-	baseline, e := git(s.Root, "rev-parse", "--verify", "--end-of-options", s.Base+"^{commit}")
-	if e != nil {
-		return result, e
-	}
-	if len(plan.Paths) == 0 || len(plan.Commands) == 0 {
-		return result, fmt.Errorf("paths and commands required")
-	}
-	for _, p := range plan.Paths {
-		if !validPath(p) {
-			return result, fmt.Errorf("invalid scope path %q", p)
+func checkPlacement(paths []string, after Snapshot) error {
+	for _, p := range paths {
+		if _, present := after[p]; present && path.Dir(p) == "docs" && strings.EqualFold(path.Ext(p), ".md") && p != "docs/README.md" && p != "docs/architecture.md" {
+			return fmt.Errorf("%s: 文書の責務に合うディレクトリへ配置してください (docs/harness/policies/documentation-policy.md#配置先)", p)
 		}
+	}
+	return nil
+}
+
+// VerificationContext は実差分に適用する規約とコマンドを返す。
+type VerificationContext struct {
+	Base        string       `json:"base"`
+	Changed     []string     `json:"changed"`
+	Rules       []RuleSource `json:"rules"`
+	Commands    [][]string   `json:"commands"`
+	fingerprint string
+}
+
+type RuleSource struct {
+	ID   string `json:"id"`
+	File string `json:"file"`
+}
+
+func (s *Checker) prepare(paths []string, legacy bool) (VerificationContext, error) {
+	var v VerificationContext
+	if required(s.Base) != nil || len(paths) == 0 {
+		return v, fmt.Errorf("baseline and explicit scope paths required")
+	}
+	for _, p := range paths {
+		if !validPath(p) {
+			return v, fmt.Errorf("invalid scope path %q", p)
+		}
+	}
+	baseline, err := git(s.Root, "rev-parse", "--verify", "--end-of-options", s.Base+"^{commit}")
+	if err != nil {
+		return v, err
+	}
+	v.Base = strings.TrimSpace(string(baseline))
+	base, err := s.snapshot(v.Base)
+	if err != nil {
+		return v, err
+	}
+	work, fp, err := s.current()
+	if err != nil {
+		return v, err
+	}
+	v.fingerprint = fp
+	v.Changed = changed(base, work)
+	if err = checkScope(paths, v.Changed, work, legacy); err != nil {
+		return v, err
+	}
+	if !legacy {
+		if len(v.Changed) == 0 {
+			return v, fmt.Errorf("no changes against baseline")
+		}
+		if err = checkPlacement(v.Changed, work); err != nil {
+			return v, err
+		}
+	}
+	rules, err := ResolveRules(s.Root, v.Changed)
+	if err != nil {
+		return v, err
+	}
+	v.Rules = make([]RuleSource, 0, len(rules))
+	for _, r := range rules {
+		v.Rules = append(v.Rules, RuleSource{ID: r.ID, File: r.File})
+	}
+	pinned := Checker{Root: s.Root, Base: v.Base}
+	v.Commands = pinned.mandatoryCommands(v.Changed)
+	if !legacy {
+		// stage済み・commit済みの変更も比較元から検査する。
+		v.Commands[0] = []string{"git", "diff", "--check", v.Base, "--"}
+	}
+	return v, nil
+}
+
+func (s *Checker) Plan(paths []string) (VerificationContext, error) {
+	return s.prepare(paths, false)
+}
+
+// VerifyScope は表示済みの計画を信用せず、実行時の差分から再計算する。
+func (s *Checker) VerifyScope(paths []string, diagnostics io.Writer) (Verification, error) {
+	v, err := s.Plan(paths)
+	if err != nil {
+		return Verification{}, err
+	}
+	result, err := s.runChecks(v.Commands, v.fingerprint, diagnostics)
+	result.Context = &v
+	return result, err
+}
+
+// Verify は追加コマンドを指定する既存の計画入力も検査する。
+func (s *Checker) Verify(plan VerificationPlan, diagnostics io.Writer) (Verification, error) {
+	empty := Verification{Results: []Result{}}
+	v, err := s.prepare(plan.Paths, true)
+	if err != nil {
+		return empty, err
 	}
 	for _, c := range plan.Commands {
 		if len(c) == 0 || required(c...) != nil {
-			return result, fmt.Errorf("empty command")
+			return empty, fmt.Errorf("empty command")
 		}
 	}
-	before, fp, e := s.current()
-	if e != nil {
-		return result, e
+	if err := requireCommandSet(v.Commands, plan.Commands); err != nil {
+		return empty, err
 	}
-	base, e := s.snapshot(strings.TrimSpace(string(baseline)))
-	if e != nil {
-		return result, e
+	if err := ensureRules(v.Rules, plan.Rules); err != nil {
+		return empty, err
 	}
-	if e = s.scope(plan.Paths, base, before); e != nil {
-		return result, e
-	}
-	delta := changed(base, before)
-	if e = s.requireCommands(delta, plan); e != nil {
-		return result, e
-	}
-	rules, e := ResolveRules(s.Root, delta)
-	if e != nil {
-		return result, e
-	}
-	if e = ensureRules(rules, plan.Rules); e != nil {
-		return result, e
-	}
+	return s.runChecks(plan.Commands, v.fingerprint, diagnostics)
+}
+
+func (s *Checker) runChecks(commands [][]string, fp string, diagnostics io.Writer) (Verification, error) {
+	result := Verification{Results: []Result{}}
 	if diagnostics == nil {
 		diagnostics = io.Discard
 	}
 	var failures []error
-	for i, args := range plan.Commands {
+	for i, args := range commands {
 		c := exec.Command(args[0], args[1:]...)
 		c.Dir = s.Root
 		c.Stdout = diagnostics

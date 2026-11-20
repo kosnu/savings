@@ -32,8 +32,9 @@ type Result struct {
 	Exit  int `json:"exit"`
 }
 type Verification struct {
-	Results []Result `json:"results"`
-	Stable  bool     `json:"stable"`
+	Context *VerificationContext `json:"context,omitempty"`
+	Results []Result             `json:"results"`
+	Stable  bool                 `json:"stable"`
 }
 type Ship struct {
 	Commit string `json:"commit"`

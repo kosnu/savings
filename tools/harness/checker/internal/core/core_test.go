@@ -178,7 +178,7 @@ func TestStrictJSON(t *testing.T) {
 	}
 }
 func TestMandatoryChecks(t *testing.T) {
-	if (&Checker{}).requireCommands([]string{"tools/harness/checker/x.go"}, VerificationPlan{Commands: [][]string{{"true"}}}) == nil {
+	if requireCommandSet((&Checker{}).mandatoryCommands([]string{"tools/harness/checker/x.go"}), [][]string{{"true"}}) == nil {
 		t.Fatal("mandatory checks absent")
 	}
 	if _, e := exec.LookPath("git"); e != nil {
