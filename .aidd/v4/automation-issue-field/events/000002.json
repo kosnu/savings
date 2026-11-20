@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "ChatGPT: Automation Issue Fieldへの移行とProjectへの自動追加廃止の依頼（2026-11-20）",
+  "paths": [
+    ".github/workflows/issue_project_automation.yaml",
+    ".github/workflows/github_actions_security.yaml",
+    "tools/github-actions/issue-project-automation.cjs",
+    "tools/github-actions/issue-project-automation.test.mjs",
+    "docs/harness/policies/github-issue-workflow.md"
+  ],
+  "fingerprint": "63439e60e137fa6a424ddc8df5317a90f31cd627d441231808073d3564ed20aa",
+  "status": "pass",
+  "checks": [
+    "Nodeテスト24件",
+    "整形・git diff --check・Core rules/check-changes",
+    "actionlintとzizmor",
+    "対象IssueでREST APIの現在値を読み取り"
+  ],
+  "summary": "項目の未設定時だけAutomationをPOSTし再取得する。設定済み、別リポジトリ、不正値、APIエラー、宛先違いの回帰を確認した。",
+  "remaining": []
+}

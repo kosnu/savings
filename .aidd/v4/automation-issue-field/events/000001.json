@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ChatGPT: Automation Issue Fieldへの移行とProjectへの自動追加廃止の依頼（2026-11-20）",
+  "paths": [
+    ".github/workflows/issue_project_automation.yaml",
+    ".github/workflows/github_actions_security.yaml",
+    "tools/github-actions/issue-project-automation.cjs",
+    "tools/github-actions/issue-project-automation.test.mjs",
+    "docs/harness/policies/github-issue-workflow.md"
+  ],
+  "fingerprint": "63439e60e137fa6a424ddc8df5317a90f31cd627d441231808073d3564ed20aa",
+  "status": "pass",
+  "checks": [
+    "取り消されたProject自動追加と現行の要求の照合",
+    "GitHub公式のGITHUB_TOKENとIssue Field値API、対象の数値ID・有効な選択肢の確認"
+  ],
+  "summary": "ProjectおよびPATを使わず、ジョブのGITHUB_TOKENでAutomation Issue Fieldのみ初期設定する。更新範囲を一つのフィールドに限定する。",
+  "remaining": []
+}
