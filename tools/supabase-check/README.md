@@ -1,6 +1,6 @@
 # Supabase verifier
 
-確認対象と合格条件の正本は[Dev確認手順](../../docs/supabase-dev-verification.md)。
+確認対象と合格条件の正本は[Dev確認手順](../../docs/infrastructure/supabase-dev-verification.md)。
 検証ロジックはこのGo moduleに置き、workflowには起動コマンドだけを置く。
 
 ## 実行
@@ -42,14 +42,14 @@ PATはDev project限定とし、Auth・Data APIとread-only SQL APIの読み取�
 
 期待値はJSONの`settings`に指定する。必須なのは`auth`と`postgrest`だけで、
 Google認証の有効状態・Devの遷移先・`public`を含む公開schemaを照合する。
-具体的な入力fieldは[dev.go](dev.go)が所有する。比較する値は[Dev確認手順](../../docs/supabase-dev-verification.md#照合する設定値)を参照する。
+具体的な入力fieldは[dev.go](dev.go)が所有する。比較する値は[Dev確認手順](../../docs/infrastructure/supabase-dev-verification.md#照合する設定値)を参照する。
 セッション期限・同時ログイン制限・更新猶予・CAPTCHA・rate limit・取得上限や、全サービスの具体値は必須入力にしない。
 
 追加の設定は、採用済み期待値がある場合にだけ指定する。未指定の設定APIは呼ばず、照合済みとは扱わない。
 設定項目とendpointは[dev.go](dev.go)が所有する。
 objectは指定fieldを比較し、array・scalarは完全一致。
 指定した期待値の空object、不正値、必須項目の欠落、取得失敗、不一致は失敗とする。
-CIで取得できない公開・管理範囲と例外の確認は[Dev確認手順](../../docs/supabase-dev-verification.md#人が確認決定する内容)に従う。
+CIで取得できない公開・管理範囲と例外の確認は[Dev確認手順](../../docs/infrastructure/supabase-dev-verification.md#人が確認決定する内容)に従う。
 
 Dev DBの比較元は指定したPR headのSQLとconfigをデータとして取得し、configの契約検査後にSQLから起動した隔離DB。
 履歴・RLS・index・関数定義・実効権限を比較する。候補のGo・JavaScriptは取得・実行しない。

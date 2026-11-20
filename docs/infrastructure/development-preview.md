@@ -23,11 +23,11 @@ when_to_read:
 
 PRごとに `burneto-dev` のPreviewを配信し、1つのDev SupabaseでDB・Auth・APIを共有する。
 本番Worker・本番Supabaseには接続・変更せず、合成データだけを使う。
-構成は[インフラ構成](infrastructure.md)、検証結果と未確認項目はIssue・PRで管理する。
+構成は[インフラ構成](overview.md)、検証結果と未確認項目はIssue・PRで管理する。
 
 ## workflowの構成
 
-Prodの[Deploy Production](../.github/workflows/deploy_production.yaml)を基準に、
+Prodの[Deploy Production](../../.github/workflows/deploy_production.yaml)を基準に、
 Devもcheckout → セットアップ → 検査 → 配信を同じデプロイjob内で行う。
 Environmentの人手承認を前提にした、PR選択jobと承認後の再確認jobには分けない。
 
@@ -88,7 +88,7 @@ URLは公開の接続先識別子であり、このCIは実DB接続や認証の�
 
 確認対象と満たすべき状態は[Supabase設定変更のDev確認手順](supabase-dev-verification.md)を参照する。
 `Supabase verification`はPRの隔離DB/API試験と、mainから手動実行するDevの読み取り照合を持つ。
-Go実装の入力・実行条件・必要権限は[検証コードの案内](../tools/supabase-check/README.md)を参照する。
+Go実装の入力・実行条件・必要権限は[検証コードの案内](../../tools/supabase-check/README.md)を参照する。
 Dev照合はdevelopment Environmentを使い、人手承認なしでDB適用と同じgroupで直列化する。
 設定変更・権限追加・migration適用は行わない。既存DB適用tokenに不足する読み取り権限は自動追加しない。
 

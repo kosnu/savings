@@ -31,6 +31,7 @@ when_to_read:
 
 ## 構成
 
+- [Copilotのレビュー設定](copilot-code-review.md): レビュー入口の採用理由と復旧手順。
 - [rule-map.json](./rule-map.json): 作業対象に応じて読むべき Markdown へ案内する初期索引。
 - [policies/](./policies/): Git、code review、review feedback、transaction boundary、temporal data、documentation policy など、agent が守るリポジトリ横断の運用ルール。
 - [domain/](./domain/): 金額、支払い、カテゴリ、月予算など、agent が仕様判断や実装判断で参照するドメインルール。
@@ -113,4 +114,4 @@ provenance は、ルールがどの作業成果物や検証に効いているか
 - 特定アプリに閉じたcomponent、DB、API、UIの設計判断。
 - ハーネスエンジニアリングやルールグラフの採用判断。
 
-それらは `docs/` 直下、`docs/ai-driven-development/`、`apps/*/docs/` に置き、必要に応じて `docs/harness/rule-map.json` から参照します。
+[文書の配置先](policies/documentation-policy.md#配置先)に従い、必要に応じて `docs/harness/rule-map.json` から参照します。

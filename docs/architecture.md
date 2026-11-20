@@ -37,6 +37,8 @@ when_to_read:
 
 ## ドキュメントの参照先
 
+- [インフラ構成と運用](infrastructure/overview.md)
+- [文書の配置先](harness/policies/documentation-policy.md#配置先)
 - フロントエンド（開発・テスト・Storybook）: [apps/web/README.md](../apps/web/README.md)
 - リポジトリ全体のトップ説明: [README.md](../README.md)
 

@@ -199,6 +199,26 @@ func TestShipCheckContentModeAndWhitespace(t *testing.T) {
 		t.Fatal("whitespace error accepted")
 	}
 }
+func TestCheckChangesRequiresTopicDocsInSubdirectories(t *testing.T) {
+	s := fixture(t)
+	put(t, s.Root, "docs/README.md", "# Index")
+	put(t, s.Root, "docs/architecture.md", "# Architecture")
+	put(t, s.Root, "docs/deploy.md", "# Deploy")
+	if err := CheckChanges(s.Root, s.Base); err == nil || !strings.Contains(err.Error(), "docs/deploy.md") {
+		t.Fatalf("直下の運用文書を検出できない: %v", err)
+	}
+	command(t, s.Root, "add", ".")
+	command(t, s.Root, "commit", "-m", "existing documents")
+	base := command(t, s.Root, "rev-parse", "HEAD")
+	put(t, s.Root, "docs/infrastructure/deploy.md", "# Deploy")
+	command(t, s.Root, "rm", "docs/deploy.md")
+	put(t, s.Root, "docs/architecture.md", "# Updated architecture")
+	put(t, s.Root, "docs/README.md", "# Updated index")
+	if err := CheckChanges(s.Root, base); err != nil {
+		t.Fatalf("移動と入口の更新を受理できない: %v", err)
+	}
+}
+
 func TestHistoricalRecordsAreNotExecutionInput(t *testing.T) {
 	s := fixture(t)
 	put(t, s.Root, ".aidd/v4/history/task.json", "invalid old record")

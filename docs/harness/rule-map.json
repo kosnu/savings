@@ -211,14 +211,14 @@
     },
     {
       "id": "infrastructure.overview",
-      "file": "docs/infrastructure.md",
+      "file": "docs/infrastructure/overview.md",
       "applies_to": {
         "paths": [
           "apps/api/**",
           "apps/web/*config.ts",
           "apps/web/src/config/env.ts",
           "apps/web/src/lib/supabase.ts",
-          "docs/infrastructure.md"
+          "docs/infrastructure/overview.md"
         ],
         "domains": ["infrastructure", "web", "api"],
         "activities": [
@@ -240,7 +240,7 @@
     },
     {
       "id": "infrastructure.dev-preview",
-      "file": "docs/development-preview.md",
+      "file": "docs/infrastructure/development-preview.md",
       "applies_to": {
         "paths": [
           "tools/dev-preview/**",
@@ -248,7 +248,7 @@
           ".github/workflows/deploy_dev_database.yaml",
           ".github/workflows/dev_preview_ci.yaml",
           "apps/web/cloudflare.config.ts",
-          "docs/development-preview.md",
+          "docs/infrastructure/development-preview.md",
           "tools/supabase-check/**",
           ".github/workflows/supabase_ci.yaml"
         ],
@@ -260,13 +260,13 @@
     },
     {
       "id": "infrastructure.supabase-verification",
-      "file": "docs/supabase-dev-verification.md",
+      "file": "docs/infrastructure/supabase-dev-verification.md",
       "applies_to": {
         "paths": [
           "tools/supabase-check/**",
           ".github/workflows/supabase_ci.yaml",
           ".github/workflows/dev_preview_ci.yaml",
-          "docs/supabase-dev-verification.md"
+          "docs/infrastructure/supabase-dev-verification.md"
         ],
         "topics": ["supabase", "verification", "security"]
       },

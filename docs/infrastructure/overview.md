@@ -60,7 +60,7 @@ when_to_read:
 - Google Cloud project は本番 `burneto`（表示名 `burneto-prd`）と開発 `burneto-dev` に分離する。
   本番の OAuth 同意画面のアプリ名は `Burneto` とする。
 - OAuth 同意画面のロゴには、[#1774](https://github.com/kosnu/savings/issues/1774) で作成した正方形の
-  [ブランドアイコン](../apps/web/public/brand/icon-master.png)を使用する。
+  [ブランドアイコン](../../apps/web/public/brand/icon-master.png)を使用する。
 - 本番の Web application client `Supabase` は、origin `https://burneto.com` と
   redirect URI `https://izuzqvgvgquqqimwuygw.supabase.co/auth/v1/callback` だけを登録する。
   localhost と共有 Dev の callback は開発 project の client `supabase-dev` で管理する。
@@ -70,16 +70,16 @@ when_to_read:
 ### Cloudflare Workers Static Assets
 
 - Worker 名は `burneto`、本番 custom domain は `burneto.com` とする。
-- [cloudflare.config.ts](../apps/web/cloudflare.config.ts) が配信先と SPA fallback を所有する。
+- [cloudflare.config.ts](../../apps/web/cloudflare.config.ts) が配信先と SPA fallback を所有する。
   静的ファイルのみを配信し、Worker のサーバーコードを追加しない。
 - Cloudflare Vite plugin が既存の Web ビルドから `.cloudflare/output/v0/` を作成する。
-  [deploy_production.yaml](../.github/workflows/deploy_production.yaml) は cf を使い、
+  [deploy_production.yaml](../../.github/workflows/deploy_production.yaml) は cf を使い、
   `--prebuilt --mode production` で同じ成果物を検証・配信する。
 - 旧 Pages project `burneto`、既存 deployment、`savings-dyo.pages.dev` は切り戻し用に保持する。
   本番切替後も旧 hostname は旧 Pages を配信し、Workers への転送先にはしない。
 - 本番切替と旧 Pages 削除は別の承認対象とする。準備・切替・確認・切り戻しは
   [移管手順](workers-migration.md)を参照する。
-- 静的応答のセキュリティヘッダーは [public/_headers](../apps/web/public/_headers) で管理する。
+- 静的応答のセキュリティヘッダーは [public/_headers](../../apps/web/public/_headers) で管理する。
   HTML・静的ファイルは標準の再検証キャッシュを維持する。セキュリティ・キャッシュ方針、
   測定・Web配信・切り戻しの手順は [Cloudflare のWeb配信と運用](cloudflare-delivery.md)を参照する。
 
@@ -139,7 +139,7 @@ Hosted project の実設定を証明しない。
 | Auth           | repo は Google provider と既存 callback を維持。Advisor は両環境で漏洩 password 保護無効を報告                                               | provider、redirect allow list、nonce、JWT/session・refresh、rate limit、CAPTCHA の実値と Google 経路への適用範囲は未確認。メール用対策を Google 対策と同一視せず、プラン・互換性を確認して判断する                         |
 | プラン         | 組織は Free                                                                                                                                  | 使用量・残容量・バックアップ実在は未確認。有料化・キー発行は行わない                                                                                                                                                       |
 
-準備した [migration](../apps/api/supabase/migrations/20261006024617_optimize_user_rls_and_category_budget_lookup.sql) は、
+準備した [migration](../../apps/api/supabase/migrations/20261006024617_optimize_user_rls_and_category_budget_lookup.sql) は、
 8テーブルの TRUNCATE を PUBLIC / anon / authenticated から除外し、users の本人判定を `(select auth.uid())` にし、
 `category_budgets(category_id)` の index を追加する。
 既存8テーブルの作成者である postgres の public default privileges からも TRUNCATE を除外する。
@@ -161,7 +161,7 @@ Prd 固有の `public.rls_auto_enable()` は SECURITY DEFINER・anon EXECUTE の
 
 ネットワーク・公開 port のない専用 PostgreSQL 17.6.1.167 に repo の既存 migration を適用し、
 ローカル Auth の `auth.uid()` / `auth.jwt()` 定義を読み取りで補完した。共有 Dev・本番データは使わない。
-[境界テスト](../apps/api/supabase/tests/publication_boundaries.test.sql) は2利用者の合成データで本人/profile更新、
+[境界テスト](../../apps/api/supabase/tests/publication_boundaries.test.sql) は2利用者の合成データで本人/profile更新、
 別 Book の参照・更新・削除・挿入拒否、JWT切替・欠落、匿名RPC拒否、TRUNCATE拒否を確認し rollback する。
 変更前の39項目の試験では19件が失敗し、TRUNCATEで他利用者の支払いも消えることを検出。
 変更後は本人更新の反映、将来表のTRUNCATE拒否とCRUD・service_role/所有者の権限維持を確認。
@@ -220,8 +220,8 @@ HTTP遅延、p95/p99、同時実行、CPU/IO/接続上限、APIエラー率は�
 ### Production deployment
 
 本番配信は正式な GitHub Release の公開を起点とし、同じ対象 commit から DB migration、Web の順に適用する。
-通常の操作は[本番リリース手順](production-release/index.md)、対象 SHA の検証は[内部仕様](production-release/internals.md)、
-再実行・DB を含む復旧の制限は[障害復旧手順](production-release/recovery.md)を参照する。Workers への初回切替は
+通常の操作は[本番リリース手順](../production-release/index.md)、対象 SHA の検証は[内部仕様](../production-release/internals.md)、
+再実行・DB を含む復旧の制限は[障害復旧手順](../production-release/recovery.md)を参照する。Workers への初回切替は
 [#1867](https://github.com/kosnu/savings/issues/1867) と[移管手順](workers-migration.md)に従い、
 対象 commit と実施内容への承認を得てから行う。
 Web ビルドでは従来の Supabase・Sentry 環境変数を維持する。

@@ -22,7 +22,7 @@ Issue [#1903](https://github.com/kosnu/savings/issues/1903)のIntentに基づき
 ## 検査の責務
 
 - `rules`: path/surface一致と依存closureを解決し、規約索引の不備を拒否する。
-- `check-changes --base`: merge-baseと現在の実差分から適用規約を解決する。検証・レビューの成功は示さない。
+- `check-changes --base`: merge-baseと現在の実差分から適用規約を解決し、`docs/` 直下のMarkdownが[配置基準](../harness/policies/documentation-policy.md#配置先)に合うか検査する。
 - `verify --base --input`: 有限の対象path・command・ruleを入力として、差分の範囲と必須command・ruleの不足を拒否し、commandを実行する。
 - `ship-check`: stageとworktreeの内容・mode、stageの空白エラーを検査する。
 - `ship --input`: local HEAD、worktree、remote branch、PRのhead/base/OPEN状態を照合する。Ship記録は書かない。

@@ -29,7 +29,7 @@ DB が失敗・中断した場合、Web は配信されない。
    本番への影響・migration・復旧方法を [Release ノート](internals.md#release-ノート)に記載する。
 2. **公開する。** プレリリース指定を外し、GitHub UI の **Publish release** またはユーザー認証による同等の操作を実行する。
 3. **結果と動作を確認する。** Release の **Production deployment** から対象 SHA の run を開き、DB/Web 両方の `success` を確認する。
-   [反映後の確認手順](../cloudflare-delivery.md#必要なときに参照する詳細)の「Web だけの本番配信と切り戻し」に従い、
+   [反映後の確認手順](../infrastructure/cloudflare-delivery.md#必要なときに参照する詳細)の「Web だけの本番配信と切り戻し」に従い、
    表示・直接アクセス・既存 session・Google ログイン・通常 CRUD・Sentry の受信と map 解決を確認する。
 
 公開は一件ずつ行い、前の配信と動作確認が終わってから次を公開する。文書・保守だけなら公開は必須ではない。

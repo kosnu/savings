@@ -19,7 +19,7 @@ when_to_read:
 
 # Burnetoのアカウント削除設計
 
-[Issue #1884](https://github.com/kosnu/savings/issues/1884) の設計成果。[公開・監視・復旧手順](../account-deletion-operations.md)と併せて適用する。
+[Issue #1884](https://github.com/kosnu/savings/issues/1884) の設計成果。[公開・監視・復旧手順](../infrastructure/account-deletion-operations.md)と併せて適用する。
 [HTML解説](account-deletion.html)と[実装Issue案](account-deletion-implementation-issue.md)を併せて参照する。
 
 ## 基本方針と時刻
@@ -232,7 +232,7 @@ Authのredirect allowlistでは通常ログインが戻る対象originの `/auth
 ## 根拠と参照
 
 - [既存Auth連携・cascade・RLS](../../apps/api/supabase/migrations/20260621000000_link_users_to_auth_users.sql)、[Book所有への移行](../../apps/api/supabase/migrations/20260508000000_remove_user_ownership_from_book_owned_data.sql)。
-- [Transaction Boundaries](../harness/policies/transaction-boundaries.md)、[Temporal Data Policy](../harness/policies/temporal-data.md)、[インフラ構成](../infrastructure.md)、[Supabase Dev検証](../supabase-dev-verification.md)、[Sentry運用](../sentry-monitoring.md)。
+- [Transaction Boundaries](../harness/policies/transaction-boundaries.md)、[Temporal Data Policy](../harness/policies/temporal-data.md)、[インフラ構成](../infrastructure/overview.md)、[Supabase Dev検証](../infrastructure/supabase-dev-verification.md)、[Sentry運用](../infrastructure/sentry-monitoring.md)。
 - [Burneto Design System](../../DESIGN.md)、[Web Design Rules](../../apps/web/docs/policies/design-rules.md)。
 - [Supabase User Management](https://supabase.com/docs/guides/auth/managing-user-data)、[Sessions](https://supabase.com/docs/guides/auth/sessions)、[Database Functions](https://supabase.com/docs/guides/database/functions)、[Cron](https://supabase.com/docs/guides/cron)。Auth削除後も発行済みJWTは期限まで残り得るため、UI logoutだけに依存しない。
 - [PostgreSQL日時・timezone変換](https://www.postgresql.org/docs/17/functions-datetime.html#FUNCTIONS-DATETIME-ZONECONVERT)、[lock](https://www.postgresql.org/docs/17/explicit-locking.html)、[isolation](https://www.postgresql.org/docs/17/transaction-iso.html)、[PL/pgSQLのエラー処理](https://www.postgresql.org/docs/17/plpgsql-control-structures.html#PLPGSQL-ERROR-TRAPPING)。日時・Cronは2026-10-23、その他の公式仕様は2026-10-22に確認。

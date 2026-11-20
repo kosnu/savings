@@ -20,8 +20,8 @@ when_to_read:
 
 障害の分類と、配信したJavaScriptの発生位置を調べるためにSentryを使う。
 診断に必要な情報だけを送り、認証情報・個人情報・支払い明細を収集しない。
-具体的な収集条件と許可項目は[SDK初期化](../apps/web/src/lib/sentry.ts)と
-[送信前処理](../apps/web/src/lib/sentryPrivacy.ts)を正本とする。
+具体的な収集条件と許可項目は[SDK初期化](../../apps/web/src/lib/sentry.ts)と
+[送信前処理](../../apps/web/src/lib/sentryPrivacy.ts)を正本とする。
 
 ## 調査できる範囲と限界
 
@@ -67,6 +67,6 @@ SDKは検証済みの成果物へ戻す。機微情報の除去が弱まる旧�
 
 ## 配信設定の参照
 
-- [Vite連携](../apps/web/vite.config.ts)：source mapの生成・アップロード・削除。
-- [Dev配信workflow](../.github/workflows/deploy_preview.yaml)と[本番配信workflow](../.github/workflows/deploy_production.yaml)：ビルド対象とreleaseの受け渡し。
+- [Vite連携](../../apps/web/vite.config.ts)：source mapの生成・アップロード・削除。
+- [Dev配信workflow](../../.github/workflows/deploy_preview.yaml)と[本番配信workflow](../../.github/workflows/deploy_production.yaml)：ビルド対象とreleaseの受け渡し。
 - [Devプレビュー運用](development-preview.md)：EnvironmentのSecret登録と配信手順。

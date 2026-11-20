@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "移動前後のリンク、規約の選択、対象workflow・Coreの差分検査",
+  "paths": [
+    "docs/",
+    "tools/harness/checker/internal/core/check.go",
+    "tools/harness/checker/internal/core/check_test.go",
+    "apps/web/README.md",
+    "tools/supabase-check/README.md",
+    ".github/workflows/supabase_ci.yaml"
+  ],
+  "fingerprint": "c505394562ae2bcecb01dcab49aa82270890aec4bf42b1276c0dc316de9ba933",
+  "status": "pass",
+  "checks": [
+    "8文書の移動前後で相対リンク・fragmentを照合し、関係するローカルリンク67件の参照先を確認",
+    "Core test/vet・差分検査・整形・actionlintとSupabase workflow接続テスト",
+    "旧索引をパス置換した結果と新しい索引の完全一致"
+  ],
+  "summary": "直下への誤配置を拒否し、入口更新と分野別ディレクトリへの移動を受理。移動文書のリンク先を維持し、規約の依存・選択条件を新パスに移行した。",
+  "remaining": []
+}
