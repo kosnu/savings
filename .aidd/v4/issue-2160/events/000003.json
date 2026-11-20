@@ -1,0 +1,27 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2160",
+  "paths": [
+    ".github/workflows/frontend_ci.yaml",
+    ".github/workflows/harness_checker_ci.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs"
+  ],
+  "fingerprint": "5e25144d6e98d7bd14111f22e141dd1d5afa5aa94bd8022cfa21d13b27bc8264",
+  "status": "pass",
+  "checks": [
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "architecture.overview",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.transaction-boundaries"
+  ],
+  "summary": "指摘なし。編集経路はcontextと集約をスキップし、run ID付きgroupで既存の実行・待機と競合しない。baseとpathのfilter、通常検証とdispatchのgroup、失敗集約と権限は維持する。差分はCI起動条件と対応する既存テストに限られ、agentの指示・判断・ツール実行制御には影響しない。 GitHub Actionsの実環境でのイベント・取消挙動は未確認。",
+  "remaining": []
+}

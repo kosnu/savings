@@ -1,0 +1,18 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2160",
+  "paths": [
+    ".github/workflows/frontend_ci.yaml",
+    ".github/workflows/harness_checker_ci.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs"
+  ],
+  "fingerprint": "5e25144d6e98d7bd14111f22e141dd1d5afa5aa94bd8022cfa21d13b27bc8264",
+  "status": "pass",
+  "checks": [
+    "CIの起動条件とconcurrency設計"
+  ],
+  "summary": "両CIのcontextをbase変更を伴わない編集でスキップし、Harnessのverifyにも伝播させる。Vite+同期と同じrun IDの方式で編集runのgroupを分離し、検証経路のgroup・base・path条件は維持する。",
+  "remaining": []
+}
