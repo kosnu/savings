@@ -28,19 +28,7 @@
       {
         "id": "web-project",
         "paths": ["apps/web/**"],
-        "required_rules": ["policy.code-review", "infrastructure.overview", "web.test-policy"]
-      },
-      {
-        "id": "web-source",
-        "paths": ["apps/web/src/**"],
-        "required_rules": [
-          "web.component-structure",
-          "web.design-system-brand",
-          "web.design-rules",
-          "web.feature-directory",
-          "web.query-cache",
-          "web.suspense-boundaries"
-        ]
+        "required_rules": ["policy.code-review"]
       },
       {
         "id": "web-storybook",
@@ -54,19 +42,7 @@
       {
         "id": "api-project",
         "paths": ["apps/api/**"],
-        "required_rules": [
-          "policy.code-review",
-          "infrastructure.overview",
-          "policy.transaction-boundaries",
-          "policy.temporal-data",
-          "domain.amount",
-          "domain.date",
-          "domain.payment",
-          "domain.category",
-          "domain.monthly-budget",
-          "domain.book",
-          "domain.user"
-        ]
+        "required_rules": ["policy.code-review"]
       },
       {
         "id": "adr-history",
@@ -193,8 +169,7 @@
       "applies_to": {
         "paths": [
           ".github/ISSUE_TEMPLATE/**",
-          ".agents/skills/**",
-          "docs/ai-driven-development/**",
+          "docs/ai-driven-development/issue-guidelines.md",
           "docs/harness/policies/issue-template-selection.md"
         ],
         "domains": ["repository", "github", "ai-driven-development"],
@@ -216,7 +191,12 @@
       "id": "architecture.overview",
       "file": "docs/architecture.md",
       "applies_to": {
-        "paths": [".", "apps/**", "docs/architecture.md"],
+        "paths": [
+          ".",
+          "apps/web/src/main.tsx",
+          "apps/web/src/app/routes.ts",
+          "docs/architecture.md"
+        ],
         "domains": ["repository", "architecture"],
         "activities": [
           "inspect_repository_structure",
@@ -233,7 +213,13 @@
       "id": "infrastructure.overview",
       "file": "docs/infrastructure.md",
       "applies_to": {
-        "paths": ["apps/web/**", "apps/api/**", "docs/infrastructure.md"],
+        "paths": [
+          "apps/api/**",
+          "apps/web/*config.ts",
+          "apps/web/src/config/env.ts",
+          "apps/web/src/lib/supabase.ts",
+          "docs/infrastructure.md"
+        ],
         "domains": ["infrastructure", "web", "api"],
         "activities": [
           "change_hosting",
@@ -371,7 +357,7 @@
       "id": "ai-driven.workflow",
       "file": "docs/ai-driven-development/workflow.md",
       "applies_to": {
-        "paths": ["docs/ai-driven-development/**", "apps/**"],
+        "paths": ["docs/ai-driven-development/**"],
         "domains": ["repository", "ai-driven-development"],
         "activities": [
           "plan_development",
@@ -515,7 +501,7 @@
       "id": "policy.git-workflow",
       "file": "docs/harness/policies/git-workflow.md",
       "applies_to": {
-        "paths": [".git/**", ".github/**", "docs/**", "apps/**"],
+        "paths": [".git/**", ".github/**", "docs/**"],
         "domains": ["repository", "git", "github"],
         "activities": [
           "create_branch",
@@ -596,10 +582,15 @@
       "file": "docs/harness/policies/transaction-boundaries.md",
       "applies_to": {
         "paths": [
-          "apps/api/**",
-          "apps/web/**",
           ".github/workflows/**",
-          "docs/harness/policies/transaction-boundaries.md"
+          "docs/harness/policies/transaction-boundaries.md",
+          "apps/api/supabase/**/*.sql",
+          "apps/web/src/lib/accountDeletion.ts",
+          "apps/web/src/features/**/create*.ts",
+          "apps/web/src/features/**/update*.ts",
+          "apps/web/src/features/**/delete*.ts",
+          "apps/api/supabase/config.toml",
+          "apps/web/src/features/**/remove*.ts"
         ],
         "domains": ["api", "web", "database", "infrastructure"],
         "activities": [
@@ -632,10 +623,16 @@
       "file": "docs/harness/policies/temporal-data.md",
       "applies_to": {
         "paths": [
-          "apps/api/**",
-          "apps/web/**",
-          "docs/harness/domain/**",
-          "docs/harness/policies/temporal-data.md"
+          "docs/harness/domain/date.md",
+          "docs/harness/domain/payment.md",
+          "docs/harness/domain/monthly-budget.md",
+          "docs/harness/policies/temporal-data.md",
+          "apps/api/supabase/**/*month*.sql",
+          "apps/api/supabase/**/*_date*.sql",
+          "apps/api/supabase/**/*timezone*.sql",
+          "apps/web/src/domain/date*.ts",
+          "apps/web/src/utils/useDateRange*.ts*",
+          "apps/web/src/features/summaryByMonth/**/*.ts*"
         ],
         "domains": ["domain", "database", "web", "api"],
         "activities": [
@@ -655,7 +652,12 @@
       "id": "domain.amount",
       "file": "docs/harness/domain/amount.md",
       "applies_to": {
-        "paths": ["apps/web/**", "apps/api/**"],
+        "paths": [
+          "apps/web/src/domain/amount*.ts",
+          "apps/web/src/utils/toCurrency*.ts",
+          "apps/api/supabase/**/*amount*.sql",
+          "docs/harness/domain/amount.md"
+        ],
         "domains": ["domain", "amount"],
         "activities": ["change_amount_logic", "change_money_display", "review_amount_behavior"],
         "topics": ["amount", "money"]
@@ -668,7 +670,13 @@
       "id": "domain.date",
       "file": "docs/harness/domain/date.md",
       "applies_to": {
-        "paths": ["apps/web/**", "apps/api/**"],
+        "paths": [
+          "apps/web/src/domain/date*.ts",
+          "apps/web/src/utils/useDateRange*.ts*",
+          "apps/api/supabase/**/*_date*.sql",
+          "apps/api/supabase/**/*timezone*.sql",
+          "docs/harness/domain/date.md"
+        ],
         "domains": ["domain", "date"],
         "activities": [
           "change_date_logic",
@@ -686,7 +694,15 @@
       "id": "domain.payment",
       "file": "docs/harness/domain/payment.md",
       "applies_to": {
-        "paths": ["apps/web/**", "apps/api/**"],
+        "paths": [
+          "apps/web/src/features/payments/**/*.ts*",
+          "apps/web/src/features/summaryByMonth/**/*.ts*",
+          "apps/web/src/types/payment.ts",
+          "apps/web/src/app/routes/PaymentsPage/**/*.tsx",
+          "apps/web/src/test/msw/handlers/payment*.ts",
+          "apps/api/supabase/**/*payment*.sql",
+          "docs/harness/domain/payment.md"
+        ],
         "domains": ["domain", "payment"],
         "activities": ["change_payment_behavior", "change_payment_ui", "review_payment_domain"],
         "topics": ["payment", "transaction", "category"]
@@ -699,7 +715,13 @@
       "id": "domain.category",
       "file": "docs/harness/domain/category.md",
       "applies_to": {
-        "paths": ["apps/web/**", "apps/api/**"],
+        "paths": [
+          "apps/web/src/features/categories/**/*.ts*",
+          "apps/web/src/types/category.ts",
+          "apps/web/src/test/msw/handlers/categor*.ts",
+          "apps/api/supabase/**/*categor*.sql",
+          "docs/harness/domain/category.md"
+        ],
         "domains": ["domain", "category"],
         "activities": ["change_category_behavior", "change_category_ui", "review_category_domain"],
         "topics": ["category", "payment"]
@@ -712,7 +734,13 @@
       "id": "domain.monthly-budget",
       "file": "docs/harness/domain/monthly-budget.md",
       "applies_to": {
-        "paths": ["apps/web/**", "apps/api/**"],
+        "paths": [
+          "apps/web/src/features/budgets/**/*.ts*",
+          "apps/web/src/domain/categoryBudget.ts",
+          "apps/web/src/test/msw/handlers/monthlyBudgets.ts",
+          "apps/api/supabase/**/*budget*.sql",
+          "docs/harness/domain/monthly-budget.md"
+        ],
         "domains": ["domain", "budget"],
         "activities": ["change_monthly_budget", "change_budget_ui", "review_budget_domain"],
         "topics": ["monthly-budget", "budget", "month"]
@@ -725,7 +753,12 @@
       "id": "domain.book",
       "file": "docs/harness/domain/book.md",
       "applies_to": {
-        "paths": ["apps/web/**", "apps/api/**"],
+        "paths": [
+          "apps/web/src/features/books/**/*.ts*",
+          "apps/web/src/test/msw/handlers/books.ts",
+          "apps/api/supabase/**/*book*.sql",
+          "docs/harness/domain/book.md"
+        ],
         "domains": ["domain", "book"],
         "activities": ["change_book_behavior", "review_book_domain"],
         "topics": ["book", "user"]
@@ -739,9 +772,21 @@
       "file": "docs/harness/domain/user.md",
       "applies_to": {
         "paths": [
-          "apps/web/**",
-          "apps/api/**",
-          "docs/harness/contracts/user-account-attributes.json"
+          "apps/web/src/features/profile/**/*.ts*",
+          "apps/web/src/providers/supabase/**",
+          "apps/web/src/app/routes/AuthPage/**/*.tsx",
+          "apps/web/src/lib/accountDeletion*.ts",
+          "apps/web/src/utils/auth/**",
+          "apps/web/src/types/user.ts",
+          "apps/web/src/test/msw/handlers/auth.ts",
+          "apps/api/supabase/config.toml",
+          "docs/harness/contracts/user-account-attributes.json",
+          "apps/api/supabase/**/*user*.sql",
+          "apps/api/supabase/**/*auth*.sql",
+          "apps/api/supabase/**/*rls*.sql",
+          "apps/api/supabase/**/*ownership*.sql",
+          "apps/api/supabase/**/*account_deletion*.sql",
+          "docs/harness/domain/user.md"
         ],
         "domains": ["domain", "user", "auth"],
         "activities": [
@@ -762,9 +807,9 @@
       "applies_to": {
         "paths": [
           "apps/web/src/app/routes.ts",
-          "apps/web/src/app/routes/**",
-          "apps/web/src/components/**",
-          "apps/web/src/features/**",
+          "apps/web/src/app/routes/**/*.tsx",
+          "apps/web/src/components/**/*.tsx",
+          "apps/web/src/features/**/*.tsx",
           "apps/web/docs/policies/component-structure.md"
         ],
         "domains": ["web", "ui"],
@@ -792,7 +837,12 @@
       "id": "web.design-system-brand",
       "file": "DESIGN.md",
       "applies_to": {
-        "paths": ["DESIGN.md", "apps/web/src/**", "apps/web/docs/**"],
+        "paths": [
+          "apps/web/src/**/*.tsx",
+          "apps/web/src/**/*.css",
+          "DESIGN.md",
+          "apps/web/docs/policies/design-rules.md"
+        ],
         "domains": ["web", "ui"],
         "activities": [
           "change_ui",
@@ -812,7 +862,13 @@
       "id": "web.design-rules",
       "file": "apps/web/docs/policies/design-rules.md",
       "applies_to": {
-        "paths": ["apps/web/src/**", "apps/web/docs/**"],
+        "paths": [
+          "apps/web/src/**/*.tsx",
+          "apps/web/src/**/*.css",
+          "DESIGN.md",
+          "apps/web/docs/policies/design-rules.md",
+          "apps/web/index.html"
+        ],
         "domains": ["web", "ui"],
         "activities": [
           "change_ui",
@@ -823,8 +879,8 @@
         ],
         "topics": ["design-system", "ui", "typography", "layout", "responsive", "tables"]
       },
-      "depends_on": ["web.error-presentation"],
-      "related": ["web.design-system-brand", "web.landing-page-rules"],
+      "depends_on": ["web.design-system-brand"],
+      "related": ["web.landing-page-rules", "web.error-presentation"],
       "overrides": [],
       "priority": 88
     },
@@ -833,10 +889,13 @@
       "file": "apps/web/docs/policies/error-presentation.md",
       "applies_to": {
         "paths": [
-          "apps/web/src/**",
-          "apps/web/docs/policies/design-rules.md",
+          "apps/web/src/app/routes/ErrorPage/**",
+          "apps/web/src/components/feedbacks/**",
+          "apps/web/src/utils/getErrorMessages*.ts",
+          "apps/web/src/**/*ErrorBoundary*.tsx",
+          "apps/web/docs/policies/suspense-boundaries.md",
           "apps/web/docs/policies/error-presentation.md",
-          "apps/web/docs/policies/suspense-boundaries.md"
+          "apps/web/docs/policies/design-rules.md"
         ],
         "domains": ["web", "ui"],
         "activities": ["change_error_ui", "change_form", "change_dialog", "change_error_boundary"],
@@ -866,7 +925,12 @@
       "id": "web.domain-layer-rules",
       "file": "apps/web/docs/policies/domain-layer-rules.md",
       "applies_to": {
-        "paths": ["apps/web/src/domain/**", "apps/web/src/features/**", "apps/web/src/utils/**"],
+        "paths": [
+          "apps/web/src/domain/**/*.ts*",
+          "apps/web/src/features/**/*.ts*",
+          "apps/web/src/utils/**/*.ts*",
+          "apps/web/docs/policies/domain-layer-rules.md"
+        ],
         "domains": ["web", "domain"],
         "activities": ["add_domain_rule", "move_value_rule", "review_frontend_domain_boundary"],
         "topics": ["domain-layer", "frontend-architecture", "project-structure"]
@@ -880,7 +944,11 @@
       "id": "web.domain-ui-rules",
       "file": "apps/web/docs/policies/domain-ui-rules.md",
       "applies_to": {
-        "paths": ["apps/web/src/features/**", "apps/web/src/app/routes/**"],
+        "paths": [
+          "apps/web/src/features/**/*.tsx",
+          "apps/web/src/app/routes/**/*.tsx",
+          "apps/web/docs/policies/domain-ui-rules.md"
+        ],
         "domains": ["web", "ui", "domain"],
         "activities": [
           "change_domain_ui",
@@ -898,7 +966,7 @@
       "id": "web.feature-directory",
       "file": "apps/web/docs/policies/feature-directory.md",
       "applies_to": {
-        "paths": ["apps/web/src/features/**"],
+        "paths": ["apps/web/src/features/**/*.ts*", "apps/web/docs/policies/feature-directory.md"],
         "domains": ["web"],
         "activities": ["add_feature_directory", "move_feature_code", "change_feature_boundary"],
         "topics": ["feature-directory", "project-structure", "frontend-architecture"]
@@ -911,7 +979,13 @@
       "id": "web.query-cache",
       "file": "apps/web/docs/policies/query-cache.md",
       "applies_to": {
-        "paths": ["apps/web/src/**"],
+        "paths": [
+          "apps/web/src/lib/queryClient.ts",
+          "apps/web/src/**/*Query*.ts",
+          "apps/web/src/**/query*.ts",
+          "apps/web/src/features/**/use*.ts",
+          "apps/web/docs/policies/query-cache.md"
+        ],
         "domains": ["web"],
         "activities": ["change_query", "change_mutation", "change_cache_invalidation"],
         "topics": ["react-query", "cache", "frontend-architecture"]
@@ -924,7 +998,22 @@
       "id": "web.suspense-boundaries",
       "file": "apps/web/docs/policies/suspense-boundaries.md",
       "applies_to": {
-        "paths": ["apps/web/src/**"],
+        "paths": [
+          "apps/web/src/**/*Boundary*.tsx",
+          "apps/web/src/**/*Suspense*.tsx",
+          "apps/web/src/app/Provider.tsx",
+          "apps/web/docs/policies/suspense-boundaries.md",
+          "apps/web/src/features/books/useSelectedBook.ts",
+          "apps/web/src/features/budgets/getMonthlyBudget/useEffectiveMonthlyBudget.ts",
+          "apps/web/src/features/budgets/listMonthlyBudget/useMonthlyBudgets.ts",
+          "apps/web/src/features/categories/listCategory/useCategories.ts",
+          "apps/web/src/features/categories/listCategorySettings/useCategorySettingsItems.ts",
+          "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.tsx",
+          "apps/web/src/features/payments/listPayment/usePayments.ts",
+          "apps/web/src/features/profile/profileSettings/useProfile.ts",
+          "apps/web/src/features/summaryByMonth/CategoryTotals/useCategoryTotals.ts",
+          "apps/web/src/features/summaryByMonth/MonthlyTotals/useTotalExpenditures.ts"
+        ],
         "domains": ["web"],
         "activities": ["change_suspense", "change_error_boundary", "change_async_loading"],
         "topics": ["suspense", "react-query", "error-boundary"]
@@ -950,7 +1039,13 @@
       "id": "web.test-policy",
       "file": "apps/web/docs/policies/test-policy.md",
       "applies_to": {
-        "paths": ["apps/web/src/**"],
+        "paths": [
+          "apps/web/src/test/**",
+          "apps/web/src/**/*.test.ts",
+          "apps/web/src/**/*.test.tsx",
+          "apps/web/vitest*.ts",
+          "apps/web/docs/policies/test-policy.md"
+        ],
         "domains": ["web", "test"],
         "activities": ["add_test", "change_test", "review_test_gap", "reuse_story_in_test"],
         "topics": ["test", "regression", "storybook"]
@@ -964,7 +1059,12 @@
       "id": "web.storybook-browser-tests",
       "file": "apps/web/docs/policies/storybook-browser-tests.md",
       "applies_to": {
-        "paths": ["apps/web/**", "apps/web/.storybook-test/**"],
+        "paths": [
+          "apps/web/.storybook/**",
+          "apps/web/.storybook-test/**",
+          "apps/web/src/**/*.stories.tsx",
+          "apps/web/docs/policies/storybook-browser-tests.md"
+        ],
         "domains": ["web", "test"],
         "activities": [
           "add_component_story",

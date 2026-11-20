@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "利用可能な推論強度と単独で読める最終報告を含む最終差分",
+  "paths": [
+    "AGENTS.md",
+    "docs/harness/rule-map.json",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/",
+    "tools/harness/checker/internal/core/core_test.go",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "84cab1548b3c154845c58b240fac9bf37f2b3ee911ab1defe05bf7c090183ba7",
+  "status": "pass",
+  "checks": [
+    "Core・評価器のGo test/vet、文書整形、変更検査・規約選択",
+    "実モデルの2ケース各2入力を同じ条件で比較、対象と評価器の鮮度照合"
+  ],
+  "summary": "予算削除RPCとSuspense利用10箇所に必須規約が届き、金額文書とreleaseの不要規約を除外。スキルの対象ref・作業ツリー、誤選択・副作用・陳腐化と推論強度の受け渡しをローカル検証。GPT-6.2 Solのlowでreleaseの該当・対象外とAuditの2入力は変更前後とも4/4合格。",
+  "remaining": []
+}

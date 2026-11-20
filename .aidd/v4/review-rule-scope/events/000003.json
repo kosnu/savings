@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "会話の2目的、PR全体の差分、同条件の実モデル比較結果",
+  "paths": [
+    "AGENTS.md",
+    "docs/harness/rule-map.json",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/",
+    "tools/harness/checker/internal/core/core_test.go",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "84cab1548b3c154845c58b240fac9bf37f2b3ee911ab1defe05bf7c090183ba7",
+  "status": "pass",
+  "checks": [
+    "GPT-6.2向けの報告内容と推論強度の契約",
+    "変更面・実経路と必須規約、対象外の反例",
+    "対象スキルの隔離と採点、従来ケースとの分離、比較の鮮度"
+  ],
+  "summary": "報告指示と評価CLIの受理・引数・比較条件が整合。チェッカーは予算削除・既存Suspense利用を拾い、金額文書・releaseの過剰選択を解消。実モデルの代表4入力はすべてpassからpass。最終報告の品質向上、高強度での実行、ホストの自動発見はこの比較の観測外。未解決の規約矛盾なし。",
+  "remaining": []
+}

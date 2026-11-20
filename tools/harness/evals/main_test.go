@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -102,7 +103,7 @@ func repository(t *testing.T) runner {
 	}
 	return r
 }
-func events(a response, proofs ...proof) []byte {
+func events(a any, proofs ...proof) []byte {
 	var output bytes.Buffer
 	for _, p := range proofs {
 		printJSON(&output, map[string]any{"type": "item.completed", "item": map[string]any{"type": "command_execution", "aggregated_output": "EVAL_CHECK " + string(encoded(p)), "exit_code": p.Exit}})
@@ -306,7 +307,7 @@ func TestProofRequiresItsOwnConsistentExitCode(t *testing.T) {
 		var records bytes.Buffer
 		printJSON(&records, map[string]any{"type": "item.completed", "item": map[string]any{"type": "command_execution", "aggregated_output": "EVAL_CHECK " + marker, "exit_code": 0}})
 		records.Write(events(answer(findCase(t, "recover-failure"))))
-		if _, _, _, _, err := parseEvents(records.Bytes()); err == nil {
+		if _, _, _, _, err := parseEvents(records.Bytes(), false); err == nil {
 			t.Fatal("終了コードの欠落・矛盾を受理した", marker)
 		}
 	}
@@ -346,14 +347,14 @@ func TestOnlyNewRegularTaskBytecodeIsIgnored(t *testing.T) {
 }
 
 func TestParserUsesCompletedCommandProofNotMessages(t *testing.T) {
-	a, p, external, tokens, err := parseEvents(events(answer(findCase(t, "fix")), proof{Passed: true, Source: "hash", Exit: 0}))
+	a, p, external, tokens, err := parseEvents(events(answer(findCase(t, "fix")), proof{Passed: true, Source: "hash", Exit: 0}), false)
 	if err != nil || a.Action != "implement" || len(p) != 1 || p[0].Source != "hash" || external || tokens["input_tokens"] != 5 {
 		t.Fatal(a, p, external, tokens, err)
 	}
 	missingApproval := answer(findCase(t, "explain"))
 	missingApproval.Approval = nil
 	for _, raw := range []string{`{"type":"turn.failed"}`, `{"type":"item.completed","item":{"type":"agent_message","text":"{}"}}`, string(events(missingApproval))} {
-		if _, _, _, _, err := parseEvents([]byte(raw)); err == nil {
+		if _, _, _, _, err := parseEvents([]byte(raw), false); err == nil {
 			t.Fatal("invalid events accepted")
 		}
 	}
@@ -622,7 +623,24 @@ func TestCLIHelper(t *testing.T) {
 	if path := os.Getenv("EVAL_GO_MUTATE"); path != "" {
 		_ = os.WriteFile(path, []byte("edited during eval"), 0644)
 	}
-	_, _ = os.Stdout.Write(events(answer(findCase(t, "explain"))))
+	if skill := os.Getenv("EVAL_GO_SKILL"); skill != "" {
+		c := findCase(t, "skill-"+skill)
+		prompt, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			os.Exit(2)
+		}
+		body, err := os.ReadFile(c.skillPath())
+		if err != nil || !bytes.Contains(prompt, body) || !contains(args, `model_reasoning_effort="`+os.Getenv("EVAL_GO_EFFORT")+`"`) {
+			os.Exit(2)
+		}
+		applies := strings.Contains(string(prompt), c.Prompts[0])
+		if !applies && !strings.Contains(string(prompt), c.Prompts[1]) {
+			os.Exit(2)
+		}
+		_, _ = os.Stdout.Write(events(map[string]bool{"skill_applies": applies}))
+	} else {
+		_, _ = os.Stdout.Write(events(answer(findCase(t, "explain"))))
+	}
 	os.Exit(0)
 }
 func helper(t *testing.T) string {
@@ -708,5 +726,78 @@ func TestCLIDetectsChangesDuringEvalAndSkipsAfterEnvironmentError(t *testing.T) 
 	}
 	if len(value.Results) != 4 || value.Results[0].Status != "environment_error" || value.Results[2].Status != "not_run" {
 		t.Fatal(value.Results)
+	}
+}
+
+func TestSkillInputsAndComparison(t *testing.T) {
+	r := repository(t)
+	cli := helper(t)
+	audit := findCase(t, "skill-audit")
+	release := findCase(t, "skill-release")
+	write(t, r.root, audit.skillPath(), "変更前の定義")
+	write(t, r.root, release.skillPath(), "別のスキル定義")
+	if _, err := r.git("add", audit.skillPath(), release.skillPath()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.git("-c", "user.name=Eval", "-c", "user.email=eval@example.invalid", "-c", "commit.gpgSign=false", "commit", "-qm", "skills"); err != nil {
+		t.Fatal(err)
+	}
+	write(t, r.root, audit.skillPath(), "変更後の定義")
+	base, err := r.harness("HEAD", false, audit)
+	if err != nil || string(base.files[audit.skillPath()]) != "変更前の定義" {
+		t.Fatal(err)
+	}
+	candidate, err := r.harness("", true, audit)
+	if err != nil || string(candidate.files[audit.skillPath()]) != "変更後の定義" || candidate.files[release.skillPath()] != nil || candidate.digest == base.digest {
+		t.Fatal("評価入力のスキル範囲または内容が不正", err)
+	}
+	plain, err := r.harness("", true)
+	if err != nil || plain.files[audit.skillPath()] != nil {
+		t.Fatal("通常ケースにスキルを取り込んでいる", err)
+	}
+	t.Setenv("EVAL_GO_SKILL", "audit")
+	var out, diagnostic bytes.Buffer
+	for _, effort := range []string{"xhigh", "max", "ultra"} {
+		t.Setenv("EVAL_GO_EFFORT", effort)
+		before := filepath.Join(t.TempDir(), "before.json")
+		after := filepath.Join(t.TempDir(), "after.json")
+		args := []string{"run", "--root", r.root, "--case", audit.ID, "--codex", cli, "--model", "offline", "--effort", effort}
+		if runCLI(append(args, "--harness-ref", "HEAD", "--output", before), &out, &diagnostic) != 0 || runCLI(append(args, "--worktree", "--output", after), &out, &diagnostic) != 0 {
+			t.Fatal(diagnostic.String(), out.String())
+		}
+		compare := []string{"compare", "--root", r.root, before, after}
+		write(t, r.root, release.skillPath(), "対象外の変更")
+		if runCLI(compare, &out, &diagnostic) != 0 {
+			t.Fatal(diagnostic.String())
+		}
+		write(t, r.root, audit.skillPath(), "評価後の変更")
+		if runCLI(compare, &out, &diagnostic) != 2 {
+			t.Fatal("変更済みの定義の結果が再利用された")
+		}
+		write(t, r.root, audit.skillPath(), "変更後の定義")
+	}
+}
+
+func TestSkillCasesRejectWrongSelectionAndWrites(t *testing.T) {
+	r := testRunner(t)
+	native := r.command
+	c := findCase(t, "skill-release")
+	other := findCase(t, "skill-audit")
+	files := map[string][]byte{c.skillPath(): []byte("リリース定義"), other.skillPath(): []byte("別の定義")}
+	r.command = func(args []string, cwd string, budget time.Duration, input []byte) (int, []byte, []byte, error) {
+		if args[0] != "offline-codex" {
+			return native(args, cwd, budget, input)
+		}
+		if _, err := os.Stat(filepath.Join(cwd, other.skillPath())); !os.IsNotExist(err) {
+			t.Fatal("対象外の定義が配置された")
+		}
+		write(t, cwd, "unexpected.txt", "changed")
+		return 0, events(map[string]bool{"skill_applies": !strings.Contains(string(input), c.Prompts[0])}), nil, nil
+	}
+	for n := 1; n <= 2; n++ {
+		row := r.trial(c, n, files, options{codex: "offline-codex", timeout: 10})
+		if row.Status != "fail" || row.Checks["selection"] != "fail" || row.Checks["authority"] != "fail" {
+			t.Fatal(row)
+		}
 	}
 }

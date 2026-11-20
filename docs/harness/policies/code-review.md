@@ -100,22 +100,27 @@ workflow本文の参照元・条件・順序の検査は、自前の接続や制
 
 1つの差分には複数の変更面が同時に含まれます。変更面を1つに絞ったり、priorityの高いルールだけを残したりせず、該当する正本ノードをすべて和集合します。
 
+パスから決まる規約に、実差分の変更面に該当する規約を加えます。たとえば共通CSSの余白だけならUIの規約を、同じCSSでもエラー表示の視認性を変える場合はエラー表示の規約も確認します。ファイル名に業務名がないSQLや共通関数も、変更する値・呼び出し元・権限境界から該当する行を選びます。
+
 選択したノードの `depends_on` は必ず読みます。`related` は通常のrule-map上では任意参照ですが、下表でレビュー必須として示したノードは必ず読みます。
 
 指摘を1件見つけてもレビューを終了せず、適用された全ノードの確認を完了します。ルール間に解消できない矛盾がある場合は、推測で判定せず矛盾と確認事項を報告します。
 
 ## Webのレビュー必須ルーティング
 
-| 変更面                   | 変更の兆候                                                                                                | レビューで必ず確認するrule ID                            |
-| ------------------------ | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| コンポーネント           | `apps/web/src/components/**` または `apps/web/src/features/**` のコンポーネント追加、移動、抽出、責務分離 | `web.component-structure`                                |
-| Feature配置              | `apps/web/src/features/**` の新規配置、移動、feature境界変更                                              | `web.feature-directory`                                  |
-| UI                       | WebのJSX/TSX、style、layout、form、dialog、responsive、variant、size、colorの変更                         | `web.design-system-brand`, `web.design-rules`            |
-| ドメインUI               | featureまたはrouteで金額、日付、月、分類、状態、基準値を表示・入力・更新                                  | `web.domain-ui-rules` と該当する `domain.*`              |
-| Query / mutation / cache | `useQuery`、`useMutation`、query key、invalidation、refetch、`QueryClient`、API更新後の反映の変更         | `web.query-cache`                                        |
-| 非同期状態               | loading、error、retry、Error Boundary、非同期取得境界の変更                                               | `web.suspense-boundaries`                                |
-| Story                    | `*.stories.tsx` の追加・変更、またはStory作成条件に該当するコンポーネント追加                             | `web.component-structure`, `web.storybook-browser-tests` |
-| 回帰テスト               | ユーザーに残る表示、入力、保存、取得、状態遷移の追加・変更                                                | `web.test-policy`                                        |
+| 変更面                   | 変更の兆候                                                                                                | レビューで必ず確認するrule ID                                  |
+| ------------------------ | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| コンポーネント           | `apps/web/src/components/**` または `apps/web/src/features/**` のコンポーネント追加、移動、抽出、責務分離 | `web.component-structure`                                      |
+| Feature配置              | `apps/web/src/features/**` の新規配置、移動、feature境界変更                                              | `web.feature-directory`                                        |
+| UI                       | WebのJSX/TSX、style、layout、form、dialog、responsive、variant、size、colorの変更                         | `web.design-system-brand`, `web.design-rules`                  |
+| ドメインUI               | featureまたはrouteで金額、日付、月、分類、状態、基準値を表示・入力・更新                                  | `web.domain-ui-rules` と該当する `domain.*`                    |
+| Query / mutation / cache | `useQuery`、`useMutation`、query key、invalidation、refetch、`QueryClient`、API更新後の反映の変更         | `web.query-cache`                                              |
+| 非同期状態               | loading、error、retry、Error Boundary、非同期取得境界の変更                                               | `web.suspense-boundaries`                                      |
+| エラー表示               | 失敗の通知先・表示期間・再操作・視認性に影響する変更                                                      | `web.error-presentation`                                       |
+| 業務ロジック             | 金額、日付、支払い、予算、分類、Book、ユーザーの契約を変更                                                | 該当する `domain.*`。期間境界・履歴には `policy.temporal-data` |
+| 更新と認可               | RPCやAPIの更新契約、複数操作の整合性、認可境界を変更                                                      | `policy.transaction-boundaries` と該当する `domain.*`          |
+| Story                    | `*.stories.tsx` の追加・変更、またはStory作成条件に該当するコンポーネント追加                             | `web.component-structure`, `web.storybook-browser-tests`       |
+| 回帰テスト               | ユーザーに残る表示、入力、保存、取得、状態遷移の追加・変更                                                | `web.test-policy`                                              |
 
 ドメイン値が金額または日付に該当する場合は、`domain.amount` または `domain.date` と、それらを依存関係から追加する選択ノードを確認します。Storyはbrowser testの実行対象であることを意味しません。`web.storybook-browser-tests` を読み、収集範囲、tag、provider、MSWの要否を判定します。
 

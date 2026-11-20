@@ -211,7 +211,7 @@ func TestSelectiveSuitesRequireExplicitScope(t *testing.T) {
 		count            int
 	}{
 		{[]string{"behavior"}, nil, 14}, {[]string{"audit"}, nil, 3}, {[]string{"retrospective"}, nil, 3},
-		{[]string{"audit", "retrospective"}, nil, 6}, {[]string{"all"}, nil, 20},
+		{[]string{"audit", "retrospective"}, nil, 6}, {[]string{"skills"}, nil, 5}, {[]string{"all"}, nil, 25},
 		{nil, []string{"explain", "audit-rule-gap"}, 2},
 	} {
 		got, err := selectCases(tc.suites, tc.selected)

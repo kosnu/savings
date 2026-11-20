@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話で承認されたGPT-6.2向け指針とハーネスの改善、PR #2169",
+  "paths": [
+    "AGENTS.md",
+    "docs/harness/rule-map.json",
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/",
+    "tools/harness/checker/internal/core/core_test.go",
+    "docs/harness/policies/code-review.md"
+  ],
+  "fingerprint": "4bebdf869eb5ebbe2b57ded6b9878f4ad9b315280a536a92f8e788721180939c",
+  "status": "pass",
+  "checks": [
+    "公式指針、現行規約、PR #2169と評価入力の照合"
+  ],
+  "summary": "最終報告を単独で理解できる基準とモデル対応時の推論強度選択を追加。規約は実経路と反例で絞り、各skillは対象定義だけを隔離し、適用判断を正例・反例で採点する。通常evalと同じ比較条件・鮮度検査を維持する。",
+  "remaining": []
+}
