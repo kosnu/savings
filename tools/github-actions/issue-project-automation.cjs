@@ -1,98 +1,46 @@
-module.exports = async ({
-  github,
-  context,
-  core,
-  token = process.env.PROJECT_AUTOMATION_TOKEN,
-}) => {
-  if (!token) {
-    throw new Error(
-      "Set repository secret PROJECT_AUTOMATION_TOKEN with project and issue write access.",
-    )
-  }
-  const issueId = context.payload.issue.node_id
-  if (!issueId) throw new Error("Issue ID was not provided")
+// kosnu/savings の Issue Field 定義を GitHub API で確認した数値 ID。
+const automationFieldId = 50147379
+const valuesPath = "/repos/kosnu/savings/issues/{issue_number}/issue-field-values"
+const headers = { accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2026-03-10" }
 
-  const { user, repository } = await github.graphql(`query {
-    user(login: "kosnu") {
-      projectV2(number: 2) { id }
-    }
-    repository(owner: "kosnu", name: "savings") {
-      viewerCanSeeIssueFields
-      issueFields(first: 25) {
-        pageInfo { hasNextPage }
-        nodes {
-          ... on IssueFieldSingleSelect {
-            id
-            name
-            options { id name }
-          }
-        }
-      }
-    }
-  }`)
-  const projectId = user?.projectV2?.id
-  if (!projectId) throw new Error("Savings project is missing")
-  const definitions = repository?.issueFields
+module.exports = async ({ github, context, core }) => {
+  const issueNumber = context.payload.issue?.number
   if (
-    repository?.viewerCanSeeIssueFields !== true ||
-    definitions?.pageInfo?.hasNextPage !== false ||
-    !Array.isArray(definitions?.nodes)
+    context.repo?.owner !== "kosnu" ||
+    context.repo?.repo !== "savings" ||
+    !Number.isSafeInteger(issueNumber) ||
+    issueNumber < 1
   ) {
-    throw new Error("Issue Field definitions could not be read")
+    throw new Error("A valid kosnu/savings issue is required")
   }
-
-  const field = definitions.nodes.find((node) => node?.name === "Automation")
-  const enabled = field?.options?.find((option) => option.name === "Enabled")
-  if (!field?.id || !enabled?.id) {
-    throw new Error("Automation single-select Issue Field or Enabled option is missing")
-  }
-
-  // 登録済みなら既存itemが返るため、再実行でも重複登録しない。
-  const { addProjectV2ItemById } = await github.graphql(
-    `mutation($project: ID!, $issue: ID!) {
-    addProjectV2ItemById(input: {projectId: $project, contentId: $issue}) {
-      item { id }
-    }
-  }`,
-    { project: projectId, issue: issueId },
-  )
-  if (!addProjectV2ItemById?.item?.id) throw new Error("Project item was not returned")
+  const request = { issue_number: issueNumber, headers }
 
   const readAutomation = async () => {
-    const { node } = await github.graphql(
-      `query($issue: ID!) {
-      node(id: $issue) {
-        ... on Issue {
-          id
-          issueFieldValues(first: 25) {
-            pageInfo { hasNextPage }
-            nodes {
-              __typename
-              ... on IssueFieldSingleSelectValue {
-                name
-                field { ... on IssueFieldSingleSelect { id } }
-              }
-            }
-          }
-        }
-      }
-    }`,
-      { issue: issueId },
-    )
-    const values = node?.issueFieldValues
+    const { data } = await github.request(`GET ${valuesPath}`, request)
     if (
-      node?.id !== issueId ||
-      values?.pageInfo?.hasNextPage !== false ||
-      !Array.isArray(values?.nodes) ||
-      values.nodes.some(
-        (value) =>
-          !value?.__typename ||
-          (value.__typename === "IssueFieldSingleSelectValue" && (!value.field?.id || !value.name)),
-      )
+      !Array.isArray(data) ||
+      data.some((field) => !Number.isSafeInteger(field?.issue_field_id))
     ) {
-      throw new Error("Automation Issue Field value could not be read")
+      throw new Error("Issue Field values could not be read")
     }
-    return values.nodes.find((value) => value.field?.id === field.id)?.name ?? null
+    const matching = data.filter(
+      (field) =>
+        field.issue_field_id === automationFieldId || field.issue_field_name === "Automation",
+    )
+    if (matching.length === 0) return null
+    const [field] = matching
+    const name = field.single_select_option?.name
+    if (
+      matching.length !== 1 ||
+      field.issue_field_id !== automationFieldId ||
+      field.issue_field_name !== "Automation" ||
+      field.data_type !== "single_select" ||
+      typeof name !== "string" ||
+      !name.trim()
+    ) {
+      throw new Error("Unexpected Automation Issue Field")
+    }
+    return name
   }
 
   if ((await readAutomation()) !== null) {
@@ -100,16 +48,12 @@ module.exports = async ({
     return
   }
 
-  const { setIssueFieldValue } = await github.graphql(
-    `mutation($issue: ID!, $field: ID!, $option: ID!) {
-    setIssueFieldValue(input: {
-      issueId: $issue,
-      issueFields: [{fieldId: $field, singleSelectOptionId: $option}]
-    }) { issue { id } }
-  }`,
-    { issue: issueId, field: field.id, option: enabled.id },
-  )
-  if (setIssueFieldValue?.issue?.id !== issueId || (await readAutomation()) !== "Enabled") {
+  // POSTは指定フィールドだけを追加し、PUTと異なり全フィールドを置換しない。
+  await github.request(`POST ${valuesPath}`, {
+    ...request,
+    issue_field_values: [{ field_id: automationFieldId, value: "Enabled" }],
+  })
+  if ((await readAutomation()) !== "Enabled") {
     throw new Error("Automation Issue Field = Enabled was not confirmed after updating")
   }
   core.info("Confirmed Automation Issue Field = Enabled.")

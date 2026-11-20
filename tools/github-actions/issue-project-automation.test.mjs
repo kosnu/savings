@@ -4,175 +4,135 @@ import test from "node:test"
 
 import initialize from "./issue-project-automation.cjs"
 
+const route = "/repos/kosnu/savings/issues/{issue_number}/issue-field-values"
+const headers = { accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2026-03-10" }
+const issueParams = { issue_number: 42, headers }
+const automation = (name) => ({
+  issue_field_id: 50147379,
+  issue_field_name: "Automation",
+  data_type: "single_select",
+  single_select_option: { name },
+})
 const priority = {
-  __typename: "IssueFieldSingleSelectValue",
-  field: { id: "priority" },
-  name: "High",
+  issue_field_id: 1234,
+  issue_field_name: "Priority",
+  data_type: "single_select",
+  single_select_option: { name: "High" },
 }
 
 function fixture({
-  current = null,
-  confirmed = "Enabled",
-  missing,
+  initial = [priority],
+  after = [priority, automation("Enabled")],
   errorAt,
-  token = "test-token",
+  context = { repo: { owner: "kosnu", repo: "savings" }, payload: { issue: { number: 42 } } },
 } = {}) {
   const calls = []
-  let reads = 0
-  const graphql = async (query, variables) => {
-    const operation = query.match(/(?:query|mutation)\s*(?:\([^]*?\))?\s*{\s*(\w+)/)[1]
-    calls.push({ operation, query, variables })
-    if (operation === errorAt) throw new Error("API unavailable")
-    switch (operation) {
-      case "user":
-        return {
-          user: { projectV2: missing === "project" ? null : { id: "project" } },
-          repository: {
-            viewerCanSeeIssueFields: missing !== "visibility",
-            issueFields: {
-              pageInfo: { hasNextPage: missing === "field-pagination" },
-              nodes:
-                missing === "field"
-                  ? []
-                  : [
-                      { id: "priority", name: "Priority", options: [{ id: "high", name: "High" }] },
-                      {
-                        id: "automation",
-                        name: "Automation",
-                        options: missing === "option" ? [] : [{ id: "enabled", name: "Enabled" }],
-                      },
-                    ],
-            },
-          },
-        }
-      case "addProjectV2ItemById":
-        return { addProjectV2ItemById: { item: missing === "item" ? null : { id: "item" } } }
-      case "node": {
-        const name = reads++ === 0 ? current : confirmed
-        const nodes = [priority]
-        if (name !== null) {
-          nodes.push({
-            __typename: "IssueFieldSingleSelectValue",
-            field: { id: "automation" },
-            name,
-          })
-        }
-        return {
-          node:
-            missing === "read"
-              ? null
-              : {
-                  id: "issue",
-                  issueFieldValues: {
-                    pageInfo: { hasNextPage: missing === "value-pagination" },
-                    nodes,
-                  },
-                },
-        }
-      }
-      case "setIssueFieldValue":
-        return {
-          setIssueFieldValue: { issue: missing === "updated-issue" ? null : { id: "issue" } },
-        }
-      default:
-        throw new Error(`Unexpected operation: ${operation}`)
+  const request = async (route, params) => {
+    calls.push({ route, params })
+    if (calls.length === errorAt) throw new Error("API unavailable")
+    if (route === "POST /repos/kosnu/savings/issues/{issue_number}/issue-field-values") {
+      return { data: [] }
     }
+    return { data: calls.length === 1 ? initial : after }
   }
-  return {
-    calls,
-    run: async () =>
-      initialize({
-        github: { graphql },
-        context: { payload: { issue: { node_id: "issue" } } },
-        core: { info() {} },
-        token,
-      }),
-  }
+  return { calls, run: () => initialize({ github: { request }, context, core: { info() {} } }) }
 }
 
-test("Workflowは信頼済みcommitのスクリプトを単行で呼び出す", () => {
+test("Workflowは対象の新規Issueのみで実行し、既定トークンの権限はジョブに限定する", () => {
   const workflow = readFileSync(
     new URL("../../.github/workflows/issue_project_automation.yaml", import.meta.url),
     "utf8",
   )
+  assert.match(workflow, /issues:\n    types: \[opened\]/)
+  assert.match(workflow, /^permissions: \{\}$/m)
+  assert.match(workflow, /if: github.repository == 'kosnu\/savings'/)
+  assert.match(workflow, /permissions:\n      contents: read\n      issues: write/)
   assert.match(workflow, /ref: \$\{\{ github\.sha \}\}/)
   assert.match(workflow, /persist-credentials: false/)
-  assert.match(workflow, /PROJECT_AUTOMATION_TOKEN: \$\{\{ secrets\.PROJECT_AUTOMATION_TOKEN \}\}/)
+  assert.match(workflow, /github-token: \$\{\{ github\.token \}\}/)
+  assert.doesNotMatch(workflow, /PROJECT_AUTOMATION_TOKEN|secrets\./)
   assert.match(
     workflow,
     /^\s+script: await require\('\.\/tools\/github-actions\/issue-project-automation\.cjs'\)\(\{github, context, core\}\)$/m,
   )
 })
 
-test("SecretがなければAPIへアクセスせず失敗する", async () => {
-  const { calls, run } = fixture({ token: "" })
-  await assert.rejects(run(), /Set repository secret PROJECT_AUTOMATION_TOKEN/)
-  assert.deepEqual(calls, [])
-})
-
-test("Project登録を維持し、未設定ならPriorityでなくAutomation Issue Fieldだけを更新して再取得する", async () => {
+test("未設定ならAutomationだけをPOSTし、同じIssueから再取得する", async () => {
   const { calls, run } = fixture()
   await run()
-  assert.deepEqual(
-    calls.map(({ operation }) => operation),
-    ["user", "addProjectV2ItemById", "node", "setIssueFieldValue", "node"],
-  )
-  assert.deepEqual(calls[1].variables, { project: "project", issue: "issue" })
-  assert.match(calls[2].query, /issueFieldValues/)
-  assert.match(
-    calls[3].query,
-    /issueFields: \[\{fieldId: \$field, singleSelectOptionId: \$option\}\]/,
-  )
-  assert.deepEqual(calls[3].variables, { issue: "issue", field: "automation", option: "enabled" })
-  assert.deepEqual(calls[4].variables, { issue: "issue" })
+  assert.deepEqual(calls, [
+    { route: `GET ${route}`, params: issueParams },
+    {
+      route: `POST ${route}`,
+      params: {
+        ...issueParams,
+        issue_field_values: [{ field_id: 50147379, value: "Enabled" }],
+      },
+    },
+    { route: `GET ${route}`, params: issueParams },
+  ])
+})
+
+test("Issue Fieldが何も設定されていなくても初期値を設定できる", async () => {
+  await fixture({ initial: [] }).run()
 })
 
 for (const current of ["Enabled", "Disabled", "Future option"]) {
-  test(`設定済みの${current}は再実行でも上書きしない`, async () => {
-    const { calls, run } = fixture({ current })
+  test(`設定済みの${current}は上書きしない`, async () => {
+    const { calls, run } = fixture({ initial: [priority, automation(current)] })
     await run()
-    assert.deepEqual(
-      calls.map(({ operation }) => operation),
-      ["user", "addProjectV2ItemById", "node"],
-    )
+    assert.deepEqual(calls, [{ route: `GET ${route}`, params: issueParams }])
   })
 }
 
-for (const missing of [
-  "project",
-  "visibility",
-  "field-pagination",
-  "field",
-  "option",
-  "item",
-  "read",
-  "value-pagination",
+for (const issueNumber of ["42", 0, -1, 1.5, "../issues"]) {
+  test(`Issue番号${issueNumber}が不正ならAPIを呼ばない`, async () => {
+    const { calls, run } = fixture({
+      context: {
+        repo: { owner: "kosnu", repo: "savings" },
+        payload: { issue: { number: issueNumber } },
+      },
+    })
+    await assert.rejects(run(), /valid kosnu\/savings issue/)
+    assert.deepEqual(calls, [])
+  })
+}
+
+test("別のリポジトリからはAPIを呼ばない", async () => {
+  const { calls, run } = fixture({
+    context: { repo: { owner: "kosnu", repo: "different" }, payload: { issue: { number: 42 } } },
+  })
+  await assert.rejects(run(), /valid kosnu\/savings issue/)
+  assert.deepEqual(calls, [])
+})
+
+for (const initial of [
+  null,
+  [{ issue_field_id: "50147379" }],
+  [automation("")],
+  [{ ...automation("Enabled"), issue_field_id: 2 }],
+  [{ ...automation("Enabled"), issue_field_name: "Renamed field" }],
+  [{ ...automation("Enabled"), data_type: "text" }],
+  [automation("Disabled"), automation("Disabled")],
 ]) {
-  test(`${missing}が取得できなければ値を更新せず失敗する`, async () => {
-    const { calls, run } = fixture({ missing })
+  test("不正・重複・フィールド変更の応答は未設定として扱わない", async () => {
+    const { calls, run } = fixture({ initial })
     await assert.rejects(run())
-    assert.ok(calls.every(({ operation }) => operation !== "setIssueFieldValue"))
+    assert.deepEqual(calls, [{ route: `GET ${route}`, params: issueParams }])
   })
 }
 
-test("値の形式が不正なときは未設定として扱わない", async () => {
-  const { run } = fixture({ current: "" })
-  await assert.rejects(run(), /Automation Issue Field value could not be read/)
-})
-
-for (const errorAt of ["user", "addProjectV2ItemById", "node", "setIssueFieldValue"]) {
-  test(`${errorAt}のAPI失敗は成功扱いにしない`, async () => {
-    const { run } = fixture({ errorAt })
+for (const errorAt of [1, 2, 3]) {
+  test(`API呼び出し${errorAt}の失敗を成功扱いしない`, async () => {
+    const { calls, run } = fixture({ errorAt })
     await assert.rejects(run(), /API unavailable/)
+    assert.equal(calls.length, errorAt)
   })
 }
 
-test("更新時に対象Issueが返らなければ失敗する", async () => {
-  const { run } = fixture({ missing: "updated-issue" })
-  await assert.rejects(run(), /not confirmed/)
-})
-
-test("更新後にEnabledを確認できなければ失敗する", async () => {
-  const { run } = fixture({ confirmed: null })
-  await assert.rejects(run(), /not confirmed/)
-})
+for (const after of [[], [automation("Disabled")]]) {
+  test("更新後にEnabledが確認できなければ失敗する", async () => {
+    const { run } = fixture({ after })
+    await assert.rejects(run(), /not confirmed/)
+  })
+}
