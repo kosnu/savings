@@ -91,7 +91,7 @@ test("main 手動実行は現在 SHA を解決し、closedなら配信しない"
 test("fork・別base・別label・未対応event・出力注入を信頼済み受付で拒否", async () => {
   for (const invalid of [
     { ...event, number: "1927\nbranch=main" },
-    { ...event, action: "synchronize" },
+    { ...event, action: "synchronize", pull_request: { ...pr, labels: [] } },
     { ...event, label: { name: "other" } },
     { ...event, pull_request: { ...pr, base: { ref: "release" } } },
     {
@@ -129,13 +129,16 @@ test("配信はPR要求、削除は同じPRの終了通知と配信後確認か�
   )
   const deploy = yaml.split("\n  deploy-web:\n")[1].split("\n  cleanup:\n")[0]
   const cleanup = yaml.split("\n  cleanup:\n")[1].split("\n  report:\n")[0]
-  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled, closed\]/u)
+  assert.match(
+    yaml,
+    /pull_request:\n    branches: \[main\]\n    types: \[labeled, synchronize, closed\]/u,
+  )
   assert.doesNotMatch(yaml, /pull_request_target:|schedule:/u)
   assert.match(
     deploy,
     /github.event_name == 'workflow_dispatch' && github.ref == 'refs\/heads\/main'/u,
   )
-  assert.match(deploy, /github.event_name == 'pull_request' && github.event.action == 'labeled'/u)
+  assert.match(deploy, /github.event.action == 'synchronize'/u)
   assert.match(deploy, /github.event.label.name == 'preview'/u)
   assert.doesNotMatch(deploy, /github.event_name == 'pull_request_target'|needs.resolve/u)
   for (const job of [deploy, cleanup]) {
@@ -181,6 +184,7 @@ test("Prodを基準とする配信jobはPR確認・checkout・build・検査・�
     "Install dependencies",
     "Build Dev Preview",
     "Validate Workers Static Assets",
+    "Recheck PR before publishing Preview",
     "Deploy Dev Preview",
   ].map((name) => deploy.indexOf(`- name: ${name}\n`))
   assert.ok(
@@ -188,7 +192,7 @@ test("Prodを基準とする配信jobはPR確認・checkout・build・検査・�
   )
   assert.match(
     deploy,
-    /cp tools\/dev-preview\/preview.mjs tools\/dev-preview\/report.mjs tools\/dev-preview\/deploy.mjs "\$RUNNER_TEMP\/preview-control\/"/u,
+    /cp tools\/dev-preview\/preview.mjs tools\/dev-preview\/report.mjs tools\/dev-preview\/deploy.mjs tools\/dev-preview\/authorize.mjs "\$RUNNER_TEMP\/preview-control\/"/u,
   )
   assert.match(deploy, /node "\$RUNNER_TEMP\/preview-control\/preview.mjs" check-build/u)
   assert.match(

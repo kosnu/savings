@@ -36,10 +36,42 @@ test("PR label resolves the immutable event head; dispatch remains main-only", (
   assert.throws(() => deploymentRequest(event, "workflow_dispatch", "refs/heads/feature", repo))
 })
 
-test("updates, unrelated labels, forks, wrong base and unsupported events cannot opt in", () => {
+test("ラベル付きpushはeventのheadを検証し、撤回・終了・競合・DB要求を拒否する", async () => {
+  const { pr } = fixture()
+  const event = { action: "synchronize", number: 1871, pull_request: pr }
+  const parse = (value, kind = "preview") =>
+    deploymentRequest(value, "pull_request", "refs/pull/1871/merge", repo, kind)
+  const req = { ...parse(event), branch: pr.head.ref }
+  assert.deepEqual(await authorize(req, repo, async () => pr), { sha, branch: pr.head.ref })
+  for (const current of [
+    { ...pr, labels: [] },
+    { ...pr, state: "closed" },
+    { ...pr, base: { ref: "next" } },
+    { ...pr, head: { ...pr.head, repo: { full_name: "fork/savings" } } },
+    { ...pr, head: { ...pr.head, sha: "b".repeat(40) } },
+    { ...pr, head: { ...pr.head, ref: "renamed" } },
+  ]) {
+    await assert.rejects(authorize(req, repo, async () => current))
+  }
+  for (const invalid of [
+    { ...event, action: "unlabeled" },
+    { ...event, pull_request: { ...pr, state: "closed" } },
+    { ...event, pull_request: { ...pr, labels: [] } },
+  ])
+    assert.throws(() => parse(invalid))
+  assert.throws(() =>
+    parse(
+      { ...event, pull_request: { ...pr, labels: [{ name: "dev-db" }, { name: "preview" }] } },
+      "database",
+    ),
+  )
+})
+
+test("updates without opt-in, unrelated labels, forks, wrong base and unsupported events cannot opt in", () => {
   for (const mutate of [
     (f) => {
       f.event.action = "synchronize"
+      f.pr.labels = []
     },
     (f) => {
       f.event.label.name = "other"
@@ -113,14 +145,17 @@ test("head races, withdrawal, closure and foreign PRs fail the pre-deployment re
 })
 
 // 以下のworkflow検査は本文の接続・条件・順序を固定する。Actionsの解釈や実行結果は確認しない。
-test("workflow text connects allowed requests to one PR check before checkout and installation", () => {
+test("workflow text connects allowed requests to PR checks before checkout and publishing", () => {
   const yaml = readFileSync(
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
   )
-  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled, closed\]/)
+  assert.match(
+    yaml,
+    /pull_request:\n    branches: \[main\]\n    types: \[labeled, synchronize, closed\]/,
+  )
   assert.doesNotMatch(yaml, /pull_request_target:/)
-  assert.doesNotMatch(yaml, /types:.*synchronize|secrets: inherit/)
+  assert.doesNotMatch(yaml, /secrets: inherit/)
   assert.match(yaml, /environment: development/)
   assert.match(yaml, /ref: \$\{\{ steps.pr.outputs.sha \}\}/)
   assert.equal(yaml.match(/run: node tools\/dev-preview\/authorize.mjs/g)?.length, 1)
@@ -129,7 +164,16 @@ test("workflow text connects allowed requests to one PR check before checkout an
   assert.ok(resolve >= 0 && resolve < checkout)
   assert.ok(checkout < yaml.indexOf("run: pnpm ci"))
   assert.match(yaml, /EXPECTED_BRANCH: \$\{\{ github.event.pull_request.head.ref \}\}/)
-  assert.doesNotMatch(yaml, /needs.resolve|Revalidate before deployment/)
+  assert.ok(
+    yaml.includes(
+      "github.event.action == 'synchronize' && contains(github.event.pull_request.labels.*.name, 'preview')",
+    ),
+  )
+  assert.ok(yaml.includes("format('-skip-{0}', github.run_id)"))
+  const recheck = yaml.split("- name: Recheck PR before publishing Preview")[1].split("- name:")[0]
+  assert.ok(recheck.includes("EXPECTED_BRANCH: ${{ steps.pr.outputs.branch }}"))
+  assert.ok(recheck.includes("EXPECTED_SHA: ${{ steps.pr.outputs.sha }}"))
+  assert.ok(recheck.includes('run: node "$RUNNER_TEMP/preview-control/authorize.mjs"'))
   assert.ok(yaml.indexOf("run: pnpm ci") < yaml.indexOf("secrets.CLOUDFLARE_API_TOKEN"))
 })
 

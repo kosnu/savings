@@ -6,7 +6,17 @@ export const deploymentProfiles = {
   database: { label: "dev-db" },
 }
 
-// PR の明示操作時点の SHA を内部で固定する。入力としてコピーさせない。
+export function matchesDeploymentTrigger(event, kind) {
+  const label = deploymentProfiles[kind].label
+  if (event.action === "labeled") return event.label?.name === label
+  return (
+    kind === "preview" &&
+    event.action === "synchronize" &&
+    event.pull_request?.labels?.some((item) => item.name === label)
+  )
+}
+
+// 配信要求の時点の SHA を固定する。
 export function deploymentRequest(event, eventName, ref, repository, kind = "preview") {
   const profile = deploymentProfiles[kind]
   if (!profile) throw new Error("Unsupported deployment kind")
@@ -16,12 +26,13 @@ export function deploymentRequest(event, eventName, ref, repository, kind = "pre
     number = event.number
     sha = event.pull_request?.head?.sha
     if (
-      event.action !== "labeled" ||
-      event.label?.name !== profile.label ||
+      !matchesDeploymentTrigger(event, kind) ||
+      event.pull_request?.state !== "open" ||
+      !event.pull_request?.head?.ref ||
       event.pull_request?.head?.repo?.full_name !== repository ||
       event.pull_request?.base?.ref !== "main"
     ) {
-      throw new Error("PR event is not an explicit request for this head SHA")
+      throw new Error("PR event is not an eligible request for this head SHA")
     }
   } else if (eventName === "workflow_dispatch" && ref === "refs/heads/main") {
     number = event.inputs?.pr_number

@@ -5,6 +5,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { test } from "node:test"
 
+import { authorize, deploymentRequest } from "./authorize.mjs"
 import { prPreviewName } from "./preview.mjs"
 import { deploymentReport } from "./report.mjs"
 
@@ -89,7 +90,7 @@ test("長いbranchもサマリーに残し、status description は API 上限�
 })
 
 // 実CLIとworkflowから抽出したshellを実行し、fake ghへの要求を観測する。実APIには登録しない。
-test("CLI → outputs → report shell は PR SHA の成功 status 要求を生成し、古い通知を抑止する", () => {
+test("手動・pushの固定SHAから成功status要求を生成し、古い通知を抑止する", async () => {
   const dir = mkdtempSync(join(tmpdir(), "preview-report-"))
   try {
     const json = join(dir, "preview.json")
@@ -122,6 +123,20 @@ test("CLI → outputs → report shell は PR SHA の成功 status 要求を生�
       ["42", "2", "retry"],
       ["43", "1", "redeploy"],
     ]) {
+      const pushed = id === "redeploy"
+      const eventName = pushed ? "pull_request" : "workflow_dispatch"
+      const ref = pushed ? "refs/pull/1918/merge" : "refs/heads/main"
+      const head = {
+        sha: pushed ? "c".repeat(40) : env.DEPLOYED_SHA,
+        ref: env.PREVIEW_BRANCH,
+        repo: { full_name: env.GITHUB_REPOSITORY },
+      }
+      const pr = { state: "open", base: { ref: "main" }, head, labels: [{ name: "preview" }] }
+      const event = pushed
+        ? { action: "synchronize", number: 1918, pull_request: pr }
+        : { inputs: { pr_number: "1918", head_sha: head.sha } }
+      const request = deploymentRequest(event, eventName, ref, env.GITHUB_REPOSITORY)
+      const approved = await authorize(request, env.GITHUB_REPOSITORY, async () => pr)
       writeFileSync(json, JSON.stringify({ ...deployment, deployment_id: id }))
       writeFileSync(output, "")
       writeFileSync(summary, "")
@@ -129,8 +144,10 @@ test("CLI → outputs → report shell は PR SHA の成功 status 要求を生�
         ...process.env,
         ...env,
         GITHUB_SHA: "b".repeat(40),
-        GITHUB_EVENT_NAME: "workflow_dispatch",
-        GITHUB_REF: "refs/heads/main",
+        DEPLOYED_SHA: approved.sha,
+        PREVIEW_BRANCH: approved.branch,
+        GITHUB_EVENT_NAME: eventName,
+        GITHUB_REF: ref,
         GITHUB_RUN_NUMBER: runNumber,
         GITHUB_RUN_ATTEMPT: attempt,
         GITHUB_OUTPUT: output,
@@ -159,7 +176,7 @@ test("CLI → outputs → report shell は PR SHA の成功 status 要求を生�
         },
       })
       const args = JSON.parse(readFileSync(calls, "utf8").trim().split("\n").at(-1))
-      assert.ok(args.includes(`repos/kosnu/savings/statuses/${env.DEPLOYED_SHA}`))
+      assert.ok(args.includes(`repos/kosnu/savings/statuses/${head.sha}`))
       assert.ok(args.includes("state=success"))
       assert.ok(args.includes("context=Dev Preview URL / PR #1918"))
       assert.ok(

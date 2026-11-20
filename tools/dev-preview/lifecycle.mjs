@@ -1,7 +1,7 @@
 import { appendFileSync, readFileSync } from "node:fs"
 import { pathToFileURL } from "node:url"
 
-import { authorize, deploymentRequest } from "./authorize.mjs"
+import { authorize, deploymentRequest, matchesDeploymentTrigger } from "./authorize.mjs"
 import { previewName, prPreviewName } from "./preview.mjs"
 
 export function validatePR(pr, repository) {
@@ -31,14 +31,7 @@ export async function resolveLifecycle(event, env, get) {
     throw new Error("配信または削除を指定してください。")
   if (pullRequest) {
     validatePR(event.pull_request, repository)
-    if (
-      !(
-        event.action === "closed" ||
-        (env.GITHUB_EVENT_NAME === "pull_request" &&
-          event.action === "labeled" &&
-          event.label?.name === "preview")
-      )
-    ) {
+    if (event.action !== "closed" && !matchesDeploymentTrigger(event, "preview")) {
       throw new Error("Preview の要求または PR 終了 event が必要です。")
     }
   }
