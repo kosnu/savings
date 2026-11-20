@@ -33,6 +33,7 @@ when_to_read:
 
 [cases.go](../../tools/harness/evals/cases.go)が入力と期待判定を所有する。
 行動evalは判断12ケースと実修正2ケース、分析evalはAudit 3ケースとRetrospective 3ケースを持つ。
+スキルの適用判断は、5つのリポジトリスキルごとに該当する依頼と隣接する対象外の依頼を各1件評価する。
 各ケースには条件・表現の異なる2入力がある。分析ケースの入力・期待値は[analysis.go](../../tools/harness/evals/analysis.go)が所有する。
 初期状態は、先頭区間を欠落させるJavaScript実装、公開の検証script、別作業の未コミットメモで固定する。
 実修正の評価はローカルの修正・検証・レビュー・報告までを対象とし、実プロダクト全体の開発やShipの評価ではない。
@@ -142,7 +143,7 @@ Auditでは、確認できた検証漏れと、その発生・見逃しの原因
 ## 隔離と保存
 
 評価器はGoで実装し、実行には認証済みCodex CLIとNode.jsが必要で、利用料金・利用枠を消費する。buildにはGo 1.27以降を使う。
-指定したcommit、または現在のworktreeからAGENTS.md、rule-mapが指す正本文書、Codex adapterとCore操作文書だけを使い捨てworkspaceへ複製する。
+指定したcommit、または現在のworktreeからAGENTS.md、rule-mapが指す正本文書、Codex adapterとCore操作文書を使い捨てworkspaceへ複製する。スキル評価では対象の `SKILL.md` も同じcommitまたはworktreeから取得し、各試行には対象スキル1件だけを配置する。実際の定義全文と依頼文をモデルに渡し、適用判断と無許可の変更・検証・外部ツール利用の有無を採点する。対象定義の変更は実行中・比較時の鮮度検査に含まれる。
 worktreeでは未staged・staged・未追跡の文書も、現在のrule-mapから選択されるものを取り込む。削除された必須文書をHEADで補完しない。
 それ以外の未追跡ファイルやアプリコードを一括で取り込まず、原本へのstage・commit・stash・checkoutを行わない。
 実リポジトリのGit管理領域、remote、個人設定、認証情報、採点事例の全文や過去履歴は複製しない。fixtureの初期commitでは署名を無効化する。
@@ -166,6 +167,7 @@ CLIのJSONLとstdout/stderrはメモリ内で処理し、生出力・回答全�
 通常のアプリ修正や説明・履歴だけの変更には実行を追加しない。Audit・Retrospectiveを行うたびにも追加しない。
 対応する手順や判断基準を変更したときに、影響するケースだけを選ぶ。共通指示や規則選択の変更では、影響する領域を合わせる。
 
+- スキル変更には対応する `--case skill-<スキル名>` を選ぶ。例として `--case skill-release` は本番リリースのDraft準備と開発プレビューの配信を比較する。全5件は `--suite skills` で選べる。
 - `--case`は関連する個別ケースを指定する。複数指定できる。
 - `--suite behavior`は行動14ケース、`--suite audit`はAudit 3ケース、`--suite retrospective`はRetrospective 3ケース。`--suite`も複数指定できる。
 - 対象の指定は必須で、`--case`と`--suite`は併用しない。全件は`--suite all`と明示した場合だけ実行する。
@@ -179,6 +181,7 @@ CLIのJSONLとstdout/stderrはメモリ内で処理し、生出力・回答全�
 ## 実行と比較
 
 repository rootで実行する。`--model`にはその認証で利用可能なモデル名を明示する。
+推論強度は `--effort` で `low`・`medium`・`high`・`xhigh`・`max`・`ultra` からモデルとCLIが対応する値を選ぶ（既定は `high`）。同一のハーネス変更を比較するときは強度を揃える。
 標準は2試行で、各入力1回ずつ実行する。確認を増やす場合は4試行なら各入力2回になる。
 `--timeout`はCodexを起動する各試行の秒数上限で、超過時は同じprocess groupを停止する。
 `--jobs 2`では別workspaceの試行を最大2件並列化する。標準は1件ずつで、比較時は並列数も揃える。
@@ -201,7 +204,7 @@ sourceがbuild時と異なる場合は実行を拒否するため、評価器や
 取り込み後に原本やsuiteが変わった場合は`target_stable=false`で保存し、終了コード1を返す。各ケースの判定は取り込み時点の結果として保持する。
 比較は実行中に対象が変わった結果を拒否し、変更後の結果がworktreeの場合は現在の識別値・suiteとも照合する。
 評価後に候補を編集したら再評価する。対象文書の内容・modeが同じなら、commitや工程記録の更新だけではworktreeの結果を失効させない。
-この識別値は評価へ取り込んだ文書のものであり、実ツール・skillsの実行やアプリ全体の検証を証明しない。
+スキルケースで観測するのは、実際の定義に照らした適用判断である。ホストが自動でスキルを発見するか、本番操作を完遂できるかは別の確認を要する。
 全件ではなく対象ケースだけ試す場合は、`--case explain --case fix`のように指定する。
 
 終了コード0は対象が安定した全試行pass、1は対象の変更またはfail・unknown・environment_error・not_runを含む評価結果、

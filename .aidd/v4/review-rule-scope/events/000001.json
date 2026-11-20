@@ -2,17 +2,20 @@
   "format": "aidd-phase-result-v1",
   "cycle": "000001.json",
   "kind": "design",
-  "source": "会話依頼「まずはそのズレを改善してほしい」および直前の照合結果",
+  "source": "会話で承認されたGPT-6.2向け指針とハーネスの改善、PR #2169",
   "paths": [
+    "AGENTS.md",
     "docs/harness/rule-map.json",
-    "docs/harness/policies/code-review.md",
-    "tools/harness/checker/internal/core/core_test.go"
+    "docs/ai-driven-development/agent-evals.md",
+    "tools/harness/evals/",
+    "tools/harness/checker/internal/core/core_test.go",
+    "docs/harness/policies/code-review.md"
   ],
-  "fingerprint": "4e1911e32e023222cdc405ac87259c6dc6940e5f0a7f60d726073677b35324d1",
+  "fingerprint": "4bebdf869eb5ebbe2b57ded6b9878f4ad9b315280a536a92f8e788721180939c",
   "status": "pass",
   "checks": [
-    "変更元の規約選択とWeb/APIのレビュー基準"
+    "公式指針、現行規約、PR #2169と評価入力の照合"
   ],
-  "summary": "広域のアプリパスを担当領域のパスに絞り、CSS・業務コード・DB・複数面の選択を実索引で比較する。パスだけで判断できない変更面は実差分から既存の必須規約を補う。",
+  "summary": "最終報告を単独で理解できる基準とモデル対応時の推論強度選択を追加。規約は実経路と反例で絞り、各skillは対象定義だけを隔離し、適用判断を正例・反例で採点する。通常evalと同じ比較条件・鮮度検査を維持する。",
   "remaining": []
 }

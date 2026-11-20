@@ -68,6 +68,12 @@ func TestRepositoryReviewRouting(t *testing.T) {
 		required []string
 		excluded []string
 	}{
+		{"apps/web/src/features/budgets/removeMonthlyBudget/removeMonthlyBudget.ts", []string{"domain.monthly-budget", "policy.transaction-boundaries"}, nil},
+		{"apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.tsx", []string{"web.query-cache", "web.suspense-boundaries"}, nil},
+		{"docs/harness/domain/amount.md", []string{"domain.amount"}, []string{"domain.date", "policy.temporal-data"}},
+		{"docs/harness/domain/payment.md", []string{"domain.payment", "policy.temporal-data"}, nil},
+		{".agents/skills/release/SKILL.md", []string{"infrastructure.production-release"}, []string{"policy.issue-template-selection"}},
+		{"docs/ai-driven-development/issue-guidelines.md", []string{"policy.issue-template-selection"}, nil},
 		{"apps/web/src/assets/reset.css", []string{"policy.code-review", "web.design-system-brand", "web.design-rules"}, []string{"domain.payment", "domain.monthly-budget", "domain.user", "policy.temporal-data", "policy.transaction-boundaries", "web.query-cache", "web.storybook-browser-tests"}},
 		{"apps/web/src/features/payments/listPayment/PaymentCategoryFilter/PaymentCategoryFilter.module.css", []string{"web.design-rules"}, []string{"domain.payment", "web.feature-directory", "web.domain-ui-rules"}},
 		{"apps/web/src/features/payments/monthlySpending/fetchMonthlySpending.ts", []string{"domain.payment", "domain.date", "domain.amount", "domain.category"}, []string{"domain.user", "web.storybook-browser-tests"}},

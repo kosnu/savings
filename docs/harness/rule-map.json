@@ -169,8 +169,7 @@
       "applies_to": {
         "paths": [
           ".github/ISSUE_TEMPLATE/**",
-          ".agents/skills/**",
-          "docs/ai-driven-development/**",
+          "docs/ai-driven-development/issue-guidelines.md",
           "docs/harness/policies/issue-template-selection.md"
         ],
         "domains": ["repository", "github", "ai-driven-development"],
@@ -590,7 +589,8 @@
           "apps/web/src/features/**/create*.ts",
           "apps/web/src/features/**/update*.ts",
           "apps/web/src/features/**/delete*.ts",
-          "apps/api/supabase/config.toml"
+          "apps/api/supabase/config.toml",
+          "apps/web/src/features/**/remove*.ts"
         ],
         "domains": ["api", "web", "database", "infrastructure"],
         "activities": [
@@ -623,7 +623,9 @@
       "file": "docs/harness/policies/temporal-data.md",
       "applies_to": {
         "paths": [
-          "docs/harness/domain/**",
+          "docs/harness/domain/date.md",
+          "docs/harness/domain/payment.md",
+          "docs/harness/domain/monthly-budget.md",
           "docs/harness/policies/temporal-data.md",
           "apps/api/supabase/**/*month*.sql",
           "apps/api/supabase/**/*_date*.sql",
@@ -1000,7 +1002,17 @@
           "apps/web/src/**/*Boundary*.tsx",
           "apps/web/src/**/*Suspense*.tsx",
           "apps/web/src/app/Provider.tsx",
-          "apps/web/docs/policies/suspense-boundaries.md"
+          "apps/web/docs/policies/suspense-boundaries.md",
+          "apps/web/src/features/books/useSelectedBook.ts",
+          "apps/web/src/features/budgets/getMonthlyBudget/useEffectiveMonthlyBudget.ts",
+          "apps/web/src/features/budgets/listMonthlyBudget/useMonthlyBudgets.ts",
+          "apps/web/src/features/categories/listCategory/useCategories.ts",
+          "apps/web/src/features/categories/listCategorySettings/useCategorySettingsItems.ts",
+          "apps/web/src/features/payments/listPayment/RecentPayments/RecentPayments.tsx",
+          "apps/web/src/features/payments/listPayment/usePayments.ts",
+          "apps/web/src/features/profile/profileSettings/useProfile.ts",
+          "apps/web/src/features/summaryByMonth/CategoryTotals/useCategoryTotals.ts",
+          "apps/web/src/features/summaryByMonth/MonthlyTotals/useTotalExpenditures.ts"
         ],
         "domains": ["web"],
         "activities": ["change_suspense", "change_error_boundary", "change_async_loading"],
