@@ -160,7 +160,8 @@ func changed(a, b Snapshot) []string {
 	return out
 }
 func validPath(p string) bool {
-	return p != "" && p != "." && !strings.HasPrefix(p, "/") && !strings.Contains(p, "\\") && filepath.Clean(p) == strings.TrimSuffix(p, "/") && !strings.HasPrefix(p, "../") && !strings.ContainsAny(p, "*?[") && !strings.HasPrefix(p, ".git/") && p != ".git"
+	root := strings.TrimSuffix(p, "/")
+	return root != "" && root != "." && root != ".." && root != ".git" && !strings.HasPrefix(p, "/") && !strings.Contains(p, "\\") && filepath.Clean(p) == root && !strings.HasPrefix(p, "../") && !strings.ContainsAny(p, "*?[") && !strings.HasPrefix(p, ".git/")
 }
 func covered(p string, paths []string) bool {
 	for _, q := range paths {
@@ -174,10 +175,10 @@ func (s *Checker) current() (Snapshot, string, error) {
 	snap, e := s.snapshot("work")
 	return snap, digest(snap), e
 }
-func (s *Checker) scope(paths []string, base Snapshot, now Snapshot) error {
-	for _, p := range changed(base, now) {
+func checkScope(paths, delta []string, now Snapshot, allowPhaseRecords bool) error {
+	for _, p := range delta {
 		parts := strings.Split(p, "/")
-		if _, present := now[p]; present && len(parts) == 5 && parts[0] == ".aidd" && parts[1] == "v4" && taskName.MatchString(parts[2]) && parts[3] == "events" && recordName.MatchString(parts[4]) {
+		if _, present := now[p]; allowPhaseRecords && present && len(parts) == 5 && parts[0] == ".aidd" && parts[1] == "v4" && taskName.MatchString(parts[2]) && parts[3] == "events" && recordName.MatchString(parts[4]) {
 			continue
 		}
 		if !covered(p, paths) {

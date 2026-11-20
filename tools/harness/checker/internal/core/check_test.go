@@ -282,3 +282,60 @@ func TestDeliveryIdentityAndNoWrites(t *testing.T) {
 		t.Fatal("delivery wrote records", e)
 	}
 }
+
+func TestScopedVerificationUsesCurrentDiff(t *testing.T) {
+	s := fixture(t)
+	scope := []string{"code.txt", "apps/web/"}
+	if _, err := s.Plan(scope); err == nil {
+		t.Fatal("empty diff accepted")
+	}
+	put(t, s.Root, "code.txt", "after\n")
+	p, err := s.Plan(scope)
+	if err != nil || p.Base != s.Base || len(p.Changed) != 1 || p.Changed[0] != "code.txt" || len(p.Commands) != 1 {
+		t.Fatalf("%+v: %v", p, err)
+	}
+	put(t, s.Root, "apps/web/new.ts", "export {}\n")
+	p, err = s.Plan(scope)
+	if err != nil || len(p.Commands) != 5 || len(p.Changed) != 2 {
+		t.Fatalf("untracked Web change: %+v: %v", p, err)
+	}
+	for _, paths := range [][]string{nil, {"code.txt"}, {"."}, {"../"}, {".git/"}} {
+		if v, err := s.VerifyScope(paths, io.Discard); err == nil || len(v.Results) != 0 {
+			t.Fatalf("invalid scope %v: %+v, %v", paths, v, err)
+		}
+	}
+	if err := os.Remove(filepath.Join(s.Root, "apps/web/new.ts")); err != nil {
+		t.Fatal(err)
+	}
+	put(t, s.Root, "code.txt", "bad whitespace  \n")
+	command(t, s.Root, "add", "code.txt")
+	command(t, s.Root, "commit", "-m", "change")
+	v, err := s.VerifyScope(scope, io.Discard)
+	if err == nil || !v.Stable || v.Context == nil || len(v.Results) != 1 || v.Results[0].Exit == 0 {
+		t.Fatalf("baseline check skipped committed error: %+v: %v", v, err)
+	}
+	put(t, s.Root, ".aidd/v4/another-task/events/000001.json", "{}\n")
+	if _, err := s.Plan(scope); err == nil || !strings.Contains(err.Error(), "out-of-scope") {
+		t.Fatalf("implicit permission for another task: %v", err)
+	}
+}
+
+func TestScopedPlanShowsRuleSourcesAndEnforcesPlacement(t *testing.T) {
+	s := fixture(t)
+	put(t, s.Root, "rules.md", "policy")
+	put(t, s.Root, "docs/harness/rule-map.json", `{"version":2,"rules":[{"id":"policy","file":"rules.md","applies_to":{"paths":["code.txt"]}}]}`)
+	command(t, s.Root, "add", ".")
+	command(t, s.Root, "commit", "-m", "policy")
+	s.Base = "HEAD"
+	if err := os.Remove(filepath.Join(s.Root, "code.txt")); err != nil {
+		t.Fatal(err)
+	}
+	p, err := s.Plan([]string{"code.txt"})
+	if err != nil || len(p.Rules) != 1 || p.Rules[0] != (RuleSource{"policy", "rules.md"}) {
+		t.Fatalf("deleted path rule: %+v, %v", p, err)
+	}
+	put(t, s.Root, "docs/stray.md", "wrong placement")
+	if _, err := s.Plan([]string{"docs/", "code.txt"}); err == nil || !strings.Contains(err.Error(), "documentation-policy") {
+		t.Fatalf("misplaced document accepted: %v", err)
+	}
+}

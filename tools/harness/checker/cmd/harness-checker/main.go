@@ -17,10 +17,10 @@ func run() error {
 	}
 	args := flags.Args()
 	if len(args) == 0 {
-		return fmt.Errorf("command required: rules check-changes verify ship-check ship record-begin record-finish record-read")
+		return fmt.Errorf("command required: rules check-changes plan verify ship-check ship record-begin record-finish record-read")
 	}
 	switch args[0] {
-	case "rules", "check-changes", "verify", "ship-check", "ship", "record-begin", "record-finish", "record-read":
+	case "rules", "check-changes", "plan", "verify", "ship-check", "ship", "record-begin", "record-finish", "record-read":
 	default:
 		return fmt.Errorf("unsupported command %s; lifecycle recording has been removed", args[0])
 	}
@@ -43,7 +43,7 @@ func run() error {
 		base = f.String("base", "", "verification baseline")
 	case "ship":
 		input = f.String("input", "", "delivery JSON")
-	case "check-changes":
+	case "check-changes", "plan":
 		base = f.String("base", "", "diff base ref")
 	case "rules":
 		paths = f.String("paths", "", "JSON path array")
@@ -51,7 +51,7 @@ func run() error {
 	if e := f.Parse(args[1:]); e != nil {
 		return e
 	}
-	if f.NArg() != 0 {
+	if f.NArg() != 0 && args[0] != "plan" && (args[0] != "verify" || *input != "") {
 		return fmt.Errorf("unexpected arguments: %v", f.Args())
 	}
 	abs, e := filepath.Abs(*root)
@@ -106,12 +106,26 @@ func run() error {
 			return e
 		}
 		return encode(map[string]bool{"changes_checked": true})
+	case "plan":
+		checker.Base = *base
+		context, err := checker.Plan(f.Args())
+		if err != nil {
+			return err
+		}
+		return encode(context)
 	case "verify":
+		checker.Base = *base
+		if *input == "" {
+			result, err := checker.VerifyScope(f.Args(), os.Stderr)
+			if e = encode(result); e != nil {
+				return e
+			}
+			return err
+		}
 		var plan core.VerificationPlan
 		if e = core.ReadInput(*input, &plan); e != nil {
 			return e
 		}
-		checker.Base = *base
 		result, err := checker.Verify(plan, os.Stderr)
 		if e = encode(result); e != nil {
 			return e

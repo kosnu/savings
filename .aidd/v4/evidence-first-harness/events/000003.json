@@ -1,0 +1,35 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "会話依頼。一次資料を基に開発基盤を再設計する。比較元 a2066e17",
+  "paths": [
+    "AGENTS.md",
+    "docs/adr/0010-evidence-first-development.md",
+    "docs/ai-driven-development/",
+    "docs/harness/policies/",
+    "tools/harness/checker/",
+    ".agents/skills/audit/SKILL.md"
+  ],
+  "fingerprint": "a645e3b7b5d6fd0ce74846e886bd2a6d41eb0fa45bccfe17e734cd3998dbab22",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.audit",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.issue-guidelines",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.audit",
+    "policy.code-review",
+    "policy.git-workflow",
+    "policy.issue-template-selection",
+    "policy.retrospective",
+    "policy.review-feedback-classification"
+  ],
+  "summary": "委任範囲と実差分を分離し、例外は既存の計画入力だけに限定。通常CLI・旧形式・引き継ぎとAuditの正本・CIを照合。比較元と配信先を分けたADR検証を確認。未解決の規約矛盾なし。運用全体の所要時間や長期品質は未計測。",
+  "remaining": []
+}

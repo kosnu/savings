@@ -48,6 +48,11 @@ func TestRecordedVerificationCLISequence(t *testing.T) {
 			t.Fatalf("%v: %v", args, e)
 		}
 	}
+	invoke("plan", "--base", "HEAD", "--", "code.txt")
+	invoke("verify", "--base", "HEAD", "--", "code.txt")
+	if _, err := os.Stat(filepath.Join(root, ".aidd")); !os.IsNotExist(err) {
+		t.Fatalf("unexpected phase records: %v", err)
+	}
 	design := ".aidd/v4/issue-test/events/000001.json"
 	verify := ".aidd/v4/issue-test/events/000002.json"
 	invoke("record-begin", "--task", "issue-test", "--kind", "design", "--input", start)

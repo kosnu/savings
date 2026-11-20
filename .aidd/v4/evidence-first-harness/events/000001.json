@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話依頼。一次資料を基に開発基盤を再設計する。比較元 a2066e17",
+  "paths": [
+    "AGENTS.md",
+    "docs/adr/0010-evidence-first-development.md",
+    "docs/ai-driven-development/",
+    "docs/harness/policies/",
+    "tools/harness/checker/"
+  ],
+  "fingerprint": "c505394562ae2bcecb01dcab49aa82270890aec4bf42b1276c0dc316de9ba933",
+  "status": "pass",
+  "checks": [
+    "PR #2172の工程記録3件とCoreの実行経路",
+    "OpenAI・Anthropic・Lauren Tanの一次資料"
+  ],
+  "summary": "委任されたpathを入力に実差分から規約本文と必須検証を導出し、計画照会と実行を同じCoreで行う。通常は既存PR・会話・CIに証拠を集約し、引継ぎ時のみ工程記録を使う。旧入力と開始済みcycleを維持する。",
+  "remaining": []
+}

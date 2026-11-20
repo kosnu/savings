@@ -15,14 +15,16 @@ when_to_read:
 # Harness Checker
 
 [Workflow](workflow.md)のうち、その場で判定できる状態をGoで検査する。
-操作イベント・全ファイルsnapshot・コマンド生出力は永続保存せず、工程ごとの最新結果だけを保持する。旧Task台帳を実行条件にしない。
+通常の検証は工程記録を必要としない。引き継ぎ用の工程記録を使う場合だけ、同じ工程の最新結果を保持する。
 
-Issue [#1903](https://github.com/kosnu/savings/issues/1903)のIntentに基づき、[ADR 0009](../adr/0009-rebuild-aidd-v4.md)のTask・判断revision・保存記録による承認範囲の機械検査を、実行時検査と工程別の最小結果へ置き換える。履歴上の変更関係はADRの2026-10-11 Clarification、現在の採否は[調査文書](research-v4.md)に示す。Intent・Ship・Audit・改善の権限境界は[Workflow](workflow.md)を維持する。
+Issue [#1903](https://github.com/kosnu/savings/issues/1903)のIntentに基づき、[ADR 0009](../adr/0009-rebuild-aidd-v4.md)のTask・判断revision・保存記録による承認範囲の機械検査を、実行時検査と工程別の最小結果へ置き換える。履歴上の変更関係はADRの2026-10-11 Clarification、その後に工程記録を引き継ぎ時の選択とした判断は[ADR 0010](../adr/0010-evidence-first-development.md)に示す。Intent・Ship・Audit・改善の権限境界は[Workflow](workflow.md)を維持する。
 
 ## 検査の責務
 
 - `rules`: path/surface一致と依存closureを解決し、規約索引の不備を拒否する。
 - `check-changes --base`: merge-baseと現在の実差分から適用規約を解決し、`docs/` 直下のMarkdownが[配置基準](../harness/policies/documentation-policy.md#配置先)に合うか検査する。
+- `plan --base <commit/ref> -- <path>...`: 明示された委任範囲内の実差分、固定した比較元SHA、適用規約のID・本文パス、必須コマンドを返す。コマンドは実行しない。
+- `verify --base <commit/ref> -- <path>...`: 同じ計画を現在の差分から組み直して実行する。空差分、範囲外（工程記録を含む）、文書の誤配置はコマンド実行前に拒否する。
 - `verify --base --input`: 有限の対象path・command・ruleを入力として、差分の範囲と必須command・ruleの不足を拒否し、commandを実行する。
 - `ship-check`: stageとworktreeの内容・mode、stageの空白エラーを検査する。
 - `ship --input`: local HEAD、worktree、remote branch、PRのhead/base/OPEN状態を照合する。Ship記録は書かない。
@@ -30,9 +32,9 @@ Issue [#1903](https://github.com/kosnu/savings/issues/1903)のIntentに基づき
 - `record-finish`: 短い結果だけを保存する。開始後の対象変更をpassとして保存しない。
 - `record-read`: 現在の対象と照合し、前サイクル・対象変更・runningを現在の成功として返さない。
 
-`verify`の対象pathは実際の変更対象を指定する。記録契約の配置に一致する`.aidd/v4/<作業名>/events/<6桁の連番>.json`の追加・更新は工程結果の補助差分として許可し、対象pathへの追加を要求しない。作業名は下記の共通受理条件に従う。工程結果の削除と、この配置に一致しないファイルは通常の対象path検査を受ける。`.aidd/`全体を除外しない。
+既存の計画入力（`verify --input`）の対象pathは実際の変更対象を指定する。記録契約の配置に一致する`.aidd/v4/<作業名>/events/<6桁の連番>.json`の追加・更新は工程結果の補助差分として許可し、対象pathへの追加を要求しない。作業名は下記の共通受理条件に従う。工程結果の削除と、この配置に一致しないファイルは通常の対象path検査を受ける。`.aidd/`全体を除外しない。
 
-snapshotは検査中のメモリ内だけで使用する。検証結果はcommandのindex・終了コードと実行前後の安定性だけを返す。
+snapshotは検査中のメモリ内だけで使用する。検証結果はcommandのindex・終了コードと実行前後の安定性を返す。path指定では実際に使用した計画も返す。
 検証実行中の安定性とShipの内容・mode照合には工程結果も含める。補助差分の許可で、検証commandによるファイル変更やstageとの不一致を許可しない。
 コマンドの標準出力・標準エラーは実行中の診断表示に使用し、結果JSON・ファイル・履歴へ保存しない。
 未起動・失敗・残留process・snapshot取得失敗・検証中の内容やmodeの変更を成功にしない。
@@ -41,6 +43,8 @@ snapshotは検査中のメモリ内だけで使用する。検証結果はcomman
 配信時のリモートSHA・PR情報の取得には各30秒の期限を設ける。macOS/Linuxで取得コマンドを専用のプロセスグループで実行し、期限超過時はグループを終了して照合未完了を返す。再確認は読み取り専用の照合を実行する。
 
 ## 記録
+
+[Workflow](workflow.md#intentと実行権限)の引き継ぎ条件を満たす場合にこの契約を使う。記録のないTaskでAuditを依頼された場合もPRまたは会話に結果を示せる。過去のdesign・verify・reviewを事後作成しない。
 
 Intentと実行権限は既存Issue・PR・ユーザー発言を正本として確認し、本文を複製しない。
 `.aidd/v4/<作業名>/events/000001.json`の配置・連番を使う。これは操作eventではなく工程結果であり、formatは`aidd-phase-result-v1`とする。

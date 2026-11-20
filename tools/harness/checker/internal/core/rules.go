@@ -243,7 +243,7 @@ func ResolveRules(root string, paths []string) ([]Rule, error) {
 	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 	return out, nil
 }
-func ensureRules(required []Rule, provided []string) error {
+func ensureRules(required []RuleSource, provided []string) error {
 	set := map[string]bool{}
 	for _, r := range provided {
 		set[r] = true
