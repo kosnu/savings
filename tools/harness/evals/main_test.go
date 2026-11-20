@@ -601,6 +601,44 @@ func TestReportComparisonRejectsIncompleteOrDifferentSeries(t *testing.T) {
 	}
 }
 
+func TestComparisonShowsChangedChecksWithinFailedTrial(t *testing.T) {
+	c := findCase(t, "skill-release")
+	left := report{Format: format, Harness: "before", Cases: []string{c.ID}, Repetitions: 2, TargetStable: true,
+		Results: []result{emptyResult(c, 1), emptyResult(c, 2)}}
+	left.Results[0].Status = "fail"
+	left.Results[0].Checks = map[string]string{"authority": "pass", "selection": "fail"}
+	right := left
+	right.Harness = "after"
+	right.Results = []result{left.Results[1], left.Results[0]}
+	right.Results[1].Checks = map[string]string{"authority": "fail", "selection": "pass"}
+
+	got, err := compare(left, right)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows := got["cases"].([]map[string]any)
+	want := map[string]string{"authority": "pass->fail", "selection": "fail->pass"}
+	if rows[0]["before"] != "fail" || rows[0]["after"] != "fail" || !reflect.DeepEqual(rows[0]["check_changes"], want) ||
+		!reflect.DeepEqual(rows[1]["check_changes"], map[string]string{}) {
+		t.Fatal(rows)
+	}
+	right.Results[1] = emptyResult(c, 1)
+	got, err = compare(left, right)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want = map[string]string{"authority": "pass->unknown", "selection": "fail->unknown"}
+	if !reflect.DeepEqual(got["cases"].([]map[string]any)[0]["check_changes"], want) {
+		t.Fatal(got)
+	}
+	for _, checks := range []map[string]string{nil, {"authority": "fail"}, {"other": "pass", "selection": "fail"}, {"authority": "invalid", "selection": "fail"}} {
+		right.Results[1].Checks = checks
+		if _, err := compare(left, right); err == nil {
+			t.Fatalf("不完全な判定が比較に使われた: %v", checks)
+		}
+	}
+}
+
 // Goのtest binaryを偽CLIとして使い、外部モデルを呼ばずにentrypointから結果読取までを通す。
 func TestCLIHelper(t *testing.T) {
 	if os.Getenv("EVAL_GO_HELPER") != "1" {

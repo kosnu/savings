@@ -82,11 +82,13 @@ jobs:
           go-version-file: tools/harness/checker/go.mod
           cache: false
       - name: Check formatting
-        run: test -z "$(gofmt -l tools/harness/checker tools/harness/session-metrics)"
+        run: test -z "$(gofmt -l tools/harness/checker tools/harness/session-metrics tools/harness/evals)"
       - name: Vet
         run: go -C tools/harness/checker vet ./...
       - name: Vet session metrics
         run: go -C tools/harness/session-metrics vet ./...
+      - name: Vet agent evals
+        run: go -C tools/harness/evals vet ./...
       - name: Test Core checks
         run: go -C tools/harness/checker test -count=1 ./...
       - name: Test session metrics
@@ -102,6 +104,9 @@ jobs:
 
       - name: Test Vite+ dependency synchronization
         run: node --test tools/vite-plus-sync/*.test.mjs
+
+      - name: Test agent evals offline
+        run: go -C tools/harness/evals test -count=1 ./...
 
       - name: Install dependencies
         run: pnpm ci
@@ -158,6 +163,8 @@ jobs:
           package-manager-cache: false
       - name: Test merged Vite+ dependency synchronization
         run: node --test tools/vite-plus-sync/*.test.mjs
+      - name: Test merged agent evals offline
+        run: go -C tools/harness/evals test -count=1 ./...
 
   verify:
     needs: [context, candidate, integration]

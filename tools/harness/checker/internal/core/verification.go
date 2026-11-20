@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
 func (s *Checker) mandatoryCommands(paths []string) [][]string {
 	out := [][]string{{"git", "diff", "--check"}}
-	goCode, metrics, web, story := false, false, false, false
+	for _, module := range []string{"tools/harness/checker", "tools/harness/session-metrics", "tools/harness/evals"} {
+		if slices.ContainsFunc(paths, func(p string) bool { return strings.HasPrefix(p, module+"/") }) {
+			out = append(out, []string{"go", "-C", module, "test", "./..."}, []string{"go", "-C", module, "vet", "./..."})
+		}
+	}
+	web, story := false, false
 	for _, p := range paths {
-		if strings.HasPrefix(p, "tools/harness/checker/") {
-			goCode = true
-		}
-		if strings.HasPrefix(p, "tools/harness/session-metrics/") {
-			metrics = true
-		}
 		appRuntime := strings.HasPrefix(p, "apps/web/") && !strings.HasPrefix(p, "apps/web/docs/") && !strings.HasSuffix(p, ".md")
 		if appRuntime || p == "package.json" || p == "pnpm-lock.yaml" || p == "pnpm-workspace.yaml" || p == "vite.config.ts" || strings.HasPrefix(p, "tsconfig") {
 			web = true
@@ -31,12 +31,6 @@ func (s *Checker) mandatoryCommands(paths []string) [][]string {
 				story = true
 			}
 		}
-	}
-	if goCode {
-		out = append(out, []string{"go", "-C", "tools/harness/checker", "test", "./..."}, []string{"go", "-C", "tools/harness/checker", "vet", "./..."})
-	}
-	if metrics {
-		out = append(out, []string{"go", "-C", "tools/harness/session-metrics", "test", "./..."}, []string{"go", "-C", "tools/harness/session-metrics", "vet", "./..."})
 	}
 	if web {
 		for _, name := range []string{"web:lint", "web:format-check", "web:typecheck", "web:test:unit-integration"} {

@@ -881,6 +881,9 @@ func compare(before, after report) (map[string]any, error) {
 		return nil, fmt.Errorf("実行中に対象が変わった結果は比較できません")
 	}
 	index := func(r report) (map[string]result, error) {
+		if len(r.Cases) == 0 || r.Repetitions < 2 {
+			return nil, fmt.Errorf("比較には対象ケースと各ケース2試行以上が必要です")
+		}
 		rows := map[string]result{}
 		expected := map[string]bool{}
 		for _, name := range r.Cases {
@@ -913,8 +916,21 @@ func compare(before, after report) (map[string]any, error) {
 	for _, row := range before.Results {
 		key := fmt.Sprintf("%s/%d/%d", row.Case, row.Trial, row.Variant)
 		a, b := left[key], right[key]
+		if len(a.Checks) == 0 || len(a.Checks) != len(b.Checks) {
+			return nil, fmt.Errorf("%s: 比較する指標が不足しています", key)
+		}
+		changes := map[string]string{}
+		for name, from := range a.Checks {
+			to := b.Checks[name]
+			if !contains([]string{"pass", "fail", "unknown"}, from) || !contains([]string{"pass", "fail", "unknown"}, to) {
+				return nil, fmt.Errorf("%s: 指標 %s の判定が欠落または不正です", key, name)
+			}
+			if from != to {
+				changes[name] = from + "->" + to
+			}
+		}
 		transitions[a.Status+"->"+b.Status]++
-		paired = append(paired, map[string]any{"case": row.Case, "trial": row.Trial, "before": a.Status, "after": b.Status})
+		paired = append(paired, map[string]any{"case": row.Case, "trial": row.Trial, "before": a.Status, "after": b.Status, "check_changes": changes})
 	}
 	return map[string]any{"before": before.Harness, "after": after.Harness, "transitions": transitions, "cases": paired}, nil
 }

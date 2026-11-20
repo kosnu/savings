@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "最終差分でローカル・CIの検証経路と比較CLIを確認",
+  "paths": [
+    "tools/harness/evals/main.go",
+    "tools/harness/evals/main_test.go",
+    "docs/ai-driven-development/agent-evals.md",
+    ".github/workflows/harness_checker_ci.yaml",
+    "tools/harness/checker/internal/core/verification.go",
+    "tools/harness/checker/internal/core/verification_test.go"
+  ],
+  "fingerprint": "e9bcf9ad3eed061fb270a92a608ec5fc92afa946f5d42b1ff3c710d914c6b05d",
+  "status": "pass",
+  "checks": [
+    "Coreと評価器のGo test/vet、候補と統合結果のCI設定・actionlint・整形",
+    "同じ入力を旧・新CLIに渡し、同じ総合判定に隠れた権限の悪化とスキル選択の改善を確認",
+    "試行・指標の不足を比較CLIが拒否"
+  ],
+  "summary": "固定入力の比較で権限pass→fail、選択fail→passを確認。変化なし、未観測、順不同、不完全な指標と検証省略を回帰テスト。モデルの実行・採点は変更しておらず、実モデル評価は対象外。",
+  "remaining": []
+}

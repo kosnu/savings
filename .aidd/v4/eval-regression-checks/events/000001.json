@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話のハーネス改善。評価器の検証省略をローカルとCIの両入口で防ぐ",
+  "paths": [
+    "tools/harness/evals/main.go",
+    "tools/harness/evals/main_test.go",
+    "docs/ai-driven-development/agent-evals.md",
+    ".github/workflows/harness_checker_ci.yaml",
+    "tools/harness/checker/internal/core/verification.go",
+    "tools/harness/checker/internal/core/verification_test.go"
+  ],
+  "fingerprint": "c5e1cb89ef4ff40835dcdfa5e9fb7ab5d2a896c817055945e8531cc26fb2d3cb",
+  "status": "pass",
+  "checks": [
+    "異なる指標の失敗が同じ総合判定になる反例",
+    "CIとローカルの評価器検査の呼び出し"
+  ],
+  "summary": "比較では同一試行で変化した指標を示す。既存v5と未観測の区別を維持する。評価器変更時のtest/vetをCoreで要求し、CIでは候補と統合結果でオフラインテストする。モデルの選択・採点基準は変更しない。",
+  "remaining": []
+}
