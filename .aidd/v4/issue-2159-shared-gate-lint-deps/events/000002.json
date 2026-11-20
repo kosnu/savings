@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2159",
+  "paths": [
+    "tools/harness/tests/test_shared_gate.py"
+  ],
+  "fingerprint": "25f3ac73ec53c91620462421ad961c13a66f003f71b77c8ccfef53bd1c3a0f5c",
+  "status": "pass",
+  "checks": [
+    "共有Gitゲートのunittest 8件",
+    "従来のコピー対象外のLintプラグインを使う実フックの変更前後比較",
+    "git diff --check",
+    "Coreの規約グラフと変更範囲検査"
+  ],
+  "summary": "macOSで既存8件が成功。別ディレクトリの新規Lintプラグインは変更前に解決失敗し、変更後は正常なコミットが通り、独自ルール違反でコミットを拒否して未ステージ差分を保持した。Linuxはローカル検証の対象外。",
+  "remaining": []
+}

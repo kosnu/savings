@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "https://github.com/kosnu/savings/issues/2159",
+  "paths": [
+    "tools/harness/tests/test_shared_gate.py"
+  ],
+  "fingerprint": "25f3ac73ec53c91620462421ad961c13a66f003f71b77c8ccfef53bd1c3a0f5c",
+  "status": "pass",
+  "checks": [
+    "ai-driven.agent-evals",
+    "ai-driven.change-coverage",
+    "ai-driven.checker",
+    "ai-driven.glossary",
+    "ai-driven.overview",
+    "ai-driven.workflow",
+    "documentation.policy",
+    "policy.code-review",
+    "policy.git-workflow"
+  ],
+  "summary": "相対パスを保持したファイル取り込みで依存の個別指定を解消。新しいディレクトリからのLintプラグイン解決と違反検出を実フックで比較し、既存8件でステージ済み検査と未ステージ差分の保持を確認した。指摘・規約の矛盾なし。実フックとエージェントの指示や実行制御は変更対象外のため行動eval不要。LinuxはCIでの確認範囲。",
+  "remaining": []
+}
