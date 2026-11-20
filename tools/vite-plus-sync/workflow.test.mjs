@@ -188,15 +188,20 @@ function shellStep(name, source = harness) {
 // group式の評価で旧受付との競合を検出する。Actionsの待機・取消処理そのものは再現しない。
 void test("Checkerは旧受付・別イベント・別PRと競合せず、同じPRイベントの再実行だけを置き換える", () => {
   const expression = harness.match(/^  group: (.+)$/m)[1]
-  const group = (eventName, number, runId = 9) =>
-    expression.replace(/\$\{\{(.*?)\}\}/g, (_, value) =>
-      vm.runInNewContext(value, {
+  const group = (eventName, number, runId = 9, action = "synchronize", changes = {}) =>
+    expression.replace(/\$\{\{(.*?)\}\}/g, (_, condition) =>
+      vm.runInNewContext(condition, {
         github: {
           event_name: eventName,
-          event: { pull_request: { number: eventName === "pull_request" ? number : undefined } },
+          event: {
+            action,
+            changes: { base: {}, ...changes },
+            pull_request: { number: eventName === "pull_request" ? number : undefined },
+          },
           run_id: runId,
         },
         inputs: eventName === "workflow_dispatch" ? { pr_number: String(number) } : {},
+        format: (template, value) => template.replace("{0}", value),
       }),
     )
   const direct = group("pull_request", 2022)
@@ -209,6 +214,16 @@ void test("Checkerは旧受付・別イベント・別PRと競合せず、同じ
     assert.equal(group(eventName, 2022, 9), group(eventName, 2022, 10))
     assert.notEqual(group(eventName, 2022), group(eventName, 2023))
   }
+  for (const field of ["body", "title"]) {
+    const changes = { [field]: { from: "previous" } }
+    const edit = group("pull_request", 2022, 9, "edited", changes)
+    assert.notEqual(edit, direct)
+    assert.notEqual(edit, group("pull_request", 2022, 10, "edited", changes))
+  }
+  assert.equal(
+    group("pull_request", 2022, 9, "edited", { base: { ref: { from: "release" } } }),
+    direct,
+  )
   assert.match(harness, /cancel-in-progress: true/)
 })
 
@@ -219,19 +234,21 @@ const report = shellStep("Report dispatched CI on the PR commit")
 for (const event of ["pull_request", "workflow_dispatch"]) {
   for (const cancelled of [false, true]) {
     for (const result of ["success", "failure", "cancelled", "skipped"]) {
-      void test(`Harness ${event}・取消=${cancelled}・依存=${result}のjob実行条件`, () => {
+      void test(`Harness ${event}・取消=${cancelled}・context=${result}のjob実行条件`, () => {
         for (const job of ["verify", "report-dispatched-result"]) {
           const condition = harness
             .match(new RegExp(`^  ${job}:\\n(?:    .*\\n)*?    if: (.+)$`, "m"))[1]
             .replace(/^\$\{\{(.*)\}\}$/, "$1")
           const runs = vm.runInNewContext(condition, {
             github: { event_name: event },
+            needs: { context: { result } },
             always: () => true,
             cancelled: () => cancelled,
             success: () => result === "success",
             failure: () => result === "failure",
           })
-          assert.equal(runs, !cancelled && (job === "verify" || event === "workflow_dispatch"), job)
+          const expected = job === "verify" ? result !== "skipped" : event === "workflow_dispatch"
+          assert.equal(runs, !cancelled && expected, job)
         }
       })
     }

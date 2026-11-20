@@ -25,11 +25,13 @@ permissions:
   actions: read
 
 concurrency:
-  group: harness-checker-${{ github.event_name }}-${{ github.event.pull_request.number || inputs.pr_number }}
+  # base変更を伴わない編集は別groupにし、検証runの実行・待機を維持する。
+  group: harness-checker-${{ github.event_name }}-${{ github.event.pull_request.number || inputs.pr_number }}${{ github.event.action == 'edited' && !github.event.changes.base.ref && format('-metadata-{0}', github.run_id) || '' }}
   cancel-in-progress: true
 
 jobs:
   context:
+    if: github.event.action != 'edited' || github.event.changes.base.ref
     runs-on: ubuntu-latest
     outputs:
       number: ${{ steps.pr.outputs.number }}
@@ -159,7 +161,7 @@ jobs:
 
   verify:
     needs: [context, candidate, integration]
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && needs.context.result != 'skipped' }}
     runs-on: ubuntu-latest
     steps:
       - name: Require candidate and integration success

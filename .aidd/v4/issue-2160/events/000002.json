@@ -1,0 +1,24 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "verify",
+  "source": "https://github.com/kosnu/savings/issues/2160",
+  "paths": [
+    ".github/workflows/frontend_ci.yaml",
+    ".github/workflows/harness_checker_ci.yaml",
+    "tools/vite-plus-sync/workflow.test.mjs"
+  ],
+  "fingerprint": "5e25144d6e98d7bd14111f22e141dd1d5afa5aa94bd8022cfa21d13b27bc8264",
+  "status": "pass",
+  "checks": [
+    "actionlint",
+    "イベント別の条件評価",
+    "Vite+同期テスト66件",
+    "Harness Checkerとsession-metricsのtest/vet",
+    "共有Gitゲート8件",
+    "規約graphとADR履歴",
+    "vp check"
+  ],
+  "summary": "本文・タイトル単独と同時編集で全jobをスキップし、Harnessのgroupを分離する。base変更、push、PR作成と再開、dispatchは従来の条件で進むことをローカルで確認した。 GitHub Actionsの実環境でのイベント・取消挙動は未確認。",
+  "remaining": []
+}

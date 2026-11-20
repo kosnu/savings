@@ -32,6 +32,7 @@ permissions:
 
 jobs:
   context:
+    if: github.event.action != 'edited' || github.event.changes.base.ref
     runs-on: ubuntu-latest
     outputs:
       number: ${{ steps.pr.outputs.number }}
