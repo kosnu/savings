@@ -1,0 +1,23 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "実差分・比較の再現結果・Core検証とCIの接続を照合",
+  "paths": [
+    "tools/harness/evals/main.go",
+    "tools/harness/evals/main_test.go",
+    "docs/ai-driven-development/agent-evals.md",
+    ".github/workflows/harness_checker_ci.yaml",
+    "tools/harness/checker/internal/core/verification.go",
+    "tools/harness/checker/internal/core/verification_test.go"
+  ],
+  "fingerprint": "e9bcf9ad3eed061fb270a92a608ec5fc92afa946f5d42b1ff3c710d914c6b05d",
+  "status": "pass",
+  "checks": [
+    "同じ総合判定で逆方向の指標変化・未観測・同一入力・順序違いを照合",
+    "変更モジュールの検証省略拒否、CIの両checkoutとNodeセットアップ後の実行を照合",
+    "既存の総合判定・v5結果形式、GitHubの権限・起動条件を確認"
+  ],
+  "summary": "試行番号と入力を合わせた指標差分により同じ総合判定でも悪化を識別できる。対象モジュールの検証をCoreとPRのCIから呼ぶ。追加するCIテストはオフライン。レビューで未解決の矛盾なし。比較の表示と検証経路を評価し、モデル品質の変化は測定対象外。",
+  "remaining": []
+}

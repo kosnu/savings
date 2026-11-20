@@ -75,18 +75,20 @@ func TestSharedBrowserConfigurationCommands(t *testing.T) {
 	}
 }
 
-func TestMetricsChangesRequireTheirModuleChecks(t *testing.T) {
+func TestHarnessModulesRequireTheirOwnChecks(t *testing.T) {
 	s := fixture(t)
-	paths := []string{"tools/harness/session-metrics/main.go"}
-	want := [][]string{{"git", "diff", "--check"}, {"go", "-C", "tools/harness/session-metrics", "test", "./..."}, {"go", "-C", "tools/harness/session-metrics", "vet", "./..."}}
-	if got := s.mandatoryCommands(paths); digest(got) != digest(want) {
-		t.Fatalf("metrics checks: %v", got)
-	}
-	for i := 1; i < len(want); i++ {
-		without := append([][]string{}, want[:i]...)
-		without = append(without, want[i+1:]...)
-		if s.requireCommands(paths, VerificationPlan{Commands: without}) == nil {
-			t.Fatal("missing module check accepted", want[i])
+	for _, module := range []string{"tools/harness/session-metrics", "tools/harness/evals"} {
+		paths := []string{module + "/main.go", module + "/main_test.go"}
+		want := [][]string{{"git", "diff", "--check"}, {"go", "-C", module, "test", "./..."}, {"go", "-C", module, "vet", "./..."}}
+		if got := s.mandatoryCommands(paths); digest(got) != digest(want) {
+			t.Fatalf("%s checks: %v", module, got)
+		}
+		for i := 1; i < len(want); i++ {
+			without := append([][]string{}, want[:i]...)
+			without = append(without, want[i+1:]...)
+			if s.requireCommands(paths, VerificationPlan{Commands: without}) == nil {
+				t.Fatal("missing module check accepted", want[i])
+			}
 		}
 	}
 }
