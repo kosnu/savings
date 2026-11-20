@@ -23,7 +23,7 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
 
-      - name: Add issue to savings project and initialize Automation
+      - name: Add issue to savings project and initialize Automation Issue Field
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           PROJECT_AUTOMATION_TOKEN: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}

@@ -1,0 +1,19 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "ChatGPT: GitHub Issue FieldへAutomationを移す依頼（2026-11-20）",
+  "paths": [
+    ".github/workflows/issue_project_automation.yaml",
+    "tools/github-actions/issue-project-automation.cjs",
+    "tools/github-actions/issue-project-automation.test.mjs",
+    "docs/harness/policies/github-issue-workflow.md"
+  ],
+  "fingerprint": "37985ff6e706a25b253206ac40fdd4d911f7c8dbf5ef4e3ba8290da8ffcafdd3",
+  "status": "pass",
+  "checks": [
+    "現行Actions・手動手順・対象リポジトリのGitHub GraphQLスキーマとフィールド定義"
+  ],
+  "summary": "Project登録は維持し、Automationの初期値設定だけをIssue Fieldへ移行する。既存値を保持し、読み取り失敗は未設定と区別する。",
+  "remaining": []
+}

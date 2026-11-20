@@ -1,0 +1,21 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "ChatGPT: GitHub Issue FieldへAutomationを移す依頼（2026-11-20）",
+  "paths": [
+    ".github/workflows/issue_project_automation.yaml",
+    "tools/github-actions/issue-project-automation.cjs",
+    "tools/github-actions/issue-project-automation.test.mjs",
+    "docs/harness/policies/github-issue-workflow.md"
+  ],
+  "fingerprint": "31ad6e837366045c2c4923ac729b12ba965ed6b04fd1d6a0d217ca3fb02fc37f",
+  "status": "pass",
+  "checks": [
+    "ユーザー指示と現行契約への照合",
+    "GitHub Actionsのトリガ・権限・信頼済みcheckoutの維持",
+    "Automation以外の書き込みと古いProject Automation更新の不在"
+  ],
+  "summary": "Projectへの登録は従来どおりで、Issue Fieldの該当値だけを変更する。Taskの判断や承認手順を変更せず対応する行動evalもない。Actions Secretが未登録で、本番反映は確認していない。",
+  "remaining": []
+}
