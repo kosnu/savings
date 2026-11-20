@@ -211,7 +211,7 @@ func TestSelectiveSuitesRequireExplicitScope(t *testing.T) {
 		count            int
 	}{
 		{[]string{"behavior"}, nil, 14}, {[]string{"audit"}, nil, 3}, {[]string{"retrospective"}, nil, 3},
-		{[]string{"audit", "retrospective"}, nil, 6}, {[]string{"skills"}, nil, 5}, {[]string{"all"}, nil, 25},
+		{[]string{"audit", "retrospective"}, nil, 6}, {[]string{"skills"}, nil, 5}, {[]string{"review"}, nil, 2}, {[]string{"all"}, nil, 27},
 		{nil, []string{"explain", "audit-rule-gap"}, 2},
 	} {
 		got, err := selectCases(tc.suites, tc.selected)
@@ -388,5 +388,37 @@ func TestAuditTrialUsesPolicyPresentInHarness(t *testing.T) {
 				t.Fatal("audit trial did not use selected policy", row)
 			}
 		})
+	}
+}
+
+func TestCodeReviewVerdictsThroughAdapter(t *testing.T) {
+	for _, tc := range []struct {
+		id              string
+		trial           int
+		verdict, status string
+		edit            bool
+	}{
+		{"review-menu", 1, "accept", "fail", false}, {"review-menu", 2, "accept", "pass", false},
+		{"review-export", 1, "unknown", "pass", false}, {"review-export", 2, "fix", "pass", false},
+		{"review-menu", 1, "fix", "fail", true}, {"review-export", 1, "invalid", "unknown", false},
+	} {
+		r := testRunner(t)
+		native := r.command
+		r.command = func(argv []string, cwd string, budget time.Duration, input []byte) (int, []byte, []byte, error) {
+			if argv[0] != "offline-codex" {
+				return native(argv, cwd, budget, input)
+			}
+			if !bytes.Contains(input, []byte("code-review.md")) {
+				t.Fatal("missing review policy")
+			}
+			if tc.edit {
+				write(t, cwd, "task/main.cjs", repaired)
+			}
+			return 0, events(map[string]string{"review_verdict": tc.verdict, "summary": "private review text"}), nil, nil
+		}
+		row := r.trial(findCase(t, tc.id), tc.trial, nil, options{codex: "offline-codex", timeout: 10})
+		if row.Status != tc.status || bytes.Contains(encoded(row), []byte("private review text")) {
+			t.Fatalf("%+v: %+v", tc, row)
+		}
 	}
 }

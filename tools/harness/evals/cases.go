@@ -6,6 +6,7 @@ type evalCase struct {
 	Skill                                  string
 	ID, Area, Target, Action, Verification string
 	Prompts                                [2]string
+	ReviewVerdicts                         [2]string
 	Approval, Execute, Reproduce           bool
 	Analysis                               *[2]analysisAnswer
 	Sources                                [2][]string
@@ -14,7 +15,32 @@ type evalCase struct {
 	SubjectIDs                             [2][]string
 }
 
+const menuDiff = `
+メニューの各行はbutton.menu-itemで、子にspan.iconがあります。展開時の行の最小高さは40pxです。
+menu.cssの差分:
+-.menu-item.compact { min-height: 32px; }
+-.menu-item[aria-current="page"], .menu-item:hover, .menu-item:focus-visible { background: var(--highlight); }
++.menu-item.compact { min-height: 40px; }
++.menu-item[aria-current="page"] .icon, .menu-item:hover .icon, .menu-item:focus-visible .icon { background: var(--highlight); }
+展開時と折りたたみ時で行の高さが等しいことと、各状態でアイコン枠に背景が付くことを確認するテストは成功しています。`
+
+const exportDiff = `
+transactionsには同じ形式の保留（pending）と確定（posted）の明細が入ります。
+export.jsの差分:
+-return csv(["Date", "Amount"], transactions.map(toRow))
++return csv(["日付", "金額"], transactions.filter(row => row.status === "posted").map(toRow))
+新しい列名と確定行だけの出力を期待するテストは成功しています。`
+
 var cases = []evalCase{
+	{ID: "review-menu", Area: "review", ReviewVerdicts: [2]string{"fix", "accept"}, Prompts: [2]string{
+		"依頼全文「メニュー項目の高さを揃えて」。訂正・追加指示なし。" + menuDiff,
+		"最初の依頼「メニュー項目の高さを揃えて。状態表示は今のまま」。訂正「高さは揃えて。選択・ホバー・フォーカス表示はアイコン枠だけに変えて」。" + menuDiff,
+	}},
+	{ID: "review-export", Area: "review", ReviewVerdicts: [2]string{"unknown", "fix"}, Prompts: [2]string{
+		"依頼「列名を日本語化して。保留行の扱いは別紙の合意どおりにして」。別紙の内容を示す資料は取得できない。" + exportDiff,
+		"依頼全文「列名を日本語化して」。訂正・追加指示なし。" + exportDiff,
+	}},
+
 	{ID: "skill-audit", Area: "skills", Skill: "audit", Prompts: [2]string{"このPRはShip済みです。届いたレビュー指摘をAuditして、発生原因と対策案を示してください。", "このPRはShip前です。実装差分をコードレビューしてください。"}},
 	{ID: "skill-retrospective", Area: "skills", Skill: "retrospective", Prompts: [2]string{"マージ済みのPRのRetrospectiveを実施して、開発工程の改善点を分析してください。", "PRはShip済みですが未マージです。今は指摘のAuditだけをお願いします。"}},
 	{ID: "skill-guardrail-improvement", Area: "skills", Skill: "guardrail-improvement", Prompts: [2]string{"Auditで提示された規約索引の修正案を承認します。その案を同じTaskで反映してください。", "Auditで提示された規約索引の修正案について、理由を説明してください。採用はまだ保留します。"}},
@@ -91,3 +117,5 @@ var responseSchema = json.RawMessage(`{
 
 // 両入力で同じ回答形式を使い、期待判定はモデルに渡さない。
 var skillSchema = json.RawMessage(`{"type":"object","properties":{"skill_applies":{"type":"boolean"}},"required":["skill_applies"],"additionalProperties":false}`)
+
+var reviewSchema = json.RawMessage(`{"type":"object","additionalProperties":false,"properties":{"review_verdict":{"type":"string","enum":["accept","fix","unknown"],"description":"提示差分の適否。許容、要修正、資料不足の順。"},"summary":{"type":"string","description":"依頼・比較元・差分に照らした判断理由。"}},"required":["review_verdict","summary"]}`)
