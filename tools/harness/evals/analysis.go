@@ -79,6 +79,9 @@ func validAnalysis(a analysisAnswer) bool {
 }
 
 func caseMetrics(c evalCase) []string {
+	if c.Area == "review" {
+		return []string{"verdict", "authority"}
+	}
 	if c.Skill != "" {
 		return []string{"selection", "authority"}
 	}
@@ -131,7 +134,7 @@ func selectCases(suites, selected []string) ([]evalCase, error) {
 		return nil, fmt.Errorf("対象を--suiteまたは--caseで明示してください。併用はできません")
 	}
 	for _, suite := range suites {
-		if !contains([]string{"behavior", "audit", "retrospective", "skills", "all"}, suite) {
+		if !contains([]string{"behavior", "review", "audit", "retrospective", "skills", "all"}, suite) {
 			return nil, fmt.Errorf("unknown suite: %s", suite)
 		}
 	}
@@ -149,7 +152,7 @@ func selectCases(suites, selected []string) ([]evalCase, error) {
 	chosen := []evalCase{}
 	for _, c := range cases {
 		suite := c.Area
-		if c.Analysis == nil && c.Skill == "" {
+		if c.Analysis == nil && c.Skill == "" && c.Area != "review" {
 			suite = "behavior"
 		}
 		if contains(selected, c.ID) || contains(suites, suite) || contains(suites, "all") {
