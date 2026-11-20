@@ -126,7 +126,7 @@ workflow本文の参照元・条件・順序の検査は、自前の接続や制
 
 ## APIのレビュー必須ルーティング
 
-APIの正本は、Supabase/Auth/Databaseの構成を扱う `docs/infrastructure.md`、実行境界を扱う `docs/harness/policies/transaction-boundaries.md`、期間と履歴を扱う `docs/harness/policies/temporal-data.md`、および対象domainの文書です。`apps/api/README.md` は操作手順とディレクトリ構成の案内として使い、ルール本文の代わりにはしません。
+APIの正本は、Supabase/Auth/Databaseの構成を扱う `docs/infrastructure/overview.md`、実行境界を扱う `docs/harness/policies/transaction-boundaries.md`、期間と履歴を扱う `docs/harness/policies/temporal-data.md`、および対象domainの文書です。`apps/api/README.md` は操作手順とディレクトリ構成の案内として使い、ルール本文の代わりにはしません。
 
 | 変更面                  | 変更の兆候                                                                                | rule-map activity       | レビューで必ず確認するrule ID                                                                                                       |
 | ----------------------- | ----------------------------------------------------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |

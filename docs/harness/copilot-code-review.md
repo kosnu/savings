@@ -18,7 +18,7 @@ when_to_read:
 
 # Copilotコードレビューの消費削減策
 
-[Issue #1872](https://github.com/kosnu/savings/issues/1872) の対策として、レビュー入口の重複を減らし、差分から必要な文脈へ直接辿る指示を導入する。判断の正本は [Code Review Policy](harness/policies/code-review.md)。この文書は仕様確認・採否・復旧の説明であり、毎回のレビューで追加取得する必須文書ではない。
+[Issue #1872](https://github.com/kosnu/savings/issues/1872) の対策として、レビュー入口の重複を減らし、差分から必要な文脈へ直接辿る指示を導入する。判断の正本は [Code Review Policy](policies/code-review.md)。この文書は仕様確認・採否・復旧の説明であり、毎回のレビューで追加取得する必須文書ではない。
 
 ## 仕様と現状の確認（2026-10-04）
 

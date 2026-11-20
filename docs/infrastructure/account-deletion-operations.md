@@ -18,7 +18,7 @@ when_to_read:
 
 # アカウント削除の運用
 
-[設計](design/account-deletion.md)の状態・期限・認可を維持して運用する。新規受付はmigration直後には停止している。DBを戻したりpendingを取り消したりする切り戻しは行わない。
+[設計](../design/account-deletion.md)の状態・期限・認可を維持して運用する。新規受付はmigration直後には停止している。DBを戻したりpendingを取り消したりする切り戻しは行わない。
 
 ## 公開前の確認と順序
 
@@ -27,7 +27,7 @@ when_to_read:
 1. 対象projectを照合し、最新migrationを適用する。`private`をData API公開schemaへ追加しない。通常クライアントへ管理roleやtable権限を与えない。
 2. Auth redirect allowlistで対象originの通常ログインcallback `/auth` を確認する。他環境や任意URLを追加しない。
 3. backup保持を最大7日に設定し、要求状態一覧のアクセス制限・30日保持・復旧手順を確認する。復旧元以後のcommit済み状態を欠けなく得られない運用では受付を有効化しない。
-4. ジョブを所有する管理接続で[環境共通のCron設定SQL](../apps/api/supabase/operations/account_deletion_jobs.sql)を適用する。登録者に `account_deletion_admin` への切替権限を付け、同じtransactionで切替できることを確認してから両ジョブを登録する。`cron.timezone` はUTC/GMT。削除は `* 18 * * *`（日本時間03:00〜03:59、毎分最大10件、最大600件/日）で、残件ゼロでも動的停止しない。処理中の1件は完了し得るが、04時以降に新しい候補を処理しない。残件は翌日に回す。保守は `0 18 * * *`（日本時間03:00）に、取消・完了から30日経った受付記録を消去する。
+4. ジョブを所有する管理接続で[環境共通のCron設定SQL](../../apps/api/supabase/operations/account_deletion_jobs.sql)を適用する。登録者に `account_deletion_admin` への切替権限を付け、同じtransactionで切替できることを確認してから両ジョブを登録する。`cron.timezone` はUTC/GMT。削除は `* 18 * * *`（日本時間03:00〜03:59、毎分最大10件、最大600件/日）で、残件ゼロでも動的停止しない。処理中の1件は完了し得るが、04時以降に新しい候補を処理しない。残件は翌日に回す。保守は `0 18 * * *`（日本時間03:00）に、取消・完了から30日経った受付記録を消去する。
 5. 承認されたDevで、Google新sessionの `session_id`・作成時刻、無効なcallbackによる既存session置換の防止と他端末refresh維持、認証同期前のcallback検証、別端末の既存sessionでpendingを検知したときの自動ログアウトと、期限内の本人の通常ログインによる復帰、旧JWTのREST/RPC拒否を実測する。別のアカウントを選んだ通常ログインでは元の予約が残り、他人のデータが表示されないことも確認する。
 6. 実環境の公開schema/view/GraphQL/Realtime/Storage経路と停止認可を照合する。Cronの03時台起動・04時境界・翌日再開・保守を確認し、実規模相当の合成データで10件の処理時間・timeout・滞留解消を測る。600件/日を超える需要が見込まれた時点で再設計する。
 7. Webと日英Privacyを配信する。旧Webのactive利用が維持され、pendingは旧Webでも利用できないことを確認してから、新規受付を有効化する。

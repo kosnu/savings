@@ -5,7 +5,7 @@ status: accepted
 area: infrastructure
 applies_to:
   - apps/api/supabase
-  - docs/infrastructure.md
+  - docs/infrastructure/overview.md
 topics:
   - supabase
   - security
@@ -20,7 +20,7 @@ when_to_read:
 対象はDevとCI内の隔離環境。Prdには接続しない。
 検証に関係するDB定義・権限・設定がDevと一致する場合、隔離環境の結果を利用し、Dev Hostedで同じ動作試験を繰り返す必要はない。
 この文書は確認対象と満たすべき状態を定める。具体的な対象名・入力・操作・判定処理は
-[CI検証コード](../tools/supabase-check/)とアプリケーションコードが所有する。
+[CI検証コード](../../tools/supabase-check/)とアプリケーションコードが所有する。
 性能測定・負荷試験、取得上限超過時の一覧・集計、ブラウザの自動セッション更新の手動確認、
 監視の担当・頻度・対応条件の決定、バックアップなどの復元元・復旧範囲の特定は対象外とする。
 
@@ -76,4 +76,4 @@ Devの実設定は読み取りだけで照合する。試験の実行、設定�
 
 Issue・PRでは、対象環境・commit、確認対象、期待する状態、実結果、合格・不合格・未確認を区別する。
 CI成功を人の判断や未実施の実機確認の代用にしない。CIの実行条件・入力・権限・確認できない範囲は
-[検証コードの案内](../tools/supabase-check/README.md)を参照する。
+[検証コードの案内](../../tools/supabase-check/README.md)を参照する。

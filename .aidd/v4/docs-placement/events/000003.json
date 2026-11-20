@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "review",
+  "source": "会話の配置要件と移動対象8件、規約・自動検査・参照元を照合",
+  "paths": [
+    "docs/",
+    "tools/harness/checker/internal/core/check.go",
+    "tools/harness/checker/internal/core/check_test.go",
+    "apps/web/README.md",
+    "tools/supabase-check/README.md",
+    ".github/workflows/supabase_ci.yaml"
+  ],
+  "fingerprint": "c505394562ae2bcecb01dcab49aa82270890aec4bf42b1276c0dc316de9ba933",
+  "status": "pass",
+  "checks": [
+    "配置表と各移動先の責務、移動時の参照先・CIの対象パス",
+    "索引の対象・依存と差分検査の回帰テスト・履歴境界"
+  ],
+  "summary": "全体構成、インフラ運用、レビュー設定の担当範囲を確認。旧来の履歴は保存し、現行の参照とCI対象は新しいパスに追従。配置はCoreの実経路で検査し、本文と分類の意味はレビューで判断する。文書配置を扱う実モデルケースはなくローカル実証の範囲で判定。未解決の矛盾なし。",
+  "remaining": []
+}

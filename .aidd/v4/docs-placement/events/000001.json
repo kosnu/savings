@@ -1,0 +1,22 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "会話依頼。恒常文書を責務に合うディレクトリに配置する。起点main 949324a8",
+  "paths": [
+    "docs/",
+    "tools/harness/checker/internal/core/check.go",
+    "tools/harness/checker/internal/core/check_test.go",
+    "apps/web/README.md",
+    "tools/supabase-check/README.md",
+    ".github/workflows/supabase_ci.yaml"
+  ],
+  "fingerprint": "e9bcf9ad3eed061fb270a92a608ec5fc92afa946f5d42b1ff3c710d914c6b05d",
+  "status": "pass",
+  "checks": [
+    "既存の分類・直下9件の本文と参照元",
+    "規約索引とCIの旧パスを確認"
+  ],
+  "summary": "リポジトリ全体の構成を直下に残し、インフラ文書7件とCopilotレビュー解説1件を担当ディレクトリへ移す。相対リンク、索引、workflowの参照を同期し、配置規約と直下の誤配置を検出する差分検査を追加する。",
+  "remaining": []
+}

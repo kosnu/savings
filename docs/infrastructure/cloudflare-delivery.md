@@ -28,7 +28,7 @@ Burneto の配信では、**画面を安全に届けることと、更新後も�
 
 React の画面を Vite で HTML・JavaScript・CSS にビルドし、Workers Static Assets で配信する。
 本番は `burneto` / `burneto.com`、Dev は `burneto-dev` を使い、データ・設定を分離する。
-[cloudflare.config.ts](../apps/web/cloudflare.config.ts) の SPA fallback により、`/payments` などの URL を直接開いても画面を表示できる。
+[cloudflare.config.ts](../../apps/web/cloudflare.config.ts) の SPA fallback により、`/payments` などの URL を直接開いても画面を表示できる。
 
 認証・データ操作はブラウザから Supabase へ、エラー報告は Sentry へ直接通信する。
 Worker サーバーコードや Supabase API の代理経路は持たない。
@@ -179,7 +179,7 @@ HTTPS 転送・最低 TLS は zone の設定で、Worker 配信とは別に適�
 HSTS の長期 max-age / includeSubDomains / preload は、復旧時の影響も含めて別途判断する。
 
 Web だけを反映するときは、承認した commit の専用 checkout と既存の本番用環境設定を使う。
-通常は[本番リリース手順](production-release/index.md)で正式 Release の commit を DB・Web へ反映する。
+通常は[本番リリース手順](../production-release/index.md)で正式 Release の commit を DB・Web へ反映する。
 `Deploy Production` は Supabase job も起動するため、この Web 専用の反映には実行しない。
 必要な入力は Web の Supabase 公開設定、Sentry build 設定、Cloudflare の account と deploy token。
 secret 値を記録やコマンド文字列へ転載しない。本番と Dev の値を混在させない。

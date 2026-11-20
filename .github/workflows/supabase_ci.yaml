@@ -9,7 +9,7 @@ on:
       - "apps/web/src/providers/**"
       - "tools/supabase-check/**"
       - ".github/workflows/supabase_ci.yaml"
-      - "docs/supabase-dev-verification.md"
+      - "docs/infrastructure/supabase-dev-verification.md"
   workflow_dispatch:
     inputs:
       pr_number:

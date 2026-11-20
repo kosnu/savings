@@ -1,7 +1,7 @@
 # Burneto - フロントエンド
 
 このディレクトリは Burneto アプリケーションのウェブフロントエンドです。
-React + TypeScript + Vite を使ったシングルページアプリケーションで、認証・データベースには Supabase（Auth / PostgreSQL）を利用します。配信設定は Cloudflare Workers Static Assets です。本番の Pages からの切替は、[移管手順](../../docs/workers-migration.md)に従い承認後に実施します。
+React + TypeScript + Vite を使ったシングルページアプリケーションで、認証・データベースには Supabase（Auth / PostgreSQL）を利用します。配信設定は Cloudflare Workers Static Assets です。本番の Pages からの切替は、[移管手順](../../docs/infrastructure/workers-migration.md)に従い承認後に実施します。
 
 以下は現状のコードベースに基づく簡潔な README です。ローカルでの開発、テスト、ビルド、デプロイ手順をまとめています。
 
@@ -120,7 +120,7 @@ pnpm preview --host 127.0.0.1
 
 本番配信は GitHub Actions の [Deploy Production](../../.github/workflows/deploy_production.yaml) を手動実行します。
 cf は再ビルドせず、検証した同じ配信物を `--prebuilt --mode production` でデプロイします。
-初回の本番切替、必要な token 権限、動作確認と切り戻しは[移管手順](../../docs/workers-migration.md)を参照してください。
+初回の本番切替、必要な token 権限、動作確認と切り戻しは[移管手順](../../docs/infrastructure/workers-migration.md)を参照してください。
 本番切替と旧 Pages 削除には、具体的な実施内容への承認が必要です。
 
 ## 環境変数
@@ -138,7 +138,7 @@ Sentry の設定は GitHub Actions の `production` / `development` Environment 
 `VITE_` の2項目はビルド時にブラウザ向け成果物へ埋め込みます。管理 token は `VITE_` 変数にしません。
 本番・Dev Preview とも配信用 build で同じ Sentry plugin を使い、hidden source map を生成して `.cloudflare/output/v0/workers/default/assets/` からアップロードし、公開物の JS/CSS map を削除します。通常の local 開発サーバーでは SDK・plugin とも無効です。
 
-収集情報・受信確認は [Sentry の運用](../../docs/sentry-monitoring.md)、Dev の設定・配信手順は [Dev Preview](../../docs/development-preview.md)を参照してください。
+収集情報・受信確認は [Sentry の運用](../../docs/infrastructure/sentry-monitoring.md)、Dev の設定・配信手順は [Dev Preview](../../docs/infrastructure/development-preview.md)を参照してください。
 
 ## 関連スクリプト・リポジトリ部分
 

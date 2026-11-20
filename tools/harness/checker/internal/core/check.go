@@ -8,13 +8,14 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"path"
 	"strings"
 	"time"
 )
 
 const shipLookupTimeout = 30 * time.Second
 
-// CheckChangesは実際の差分の規約を解決する。過去の検証やレビューの成功は証明しない。
+// CheckChangesは差分に含まれる文書の配置を検査し、適用規約を解決する。
 func CheckChanges(root, baseRef string) error {
 	if required(baseRef) != nil {
 		return fmt.Errorf("base ref required")
@@ -32,7 +33,13 @@ func CheckChanges(root, baseRef string) error {
 	if e != nil {
 		return e
 	}
-	_, e = ResolveRules(root, changed(before, after))
+	paths := changed(before, after)
+	for _, p := range paths {
+		if _, present := after[p]; present && path.Dir(p) == "docs" && strings.EqualFold(path.Ext(p), ".md") && p != "docs/README.md" && p != "docs/architecture.md" {
+			return fmt.Errorf("%s: 文書の責務に合うディレクトリへ配置してください (docs/harness/policies/documentation-policy.md#配置先)", p)
+		}
+	}
+	_, e = ResolveRules(root, paths)
 	return e
 }
 
