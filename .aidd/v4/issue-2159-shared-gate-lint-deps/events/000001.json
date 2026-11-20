@@ -1,0 +1,17 @@
+{
+  "format": "aidd-phase-result-v1",
+  "cycle": "000001.json",
+  "kind": "design",
+  "source": "https://github.com/kosnu/savings/issues/2159",
+  "paths": [
+    "tools/harness/tests/test_shared_gate.py"
+  ],
+  "fingerprint": "25f3ac73ec53c91620462421ad961c13a66f003f71b77c8ccfef53bd1c3a0f5c",
+  "status": "pass",
+  "checks": [
+    "Issue本文・関連PR・専用worktreeの照合",
+    "共有Gitゲートの呼出経路とfixtureの分離"
+  ],
+  "summary": "作業ツリーのGit管理対象と追加候補を一時リポジトリに取り込み、テスト専用Goパッケージを追加する。インストール済み依存はリンクで共有し、従来のコピー対象外のLintプラグインを実フックで検証する。",
+  "remaining": []
+}

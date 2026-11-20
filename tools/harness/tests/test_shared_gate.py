@@ -9,7 +9,9 @@ import unittest
 
 
 REPOSITORY = Path(__file__).resolve().parents[3]
-GO_FILE = "tools/harness/checker/main.go"
+GO_FIXTURE = "tools/harness/checker/shared_gate_fixture"
+GO_FILE = f"{GO_FIXTURE}/main.go"
+GO_HELPER = f"{GO_FIXTURE}/helper.go"
 GOOD_GO = 'package main\n\nimport "fmt"\n\nfunc main() { fmt.Println("ok") }\n'
 BAD_GO = 'package main\n\nimport "fmt"\n\nfunc main() { fmt.Printf("%d", "bad") }\n'
 
@@ -36,21 +38,33 @@ class SharedGateTests(unittest.TestCase):
         )
         for command in ("git", "go", "gofmt", "node", "vp"):
             self.assertIsNotNone(shutil.which(command, path=self.env["PATH"]), command)
+        # 設定とローカル依存の相対パスを保ち、追加・編集中のファイルも検証に使う。
+        files = self.run_command(
+            "git", "ls-files", "-z", "--cached", "--others", "--exclude-standard",
+            "--deduplicate", "--", ":(top,exclude)node_modules", cwd=REPOSITORY,
+        ).stdout
+        for path in os.fsdecode(files).split("\0"):
+            if not path:
+                continue
+            source = REPOSITORY / path
+            if not (source.is_file() or source.is_symlink()):
+                continue
+            target = self.root / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target, follow_symlinks=False)
+
         self.run_command("git", "init", "-q")
+        # commit後のバックグラウンド処理と一時リポジトリの削除が競合するのを防ぐ。
+        self.run_command("git", "config", "maintenance.auto", "false")
         self.run_command("git", "config", "user.name", "Shared Gate Test")
         self.run_command("git", "config", "user.email", "shared-gate@example.invalid")
         self.run_command("git", "config", "commit.gpgsign", "false")
-        self.write(".gitignore", "node_modules/\n")
-        self.write("package.json", '{"private":true,"type":"module"}\n')
-        self.write("tools/harness/checker/go.mod", "module example.invalid/shared-gate\n\ngo 1.24\n")
         self.write(GO_FILE, GOOD_GO)
-        self.write("tools/harness/checker/helper.go", "package main\n\nfunc helper() {}\n")
+        self.write(GO_HELPER, "package main\n\nfunc helper() {}\n")
         self.write("note.txt", "before\n")
         self.write("remove.txt", "remove me\n")
+        self.write(".git/info/exclude", "/node_modules\n")
         (self.root / "node_modules").symlink_to(REPOSITORY / "node_modules", target_is_directory=True)
-        shutil.copy2(REPOSITORY / "vite.config.ts", self.root / "vite.config.ts")
-        shutil.copytree(REPOSITORY / "tools/lint", self.root / "tools/lint")
-        shutil.copytree(REPOSITORY / ".vite-hooks", self.root / ".vite-hooks")
         self.run_command("git", "add", ".")
         self.run_command("git", "-c", "core.hooksPath=/dev/null", "commit", "-qm", "fixture")
         self.run_command("git", "config", "core.hooksPath", ".vite-hooks")
@@ -60,8 +74,8 @@ class SharedGateTests(unittest.TestCase):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content)
 
-    def run_command(self, *argv, success=True):
-        result = subprocess.run(argv, cwd=self.root, env=self.env, capture_output=True, timeout=120)
+    def run_command(self, *argv, success=True, cwd=None):
+        result = subprocess.run(argv, cwd=cwd or self.root, env=self.env, capture_output=True, timeout=120)
         if success:
             self.assertEqual(result.returncode, 0, result.stdout.decode() + result.stderr.decode())
         return result
@@ -95,14 +109,14 @@ class SharedGateTests(unittest.TestCase):
         self.write(GO_FILE, staged + unstaged)
         self.write("note.txt", "unstaged note\n")
         hidden_go = BAD_GO.replace("func main()", "func helper()")
-        self.write("tools/harness/checker/helper.go", hidden_go)
+        self.write(GO_HELPER, hidden_go)
         self.commit()
         self.assertEqual(self.git_bytes("show", "HEAD:" + GO_FILE), staged.encode())
         self.assertEqual((self.root / GO_FILE).read_bytes(), (staged + unstaged).encode())
         self.assertEqual(self.git_bytes("show", "HEAD:note.txt"), b"before\n")
         self.assertEqual((self.root / "note.txt").read_bytes(), b"unstaged note\n")
-        self.assertEqual((self.root / "tools/harness/checker/helper.go").read_text(), hidden_go)
-        self.assertEqual(self.git_bytes("show", "HEAD:tools/harness/checker/helper.go"), b"package main\n\nfunc helper() {}\n")
+        self.assertEqual((self.root / GO_HELPER).read_text(), hidden_go)
+        self.assertEqual(self.git_bytes("show", f"HEAD:{GO_HELPER}"), b"package main\n\nfunc helper() {}\n")
         self.assertEqual(self.git_bytes("diff", "--cached"), b"")
         self.assertEqual(self.git_bytes("stash", "list"), b"")
 
