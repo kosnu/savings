@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/react"
 import { afterEach, expect, test, vi } from "vite-plus/test"
 
-import { captureAuthCallbackError, initSentry } from "./sentry"
+import { captureAuthCallbackError, captureSupabaseSessionError, initSentry } from "./sentry"
 
 const { sendEnvelope } = vi.hoisted(() => ({
   sendEnvelope: vi.fn(async (_envelope: unknown) => ({ statusCode: 200 })),
@@ -83,6 +83,28 @@ test("v11でも収集範囲を広げず、認証エラーを送信する", async
   expect(sendEnvelope).toHaveBeenCalled()
 })
 
+test.each(["session_retrieval", "session_verification", "account_language_fallback"] as const)(
+  "セッション診断の送信データに固定の段階 %s を残す",
+  async (stage) => {
+    initSentry()
+    const client = Sentry.getClient()
+    if (!client) throw new Error("Sentry client was not initialized")
+    const sent = vi.fn<(event: Sentry.Event) => void>()
+    client.on("beforeSendEvent", sent)
+
+    captureSupabaseSessionError(stage)
+    expect(await Sentry.flush()).toBe(true)
+
+    expect(sent).toHaveBeenCalledTimes(1)
+    const [event] = sent.mock.calls[0]
+    expect(event.message).toBe("Supabase session retrieval failed")
+    expect(event.tags).toEqual({ feature: "auth" })
+    expect(event.contexts?.supabase_session_error).toEqual({ code: "unknown", stage })
+    expect(sendEnvelope).toHaveBeenCalledTimes(1)
+    expect(JSON.stringify(sendEnvelope.mock.calls[0])).toContain(stage)
+  },
+)
+
 test("合成の秘密情報を送信せず、分類と配信JSのソース位置を残す", async () => {
   const secret = "synthetic-token-secret"
   const email = "synthetic@example.net"
@@ -104,7 +126,11 @@ test("合成の秘密情報を送信せず、分類と配信JSのソース位置
     user: { email, id: secret },
     request: { url: window.location.href, headers: { Authorization: secret }, data: memo },
     extra: { secret, memo },
-    contexts: { payment: { memo }, auth_callback_error: { code: secret } },
+    contexts: {
+      payment: { memo },
+      auth_callback_error: { code: secret, stage: "session_retrieval" },
+      supabase_session_error: { code: secret, stage: email, details: memo },
+    },
     tags: { email },
     fingerprint: [secret],
     transaction: email,
@@ -168,6 +194,7 @@ test("合成の秘密情報を送信せず、分類と配信JSのソース位置
     },
   ])
   expect(event.contexts?.auth_callback_error).toEqual({ code: "unknown" })
+  expect(event.contexts?.supabase_session_error).toEqual({ code: "unknown" })
   expect(JSON.stringify(sendEnvelope.mock.calls[sendEnvelope.mock.calls.length - 1])).not.toContain(
     secret,
   )

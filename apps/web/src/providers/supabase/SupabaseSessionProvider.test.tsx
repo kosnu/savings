@@ -176,6 +176,7 @@ test.each(["before", "after"])(
       await pending.promise
     })
     await waitFor(() => expectSession(result, "error", null))
+    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith("session_retrieval")
     if (notificationOrder === "after") act(() => emit("INITIAL_SESSION", null))
     expectSession(result, "error", null)
     const state = result.current
@@ -219,7 +220,7 @@ testCase("getSession が reject した場合は 再試行できるエラーに�
     expectSession(result, "error", null)
   })
 
-  expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(expect.any(Error))
+  expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith("session_retrieval")
 })
 
 testCase(
@@ -287,6 +288,20 @@ testCase("端末言語と異なるアカウント言語を初回表示前に適�
   expect(i18next.resolvedLanguage).toBe("ja")
 })
 
+testCase("アカウント言語の取得失敗は診断を残し、端末言語で認証済みになる", async () => {
+  await i18next.changeLanguage("en")
+  mockLoadAccountLanguage.mockRejectedValueOnce(new Error("synthetic account language failure"))
+  mockGetSession.mockResolvedValueOnce({ data: { session: createSession() }, error: null })
+
+  const { result } = renderSessionHook()
+
+  await waitFor(() => expectSession(result, "authenticated", "user-id"))
+  expect(i18next.resolvedLanguage).toBe("en")
+  expect(mockCaptureSupabaseSessionError).toHaveBeenCalledExactlyOnceWith(
+    "account_language_fallback",
+  )
+})
+
 testCase("unmount後にgetSessionが解決してもユーザー作成を実行しない", async () => {
   const getSessionDeferred = createDeferred<{
     data: { session: Session | null }
@@ -318,7 +333,9 @@ testCase("ユーザー作成に失敗した場合は 再試行できるエラー
     expectSession(result, "error", null)
   })
 
-  await waitFor(() => expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error))
+  await waitFor(() =>
+    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith("session_verification"),
+  )
   expect(mockSignOut).not.toHaveBeenCalled()
 })
 
@@ -352,7 +369,7 @@ testCase("保存済みsessionがAuth側で無効な場合はユーザー作成�
   expect(mockEnsureAuthenticatedUser).not.toHaveBeenCalled()
   expect(mockSignOut).not.toHaveBeenCalled()
   expect(result.current).toMatchObject({ requiresSignIn: true })
-  expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
+  expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith("session_verification")
 })
 
 testCase(
@@ -448,7 +465,9 @@ testCase("認証済み状態から同じユーザーのsession更新に失敗し
   })
 
   expectSession(result, "authenticated", "old-user", "old-token")
-  await waitFor(() => expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error))
+  await waitFor(() =>
+    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith("session_verification"),
+  )
   expect(mockSignOut).not.toHaveBeenCalled()
   expect(queryClient.getQueryData(["private-data"])).toBe("old-user-data")
 })
@@ -490,7 +509,7 @@ testCase(
       expectSession(result, "error", null)
     })
 
-    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
+    expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith("session_verification")
     expect(queryClient.getQueryData(["private-data"])).toBeUndefined()
   },
 )
@@ -558,7 +577,7 @@ testCase("古いsessionのユーザー作成失敗では新しいsessionをサ�
     expectSession(result, "authenticated", "new-user")
   })
   expect(mockSignOut).not.toHaveBeenCalled()
-  expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
+  expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith("session_verification")
 })
 
 testCase("認証購読で新sessionのensure中なら getSession の reject で未認証に戻さない", async () => {
@@ -588,7 +607,7 @@ testCase("認証購読で新sessionのensure中なら getSession の reject で�
     await getSessionDeferred.promise.catch(() => undefined)
   })
 
-  expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith(error)
+  expect(mockCaptureSupabaseSessionError).toHaveBeenCalledWith("session_retrieval")
   expectSession(result, "loading", null)
 
   await act(async () => {

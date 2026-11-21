@@ -60,12 +60,13 @@ describe("captureAuthCallbackError", () => {
 })
 
 describe("captureSupabaseSessionError", () => {
-  test("Sentry にセッション取得失敗を送る", () => {
-    captureSupabaseSessionError(new Error("network error"))
+  test("従来の診断メッセージにセッションの失敗段階を付ける", () => {
+    captureSupabaseSessionError("session_retrieval")
 
     expect(mockSetTag).toHaveBeenCalledWith("feature", "auth")
     expect(mockSetContext).toHaveBeenCalledWith("supabase_session_error", {
       code: "unknown",
+      stage: "session_retrieval",
     })
     expect(mockCaptureMessage).toHaveBeenCalledWith("Supabase session retrieval failed", "error")
   })
@@ -91,7 +92,7 @@ describe("監視の失敗", () => {
     mockWithScope.mockImplementationOnce(() => {
       throw new Error("SDK failed")
     })
-    expect(() => captureSupabaseSessionError(new Error("session failed"))).not.toThrow()
+    expect(() => captureSupabaseSessionError("session_retrieval")).not.toThrow()
     mockCaptureMessage.mockImplementationOnce(() => {
       throw new Error("SDK failed")
     })
