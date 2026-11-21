@@ -44,7 +44,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "2.0.0-beta.v.16",
+    "@cloudflare/vite-plugin": "2.0.0-beta.v.17",
     "@sentry/vite-plugin": "11.12.0",
     "@storybook/addon-vitest": "10.6.7",
     "@storybook/builder-vite": "10.6.7",
@@ -59,11 +59,11 @@
     "@vitejs/plugin-react": "6.3.0",
     "@vitest/browser-playwright": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "cf": "1.0.0-beta.31",
+    "cf": "1.0.0-beta.32",
     "jsdom": "31.0.1",
     "msw": "3.0.5",
     "msw-storybook-addon": "3.0.3",
-    "playwright": "1.65.0",
+    "playwright": "1.65.1",
     "storybook": "10.6.7",
     "storybook-addon-mock-date": "3.2.1",
     "typescript": "7.0.2",
