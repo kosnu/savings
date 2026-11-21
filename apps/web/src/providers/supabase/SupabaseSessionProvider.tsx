@@ -107,7 +107,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       error: unknown,
       sessionGeneration = sessionGenerationRef.current,
     ) => {
-      captureSupabaseSessionError(error)
+      captureSupabaseSessionError("session_retrieval")
       if (!isActive.current) return
       if (sessionGenerationRef.current !== sessionGeneration) return
 
@@ -129,7 +129,7 @@ export function SupabaseSessionProvider({ children }: SupabaseSessionProviderPro
       sessionGeneration: number,
       shouldKeepCurrentSession: boolean,
     ) => {
-      captureSupabaseSessionError(error)
+      captureSupabaseSessionError("session_verification")
 
       if (!isCurrentSessionHandler(sessionGeneration)) return
       // 同じユーザーの更新失敗では、検証前の有効な session を維持する。

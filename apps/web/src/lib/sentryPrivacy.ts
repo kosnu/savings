@@ -33,6 +33,14 @@ const errorCodes = new Set([
   "PGRST116",
 ])
 
+const supabaseSessionStages = [
+  "session_retrieval",
+  "session_verification",
+  "account_language_fallback",
+] as const
+
+export type SupabaseSessionStage = (typeof supabaseSessionStages)[number]
+
 export function diagnosticCode(value: unknown): string {
   return typeof value === "string" && errorCodes.has(value) ? value : "unknown"
 }
@@ -87,7 +95,13 @@ export function privateErrorEvent(event: ErrorEvent): ErrorEvent {
     "supabase_session_error",
     "monthly_budget_create_error",
   ]) {
-    if (event.contexts?.[key]) contexts[key] = { code: diagnosticCode(event.contexts[key]?.code) }
+    const context = event.contexts?.[key]
+    if (!context) continue
+    const stage =
+      key === "supabase_session_error"
+        ? supabaseSessionStages.find((candidate) => candidate === context.stage)
+        : undefined
+    contexts[key] = { code: diagnosticCode(context.code), ...(stage ? { stage } : {}) }
   }
   return {
     type: event.type,

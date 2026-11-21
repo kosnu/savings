@@ -29,8 +29,8 @@ export async function verifyAuthenticatedSession(session: Session, isCurrent: ()
   try {
     const accountLanguage = await loadAccountLanguage(session.user.id)
     return { language: resolveAccountLanguage(accountLanguage, deviceLanguage) }
-  } catch (error) {
-    captureSupabaseSessionError(error)
+  } catch {
+    captureSupabaseSessionError("account_language_fallback")
     return { language: resolveAccountLanguage(undefined, deviceLanguage) }
   }
 }

@@ -2,7 +2,12 @@ import * as Sentry from "@sentry/react"
 
 import { env } from "../config/env"
 import type { AuthCallbackError } from "../utils/auth/extractAuthCallbackError"
-import { diagnosticCode, privateBreadcrumb, privateErrorEvent } from "./sentryPrivacy"
+import {
+  diagnosticCode,
+  privateBreadcrumb,
+  privateErrorEvent,
+  type SupabaseSessionStage,
+} from "./sentryPrivacy"
 
 export function initSentry() {
   const dsn = env.SENTRY_DSN
@@ -50,12 +55,13 @@ export function captureAuthCallbackError(error: AuthCallbackError) {
   captureDiagnostic("auth", "auth_callback_error", error.code, "Authentication callback failed")
 }
 
-export function captureSupabaseSessionError(_error: unknown) {
+export function captureSupabaseSessionError(stage: SupabaseSessionStage) {
   captureDiagnostic(
     "auth",
     "supabase_session_error",
     undefined,
     "Supabase session retrieval failed",
+    stage,
   )
 }
 
@@ -69,11 +75,17 @@ export function captureMonthlyBudgetCreateError(error: unknown) {
   )
 }
 
-function captureDiagnostic(feature: string, context: string, code: unknown, message: string) {
+function captureDiagnostic(
+  feature: string,
+  context: string,
+  code: unknown,
+  message: string,
+  stage?: SupabaseSessionStage,
+) {
   try {
     Sentry.withScope((scope) => {
       scope.setTag("feature", feature)
-      scope.setContext(context, { code: diagnosticCode(code) })
+      scope.setContext(context, { code: diagnosticCode(code), ...(stage ? { stage } : {}) })
       Sentry.captureMessage(message, "error")
     })
   } catch {
