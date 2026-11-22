@@ -3,6 +3,8 @@ import { setTimeout } from "node:timers/promises"
 import { pathToFileURL } from "node:url"
 
 const workflow = "harness_checker_ci.yaml"
+const runsPerPage = 100
+const maxRunPages = 10
 const runIdPattern = /^[1-9][0-9]*$/
 
 function isHarnessRun(run, repo) {
@@ -15,6 +17,30 @@ function isHarnessRun(run, repo) {
     (run.event === "pull_request" ||
       (run.event === "workflow_dispatch" && run.triggering_actor?.id === 41898282))
   )
+}
+
+function newestFirst(a, b) {
+  return Date.parse(b.created_at) - Date.parse(a.created_at) || b.id - a.id
+}
+
+function* listCandidates({ api, repo, sha, triggerId, source }) {
+  const listPath = `repos/${repo}/actions/workflows/${workflow}/runs?head_sha=${sha}`
+  for (let page = 1; page <= maxRunPages; page++) {
+    const { workflow_runs: runs } = api(`${listPath}&per_page=${runsPerPage}&page=${page}`)
+    const lastPage = runs.length < runsPerPage
+    const candidates = runs.filter(
+      (run) => isHarnessRun(run, repo) && run.head_sha === sha && run.id !== triggerId,
+    )
+    // 一覧は作成日時の降順。起動元より古い候補へ進む前に起動元を挿入する。
+    if (source && (lastPage || runs.some((run) => newestFirst(source, run) <= 0))) {
+      candidates.push(source)
+      source = undefined
+    }
+    yield* candidates.sort(newestFirst)
+    if (lastPage) return
+  }
+  // 後続ページに有効なrunが残りうるため、状態を投稿せずジョブを失敗させる。
+  throw new Error("Harness gate: run一覧の取得上限に到達しました")
 }
 
 export async function resolveGate({ api, wait, triggerId, repo, serverUrl }) {
@@ -60,14 +86,13 @@ export async function resolveGate({ api, wait, triggerId, repo, serverUrl }) {
   const source = await inspect(trigger)
 
   const sha = trigger.head_sha
-  const { workflow_runs: runs } = api(
-    `repos/${repo}/actions/workflows/${workflow}/runs?head_sha=${sha}&per_page=100`,
-  )
-  const candidates = runs
-    .filter((run) => isHarnessRun(run, repo) && run.head_sha === sha && run.id !== trigger.id)
-    // 編集runの完了通知でも有効runを選び直し、判定待ちで投稿したpendingを復旧する。
-    .concat(source.metadata ? [] : [source.run])
-    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at) || b.id - a.id)
+  const candidates = listCandidates({
+    api,
+    repo,
+    sha,
+    triggerId: trigger.id,
+    source: source.metadata ? undefined : source.run,
+  })
 
   // 起動元に限定すると、待機中の通知が失われた場合に最新runのpendingが残りうる。
   // 古いrunの通知でも同じSHAの採用runを読み直し、その状態を投稿する。
