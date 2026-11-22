@@ -48,7 +48,7 @@ snapshotは検査中のメモリ内だけで使用する。検証結果はcomman
 
 Intentと実行権限は既存Issue・PR・ユーザー発言を正本として確認し、本文を複製しない。
 `.aidd/v4/<作業名>/events/000001.json`の配置・連番を使う。これは操作eventではなく工程結果であり、formatは`aidd-phase-result-v1`とする。
-記録対象はdesign・verify・review・手動開始されたauditだけ。実際に行わない工程の空記録、Task本文、承認・復帰event、Ship記録は作らない。
+記録対象はdesign・verify・review・[所定の条件で開始したaudit](../harness/policies/audit.md#audit)だけ。実際に行わない工程の空記録、Task本文、承認・復帰event、Ship記録は作らない。
 
 記録前に[WorkflowのTask判断](workflow.md#taskの開始と継続)を行い、そのTaskに対応する作業名を`--task`へ指定する。
 Coreは作業名・cycle・kindに従って保存先を選ぶが、Issue・PR・`source`からTaskの同一性や継続権限を判定しない。
@@ -67,7 +67,7 @@ Coreと任意計測CLIが扱う作業名は、先頭がASCII英数字、以降�
 - コマンド生出力・argv・全文コピーを入力しない。未知のJSON field、過大な本文、複数行の結果を拒否する。診断は実行中の表示だけで使用する。
 
 工程結果は通常の成果commitへまとめる。操作・再試行ごとの記録専用commitと、配信後の記録commitは要求しない。
-Audit結果は分析資料であり、次サイクルのIntent・実行指示・承認ではない。元のIntentと承認された提案・対象・範囲を再確認する。
+Audit結果は分析資料として使う。次サイクルのIntentと実行権限は、元の依頼と承認済みの提案・対象・範囲から確認する。
 読み取り専用の説明・レビューで工程記録の書き込み権限を作らない。
 
 検証・レビューを実際に行う責務はworkflow・担当agent・CIにある。
