@@ -165,6 +165,20 @@ CIはcandidateの実差分・規約graph・Core test/vet・共有Git gate・ADR�
 Taskの有無によるgateと、記録だけを理由にした自動依存更新の例外は設けない。
 既存hookはstageに必要な検査を維持し、旧Task/eventを要求しない。旧Codex lifecycle hookは現行の入口ではない。
 
+### Harness Checker CIの必須チェック
+
+本文・タイトルだけの編集では検証とコミットステータスの更新を省く。
+同一リポジトリのPRでは、検証対象の head SHA に `harness-gate` の `pending` を記録してから検証を開始し、
+candidate と integration の結果に応じて `success` または `failure` を記録する。
+Vite+同期がGitHub Actionsのbotとして起動するdispatchでも同じステータスを記録し、従来の `vite-plus/aidd-checker-ci` も返す。
+
+投稿ジョブは検証済みのbase SHAからスクリプトを読み込む。導入PRではbaseへの配置前なので `verify` で検証する。
+headを確認できないrunとfork PRでは `harness-gate` を投稿しない。キャンセル時は完了ステータスを投稿しないため、投稿済みの `pending` が残りうる。
+fork PRのtokenは読み取り専用のため、Rulesetで `harness-gate` を必須にするとfork PRはこのステータスを満たせない。
+
+スクリプトがbaseに入り、同一リポジトリのPRで投稿を確認した後、管理者はRulesetに `harness-gate` を必須チェックとして追加できる。
+`harness-gate` を必須にした後、Rulesetの必須チェックから `verify` を外せる。
+
 ## セッション計測
 
 工程ごとの計測記録は通常開発で要求しない。明示依頼による計測やRetrospectiveに既存session-metricsを利用できるが、

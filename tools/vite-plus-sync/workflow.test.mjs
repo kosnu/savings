@@ -247,12 +247,93 @@ for (const event of ["pull_request", "workflow_dispatch"]) {
             success: () => result === "success",
             failure: () => result === "failure",
           })
-          const expected = job === "verify" || event === "workflow_dispatch"
+          const expected = job === "verify" ? result !== "skipped" : event === "workflow_dispatch"
           assert.equal(runs, !cancelled && expected, job)
         }
       })
     }
   }
+}
+
+function jobBody(yaml, job) {
+  return yaml.split(`\n  ${job}:\n`)[1].split(/\n  [a-z-]+:\n/)[0]
+}
+
+function jobRuns(yaml, job, github, needs = {}, cancelled = false) {
+  const condition = jobBody(yaml, job)
+    .match(/^    if: (.+(?:\n {6}.+)*)$/m)[1]
+    .replace(/^\$\{\{([\s\S]*)\}\}$/, "$1")
+    .replaceAll("needs.start-gate", 'needs["start-gate"]')
+    .replaceAll("github.event.changes.base.ref", "github.event.changes?.base?.ref")
+  return Boolean(vm.runInNewContext(condition, { github, needs, cancelled: () => cancelled }))
+}
+
+void test("Harness gateは開始と完了だけが検証済みbaseのスクリプトで投稿する", () => {
+  for (const [job, phase] of [
+    ["start-gate", "pending"],
+    ["finish-gate", "finish"],
+  ]) {
+    const body = jobBody(harness, job)
+    assert.match(body, /permissions:\n      contents: read\n      statuses: write/)
+    assert.match(body, /uses: actions\/checkout@[a-f0-9]{40} /)
+    assert.match(body, /ref: \$\{\{ needs.context.outputs.base \}\}/)
+    assert.match(body, /persist-credentials: false/)
+    assert.match(body, /if: hashFiles\('tools\/github-actions\/harness-gate.mjs'\) != ''/)
+    assert.match(body, /CONTEXT_HEAD: \$\{\{ needs.context.outputs.head \}\}/)
+    assert.ok(body.includes(`run: node tools/github-actions/harness-gate.mjs ${phase}`))
+  }
+  assert.match(jobBody(harness, "start-gate"), /^    needs: context$/m)
+  assert.match(
+    jobBody(harness, "finish-gate"),
+    /^    needs: \[context, start-gate, candidate, integration\]$/m,
+  )
+  for (const job of ["candidate", "integration"]) {
+    assert.match(jobBody(harness, job), /^    needs: \[context, start-gate\]$/m)
+  }
+})
+
+const frontend = readFileSync(
+  new URL("../../.github/workflows/frontend_ci.yaml", import.meta.url),
+  "utf8",
+)
+
+for (const [eventName, event, validates, actorId = "41898282"] of [
+  ["pull_request", { action: "opened" }, true],
+  ["pull_request", { action: "synchronize" }, true],
+  ["pull_request", { action: "reopened" }, true],
+  ["pull_request", { action: "edited", changes: { base: { ref: { from: "release" } } } }, true],
+  ["pull_request", { action: "edited", changes: { body: { from: "old" } } }, false],
+  ["pull_request", { action: "edited", changes: { title: { from: "old" } } }, false],
+  ["workflow_dispatch", {}, true],
+  ["workflow_dispatch", {}, true, "123"],
+]) {
+  void test(`CIの検証・投稿条件 ${eventName} ${JSON.stringify(event)} actor=${actorId}`, () => {
+    const github = { event_name: eventName, event, actor_id: actorId, repository: "kosnu/savings" }
+    assert.equal(jobRuns(frontend, "context", github), validates)
+    assert.equal(jobRuns(harness, "context", github), validates)
+    for (const result of validates ? ["success", "failure"] : ["skipped"]) {
+      for (const fork of [false, true]) {
+        const headRepo = fork ? "fork/savings" : github.repository
+        const context = { result, outputs: result === "success" ? { head_repo: headRepo } : {} }
+        const starts = result === "success" && !fork && actorId === "41898282"
+        assert.equal(jobRuns(harness, "start-gate", github, { context }), starts)
+        assert.equal(jobRuns(harness, "start-gate", github, { context }, true), false)
+        for (const startResult of starts ? ["success", "failure"] : ["skipped"]) {
+          const needs = { context, "start-gate": { result: startResult } }
+          for (const cancelled of [false, true]) {
+            const runsChecks = !cancelled && result === "success" && startResult !== "failure"
+            for (const job of ["candidate", "integration"]) {
+              assert.equal(jobRuns(harness, job, github, needs, cancelled), runsChecks, job)
+            }
+            assert.equal(
+              jobRuns(harness, "finish-gate", github, needs, cancelled),
+              !cancelled && starts,
+            )
+          }
+        }
+      }
+    }
+  })
 }
 
 for (const job of ["context", "candidate", "integration", "verify"]) {
@@ -375,7 +456,7 @@ for (const [name, change] of [
 for (const name of ["frontend_ci.yaml", "harness_checker_ci.yaml"]) {
   const yaml = readFileSync(new URL(`../../.github/workflows/${name}`, import.meta.url), "utf8")
   const resolve = shellStep("Resolve and validate PR context", yaml)
-  void test(`${name}はPRを直接購読し、同期後dispatchの結果だけを別jobで投稿する`, () => {
+  void test(`${name}はPRを直接購読し、同期後dispatchの結果を専用jobで投稿する`, () => {
     assert.match(yaml, /on:\n  pull_request:\n/)
     assert.doesNotMatch(yaml, /pull_request_target/)
     assert.match(
@@ -392,12 +473,17 @@ for (const name of ["frontend_ci.yaml", "harness_checker_ci.yaml"]) {
         ? /report-dispatched-result:\n    if: \$\{\{ !cancelled\(\) && github.event_name == 'workflow_dispatch' \}\}/
         : /report-dispatched-result:\n    if: always\(\) && github.event_name == 'workflow_dispatch'/,
     )
-    assert.doesNotMatch(
-      yaml.split("\n  report-dispatched-result:")[0],
-      /(?:contents|statuses|actions|pull-requests): write|secrets\./,
+    const [workflowPermissions, ...jobs] = yaml.split(
+      /^  [a-z-]+:\n(?=    (?:needs|if|runs-on):)/m,
     )
+    assert.doesNotMatch(workflowPermissions, /[a-z-]+: write|secrets\./)
+    const statusWriters = name === "harness_checker_ci.yaml" ? 3 : 1
+    assert.equal(jobs.filter((job) => /statuses: write/.test(job)).length, statusWriters)
+    for (const job of jobs) {
+      assert.doesNotMatch(job, /(?:contents|actions|pull-requests): write|secrets\./)
+      if (/statuses: write/.test(job)) assert.doesNotMatch(job, /ref: refs\/pull\//)
+    }
     assert.match(yaml, /types: \[opened, synchronize, reopened, edited\]/)
-    assert.doesNotMatch(yaml, /^  context:\n(?:    .*\n)*?    if:/m)
   })
   for (const event of ["pull_request", "workflow_dispatch"]) {
     for (const fork of [false, true]) {
@@ -427,7 +513,11 @@ for (const name of ["frontend_ci.yaml", "harness_checker_ci.yaml"]) {
             })
           const accepted = run({})
           assert.equal(accepted.status, 0, accepted.stderr)
-          assert.match(readFileSync(env.GITHUB_OUTPUT, "utf8"), new RegExp(`head=${synced}`))
+          const outputs = readFileSync(env.GITHUB_OUTPUT, "utf8")
+          assert.match(outputs, new RegExp(`head=${synced}`))
+          if (name === "harness_checker_ci.yaml") {
+            assert.ok(outputs.includes(`head_repo=${f.pr.head.repo.full_name}\n`))
+          }
           assert.notEqual(run({ EXPECTED_HEAD: original }).status, 0)
           assert.notEqual(
             run({ PR_FIXTURE: JSON.stringify({ ...f.pr, state: "closed" }) }).status,

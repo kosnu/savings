@@ -90,7 +90,9 @@ PRコードを実行する検証jobのtokenはread権限に限定し、cacheへ�
 Vite+依存同期の受付も`pull_request`を使い、同一repositoryのRenovate候補だけを別runへdispatchする。
 同期処理は署名・変更範囲・現在headを確認してから依存を更新する。同期commitは`GITHUB_TOKEN`で作成するため、
 通常のPRイベントに頼らず、更新後のPRブランチへFrontend・AIDD CIをdispatchする。
-このdispatchの結果だけを、checkoutもPRコード実行もしない別jobから対象PR head SHAのcommit statusへ返す。
+同期用のcommit statusは、checkoutを行わない専用jobが対象PR head SHAへ返す。
+Harness Checker CIの `harness-gate` は、検証済みbaseのスクリプトを使う専用jobが同じhead SHAへ返す。
+対象イベントと必須チェックの移行手順は[Harness Checker CIの必須チェック](aidd-checker-operations.md#harness-checker-ciの必須チェック)を参照する。
 Checkerのconcurrency groupはPR番号と起動イベントで分離し、旧受付のdispatchと新しいPR起動を競合させない。
 同じPR・同じイベントの再実行は同じgroupで古い実行を取り消す。
 fork PRの検証に書き込みtokenやSecretsは渡さない。PR作成者の自動アサインはforkへの書き込みが必要なため、
