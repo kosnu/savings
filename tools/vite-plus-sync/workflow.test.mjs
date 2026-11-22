@@ -263,33 +263,43 @@ function jobRuns(yaml, job, github, needs = {}, cancelled = false) {
   const condition = jobBody(yaml, job)
     .match(/^    if: (.+(?:\n {6}.+)*)$/m)[1]
     .replace(/^\$\{\{([\s\S]*)\}\}$/, "$1")
-    .replaceAll("needs.start-gate", 'needs["start-gate"]')
     .replaceAll("github.event.changes.base.ref", "github.event.changes?.base?.ref")
   return Boolean(vm.runInNewContext(condition, { github, needs, cancelled: () => cancelled }))
 }
 
-void test("Harness gateは開始と完了だけが検証済みbaseのスクリプトで投稿する", () => {
-  for (const [job, phase] of [
-    ["start-gate", "pending"],
-    ["finish-gate", "finish"],
-  ]) {
-    const body = jobBody(harness, job)
-    assert.match(body, /permissions:\n      contents: read\n      statuses: write/)
-    assert.match(body, /uses: actions\/checkout@[a-f0-9]{40} /)
-    assert.match(body, /ref: \$\{\{ needs.context.outputs.base \}\}/)
-    assert.match(body, /persist-credentials: false/)
-    assert.match(body, /if: hashFiles\('tools\/github-actions\/harness-gate.mjs'\) != ''/)
-    assert.match(body, /CONTEXT_HEAD: \$\{\{ needs.context.outputs.head \}\}/)
-    assert.ok(body.includes(`run: node tools/github-actions/harness-gate.mjs ${phase}`))
-  }
-  assert.match(jobBody(harness, "start-gate"), /^    needs: context$/m)
-  assert.match(
-    jobBody(harness, "finish-gate"),
-    /^    needs: \[context, start-gate, candidate, integration\]$/m,
-  )
+void test("Harness CIのstatus書き込みは既存のdispatch報告に限る", () => {
+  assert.doesNotMatch(harness, /start-gate|finish-gate|head_repo/)
+  assert.match(jobBody(harness, "report-dispatched-result"), /statuses: write/)
   for (const job of ["candidate", "integration"]) {
-    assert.match(jobBody(harness, job), /^    needs: \[context, start-gate\]$/m)
+    assert.match(jobBody(harness, job), /^    needs: context$/m)
+    assert.doesNotMatch(jobBody(harness, job), /^    if:/m)
   }
+  assert.ok(jobBody(harness, "candidate").includes("tools/github-actions/harness-gate.test.mjs"))
+})
+
+void test("Harness Gateはデフォルトブランチのスクリプトだけを実行する", () => {
+  const gate = readFileSync(
+    new URL("../../.github/workflows/harness_gate.yaml", import.meta.url),
+    "utf8",
+  )
+  assert.match(gate, /^on:\n  workflow_run: # zizmor: ignore\[dangerous-triggers\]/m)
+  assert.ok(gate.includes('    workflows: ["Harness Checker CI"]\n    types: [requested, completed]'))
+  assert.match(gate, /^permissions: \{\}$/m)
+  assert.match(
+    jobBody(gate, "publish"),
+    /permissions:\n      actions: read\n      contents: read\n      statuses: write/,
+  )
+  assert.match(gate, /uses: actions\/checkout@[a-f0-9]{40} /)
+  assert.deepEqual(gate.match(/^ +ref: .*$/gm), ['          ref: ${{ github.sha }}'])
+  assert.doesNotMatch(gate, /^ +repository:/m)
+  assert.match(gate, /sparse-checkout: tools\/github-actions\n          persist-credentials: false/)
+  assert.ok(gate.includes('TRIGGER_RUN_ID: ${{ github.event.workflow_run.id }}'))
+  assert.deepEqual(gate.match(/^ +run: .*$/gm), [
+    "        run: node tools/github-actions/harness-gate.mjs",
+  ])
+  assert.ok(gate.includes('group: harness-gate-${{ github.event.workflow_run.head_sha }}'))
+  assert.match(gate, /^  cancel-in-progress: false$/m)
+  assert.match(gate, /^  queue: max$/m)
 })
 
 const frontend = readFileSync(
@@ -308,31 +318,9 @@ for (const [eventName, event, validates, actorId = "41898282"] of [
   ["workflow_dispatch", {}, true, "123"],
 ]) {
   void test(`CIの検証・投稿条件 ${eventName} ${JSON.stringify(event)} actor=${actorId}`, () => {
-    const github = { event_name: eventName, event, actor_id: actorId, repository: "kosnu/savings" }
+    const github = { event_name: eventName, event, actor_id: actorId }
     assert.equal(jobRuns(frontend, "context", github), validates)
     assert.equal(jobRuns(harness, "context", github), validates)
-    for (const result of validates ? ["success", "failure"] : ["skipped"]) {
-      for (const fork of [false, true]) {
-        const headRepo = fork ? "fork/savings" : github.repository
-        const context = { result, outputs: result === "success" ? { head_repo: headRepo } : {} }
-        const starts = result === "success" && !fork && actorId === "41898282"
-        assert.equal(jobRuns(harness, "start-gate", github, { context }), starts)
-        assert.equal(jobRuns(harness, "start-gate", github, { context }, true), false)
-        for (const startResult of starts ? ["success", "failure"] : ["skipped"]) {
-          const needs = { context, "start-gate": { result: startResult } }
-          for (const cancelled of [false, true]) {
-            const runsChecks = !cancelled && result === "success" && startResult !== "failure"
-            for (const job of ["candidate", "integration"]) {
-              assert.equal(jobRuns(harness, job, github, needs, cancelled), runsChecks, job)
-            }
-            assert.equal(
-              jobRuns(harness, "finish-gate", github, needs, cancelled),
-              !cancelled && starts,
-            )
-          }
-        }
-      }
-    }
   })
 }
 
@@ -477,8 +465,7 @@ for (const name of ["frontend_ci.yaml", "harness_checker_ci.yaml"]) {
       /^  [a-z-]+:\n(?=    (?:needs|if|runs-on):)/m,
     )
     assert.doesNotMatch(workflowPermissions, /[a-z-]+: write|secrets\./)
-    const statusWriters = name === "harness_checker_ci.yaml" ? 3 : 1
-    assert.equal(jobs.filter((job) => /statuses: write/.test(job)).length, statusWriters)
+    assert.equal(jobs.filter((job) => /statuses: write/.test(job)).length, 1)
     for (const job of jobs) {
       assert.doesNotMatch(job, /(?:contents|actions|pull-requests): write|secrets\./)
       if (/statuses: write/.test(job)) assert.doesNotMatch(job, /ref: refs\/pull\//)
@@ -515,9 +502,6 @@ for (const name of ["frontend_ci.yaml", "harness_checker_ci.yaml"]) {
           assert.equal(accepted.status, 0, accepted.stderr)
           const outputs = readFileSync(env.GITHUB_OUTPUT, "utf8")
           assert.match(outputs, new RegExp(`head=${synced}`))
-          if (name === "harness_checker_ci.yaml") {
-            assert.ok(outputs.includes(`head_repo=${f.pr.head.repo.full_name}\n`))
-          }
           assert.notEqual(run({ EXPECTED_HEAD: original }).status, 0)
           assert.notEqual(
             run({ PR_FIXTURE: JSON.stringify({ ...f.pr, state: "closed" }) }).status,

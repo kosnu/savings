@@ -1,87 +1,161 @@
 import assert from "node:assert/strict"
-import { spawnSync } from "node:child_process"
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs"
-import { tmpdir } from "node:os"
-import { delimiter, join } from "node:path"
 import test from "node:test"
-import { fileURLToPath } from "node:url"
+import { resolveGate } from "./harness-gate.mjs"
 
-const script = fileURLToPath(new URL("./harness-gate.mjs", import.meta.url))
-const head = "a".repeat(40)
-const other = "b".repeat(40)
+const repo = "kosnu/savings"
+const sha = "a".repeat(40)
+const serverUrl = "https://github.com"
+const successJobs = ["context", "candidate", "integration"].map((name) => ({
+  name,
+  conclusion: "success",
+}))
 
-function fixture(t) {
-  const dir = mkdtempSync(join(tmpdir(), "harness-gate-"))
-  t.after(() => rmSync(dir, { recursive: true, force: true }))
-  writeFileSync(join(dir, "gh"), '#!/bin/sh\nprintf "%s\\n" "$@" >&2\nexit "${GH_EXIT:-0}"\n', {
-    mode: 0o755,
-  })
-  return (phase, overrides = {}) =>
-    spawnSync(process.execPath, [script, phase], {
-      encoding: "utf8",
-      env: {
-        PATH: `${dir}${delimiter}${process.env.PATH}`,
-        GITHUB_REPOSITORY: "kosnu/savings",
-        GITHUB_SERVER_URL: "https://github.com",
-        GITHUB_RUN_ID: "9",
-        GITHUB_EVENT_NAME: "pull_request",
-        GITHUB_SHA: other,
-        EXPECTED_HEAD: head,
-        CONTEXT_HEAD: head,
-        CANDIDATE_RESULT: "success",
-        INTEGRATION_RESULT: "success",
-        ...overrides,
+function run(id, overrides = {}) {
+  return {
+    id,
+    path: ".github/workflows/harness_checker_ci.yaml",
+    repository: { full_name: repo },
+    head_sha: sha,
+    event: "pull_request",
+    status: "completed",
+    conclusion: "success",
+    created_at: "2026-11-23T00:00:00Z",
+    ...overrides,
+  }
+}
+
+function fixture(runs = [run(1)], jobs = new Map(), listedRuns = runs) {
+  const calls = []
+  const waits = []
+  const gate = (triggerId = "1", onWait = () => {}) =>
+    resolveGate({
+      triggerId,
+      repo,
+      serverUrl,
+      api(endpoint) {
+        calls.push(endpoint)
+        assert.ok(endpoint.startsWith(`repos/${repo}/actions/`))
+        if (endpoint.endsWith(`/runs?head_sha=${sha}&per_page=100`)) {
+          assert.ok(endpoint.includes("/workflows/harness_checker_ci.yaml/"))
+          return { workflow_runs: listedRuns }
+        }
+        const match = endpoint.match(/\/runs\/([0-9]+)(\/jobs\?filter=latest&per_page=100)?$/)
+        assert.ok(match, endpoint)
+        const id = Number(match[1])
+        return match[2] ? { jobs: jobs.get(id) ?? successJobs } : runs.find((item) => item.id === id)
+      },
+      async wait(ms) {
+        waits.push(ms)
+        onWait()
       },
     })
+  return { calls, waits, gate }
 }
 
-function assertStatus(result, state) {
-  assert.equal(result.status, 0, result.stderr)
-  assert.deepEqual(result.stderr.trim().split("\n"), [
-    "api",
-    "--method",
-    "POST",
-    `repos/kosnu/savings/statuses/${head}`,
-    "-f",
-    `state=${state}`,
-    "-f",
-    "context=harness-gate",
-    "-f",
-    `description=Harness CI: ${state}`,
-    "-f",
-    "target_url=https://github.com/kosnu/savings/actions/runs/9",
-  ])
-}
-
-test("PRとdispatchは検証済みheadにpendingと完了状態を送る", (t) => {
-  const run = fixture(t)
-  for (const env of [{}, { GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_SHA: head }]) {
-    assertStatus(run("pending", env), "pending")
-    assertStatus(run("finish", env), "success")
-    for (const result of ["failure", "skipped", "cancelled", ""]) {
-      assertStatus(run("finish", { ...env, CANDIDATE_RESULT: result }), "failure")
-      assertStatus(run("finish", { ...env, INTEGRATION_RESULT: result }), "failure")
-    }
+function expected(state, id) {
+  return {
+    sha,
+    status: {
+      state,
+      context: "harness-gate",
+      description: `Harness CI: ${state} (run ${id})`,
+      target_url: `${serverUrl}/${repo}/actions/runs/${id}`,
+    },
   }
-})
+}
 
-test("未確認のheadや不正な呼び出しではAPIへ送らない", (t) => {
-  const run = fixture(t)
-  for (const [phase, env] of [
-    ["pending", { CONTEXT_HEAD: "", EXPECTED_HEAD: "" }],
-    ["pending", { CONTEXT_HEAD: other }],
-    ["pending", { GITHUB_EVENT_NAME: "workflow_dispatch" }],
-    ["finish", { GITHUB_EVENT_NAME: "push" }],
-    ["invalid", {}],
+test("本文・タイトル編集のrunは投稿せず、採用候補からも除く", async () => {
+  const edits = run(2, { conclusion: "skipped" })
+  const jobs = new Map([[2, [{ name: "context", conclusion: "skipped" }]]])
+  for (const [prior, state] of [
+    [run(1, { status: "in_progress", conclusion: null }), "pending"],
+    [run(1, { conclusion: "failure" }), "failure"],
   ]) {
-    const result = run(phase, env)
-    assert.equal(result.status, 1, result.stderr)
-    assert.doesNotMatch(result.stderr, /^POST$/m)
+    const f = fixture([prior, edits], jobs)
+    assert.equal(await f.gate("2"), undefined)
+    assert.equal(f.calls.length, 2)
+    assert.deepEqual(await f.gate(), expected(state, 1))
   }
 })
 
-test("投稿APIの失敗を呼び出し元に返す", (t) => {
-  const result = fixture(t)("pending", { GH_EXIT: "1" })
-  assert.equal(result.status, 1, result.stderr)
-  assert.match(result.stderr, /^POST$/m)
+test("古い成功通知でも最新runのpendingを投稿する", async () => {
+  const f = fixture([run(1), run(2, { status: "in_progress", conclusion: null })])
+  assert.deepEqual(await f.gate(), expected("pending", 2))
+})
+
+test("作成日時をrun IDより優先し、最新の失敗を投稿する", async () => {
+  const f = fixture([run(9), run(1, { created_at: "2026-11-24T00:00:00Z", conclusion: "failure" })])
+  assert.deepEqual(await f.gate("9"), expected("failure", 1))
+})
+
+test("botによるdispatchだけを採用候補・起動元として扱う", async () => {
+  const f = fixture([
+    run(1),
+    run(2, { event: "workflow_dispatch", triggering_actor: { id: 41898282 } }),
+    run(3, { event: "workflow_dispatch", triggering_actor: { id: 123 } }),
+  ])
+  assert.equal(await f.gate("3"), undefined)
+  assert.deepEqual(await f.gate(), expected("success", 2))
+})
+
+test("forkのrunも自リポジトリの検証結果として投稿対象にする", async () => {
+  const f = fixture([run(1, { head_repository: { full_name: "fork/savings" }, pull_requests: [] })])
+  assert.deepEqual(await f.gate(), expected("success", 1))
+})
+
+test("不正なrun IDではAPIを呼ばない", async () => {
+  const f = fixture()
+  for (const id of ["", "0", "-1", "1/attempts/2", "1\n"]) {
+    assert.equal(await f.gate(id), undefined)
+  }
+  assert.deepEqual(f.calls, [])
+})
+
+for (const overrides of [
+  { path: ".github/workflows/other.yaml" },
+  { repository: { full_name: "fork/savings" } },
+  { head_sha: "invalid" },
+  { event: "push" },
+]) {
+  test(`対象外のrunを無視する ${JSON.stringify(overrides)}`, async () => {
+    const f = fixture([run(1, overrides)])
+    assert.equal(await f.gate(), undefined)
+    assert.equal(f.calls.length, 1)
+  })
+}
+
+test("candidateとintegrationがskippedなら完了runは失敗になる", async () => {
+  const jobs = successJobs.map((job) =>
+    job.name === "context" ? job : { ...job, conclusion: "skipped" },
+  )
+  assert.deepEqual(await fixture([run(1)], new Map([[1, jobs]])).gate(), expected("failure", 1))
+})
+
+for (const conclusion of ["cancelled", "startup_failure"]) {
+  test(`${conclusion}はcontextがスキップされても失敗になる`, async () => {
+    const jobs = new Map([[1, [{ name: "context", conclusion: "skipped" }]]])
+    assert.deepEqual(await fixture([run(1, { conclusion })], jobs).gate(), expected("failure", 1))
+  })
+}
+
+test("requestedでcontext未確定なら再取得し、編集runと判明したら投稿しない", async () => {
+  const jobs = new Map([[1, []]])
+  const f = fixture([run(1, { status: "queued", conclusion: null })], jobs)
+  assert.equal(
+    await f.gate("1", () => jobs.set(1, [{ name: "context", conclusion: "skipped" }])),
+    undefined,
+  )
+  assert.deepEqual(f.waits, [5000])
+})
+
+test("contextが2分程度未確定なら通常runとしてpendingを投稿する", async () => {
+  const f = fixture([run(1, { status: "queued", conclusion: null })], new Map([[1, []]]))
+  assert.deepEqual(await f.gate(), expected("pending", 1))
+  assert.equal(f.waits.reduce((total, ms) => total + ms, 0), 120000)
+})
+
+test("一覧が前のattemptの成功でも、採用runの最新attemptの状態を使う", async () => {
+  const latest = run(2, { run_attempt: 2, status: "in_progress", conclusion: null })
+  const f = fixture([run(1), latest], new Map(), [run(1), run(2, { run_attempt: 1 })])
+  assert.deepEqual(await f.gate(), expected("pending", 2))
 })

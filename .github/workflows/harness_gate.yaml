@@ -1,0 +1,35 @@
+name: Harness Gate
+
+on:
+  workflow_run: # zizmor: ignore[dangerous-triggers] デフォルトブランチのコードだけを使い、PRコードは取得・実行しない
+    workflows: ["Harness Checker CI"]
+    types: [requested, completed]
+
+permissions: {}
+
+concurrency:
+  group: harness-gate-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+  # 投稿を行わない本文・タイトル編集runによる完了通知の置き換えを防ぐ。
+  queue: max
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      statuses: write
+    steps:
+      - name: Checkout publisher from the default branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # workflow_run の github.sha はデフォルトブランチのコミット。
+          ref: ${{ github.sha }}
+          sparse-checkout: tools/github-actions
+          persist-credentials: false
+      - name: Publish Harness gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRIGGER_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: node tools/github-actions/harness-gate.mjs

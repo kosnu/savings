@@ -167,17 +167,33 @@ Taskの有無によるgateと、記録だけを理由にした自動依存更新
 
 ### Harness Checker CIの必須チェック
 
-本文・タイトルだけの編集では検証とコミットステータスの更新を省く。
-同一リポジトリのPRでは、検証対象の head SHA に `harness-gate` の `pending` を記録してから検証を開始し、
-candidate と integration の結果に応じて `success` または `failure` を記録する。
-Vite+同期がGitHub Actionsのbotとして起動するdispatchでも同じステータスを記録し、従来の `vite-plus/aidd-checker-ci` も返す。
+Harness Checker CIの検証jobは通常PR・fork PRとも読み取り専用で動く。
+デフォルトブランチ（main）で管理する Harness Gate が `workflow_run` の通知を受け、
+forkを含む対象PRの head SHA に `harness-gate` を投稿する。投稿側はデフォルトブランチのコードだけを実行する。
+本文・タイトルだけの編集（base変更なし）は検証とステータス更新を省く。
+Vite+同期のdispatchはGitHub Actionsのbotによる実行を採用対象とし、従来の `vite-plus/aidd-checker-ci` も返す。
 
-投稿ジョブは検証済みのbase SHAからスクリプトを読み込む。導入PRではbaseへの配置前なので `verify` で検証する。
-headを確認できないrunとfork PRでは `harness-gate` を投稿しない。キャンセル時は完了ステータスを投稿しないため、投稿済みの `pending` が残りうる。
-fork PRのtokenは読み取り専用のため、Rulesetで `harness-gate` を必須にするとfork PRはこのステータスを満たせない。
+投稿をhead SHAごとに直列化し、同じSHAの対象runから作成日時が最新のもの（同時刻なら最大run ID）を毎回選ぶ。
+編集でcontextがスキップされたrunは除外する。採用runが実行中または待機中なら `pending`、
+run・candidate・integrationがすべて成功なら `success`、キャンセルを含むその他の完了は `failure` とする。
+古いrunの通知でも採用runの現在状態を投稿するため、古い結果による上書きを防ぎ、
+完了通知が失われた場合にも別の対象通知で現在状態を反映できる。
+contextの判定が取得できない場合は最大約2分再取得し、それでも未確定なら通常runとして扱う。
+GitHubの手動再実行では `requested` が発生しないため、再実行開始だけではステータスは更新されない。
 
-スクリプトがbaseに入り、同一リポジトリのPRで投稿を確認した後、管理者はRulesetに `harness-gate` を必須チェックとして追加できる。
-`harness-gate` を必須にした後、Rulesetの必須チェックから `verify` を外せる。
+1. 導入PRをmainへマージする。Harness Gateはデフォルトブランチに配置された後に起動する。
+   使い捨てPRで `pending → success` と `pending → failure` をそれぞれ再現し、本文・タイトルだけの編集で元の状態が変わらないことを確認する。
+2. mainで必須化する前に、管理者が同等の必須ルールを持つ検証環境を用意する。
+   例として、検証用ブランチだけを対象とする一時Rulesetで `harness-gate`（発行元 GitHub Actions）を必須にし、
+   main向けに検証するPRと同じhead SHAを持つ別のPRを検証用ブランチへ向ける。
+   main向けPRで `pending` と `failure` をそれぞれ作り、本文・タイトルの編集後も元の `harness-gate` が
+   マージをブロックすることを、検証用PRのマージボックスで両方確認する。
+   確認後、検証用PRを閉じ、管理者が一時Rulesetとブランチを削除する。
+3. 管理者がmainのRulesetに `harness-gate`（発行元 GitHub Actions）を必須チェックとして追加する。
+4. 必要に応じて、管理者がmainのRulesetの必須チェックから `verify` を外す。
+
+Rulesetで指定する発行元はGitHub App単位で、GitHub Actions内の個別ワークフローまでは識別しない。
+同じAppで `statuses: write` を持つ別のジョブにも、API上は同じcontextを投稿する権限がある。
 
 ## セッション計測
 

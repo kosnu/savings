@@ -39,7 +39,6 @@ jobs:
       base: ${{ steps.pr.outputs.base }}
       base_ref: ${{ steps.pr.outputs.base_ref }}
       author: ${{ steps.pr.outputs.author }}
-      head_repo: ${{ steps.pr.outputs.head_repo }}
     steps:
       - name: Resolve and validate PR context
         id: pr
@@ -61,41 +60,10 @@ jobs:
             .state == "open" and .head.repo != null and
             .base.repo.full_name == $repo and .base.ref == "main" and .head.sha == $head
           ' "$RUNNER_TEMP/pr.json"
-          jq -r '"number=\(.number)", "head=\(.head.sha)", "base=\(.base.sha)", "base_ref=\(.base.ref)", "author=\(.user.login)", "head_repo=\(.head.repo.full_name)"' "$RUNNER_TEMP/pr.json" >> "$GITHUB_OUTPUT"
-
-  start-gate:
-    needs: context
-    if: ${{
-      !cancelled() && needs.context.result == 'success' &&
-      needs.context.outputs.head_repo == github.repository &&
-      (github.event_name == 'pull_request' || github.actor_id == '41898282')
-      }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      statuses: write
-    steps:
-      - name: Checkout status script from the validated base
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ needs.context.outputs.base }}
-          persist-credentials: false
-          sparse-checkout: tools/github-actions
-      - name: Report pending Harness gate
-        # 導入PRではbaseにスクリプトがないため投稿を省く。
-        if: hashFiles('tools/github-actions/harness-gate.mjs') != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || inputs.expected_head }}
-          CONTEXT_HEAD: ${{ needs.context.outputs.head }}
-        run: node tools/github-actions/harness-gate.mjs pending
+          jq -r '"number=\(.number)", "head=\(.head.sha)", "base=\(.base.sha)", "base_ref=\(.base.ref)", "author=\(.user.login)"' "$RUNNER_TEMP/pr.json" >> "$GITHUB_OUTPUT"
 
   candidate:
-    needs: [context, start-gate]
-    if: ${{
-      !cancelled() && needs.context.result == 'success' &&
-      (needs.start-gate.result == 'success' || needs.start-gate.result == 'skipped')
-      }}
+    needs: context
     runs-on: ubuntu-latest
     steps:
       - name: Checkout candidate
@@ -157,11 +125,7 @@ jobs:
         run: go -C tools/harness/checker run ./cmd/harness-checker --root "$GITHUB_WORKSPACE" check-changes --base "$PR_BASE_SHA"
 
   integration:
-    needs: [context, start-gate]
-    if: ${{
-      !cancelled() && needs.context.result == 'success' &&
-      (needs.start-gate.result == 'success' || needs.start-gate.result == 'skipped')
-      }}
+    needs: context
     runs-on: ubuntu-latest
     steps:
       - name: Checkout merge result
@@ -214,35 +178,6 @@ jobs:
         run: |
           test "$CANDIDATE_RESULT" = success
           test "$INTEGRATION_RESULT" = success
-
-  finish-gate:
-    needs: [context, start-gate, candidate, integration]
-    if: ${{
-      !cancelled() && needs.context.result == 'success' &&
-      needs.context.outputs.head_repo == github.repository &&
-      (github.event_name == 'pull_request' || github.actor_id == '41898282')
-      }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      statuses: write
-    steps:
-      - name: Checkout status script from the validated base
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ needs.context.outputs.base }}
-          persist-credentials: false
-          sparse-checkout: tools/github-actions
-      - name: Report final Harness gate
-        # 導入PRではbaseにスクリプトがないため投稿を省く。
-        if: hashFiles('tools/github-actions/harness-gate.mjs') != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || inputs.expected_head }}
-          CONTEXT_HEAD: ${{ needs.context.outputs.head }}
-          CANDIDATE_RESULT: ${{ needs.candidate.result }}
-          INTEGRATION_RESULT: ${{ needs.integration.result }}
-        run: node tools/github-actions/harness-gate.mjs finish
 
   report-dispatched-result:
     if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' }}
