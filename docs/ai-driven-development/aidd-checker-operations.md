@@ -170,7 +170,7 @@ Taskの有無によるgateと、記録だけを理由にした自動依存更新
 Harness Checker CIの検証jobは通常PR・fork PRとも読み取り専用で動く。
 デフォルトブランチ（main）で管理する Harness Gate が `workflow_run` の通知を受け、
 forkを含む対象PRの head SHA に `harness-gate` を投稿する。投稿側はデフォルトブランチのコードだけを実行する。
-本文・タイトルだけの編集（base変更なし）は検証とステータス更新を省く。
+本文・タイトルだけの編集（base変更なし）は検証を省く。
 Vite+同期のdispatchはGitHub Actionsのbotによる実行を採用対象とし、従来の `vite-plus/aidd-checker-ci` も返す。
 
 投稿をhead SHAごとに直列化し、同じSHAの対象runから作成日時が最新のもの（同時刻なら最大run ID）を毎回選ぶ。
@@ -178,7 +178,9 @@ Vite+同期のdispatchはGitHub Actionsのbotによる実行を採用対象と�
 run・candidate・integrationがすべて成功なら `success`、キャンセルを含むその他の完了は `failure` とする。
 古いrunの通知でも採用runの現在状態を投稿するため、古い結果による上書きを防ぎ、
 完了通知が失われた場合にも別の対象通知で現在状態を反映できる。
+編集runの通知でも採用runの現在状態を再反映する。採用できるrunがなければ投稿しない。
 contextの判定が取得できない場合は最大約2分再取得し、それでも未確定なら通常runとして扱う。
+このとき編集runが一時的に `pending` を投稿しても、完了通知で編集と判明すれば採用runの状態に戻る。
 GitHubの手動再実行では `requested` が発生しないため、再実行開始だけではステータスは更新されない。
 
 1. 導入PRをmainへマージする。Harness Gateはデフォルトブランチに配置された後に起動する。

@@ -58,7 +58,6 @@ export async function resolveGate({ api, wait, triggerId, repo, serverUrl }) {
   }
 
   const source = await inspect(trigger)
-  if (source.metadata) return
 
   const sha = trigger.head_sha
   const { workflow_runs: runs } = api(
@@ -66,7 +65,8 @@ export async function resolveGate({ api, wait, triggerId, repo, serverUrl }) {
   )
   const candidates = runs
     .filter((run) => isHarnessRun(run, repo) && run.head_sha === sha && run.id !== trigger.id)
-    .concat(source.run)
+    // 編集runの完了通知でも有効runを選び直し、判定待ちで投稿したpendingを復旧する。
+    .concat(source.metadata ? [] : [source.run])
     .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at) || b.id - a.id)
 
   // 起動元に限定すると、待機中の通知が失われた場合に最新runのpendingが残りうる。

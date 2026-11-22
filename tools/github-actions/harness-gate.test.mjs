@@ -64,7 +64,7 @@ function expected(state, id) {
   }
 }
 
-test("本文・タイトル編集のrunは投稿せず、採用候補からも除く", async () => {
+test("本文・タイトル編集のrunを除き、直前の有効runの状態を再投稿する", async () => {
   const edits = run(2, { conclusion: "skipped" })
   const jobs = new Map([[2, [{ name: "context", conclusion: "skipped" }]]])
   for (const [prior, state] of [
@@ -72,8 +72,7 @@ test("本文・タイトル編集のrunは投稿せず、採用候補からも�
     [run(1, { conclusion: "failure" }), "failure"],
   ]) {
     const f = fixture([prior, edits], jobs)
-    assert.equal(await f.gate("2"), undefined)
-    assert.equal(f.calls.length, 2)
+    assert.deepEqual(await f.gate("2"), expected(state, 1))
     assert.deepEqual(await f.gate(), expected(state, 1))
   }
 })
@@ -138,20 +137,33 @@ for (const conclusion of ["cancelled", "startup_failure"]) {
   })
 }
 
-test("requestedでcontext未確定なら再取得し、編集runと判明したら投稿しない", async () => {
-  const jobs = new Map([[1, []]])
-  const f = fixture([run(1, { status: "queued", conclusion: null })], jobs)
-  assert.equal(
-    await f.gate("1", () => jobs.set(1, [{ name: "context", conclusion: "skipped" }])),
-    undefined,
+test("requestedでcontextを再取得し、編集runと判明したら有効runの状態を再投稿する", async () => {
+  const jobs = new Map([[2, []]])
+  const f = fixture([run(1), run(2, { status: "queued", conclusion: null })], jobs)
+  assert.deepEqual(
+    await f.gate("2", () => jobs.set(2, [{ name: "context", conclusion: "skipped" }])),
+    expected("success", 1),
   )
   assert.deepEqual(f.waits, [5000])
 })
 
-test("contextが2分程度未確定なら通常runとしてpendingを投稿する", async () => {
-  const f = fixture([run(1, { status: "queued", conclusion: null })], new Map([[1, []]]))
-  assert.deepEqual(await f.gate(), expected("pending", 1))
+test("context判定がタイムアウトした編集runの完了通知で直前の成功を再投稿する", async () => {
+  const edits = run(2, { status: "queued", conclusion: null })
+  const jobs = new Map([[2, []]])
+  const f = fixture([run(1), edits], jobs)
+  assert.deepEqual(await f.gate("2"), expected("pending", 2))
   assert.equal(f.waits.reduce((total, ms) => total + ms, 0), 120000)
+
+  edits.status = "completed"
+  edits.conclusion = "skipped"
+  jobs.set(2, [{ name: "context", conclusion: "skipped" }])
+  assert.deepEqual(await f.gate("2"), expected("success", 1))
+})
+
+test("同じSHAに編集runしかない場合は投稿しない", async () => {
+  const jobs = new Map([[1, [{ name: "context", conclusion: "skipped" }]]])
+  const f = fixture([run(1, { conclusion: "skipped" })], jobs)
+  assert.equal(await f.gate(), undefined)
 })
 
 test("一覧が前のattemptの成功でも、採用runの最新attemptの状態を使う", async () => {

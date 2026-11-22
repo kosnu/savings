@@ -92,7 +92,9 @@ Vite+依存同期の受付も`pull_request`を使い、同一repositoryのRenova
 通常のPRイベントに頼らず、更新後のPRブランチへFrontend・AIDD CIをdispatchする。
 同期用のcommit statusは、checkoutを行わない専用jobが対象PR head SHAへ返す。
 Harness Gateはmain管理の `workflow_run` ワークフローで、読み取り専用の検証jobの結果を参照する。
-forkを含むPRの同じhead SHAについて最新の対象runを選び、`harness-gate` を返す。
+forkを含むPRの同じhead SHAについて最新の有効な検証runを選び、`harness-gate` を返す。
+本文・タイトルだけの編集（base変更なし）では検証を省き、編集runの通知で有効な検証runの状態を再反映する。
+編集の判定がタイムアウトして一時的に `pending` になった場合も、完了通知で有効な検証runの状態に戻る。
 対象イベントと必須チェックの移行手順は[Harness Checker CIの必須チェック](aidd-checker-operations.md#harness-checker-ciの必須チェック)を参照する。
 Checkerのconcurrency groupはPR番号と起動イベントで分離し、旧受付のdispatchと新しいPR起動を競合させない。
 同じPR・同じイベントの再実行は同じgroupで古い実行を取り消す。
