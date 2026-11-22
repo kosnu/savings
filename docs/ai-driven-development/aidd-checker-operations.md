@@ -173,9 +173,7 @@ forkを含む対象PRの head SHA に `harness-gate` を投稿する。投稿側
 本文・タイトルだけの編集（base変更なし）は検証を省く。
 Vite+同期のdispatchはGitHub Actionsのbotによる実行を採用対象とし、従来の `vite-plus/aidd-checker-ci` も返す。
 
-投稿をhead SHAごとに直列化し、同じSHAのrun一覧を作成日時の降順で1ページ100件ずつ取得する。
-各ページの候補は作成日時の降順、同時刻ならrun IDの降順で調べ、最初の有効runを採用する。
-10ページすべてが100件で有効runが見つからない場合は、後続ページに候補が残りうるため、投稿せずジョブを失敗させる。
+投稿をhead SHAごとに直列化し、同じSHAの対象runから作成日時が最新のもの（同時刻なら最大run ID）を毎回選ぶ。
 編集でcontextがスキップされたrunは除外する。採用runが実行中または待機中なら `pending`、
 run・candidate・integrationがすべて成功なら `success`、キャンセルを含むその他の完了は `failure` とする。
 古いrunの通知でも採用runの現在状態を投稿するため、古い結果による上書きを防ぎ、

@@ -24,10 +24,9 @@ function run(id, overrides = {}) {
   }
 }
 
-function fixture(runs = [run(1)], jobs = new Map(), listedPages = [runs]) {
+function fixture(runs = [run(1)], jobs = new Map(), listedRuns = runs) {
   const calls = []
   const waits = []
-  const pages = []
   const gate = (triggerId = "1", onWait = () => {}) =>
     resolveGate({
       triggerId,
@@ -36,13 +35,9 @@ function fixture(runs = [run(1)], jobs = new Map(), listedPages = [runs]) {
       api(endpoint) {
         calls.push(endpoint)
         assert.ok(endpoint.startsWith(`repos/${repo}/actions/`))
-        const listPath = `repos/${repo}/actions/workflows/harness_checker_ci.yaml/runs?head_sha=${sha}&per_page=100&page=`
-        if (endpoint.startsWith(listPath)) {
-          const page = Number(endpoint.slice(listPath.length))
-          pages.push(page)
-          const workflowRuns = listedPages[page - 1]
-          assert.ok(workflowRuns, endpoint)
-          return { workflow_runs: workflowRuns }
+        if (endpoint.endsWith(`/runs?head_sha=${sha}&per_page=100`)) {
+          assert.ok(endpoint.includes("/workflows/harness_checker_ci.yaml/"))
+          return { workflow_runs: listedRuns }
         }
         const match = endpoint.match(/\/runs\/([0-9]+)(\/jobs\?filter=latest&per_page=100)?$/)
         assert.ok(match, endpoint)
@@ -54,7 +49,7 @@ function fixture(runs = [run(1)], jobs = new Map(), listedPages = [runs]) {
         onWait()
       },
     })
-  return { calls, waits, pages, gate }
+  return { calls, waits, gate }
 }
 
 function expected(state, id) {
@@ -165,56 +160,6 @@ test("context判定がタイムアウトした編集runの完了通知で直前�
   assert.deepEqual(await f.gate("2"), expected("success", 1))
 })
 
-test("1ページ目が編集runで埋まっても、完了通知で2ページ目の成功を再投稿する", async () => {
-  const edits = Array.from({ length: 100 }, (_, i) => run(101 - i, { conclusion: "skipped" }))
-  const trigger = edits[0]
-  const skippedJobs = [{ name: "context", conclusion: "skipped" }]
-  const jobs = new Map(edits.map(({ id }) => [id, skippedJobs]))
-  const prior = run(1)
-  const f = fixture([...edits, prior], jobs, [edits, [prior]])
-
-  trigger.status = "queued"
-  trigger.conclusion = null
-  jobs.set(trigger.id, [])
-  assert.deepEqual(await f.gate(String(trigger.id)), expected("pending", trigger.id))
-  assert.deepEqual(f.pages, [1])
-  assert.equal(f.waits.length, 24)
-
-  trigger.status = "completed"
-  trigger.conclusion = "skipped"
-  jobs.set(trigger.id, skippedJobs)
-  assert.deepEqual(await f.gate(String(trigger.id)), expected("success", 1))
-  assert.deepEqual(f.pages, [1, 1, 2])
-})
-
-test("一覧にない起動元は後続ページのより新しい候補より後に検査する", async () => {
-  const edits = Array.from({ length: 100 }, (_, i) => run(103 - i, { conclusion: "skipped" }))
-  const jobs = new Map(edits.map(({ id }) => [id, [{ name: "context", conclusion: "skipped" }]]))
-  const source = run(2)
-  const newer = run(3, { conclusion: "failure" })
-  const older = run(1, { conclusion: "failure" })
-
-  for (const [page, state, id] of [
-    [[newer, older], "failure", 3],
-    [[older], "success", 2],
-  ]) {
-    const f = fixture([...edits, source, ...page], jobs, [edits, page])
-    assert.deepEqual(await f.gate("2"), expected(state, id))
-    assert.deepEqual(f.pages, [1, 2])
-  }
-})
-
-test("10ページがすべて編集runで埋まっていればエラーにする", async () => {
-  const edits = Array.from({ length: 1000 }, (_, i) => run(1000 - i, { conclusion: "skipped" }))
-  const skippedJobs = [{ name: "context", conclusion: "skipped" }]
-  const jobs = new Map(edits.map(({ id }) => [id, skippedJobs]))
-  const pages = Array.from({ length: 10 }, (_, i) => edits.slice(i * 100, (i + 1) * 100))
-  const f = fixture(edits, jobs, pages)
-
-  await assert.rejects(f.gate("1000"), /run一覧の取得上限/)
-  assert.deepEqual(f.pages, pages.map((_, i) => i + 1))
-})
-
 test("同じSHAに編集runしかない場合は投稿しない", async () => {
   const jobs = new Map([[1, [{ name: "context", conclusion: "skipped" }]]])
   const f = fixture([run(1, { conclusion: "skipped" })], jobs)
@@ -223,6 +168,6 @@ test("同じSHAに編集runしかない場合は投稿しない", async () => {
 
 test("一覧が前のattemptの成功でも、採用runの最新attemptの状態を使う", async () => {
   const latest = run(2, { run_attempt: 2, status: "in_progress", conclusion: null })
-  const f = fixture([run(1), latest], new Map(), [[run(1), run(2, { run_attempt: 1 })]])
+  const f = fixture([run(1), latest], new Map(), [run(1), run(2, { run_attempt: 1 })])
   assert.deepEqual(await f.gate(), expected("pending", 2))
 })
