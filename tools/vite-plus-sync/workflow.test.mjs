@@ -247,7 +247,7 @@ for (const event of ["pull_request", "workflow_dispatch"]) {
             success: () => result === "success",
             failure: () => result === "failure",
           })
-          const expected = job === "verify" ? result !== "skipped" : event === "workflow_dispatch"
+          const expected = job === "verify" || event === "workflow_dispatch"
           assert.equal(runs, !cancelled && expected, job)
         }
       })
@@ -397,6 +397,7 @@ for (const name of ["frontend_ci.yaml", "harness_checker_ci.yaml"]) {
       /(?:contents|statuses|actions|pull-requests): write|secrets\./,
     )
     assert.match(yaml, /types: \[opened, synchronize, reopened, edited\]/)
+    assert.doesNotMatch(yaml, /^  context:\n(?:    .*\n)*?    if:/m)
   })
   for (const event of ["pull_request", "workflow_dispatch"]) {
     for (const fork of [false, true]) {

@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   context:
-    if: github.event.action != 'edited' || github.event.changes.base.ref
+    # メタデータ編集でも必須チェックに実際の検証結果を返す。
     runs-on: ubuntu-latest
     outputs:
       number: ${{ steps.pr.outputs.number }}
@@ -168,7 +168,7 @@ jobs:
 
   verify:
     needs: [context, candidate, integration]
-    if: ${{ !cancelled() && needs.context.result != 'skipped' }}
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - name: Require candidate and integration success
