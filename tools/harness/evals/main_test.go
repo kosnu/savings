@@ -115,7 +115,7 @@ func events(a any, proofs ...proof) []byte {
 
 func TestApprovalTargetAndCompletion(t *testing.T) {
 	for _, name := range []string{
-		"explain", "reply-only", "approved", "missing-permission", "audit-acknowledgement", "audit-explicit-approval",
+		"explain", "reply-only", "approved", "audit-delegated-fix", "missing-permission", "audit-acknowledgement", "audit-explicit-approval",
 		"audit-proposal-correction", "audit-review-scope-selection", "audit-execution-selection",
 	} {
 		c := findCase(t, name)

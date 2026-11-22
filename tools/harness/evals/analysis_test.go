@@ -210,8 +210,8 @@ func TestSelectiveSuitesRequireExplicitScope(t *testing.T) {
 		suites, selected []string
 		count            int
 	}{
-		{[]string{"behavior"}, nil, 14}, {[]string{"audit"}, nil, 3}, {[]string{"retrospective"}, nil, 3},
-		{[]string{"audit", "retrospective"}, nil, 6}, {[]string{"skills"}, nil, 5}, {[]string{"review"}, nil, 2}, {[]string{"all"}, nil, 27},
+		{[]string{"behavior"}, nil, 15}, {[]string{"audit"}, nil, 3}, {[]string{"retrospective"}, nil, 3},
+		{[]string{"audit", "retrospective"}, nil, 6}, {[]string{"skills"}, nil, 5}, {[]string{"review"}, nil, 2}, {[]string{"all"}, nil, 28},
 		{nil, []string{"explain", "audit-rule-gap"}, 2},
 	} {
 		got, err := selectCases(tc.suites, tc.selected)

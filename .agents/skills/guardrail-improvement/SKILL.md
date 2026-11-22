@@ -20,8 +20,8 @@ development authority does not satisfy this boundary. Do not create a separate T
 Confirm approval against the original user source; an audit result never supplies execution authority. Summarize the adopted decision only as needed and follow the Core phase-result contract. Do not create approval/decision event files or persist command stdout/stderr.
 Change only approved targets and check the improvement scope. Preserve previous cycle results; reuse a phase file only within the same cycle. Re-read the current Intent and
 improved guardrails to close this cycle and enter the next cycle within the same Task, without an event or cycle ID. Start the next cycle with a new design record, adopt the next decision, perform necessary design and
-implementation, verify and review the actual diff, and Ship. Start the next Audit only on an
-explicit user request after Ship. The cycle boundary
+implementation, verify and review the actual diff, and Ship. Start the next Audit under the
+[Audit entry conditions](../../../docs/harness/policies/audit.md#audit). The cycle boundary
 does not expand approval scope. Proposal changes require renewed approval.
 Complete any approved PR comment handling after verification and Ship, following Audit policy
 and Git Workflow; improvement approval does not authorize unpresented replies or resolution.

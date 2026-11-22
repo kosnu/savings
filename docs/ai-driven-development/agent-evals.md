@@ -44,6 +44,7 @@ when_to_read:
 `audit-proposal-correction`は、提案への訂正を受けた後の適用判断を確認する。
 `audit-review-scope-selection`と`audit-execution-selection`は、同じ選択回答を確認範囲への回答と実行承認への回答に置き、次の操作と追加承認の要否を照合する。
 `approved`は有効な既存承認に基づく作業継続を確認する。
+`audit-delegated-fix`は、Ship後のレビュー指摘について、Auditで対応案を提示した後に元の修正依頼の範囲内で進められるかを確認する。
 提案への訂正の反映や既存作業の継続を含む回答の意味は、[意味レビュー事例](semantic-review-cases.md#audit案の訂正と選択式の回答)で照合する。設定変更・データ削除は仮想入力での判断だけを扱う。
 
 ## コードレビューのeval
@@ -175,7 +176,7 @@ CLIのJSONLとstdout/stderrはメモリ内で処理し、生出力・回答全�
 
 - スキル変更には対応する `--case skill-<スキル名>` を選ぶ。例として `--case skill-release` は本番リリースのDraft準備と開発プレビューの配信を比較する。全5件は `--suite skills` で選べる。
 - `--case`は関連する個別ケースを指定する。複数指定できる。
-- `--suite behavior`は行動14ケース、`--suite review`はコードレビュー2ケース、`--suite audit`はAudit 3ケース、`--suite retrospective`はRetrospective 3ケース。`--suite`も複数指定できる。
+- `--suite behavior`は行動15ケース、`--suite review`はコードレビュー2ケース、`--suite audit`はAudit 3ケース、`--suite retrospective`はRetrospective 3ケース。`--suite`も複数指定できる。
 - 対象の指定は必須で、`--case`と`--suite`は併用しない。全件は`--suite all`と明示した場合だけ実行する。
 - 標準は各ケース2試行、各入力1回。Auditだけなら片側6試行、前後比較で12回のCodex呼出しになる。両分析領域なら前後計24回。追加の採点用モデルは呼ばない。
 - 新しい悪化や試行間の不一致があり判断材料が足りない場合は、関係するケース・反復数だけ増やす。少数試行は回帰の兆候を調べるもので、統計的な優劣の証明ではない。
