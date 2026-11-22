@@ -1,1 +1,27 @@
-* @kosnu
+# 既定: kosnu か kosnu-bot のどちらかのレビューで可
+* @kosnu @kosnu-bot
+
+# 高リスク: kosnu のレビューが必須（後に書いた行が優先される）
+# CI/CD・GitHub設定・リリース
+/.github/ @kosnu
+/tools/github-actions/ @kosnu
+/tools/production-release/ @kosnu
+/docs/production-release/ @kosnu
+
+# DB・Supabase（マイグレーション、設定、運用スクリプト）
+/apps/api/ @kosnu
+/tools/supabase-check/ @kosnu
+
+# 認証・セッション
+/apps/web/src/lib/supabase.ts @kosnu
+/apps/web/src/providers/supabase/ @kosnu
+/apps/web/src/utils/auth/ @kosnu
+
+# AIエージェントの設定・ルール
+/AGENTS.md @kosnu
+/.codex/ @kosnu
+/.agents/ @kosnu
+/.aidd/ @kosnu
+
+# 依存関係の自動更新設定
+/renovate.json5 @kosnu
