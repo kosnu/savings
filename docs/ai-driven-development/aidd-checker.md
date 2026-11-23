@@ -85,6 +85,7 @@ Coreは人間の承認を記録から証明せず、`ship-check`や記録のpass
 ## CIの起動と権限
 
 Frontend・AIDD CIは通常PR・fork PRとも`pull_request`で直接起動し、PR headとmerge結果を検証する。
+PRの本文・タイトルの編集とベース変更でも、起動条件に合えば同じ検証を行う。
 workflow・テスト・Checkerの変更もPRの検証とレビュー対象に含め、mainのworkflow定義への固定は行わない。
 PRコードを実行する検証jobのtokenはread権限に限定し、cacheへの保存は行わない。
 Vite+依存同期の受付も`pull_request`を使い、同一repositoryのRenovate候補だけを別runへdispatchする。

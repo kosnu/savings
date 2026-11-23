@@ -201,7 +201,6 @@ void test("Checkerは旧受付・別イベント・別PRと競合せず、同じ
           run_id: runId,
         },
         inputs: eventName === "workflow_dispatch" ? { pr_number: String(number) } : {},
-        format: (template, value) => template.replace("{0}", value),
       }),
     )
   const direct = group("pull_request", 2022)
@@ -214,16 +213,13 @@ void test("Checkerは旧受付・別イベント・別PRと競合せず、同じ
     assert.equal(group(eventName, 2022, 9), group(eventName, 2022, 10))
     assert.notEqual(group(eventName, 2022), group(eventName, 2023))
   }
-  for (const field of ["body", "title"]) {
-    const changes = { [field]: { from: "previous" } }
-    const edit = group("pull_request", 2022, 9, "edited", changes)
-    assert.notEqual(edit, direct)
-    assert.notEqual(edit, group("pull_request", 2022, 10, "edited", changes))
+  for (const changes of [
+    { body: { from: "previous" } },
+    { title: { from: "previous" } },
+    { base: { ref: { from: "release" } } },
+  ]) {
+    assert.equal(group("pull_request", 2022, 10, "edited", changes), direct)
   }
-  assert.equal(
-    group("pull_request", 2022, 9, "edited", { base: { ref: { from: "release" } } }),
-    direct,
-  )
   assert.match(harness, /cancel-in-progress: true/)
 })
 
@@ -247,7 +243,7 @@ for (const event of ["pull_request", "workflow_dispatch"]) {
             success: () => result === "success",
             failure: () => result === "failure",
           })
-          const expected = job === "verify" ? result !== "skipped" : event === "workflow_dispatch"
+          const expected = job === "verify" || event === "workflow_dispatch"
           assert.equal(runs, !cancelled && expected, job)
         }
       })
@@ -397,6 +393,7 @@ for (const name of ["frontend_ci.yaml", "harness_checker_ci.yaml"]) {
       /(?:contents|statuses|actions|pull-requests): write|secrets\./,
     )
     assert.match(yaml, /types: \[opened, synchronize, reopened, edited\]/)
+    assert.match(yaml, /\n  context:\n    runs-on:/)
   })
   for (const event of ["pull_request", "workflow_dispatch"]) {
     for (const fork of [false, true]) {
