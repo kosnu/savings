@@ -25,13 +25,11 @@ permissions:
   actions: read
 
 concurrency:
-  # base変更を伴わない編集は別groupにし、検証runの実行・待機を維持する。
-  group: harness-checker-${{ github.event_name }}-${{ github.event.pull_request.number || inputs.pr_number }}${{ github.event.action == 'edited' && !github.event.changes.base.ref && format('-metadata-{0}', github.run_id) || '' }}
+  group: harness-checker-${{ github.event_name }}-${{ github.event.pull_request.number || inputs.pr_number }}
   cancel-in-progress: true
 
 jobs:
   context:
-    if: github.event.action != 'edited' || github.event.changes.base.ref
     runs-on: ubuntu-latest
     outputs:
       number: ${{ steps.pr.outputs.number }}
@@ -103,7 +101,7 @@ jobs:
           package-manager-cache: false
 
       - name: Test Vite+ dependency synchronization
-        run: node --test tools/vite-plus-sync/*.test.mjs tools/github-actions/harness-gate.test.mjs
+        run: node --test tools/vite-plus-sync/*.test.mjs
 
       - name: Test agent evals offline
         run: go -C tools/harness/evals test -count=1 ./...
@@ -162,13 +160,13 @@ jobs:
           node-version-file: "package.json"
           package-manager-cache: false
       - name: Test merged Vite+ dependency synchronization
-        run: node --test tools/vite-plus-sync/*.test.mjs tools/github-actions/harness-gate.test.mjs
+        run: node --test tools/vite-plus-sync/*.test.mjs
       - name: Test merged agent evals offline
         run: go -C tools/harness/evals test -count=1 ./...
 
   verify:
-    needs: [context, candidate, integration]
-    if: ${{ !cancelled() && needs.context.result != 'skipped' }}
+    needs: [candidate, integration]
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - name: Require candidate and integration success

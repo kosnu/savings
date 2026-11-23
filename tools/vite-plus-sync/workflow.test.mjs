@@ -201,7 +201,6 @@ void test("Checkerは旧受付・別イベント・別PRと競合せず、同じ
           run_id: runId,
         },
         inputs: eventName === "workflow_dispatch" ? { pr_number: String(number) } : {},
-        format: (template, value) => template.replace("{0}", value),
       }),
     )
   const direct = group("pull_request", 2022)
@@ -214,16 +213,13 @@ void test("Checkerは旧受付・別イベント・別PRと競合せず、同じ
     assert.equal(group(eventName, 2022, 9), group(eventName, 2022, 10))
     assert.notEqual(group(eventName, 2022), group(eventName, 2023))
   }
-  for (const field of ["body", "title"]) {
-    const changes = { [field]: { from: "previous" } }
-    const edit = group("pull_request", 2022, 9, "edited", changes)
-    assert.notEqual(edit, direct)
-    assert.notEqual(edit, group("pull_request", 2022, 10, "edited", changes))
+  for (const changes of [
+    { body: { from: "previous" } },
+    { title: { from: "previous" } },
+    { base: { ref: { from: "release" } } },
+  ]) {
+    assert.equal(group("pull_request", 2022, 10, "edited", changes), direct)
   }
-  assert.equal(
-    group("pull_request", 2022, 9, "edited", { base: { ref: { from: "release" } } }),
-    direct,
-  )
   assert.match(harness, /cancel-in-progress: true/)
 })
 
@@ -247,81 +243,12 @@ for (const event of ["pull_request", "workflow_dispatch"]) {
             success: () => result === "success",
             failure: () => result === "failure",
           })
-          const expected = job === "verify" ? result !== "skipped" : event === "workflow_dispatch"
+          const expected = job === "verify" || event === "workflow_dispatch"
           assert.equal(runs, !cancelled && expected, job)
         }
       })
     }
   }
-}
-
-function jobBody(yaml, job) {
-  return yaml.split(`\n  ${job}:\n`)[1].split(/\n  [a-z-]+:\n/)[0]
-}
-
-function jobRuns(yaml, job, github, needs = {}, cancelled = false) {
-  const condition = jobBody(yaml, job)
-    .match(/^    if: (.+(?:\n {6}.+)*)$/m)[1]
-    .replace(/^\$\{\{([\s\S]*)\}\}$/, "$1")
-    .replaceAll("github.event.changes.base.ref", "github.event.changes?.base?.ref")
-  return Boolean(vm.runInNewContext(condition, { github, needs, cancelled: () => cancelled }))
-}
-
-void test("Harness CIのstatus書き込みは既存のdispatch報告に限る", () => {
-  assert.doesNotMatch(harness, /start-gate|finish-gate|head_repo/)
-  assert.match(jobBody(harness, "report-dispatched-result"), /statuses: write/)
-  for (const job of ["candidate", "integration"]) {
-    assert.match(jobBody(harness, job), /^    needs: context$/m)
-    assert.doesNotMatch(jobBody(harness, job), /^    if:/m)
-  }
-  assert.ok(jobBody(harness, "candidate").includes("tools/github-actions/harness-gate.test.mjs"))
-})
-
-void test("Harness Gateはデフォルトブランチのスクリプトだけを実行する", () => {
-  const gate = readFileSync(
-    new URL("../../.github/workflows/harness_gate.yaml", import.meta.url),
-    "utf8",
-  )
-  assert.match(gate, /^on:\n  workflow_run: # zizmor: ignore\[dangerous-triggers\]/m)
-  assert.ok(gate.includes('    workflows: ["Harness Checker CI"]\n    types: [requested, completed]'))
-  assert.match(gate, /^permissions: \{\}$/m)
-  assert.match(
-    jobBody(gate, "publish"),
-    /permissions:\n      actions: read\n      contents: read\n      statuses: write/,
-  )
-  assert.match(gate, /uses: actions\/checkout@[a-f0-9]{40} /)
-  assert.deepEqual(gate.match(/^ +ref: .*$/gm), ['          ref: ${{ github.sha }}'])
-  assert.doesNotMatch(gate, /^ +repository:/m)
-  assert.match(gate, /sparse-checkout: tools\/github-actions\n          persist-credentials: false/)
-  assert.ok(gate.includes('TRIGGER_RUN_ID: ${{ github.event.workflow_run.id }}'))
-  assert.deepEqual(gate.match(/^ +run: .*$/gm), [
-    "        run: node tools/github-actions/harness-gate.mjs",
-  ])
-  assert.ok(gate.includes('group: harness-gate-${{ github.event.workflow_run.head_sha }}'))
-  assert.match(gate, /^  cancel-in-progress: false$/m)
-  assert.match(gate, /^  queue: max$/m)
-})
-
-const frontend = readFileSync(
-  new URL("../../.github/workflows/frontend_ci.yaml", import.meta.url),
-  "utf8",
-)
-
-for (const [eventName, event, validates, actorId = "41898282"] of [
-  ["pull_request", { action: "opened" }, true],
-  ["pull_request", { action: "synchronize" }, true],
-  ["pull_request", { action: "reopened" }, true],
-  ["pull_request", { action: "edited", changes: { base: { ref: { from: "release" } } } }, true],
-  ["pull_request", { action: "edited", changes: { body: { from: "old" } } }, false],
-  ["pull_request", { action: "edited", changes: { title: { from: "old" } } }, false],
-  ["workflow_dispatch", {}, true],
-  ["workflow_dispatch", {}, true, "123"],
-]) {
-  void test(`CIの検証・投稿条件 ${eventName} ${JSON.stringify(event)} actor=${actorId}`, () => {
-    const github = { event_name: eventName, event, actor_id: actorId }
-    assert.equal(jobRuns(frontend, "context", github), validates)
-    assert.equal(jobRuns(harness, "context", github), validates)
-  })
 }
 
 for (const job of ["context", "candidate", "integration", "verify"]) {
@@ -444,7 +371,7 @@ for (const [name, change] of [
 for (const name of ["frontend_ci.yaml", "harness_checker_ci.yaml"]) {
   const yaml = readFileSync(new URL(`../../.github/workflows/${name}`, import.meta.url), "utf8")
   const resolve = shellStep("Resolve and validate PR context", yaml)
-  void test(`${name}はPRを直接購読し、同期後dispatchの結果を専用jobで投稿する`, () => {
+  void test(`${name}はPRを直接購読し、同期後dispatchの結果だけを別jobで投稿する`, () => {
     assert.match(yaml, /on:\n  pull_request:\n/)
     assert.doesNotMatch(yaml, /pull_request_target/)
     assert.match(
@@ -461,16 +388,12 @@ for (const name of ["frontend_ci.yaml", "harness_checker_ci.yaml"]) {
         ? /report-dispatched-result:\n    if: \$\{\{ !cancelled\(\) && github.event_name == 'workflow_dispatch' \}\}/
         : /report-dispatched-result:\n    if: always\(\) && github.event_name == 'workflow_dispatch'/,
     )
-    const [workflowPermissions, ...jobs] = yaml.split(
-      /^  [a-z-]+:\n(?=    (?:needs|if|runs-on):)/m,
+    assert.doesNotMatch(
+      yaml.split("\n  report-dispatched-result:")[0],
+      /(?:contents|statuses|actions|pull-requests): write|secrets\./,
     )
-    assert.doesNotMatch(workflowPermissions, /[a-z-]+: write|secrets\./)
-    assert.equal(jobs.filter((job) => /statuses: write/.test(job)).length, 1)
-    for (const job of jobs) {
-      assert.doesNotMatch(job, /(?:contents|actions|pull-requests): write|secrets\./)
-      if (/statuses: write/.test(job)) assert.doesNotMatch(job, /ref: refs\/pull\//)
-    }
     assert.match(yaml, /types: \[opened, synchronize, reopened, edited\]/)
+    assert.match(yaml, /\n  context:\n    runs-on:/)
   })
   for (const event of ["pull_request", "workflow_dispatch"]) {
     for (const fork of [false, true]) {
@@ -500,8 +423,7 @@ for (const name of ["frontend_ci.yaml", "harness_checker_ci.yaml"]) {
             })
           const accepted = run({})
           assert.equal(accepted.status, 0, accepted.stderr)
-          const outputs = readFileSync(env.GITHUB_OUTPUT, "utf8")
-          assert.match(outputs, new RegExp(`head=${synced}`))
+          assert.match(readFileSync(env.GITHUB_OUTPUT, "utf8"), new RegExp(`head=${synced}`))
           assert.notEqual(run({ EXPECTED_HEAD: original }).status, 0)
           assert.notEqual(
             run({ PR_FIXTURE: JSON.stringify({ ...f.pr, state: "closed" }) }).status,

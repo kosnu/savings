@@ -85,17 +85,13 @@ Coreは人間の承認を記録から証明せず、`ship-check`や記録のpass
 ## CIの起動と権限
 
 Frontend・AIDD CIは通常PR・fork PRとも`pull_request`で直接起動し、PR headとmerge結果を検証する。
+PRの本文・タイトルの編集とベース変更でも、起動条件に合えば同じ検証を行う。
 workflow・テスト・Checkerの変更もPRの検証とレビュー対象に含め、mainのworkflow定義への固定は行わない。
 PRコードを実行する検証jobのtokenはread権限に限定し、cacheへの保存は行わない。
 Vite+依存同期の受付も`pull_request`を使い、同一repositoryのRenovate候補だけを別runへdispatchする。
 同期処理は署名・変更範囲・現在headを確認してから依存を更新する。同期commitは`GITHUB_TOKEN`で作成するため、
 通常のPRイベントに頼らず、更新後のPRブランチへFrontend・AIDD CIをdispatchする。
-同期用のcommit statusは、checkoutを行わない専用jobが対象PR head SHAへ返す。
-Harness Gateはmain管理の `workflow_run` ワークフローで、読み取り専用の検証jobの結果を参照する。
-forkを含むPRの同じhead SHAについて最新の有効な検証runを選び、`harness-gate` を返す。
-本文・タイトルだけの編集（base変更なし）では検証を省き、編集runの通知で有効な検証runの状態を再反映する。
-編集の判定がタイムアウトして一時的に `pending` になった場合も、完了通知で有効な検証runの状態に戻る。
-対象イベントと必須チェックの移行手順は[Harness Checker CIの必須チェック](aidd-checker-operations.md#harness-checker-ciの必須チェック)を参照する。
+このdispatchの結果だけを、checkoutもPRコード実行もしない別jobから対象PR head SHAのcommit statusへ返す。
 Checkerのconcurrency groupはPR番号と起動イベントで分離し、旧受付のdispatchと新しいPR起動を競合させない。
 同じPR・同じイベントの再実行は同じgroupで古い実行を取り消す。
 fork PRの検証に書き込みtokenやSecretsは渡さない。PR作成者の自動アサインはforkへの書き込みが必要なため、
