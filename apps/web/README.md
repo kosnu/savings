@@ -107,7 +107,7 @@ pnpm dev
 pnpm build
 ```
 
-Cloudflare Vite plugin が `.cloudflare/output/v0/` に Workers Static Assets の配信物を作成します。
+Cloudflare Vite plugin が `.cloudflare/output/v1/` に Workers Static Assets の配信物を作成します。
 `cloudflare.config.ts` が Worker 名 `burneto`、本番ドメイン `burneto.com`、SPA fallback を定義します。
 Worker のサーバーコードは追加しません。通常の `pnpm dev` は既存の Vite 開発サーバーを使います。
 
@@ -136,7 +136,7 @@ Sentry の設定は GitHub Actions の `production` / `development` Environment 
 - `SENTRY_PROJECT` - DSN と同じ対象 project の slug。
 
 `VITE_` の2項目はビルド時にブラウザ向け成果物へ埋め込みます。管理 token は `VITE_` 変数にしません。
-本番・Dev Preview とも配信用 build で同じ Sentry plugin を使い、hidden source map を生成して `.cloudflare/output/v0/workers/default/assets/` からアップロードし、公開物の JS/CSS map を削除します。通常の local 開発サーバーでは SDK・plugin とも無効です。
+本番・Dev Preview とも配信用 build で同じ Sentry plugin を使い、hidden source map を生成して `.cloudflare/output/v1/workers/default/assets/` からアップロードし、公開物の JS/CSS map を削除します。通常の local 開発サーバーでは SDK・plugin とも無効です。
 
 収集情報・受信確認は [Sentry の運用](../../docs/infrastructure/sentry-monitoring.md)、Dev の設定・配信手順は [Dev Preview](../../docs/infrastructure/development-preview.md)を参照してください。
 

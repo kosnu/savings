@@ -28,7 +28,7 @@ func run(ctx context.Context, args []string) error {
 	}
 	fs := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	root := fs.String("root", ".", "repository root")
-	dir := fs.String("dir", "apps/web/.cloudflare/output/v0/workers/default/assets", "assets directory")
+	dir := fs.String("dir", "apps/web/.cloudflare/output/v1/workers/default/assets", "assets directory")
 	if err := fs.Parse(args[1:]); err != nil {
 		return err
 	}

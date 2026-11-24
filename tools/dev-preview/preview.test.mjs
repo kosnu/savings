@@ -1,6 +1,10 @@
 import assert from "node:assert/strict"
 import { execFileSync } from "node:child_process"
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
 import { test } from "node:test"
+import { fileURLToPath } from "node:url"
 
 import config from "../../apps/web/cloudflare.config.ts"
 import { validateDevelopment, previewName, validateBuildOutput } from "./preview.mjs"
@@ -69,6 +73,7 @@ test("本番・古い成果物や本番 binding/domain の混入を配信前に�
     { buildContext: { mode: "production", isPreview: true } },
     { buildContext: { mode: "development" } },
     { ...root, accountId: "other-account" },
+    { ...root, settings: { accountId: "other-account" } },
   ]) {
     assert.throws(() => validateBuildOutput(build, worker))
   }
@@ -80,6 +85,31 @@ test("本番・古い成果物や本番 binding/domain の混入を配信前に�
     { main: "worker.js" },
   ]) {
     assert.throws(() => validateBuildOutput(root, { ...worker, ...patch }))
+  }
+})
+
+test("check-build は単一の v0 または v1 のみを検証する", (t) => {
+  const cwd = mkdtempSync(join(tmpdir(), "burneto-preview-"))
+  t.after(() => rmSync(cwd, { recursive: true, force: true }))
+  const output = join(cwd, "apps/web/.cloudflare/output")
+  const script = fileURLToPath(new URL("preview.mjs", import.meta.url))
+  const check = () =>
+    execFileSync(process.execPath, [script, "check-build"], { cwd, stdio: "pipe" })
+  const { worker } = config({ mode: "development", isPreview: true })
+  const buildContext = { mode: "development", isPreview: true }
+
+  for (const version of ["v0", "v1"]) {
+    const root = join(output, version)
+    const workerDir = join(root, "workers/default")
+    mkdirSync(workerDir, { recursive: true })
+    writeFileSync(join(root, "config.json"), JSON.stringify({ buildContext }))
+    writeFileSync(join(workerDir, "worker.config.json"), JSON.stringify(worker))
+    assert.doesNotThrow(check)
+    const otherVersion = join(output, version === "v0" ? "v1" : "v0")
+    mkdirSync(otherVersion)
+    assert.throws(check, /単一の Build Output/u)
+    rmSync(otherVersion, { recursive: true })
+    rmSync(root, { recursive: true })
   }
 })
 

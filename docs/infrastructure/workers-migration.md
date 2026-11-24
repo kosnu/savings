@@ -31,12 +31,12 @@ when_to_read:
   `notFoundHandling: "single-page-application"` を指定する。
   `/payments`、`/auth` などへの直接アクセスは `index.html` を返し、既存のクライアント router が処理する。
 - Pages 用の `public/_redirects` は native SPA fallback に置き換える。
-- cf は `1.0.0-beta.1`、Cloudflare Vite plugin は `2.0.0-beta.sha-805ec1ff3` に固定する。
-  共通の `@cloudflare/config` は `0.18.0`。7 日間の release age を満たす組み合わせを採用する。
+- cf と Cloudflare Vite plugin は `apps/web/package.json` に固定する。
+  Build Output v1 に対応し、7 日間の release age を満たす組み合わせを採用する。
   Node はリポジトリ指定の `26.10.0`、pnpm は `12.7.0` を使う。
   Compatibility Date `2026-09-18` は同梱 workerd が対応する日付に固定する。
 - 従来の `tsc -b` と Vite のビルドを維持し、build と preview で Cloudflare plugin を有効化する。
-  配信物は `apps/web/.cloudflare/output/v0/`。Wrangler の直接依存と wrangler-action は使用しない。
+  配信物は `apps/web/.cloudflare/output/v1/`。Wrangler の直接依存と wrangler-action は使用しない。
 - Sentry は本番ビルド時に配信物へ Debug ID を注入し、同じ出力内の source map をアップロード・削除する。
   cf の `--prebuilt` により再ビルドせず、その配信物をデプロイする。
 - 旧 Pages project `burneto` と `savings-dyo.pages.dev` は切り戻し先として保持する。

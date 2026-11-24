@@ -72,7 +72,7 @@ when_to_read:
 - Worker 名は `burneto`、本番 custom domain は `burneto.com` とする。
 - [cloudflare.config.ts](../../apps/web/cloudflare.config.ts) が配信先と SPA fallback を所有する。
   静的ファイルのみを配信し、Worker のサーバーコードを追加しない。
-- Cloudflare Vite plugin が既存の Web ビルドから `.cloudflare/output/v0/` を作成する。
+- Cloudflare Vite plugin が既存の Web ビルドから `.cloudflare/output/v1/` を作成する。
   [deploy_production.yaml](../../.github/workflows/deploy_production.yaml) は cf を使い、
   `--prebuilt --mode production` で同じ成果物を検証・配信する。
 - 旧 Pages project `burneto`、既存 deployment、`savings-dyo.pages.dev` は切り戻し用に保持する。
