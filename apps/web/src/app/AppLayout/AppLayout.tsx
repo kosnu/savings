@@ -22,7 +22,7 @@ interface AppLayoutProps {
   stickyHeader?: boolean
 }
 
-export function AppLayout({ children, headerAction, stickyHeader = false }: AppLayoutProps) {
+export function AppLayout({ children, headerAction, stickyHeader = true }: AppLayoutProps) {
   const desktop = useMediaQuery(DESKTOP_SIDEBAR_MEDIA_QUERY)
   const { open: drawerOpen, openSidebar, closeSidebar } = useSidebar()
   const { open: desktopSidebarOpen, toggleSidebar } = useSidebar(true, DESKTOP_SIDEBAR_STORAGE_KEY)
