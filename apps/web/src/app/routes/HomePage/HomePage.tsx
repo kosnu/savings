@@ -29,7 +29,7 @@ export function HomePage() {
         <ErrorBoundary
           onReset={reset}
           fallbackRender={({ resetErrorBoundary }) => (
-            <AppLayout stickyHeader>
+            <AppLayout>
               <Container size="2">
                 <Flex direction="column" gap="2" align="start">
                   <Text color="red" role="alert">
@@ -63,7 +63,6 @@ function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cache
 
   return (
     <AppLayout
-      stickyHeader
       headerAction={
         <CreatePaymentModal
           bookId={book.id}
@@ -99,7 +98,6 @@ function HomePageLoading() {
 
   return (
     <AppLayout
-      stickyHeader
       headerAction={
         <Skeleton>
           <Button variant="soft" disabled aria-hidden tabIndex={-1}>

@@ -19,10 +19,9 @@ const DESKTOP_SIDEBAR_STORAGE_KEY = "desktopSidebarOpen"
 interface AppLayoutProps {
   children?: ReactNode
   headerAction?: ReactNode
-  stickyHeader?: boolean
 }
 
-export function AppLayout({ children, headerAction, stickyHeader = false }: AppLayoutProps) {
+export function AppLayout({ children, headerAction }: AppLayoutProps) {
   const desktop = useMediaQuery(DESKTOP_SIDEBAR_MEDIA_QUERY)
   const { open: drawerOpen, openSidebar, closeSidebar } = useSidebar()
   const { open: desktopSidebarOpen, toggleSidebar } = useSidebar(true, DESKTOP_SIDEBAR_STORAGE_KEY)
@@ -44,12 +43,7 @@ export function AppLayout({ children, headerAction, stickyHeader = false }: AppL
   }, [closeSidebar, desktop])
 
   return (
-    <Flex
-      className={styles.layout}
-      data-desktop={desktop}
-      data-sidebar-open={sidebarOpen}
-      data-sticky-header={stickyHeader}
-    >
+    <Flex className={styles.layout} data-desktop={desktop} data-sidebar-open={sidebarOpen}>
       <Sidebar id={sidebarId} permanent={desktop} open={sidebarOpen} onClose={dismissSidebar}>
         <SidebarButton
           to="/"
@@ -86,7 +80,6 @@ export function AppLayout({ children, headerAction, stickyHeader = false }: AppL
           sidebarId={sidebarId}
           sidebarOpen={sidebarOpen}
           action={headerAction}
-          sticky={stickyHeader}
         />
         <main className={styles.main}>{children ?? <Outlet />}</main>
       </Flex>

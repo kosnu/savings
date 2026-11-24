@@ -24,7 +24,6 @@ export const Default: Story = {
 export const WithAction: Story = {
   args: {
     onMenuClick: fn(),
-    sticky: true,
     action: (
       <Button>
         <PlusIcon aria-hidden />
