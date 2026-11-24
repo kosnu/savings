@@ -75,7 +75,7 @@ jobs:
           PR_HEAD_SHA: ${{ needs.context.outputs.head }}
         run: test "$(git rev-parse HEAD)" = "$PR_HEAD_SHA"
       - name: Setup Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
           go-version-file: tools/harness/checker/go.mod
           cache: false
@@ -143,7 +143,7 @@ jobs:
           git -c user.name=github-actions -c user.email=github-actions@github.com merge --no-commit --no-ff "$PR_BASE_SHA"
 
       - name: Setup Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
           go-version-file: tools/harness/checker/go.mod
           cache: false
