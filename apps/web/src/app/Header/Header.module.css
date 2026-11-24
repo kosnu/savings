@@ -5,15 +5,6 @@
   padding: var(--space-4) var(--space-4);
 
   border-bottom: 1px solid var(--gray-6);
-}
-
-.header[data-desktop-menu="true"] {
-  box-sizing: border-box;
-  min-block-size: var(--app-header-height);
-  padding-top: calc(var(--space-4) + env(safe-area-inset-top));
-}
-
-.header[data-sticky="true"] {
   position: sticky;
   top: 0;
   z-index: 1;
@@ -21,4 +12,9 @@
   padding-top: calc(var(--space-4) + env(safe-area-inset-top));
   padding-right: calc(var(--space-4) + env(safe-area-inset-right));
   padding-left: calc(var(--space-4) + env(safe-area-inset-left));
+}
+
+.header[data-desktop-menu="true"] {
+  box-sizing: border-box;
+  min-block-size: var(--app-header-height);
 }

@@ -15,7 +15,6 @@ interface HeaderProps {
   sidebarId?: string
   sidebarOpen?: boolean
   action?: ReactNode
-  sticky?: boolean
 }
 
 const iconSize = { width: "22", height: "22" }
@@ -27,7 +26,6 @@ export function Header({
   sidebarId,
   sidebarOpen,
   action,
-  sticky = false,
 }: HeaderProps) {
   const { t } = useTranslation()
 
@@ -38,7 +36,7 @@ export function Header({
     : t("header.menu")
 
   return (
-    <header className={styles.header} data-desktop-menu={desktopMenu} data-sticky={sticky}>
+    <header className={styles.header} data-desktop-menu={desktopMenu}>
       {onMenuClick && (
         <>
           <IconButton

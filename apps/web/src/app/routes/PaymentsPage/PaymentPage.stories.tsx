@@ -9,7 +9,21 @@ import { createCategoryHandlers } from "../../../test/msw/handlers/categories"
 import { createMonthlyBudgetHandlers } from "../../../test/msw/handlers/monthlyBudgets"
 import { createPaymentHandlers } from "../../../test/msw/handlers/payments"
 import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
+import { AppLayout } from "../../AppLayout"
 import { PaymentsPage } from "./PaymentsPage"
+
+const paymentRows = payments.map(mapPaymentToRow)
+
+function createPageHandlers(initialRows = paymentRows) {
+  return [
+    ...createBookHandlers(),
+    ...createPaymentHandlers({ initialRows }),
+    ...createCategoryHandlers(),
+    ...createMonthlyBudgetHandlers({
+      get: { response: { ...monthlyBudgets[2], amount: 25000 } },
+    }),
+  ]
+}
 
 const meta = {
   title: "Pages/PaymentsPage",
@@ -17,16 +31,7 @@ const meta = {
   parameters: {
     mockingDate: new Date(2025, 5, 15),
     msw: {
-      handlers: [
-        ...createBookHandlers(),
-        ...createPaymentHandlers({
-          initialRows: payments.map(mapPaymentToRow),
-        }),
-        ...createCategoryHandlers(),
-        ...createMonthlyBudgetHandlers({
-          get: { response: { ...monthlyBudgets[2], amount: 25000 } },
-        }),
-      ],
+      handlers: createPageHandlers(),
     },
   },
   tags: ["browser-test"],
@@ -82,6 +87,56 @@ export const OpenDetails: Story = {
     expect(await within(detailDialog).findByText("Daily Necessities")).toBeInTheDocument()
     expect(await within(detailDialog).findByText("¥4,000")).toBeInTheDocument()
     expect(await within(detailDialog).findByRole("button", { name: /delete/i })).toBeInTheDocument()
+  },
+}
+
+export const StickyHeader: Story = {
+  decorators: [createStoryRouter("/payments?year=2025&month=6", paymentsRouteBuilder)],
+  render: () => (
+    <AppLayout>
+      <PaymentsPage />
+    </AppLayout>
+  ),
+  parameters: {
+    msw: {
+      handlers: createPageHandlers(
+        Array.from({ length: 30 }, (_, index) => ({
+          ...paymentRows[0],
+          id: index + 1,
+          note: `Payment #${index + 1}`,
+        })),
+      ),
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(canvasElement.ownerDocument.body)
+    const header = await canvas.findByRole("banner")
+    const payment = await canvas.findByRole("button", { name: /Payment #25\b/ })
+    expect(
+      within(header).queryByRole("button", { name: /create payment/i }),
+    ).not.toBeInTheDocument()
+
+    window.scrollTo(0, 300)
+    await waitFor(() => {
+      expect(window.scrollY).toBeGreaterThan(0)
+      expect(header.getBoundingClientRect().top).toBeCloseTo(0)
+    })
+
+    await userEvent.click(payment)
+    const dialog = await body.findByRole("dialog", { name: /payment details/i })
+    await userEvent.click(within(dialog).getByRole("button", { name: /close payment details/i }))
+    await waitFor(() => {
+      expect(body.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
+    })
+    expect(window.scrollY).toBeGreaterThan(0)
+    expect(header.getBoundingClientRect().top).toBeCloseTo(0)
+    const menu = within(header).getByRole("button", {
+      name: /menu button|hide sidebar|show sidebar/i,
+    })
+    const wasExpanded = menu.getAttribute("aria-expanded") === "true"
+    await userEvent.click(menu)
+    expect(menu).toHaveAttribute("aria-expanded", String(!wasExpanded))
   },
 }
 

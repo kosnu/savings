@@ -1,11 +1,6 @@
 /* Layout全体のスタイル */
 .layout {
   /* ビューポート全体の高さを占有 */
-  height: 100vh;
-}
-
-.layout[data-sticky-header="true"],
-.layout[data-desktop="true"] {
   height: auto;
   min-height: 100dvh;
 }
