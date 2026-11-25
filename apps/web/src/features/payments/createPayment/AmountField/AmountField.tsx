@@ -23,6 +23,7 @@ export function AmountField({ error, messages, value, onChange, autoFocus }: Amo
         {t("amount.label")}
       </FieldLabel>
       <AmountInput
+        size={{ initial: "3", sm: "2" }}
         id={id}
         value={toAmountFormValue(value)}
         onChange={onChange}

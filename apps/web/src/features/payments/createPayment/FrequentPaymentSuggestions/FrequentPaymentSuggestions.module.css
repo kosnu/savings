@@ -1,4 +1,6 @@
 .group {
+  display: flex;
+  gap: var(--space-2);
   min-width: 0;
   max-width: 100%;
   margin: 0;
@@ -29,4 +31,16 @@
   min-width: 0;
   max-width: 100%;
   overflow-wrap: anywhere;
+}
+
+@media (width < 768px) {
+  .group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .candidate {
+    min-height: 44px;
+  }
 }

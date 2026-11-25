@@ -47,6 +47,7 @@ interface DeletePaymentOptions extends BaseOptions {
 
 interface UpdatePaymentOptions extends BaseOptions {
   response?: unknown
+  persistFor?: Pick<PaymentRow, "id" | "book_id">
 }
 
 interface GetMonthlyTotalAmountOptions extends BaseOptions {
@@ -258,8 +259,23 @@ export function createPaymentHandlers({
       return HttpResponse.json({ message: "Failed to update payment." }, { status: 500 })
     }
 
-    const body = await request.json()
-    updatePaymentBodySchema.parse(body)
+    const body = updatePaymentBodySchema.parse(await request.json())
+    const target = update.persistFor
+    if (target) {
+      const filters = new URL(request.url).searchParams
+      const index = rows.findIndex((row) => row.id === target.id && row.book_id === target.book_id)
+      if (
+        index === -1 ||
+        filters.get("id") !== `eq.${target.id}` ||
+        filters.get("book_id") !== `eq.${target.book_id}`
+      ) {
+        return HttpResponse.json([])
+      }
+
+      rows[index] = { ...rows[index], ...body }
+      return HttpResponse.json([{ id: target.id }])
+    }
+
     const matchedPayment = filterAndSortPayments(rows, request)[0]
 
     return HttpResponse.json(update.response ?? (matchedPayment ? { id: matchedPayment.id } : null))

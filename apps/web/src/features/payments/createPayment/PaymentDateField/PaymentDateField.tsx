@@ -16,11 +16,17 @@ export function PaymentDateField({ error, messages, value, onChange }: PaymentDa
   const { t } = useTranslation()
 
   return (
-    <BaseField width="fit-content">
+    <BaseField width="fit-content" maxWidth="100%">
       <FieldLabel htmlFor={id} required>
         {t("date.label")}
       </FieldLabel>
-      <DatePicker id={id} name="date" value={value} onChange={onChange} />
+      <DatePicker
+        size={{ initial: "3", sm: "2" }}
+        id={id}
+        name="date"
+        value={value}
+        onChange={onChange}
+      />
       <FieldMessages error={error} messages={messages} />
     </BaseField>
   )

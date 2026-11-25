@@ -1,4 +1,4 @@
-import { Flex, Text } from "@radix-ui/themes"
+import { Text } from "@radix-ui/themes"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +11,6 @@ import { AmountInput } from "../../components/AmountInput"
 import { useUpdatePayment } from "../../updatePayment/useUpdatePayment"
 import { EditableField } from "../EditableField"
 import { InlineForm } from "../InlineForm"
-import { SubmitIconButton } from "../SubmitIconButton"
 
 interface AmountFieldProps {
   bookId: number
@@ -117,28 +116,27 @@ export function AmountField({
       disabled={disabled && !editing}
       editButtonLabel={t("payments.details.editAmount")}
       onEdit={handleEdit}
-      error={Boolean(messages?.length)}
-      messages={messages}
       view={
         <Text size="4" style={{ flex: 1 }}>
           {toCurrency(amount)}
         </Text>
       }
       editor={
-        <InlineForm onSubmit={handleSubmit} onCancel={handleCancel} saving={isPending}>
-          <Flex align="center" gap="2">
-            <div style={{ flex: 1 }}>
-              <AmountInput
-                id={id}
-                size="3"
-                value={draftAmount}
-                onChange={handleChange}
-                autoFocus
-                disabled={isPending}
-              />
-            </div>
-            <SubmitIconButton ariaLabel={t("payments.details.saveAmount")} loading={isPending} />
-          </Flex>
+        <InlineForm
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          saving={isPending}
+          submitLabel={t("payments.details.saveAmount")}
+          messages={messages}
+        >
+          <AmountInput
+            id={id}
+            size="3"
+            value={draftAmount}
+            onChange={handleChange}
+            autoFocus
+            disabled={isPending}
+          />
         </InlineForm>
       }
     />

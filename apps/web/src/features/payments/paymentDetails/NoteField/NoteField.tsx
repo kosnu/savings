@@ -1,4 +1,4 @@
-import { Flex, Text } from "@radix-ui/themes"
+import { Text } from "@radix-ui/themes"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,7 +10,6 @@ import { noteFieldSchema } from "../../paymentFormSchema"
 import { useUpdatePayment } from "../../updatePayment/useUpdatePayment"
 import { EditableField } from "../EditableField"
 import { InlineForm } from "../InlineForm"
-import { SubmitIconButton } from "../SubmitIconButton"
 
 interface NoteFieldProps {
   bookId: number
@@ -115,8 +114,6 @@ export function NoteField({
       disabled={disabled && !editing}
       editButtonLabel={t("payments.details.editNote")}
       onEdit={handleEdit}
-      error={Boolean(messages?.length)}
-      messages={messages}
       view={
         <Text
           size="4"
@@ -131,20 +128,21 @@ export function NoteField({
         </Text>
       }
       editor={
-        <InlineForm onSubmit={handleSubmit} onCancel={handleCancel} saving={isPending}>
-          <Flex align="center" gap="2">
-            <div style={{ flex: 1 }}>
-              <NoteInput
-                autoFocus
-                disabled={isPending}
-                id={id}
-                size="3"
-                value={draftNote}
-                onChange={handleChange}
-              />
-            </div>
-            <SubmitIconButton ariaLabel={t("payments.details.saveNote")} loading={isPending} />
-          </Flex>
+        <InlineForm
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          saving={isPending}
+          submitLabel={t("payments.details.saveNote")}
+          messages={messages}
+        >
+          <NoteInput
+            autoFocus
+            disabled={isPending}
+            id={id}
+            size="3"
+            value={draftNote}
+            onChange={handleChange}
+          />
         </InlineForm>
       }
     />

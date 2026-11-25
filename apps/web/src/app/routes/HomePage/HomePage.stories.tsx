@@ -624,3 +624,97 @@ function headerActionStory(mobile: boolean): Story {
 
 export const DesktopHeaderCreatePayment = headerActionStory(false)
 export const MobileHeaderCreatePayment = headerActionStory(true)
+
+function paymentFormStory(width: number, height: number, candidateCount: number): Story {
+  const rows = Array.from({ length: candidateCount * 3 }, (_, index) => {
+    const candidate = Math.floor(index / 3) + 1
+    return {
+      ...mapPaymentToRow(samplePayments[0]),
+      id: 100 + index,
+      date: "2025-06-10",
+      note: `候補${candidate}長いメモの表示確認ABCDEFGHIJKLMNOPQRSTUVWXYZ`.slice(0, 30),
+      amount: 1000 * candidate,
+    }
+  })
+
+  return {
+    parameters: {
+      msw: {
+        handlers: [
+          ...createBookHandlers(),
+          ...createPaymentHandlers({ initialRows: rows, persistCreatedRows: true }),
+          ...createCategoryHandlers(),
+          ...createMonthlyBudgetHandlers(),
+        ],
+      },
+      viewport: {
+        options: {
+          paymentForm: {
+            name: "Payment form",
+            styles: { width: `${width}px`, height: `${height}px` },
+          },
+        },
+      },
+    },
+    globals: { viewport: { value: "paymentForm" } },
+    play: async ({ canvasElement }) => {
+      expect(window.innerWidth).toBe(width)
+      expect(window.innerHeight).toBe(height)
+      const { t } = i18next
+      const canvas = within(canvasElement)
+      const body = within(canvasElement.ownerDocument.body)
+      await userEvent.click(
+        await canvas.findByRole("button", { name: t("payments.create.trigger") }),
+      )
+      const dialog = await body.findByRole("dialog", { name: t("payments.create.title") })
+      const form = within(dialog)
+      const category = form.getByRole("combobox", { name: t("payments.category.label") })
+      const amount = form.getByLabelText(t("amount.label"), { exact: false, selector: "input" })
+      const note = form.getByRole("textbox", { name: t("payments.note.label") })
+      const date = form.getByLabelText(t("date.label"), { exact: false })
+      const submit = form.getByRole("button", { name: t("common.create") })
+      const cancel = form.getByRole("button", { name: t("common.cancel") })
+      const bounds = dialog.getBoundingClientRect()
+      expect(bounds.width).toBe(width)
+      for (const control of [category, amount, note, date, cancel, submit]) {
+        const rect = control.getBoundingClientRect()
+        expect(rect.left).toBeGreaterThanOrEqual(bounds.left)
+        expect(rect.right).toBeLessThanOrEqual(bounds.right)
+      }
+      expect(cancel.getBoundingClientRect().right).toBeLessThan(submit.getBoundingClientRect().left)
+
+      await userEvent.type(amount, "-1")
+      await userEvent.click(submit)
+      await expect(form.findByText(t("validation.amount.nonnegative"))).resolves.toBeVisible()
+      expect(amount).toHaveValue("-1")
+
+      if (candidateCount > 0) {
+        const group = await form.findByRole("group", { name: t("payments.create.frequent.label") })
+        const candidates = within(group).getAllByRole("button")
+        expect(candidates).toHaveLength(candidateCount)
+        expect(group.scrollWidth).toBe(group.clientWidth)
+        for (const candidate of candidates) {
+          expect(candidate.getBoundingClientRect().height).toBeGreaterThanOrEqual(44)
+        }
+        if (!(date instanceof HTMLInputElement))
+          throw new globalThis.Error("日付の入力欄がありません")
+        const initialDate = date.value
+        await userEvent.click(candidates[candidates.length - 1])
+        expect(note).toHaveValue(rows[rows.length - 1].note)
+        expect(amount).toHaveValue(String(rows[rows.length - 1].amount))
+        expect(date).toHaveValue(initialDate)
+        expect(category).toHaveTextContent("Food")
+      } else {
+        expect(form.queryByRole("group", { name: t("payments.create.frequent.label") })).toBeNull()
+        await userEvent.clear(amount)
+        await userEvent.type(amount, "1200")
+      }
+      await userEvent.click(submit)
+      await waitFor(async () => expect(dialog).not.toBeInTheDocument())
+    },
+  }
+}
+
+export const NarrowPaymentForm = paymentFormStory(320, 568, 5)
+export const MobilePaymentForm = paymentFormStory(390, 844, 1)
+export const MobilePaymentFormWithoutCandidates = paymentFormStory(390, 844, 0)
