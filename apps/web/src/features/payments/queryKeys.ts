@@ -16,8 +16,8 @@ export const paymentQueryKeys = {
       dateKey,
       getCategoryQueryKey(categoryId),
     ] as const,
-  recent: (bookId: number, cacheScope: string) =>
-    [...paymentQueryKeys.book(bookId), "recent", cacheScope] as const,
+  recent: (bookId: number, cacheScope: string, targetMonth: string) =>
+    [...paymentQueryKeys.book(bookId), "recent", cacheScope, targetMonth] as const,
   monthlySpending: (bookId: number, targetMonth: string) =>
     [...paymentQueryKeys.book(bookId), "monthly-spending", targetMonth] as const,
   frequent: (bookId: number, startDate: string, endDate: string) =>

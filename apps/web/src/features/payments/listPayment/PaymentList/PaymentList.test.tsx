@@ -304,7 +304,7 @@ describe("PaymentList", () => {
     "ホームから開いた詳細を%sで閉じると元のホームの年月へ戻る",
     async (closeMethod) => {
       server.resetHandlers(...createPaymentHandlers(), ...createCategoryHandlers())
-      const { router, user } = renderPaymentList("/?year=2025&month=5")
+      const { router, user } = renderPaymentList("/?year=2025&month=6")
 
       await user.click((await screen.findAllByRole("button", { name: /コンビニ/ }))[0])
 
@@ -320,11 +320,11 @@ describe("PaymentList", () => {
       }
 
       await waitFor(() => {
-        expect(router.state.location.href).toBe("/?year=2025&month=5")
+        expect(router.state.location.href).toBe("/?year=2025&month=6")
         expect(router.state.location.state.__TSR_index).toBe(0)
         expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
       })
-      expect(await screen.findByLabelText("Recent payments")).toBeInTheDocument()
+      expect(await screen.findByLabelText("Payments for June")).toBeInTheDocument()
     },
   )
 
@@ -340,7 +340,7 @@ describe("PaymentList", () => {
       expect(router.state.location.state.__TSR_index).toBe(0)
       expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
     })
-    expect(await screen.findByLabelText("Recent payments")).toBeInTheDocument()
+    expect(await screen.findByLabelText("Payments for June")).toBeInTheDocument()
   })
 
   test("URL searchの登録済みカテゴリIDを一覧取得条件に反映する", async () => {

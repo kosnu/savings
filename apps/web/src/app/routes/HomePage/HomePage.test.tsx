@@ -28,6 +28,7 @@ import {
   waitFor,
   within,
 } from "../../../test/test-utils"
+import { createDeferred } from "../../../test/utils/createDeferred"
 import { mapPaymentToRow } from "../../../test/utils/mapPaymentToRow"
 import { router as appRouter } from "../../routes"
 import * as stories from "./HomePage.stories"
@@ -198,62 +199,96 @@ describe("HomePage", () => {
     },
   )
 
-  test("月次集計と全期間の直近5件を表示し、検索は表示しない", async () => {
+  test("選択月の支払いを新しい順で最大5件表示し、月を切り替えられる", async () => {
     const requests: URL[] = []
-    const rows = Array.from({ length: 6 }, (_, index) => ({
+    const julyResponse = createDeferred<void>()
+    const rows = [
+      "2025-06-01",
+      "2025-06-12",
+      "2025-06-30",
+      "2025-06-08",
+      "2025-06-13",
+      "2025-06-20",
+      "2025-07-01",
+    ].map((date, index) => ({
       ...mapPaymentToRow(payments[0]),
-      id: 10 - index,
+      id: index + 1,
       note: `支払い${index + 1}`,
-      date: index < 3 ? "2025-06-15" : "2025-05-15",
+      date,
     }))
-    // APIが要求した件数より多く返しても、トップには最大5件だけを表示する。
     server.use(
-      http.get("*/rest/v1/payments", ({ request }) => {
+      http.get("*/rest/v1/payments", async ({ request }) => {
         const url = new URL(request.url)
-        // 直近一覧以外の取得は既存handlerに委ねる。
         if (url.searchParams.get("limit") !== "5") return
         requests.push(url)
-        return HttpResponse.json(rows)
+        if (url.searchParams.getAll("date").includes("gte.2025-07-01")) await julyResponse.promise
       }),
+      ...createPaymentHandlers({ initialRows: rows }),
     )
     const { user } = render(<Default />)
 
-    const recent = await screen.findByLabelText("Recent payments")
-    await waitFor(() => {
-      expect(within(recent).getAllByRole("button")).toHaveLength(5)
-    })
-    expect(within(recent).getByText("支払い5")).toBeInTheDocument()
+    const recent = await screen.findByLabelText("Payments for June")
+    expect(screen.getByRole("heading", { name: "Payments for June" })).toBeVisible()
+    await within(recent).findByText("支払い3")
     expect(
-      within(recent).queryByText("No payments yet. Use “Create payment” to record one."),
-    ).not.toBeInTheDocument()
-    expect(within(recent).queryByText("支払い6")).not.toBeInTheDocument()
+      within(recent)
+        .getAllByRole("button")
+        .map((row) => row.textContent?.match(/支払い\d/)?.[0]),
+    ).toEqual(["支払い3", "支払い6", "支払い5", "支払い2", "支払い4"])
     expect(await screen.findByLabelText("Total spending")).toBeInTheDocument()
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument()
     expect(screen.queryByRole("combobox", { name: /category filter/i })).not.toBeInTheDocument()
     const header = screen.getByRole("banner")
     expect(within(header).getByRole("button", { name: /create payment/i })).toBeEnabled()
     expect(within(header).queryByRole("button", { name: "Theme toggle" })).not.toBeInTheDocument()
-    expect(requests.length).toBeGreaterThan(0)
+
+    const next = () => screen.getByRole("button", { name: /next month/i })
+    const previous = () => screen.getByRole("button", { name: /previous month/i })
+    await user.click(next())
+    const july = await screen.findByLabelText("Payments for July")
+    expect(within(july).getAllByLabelText("loading-payment-item")).toHaveLength(5)
+    expect(screen.queryByText("支払い3")).not.toBeInTheDocument()
+
+    await user.click(previous())
+    expect(await screen.findByText("支払い3")).toBeVisible()
+    expect(screen.queryByText("支払い7")).not.toBeInTheDocument()
+    await user.click(next())
+    julyResponse.resolve()
+    expect(await screen.findByText("支払い7")).toBeVisible()
+    expect(within(screen.getByLabelText("Payments for July")).getAllByRole("button")).toHaveLength(
+      1,
+    )
+
+    await user.click(next())
+    expect(await screen.findByRole("heading", { name: "Payments for August" })).toBeVisible()
+    expect(
+      await screen.findByText("No payments for August. Use “Create payment” to record one."),
+    ).toBeVisible()
+    expect(screen.queryByText("支払い7")).not.toBeInTheDocument()
+
+    expect(requests.map((request) => request.searchParams.getAll("date"))).toEqual(
+      expect.arrayContaining([
+        ["gte.2025-06-01", "lte.2025-06-30"],
+        ["gte.2025-07-01", "lte.2025-07-31"],
+        ["gte.2025-08-01", "lte.2025-08-31"],
+      ]),
+    )
     for (const request of requests) {
       expect(request.searchParams.get("book_id")).toBe("eq.1")
       expect(request.searchParams.get("limit")).toBe("5")
       expect(request.searchParams.get("order")).toBe("date.desc,id.desc")
-      expect(request.searchParams.has("date")).toBe(false)
       expect(request.searchParams.has("category_id")).toBe(false)
     }
-
-    await user.click(screen.getByRole("button", { name: /next month/i }))
-    expect(await screen.findByRole("button", { name: "July 2025" })).toBeInTheDocument()
-    expect(within(recent).getAllByRole("button")).toHaveLength(5)
   })
 
   test("5件未満なら存在する件数だけ表示する", async () => {
     render(<Default />)
-    const recent = await screen.findByLabelText("Recent payments")
+    const recent = await screen.findByLabelText("Payments for June")
     await waitFor(() => {
-      expect(within(recent).getAllByRole("button")).toHaveLength(4)
+      expect(within(recent).getAllByRole("button")).toHaveLength(2)
     })
-    expect(within(recent).getByText("Apr 1, 2025")).toBeInTheDocument()
+    expect(within(recent).getByText("Jun 2, 2025")).toBeInTheDocument()
+    expect(within(recent).queryByText("Apr 1, 2025")).not.toBeInTheDocument()
   })
 
   test("ヘッダーの作成操作はホームだけに表示し、他画面の右側は空にする", async () => {
@@ -288,7 +323,7 @@ describe("HomePage", () => {
   })
 
   test.each(["loading", "error"] as const)(
-    "直近一覧が%sでも月次・カテゴリ別集計を表示する",
+    "選択月の支払い欄が%sでも月次・カテゴリ別集計を表示する",
     async (state) => {
       vi.spyOn(console, "error").mockImplementation(() => {})
       server.use(
@@ -312,7 +347,7 @@ describe("HomePage", () => {
         expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
       }
       expect(
-        screen.queryByText("No payments yet. Use “Create payment” to record one."),
+        screen.queryByText("No payments for June. Use “Create payment” to record one."),
       ).not.toBeInTheDocument()
       expect(screen.getByRole("button", { name: /create payment/i })).toBeEnabled()
     },
@@ -328,7 +363,7 @@ describe("HomePage", () => {
     )
     render(<Empty />)
     expect(
-      await screen.findByText("No payments yet. Use “Create payment” to record one."),
+      await screen.findByText("No payments for June. Use “Create payment” to record one."),
     ).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /create payment/i })).toBeEnabled()
     const total = await screen.findByLabelText("Total spending")
@@ -356,7 +391,7 @@ describe("HomePage", () => {
     render(<ErrorStory />)
     expect(await screen.findByRole("alert")).toHaveTextContent("Failed")
     expect(
-      screen.queryByText("No payments yet. Use “Create payment” to record one."),
+      screen.queryByText("No payments for June. Use “Create payment” to record one."),
     ).not.toBeInTheDocument()
   })
 
@@ -370,7 +405,7 @@ describe("HomePage", () => {
     await waitFor(() => {
       expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥5,000")
     })
-    expect(await screen.findByLabelText("Recent payments")).toBeInTheDocument()
+    expect(await screen.findByLabelText("Payments for June")).toBeInTheDocument()
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   })
 
@@ -396,7 +431,7 @@ describe("HomePage", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Failed")
     resetHandlers()
     await user.click(screen.getByRole("button", { name: "Change user" }))
-    expect(await screen.findByLabelText("Recent payments")).toBeInTheDocument()
+    expect(await screen.findByLabelText("Payments for June")).toBeInTheDocument()
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   })
 
@@ -476,7 +511,7 @@ describe("HomePage", () => {
   test("未認証時には紹介画面を表示する", async () => {
     render(<Unauthenticated />)
     expect(await screen.findByText(/Burneto is a budgeting app/)).toBeInTheDocument()
-    expect(screen.queryByLabelText("Recent payments")).not.toBeInTheDocument()
+    expect(screen.queryByLabelText("Payments for June")).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Create payment" })).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Theme toggle" })).not.toBeInTheDocument()
   })
@@ -485,21 +520,21 @@ describe("HomePage", () => {
     render(<RestoringSession />)
     expect(await screen.findByRole("link", { name: "Burneto — Home" })).toBeInTheDocument()
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument()
-    expect(screen.queryByLabelText("Recent payments")).not.toBeInTheDocument()
+    expect(screen.queryByLabelText("Payments for June")).not.toBeInTheDocument()
   })
 
-  test("直近の支払いから該当月の詳細へ移動できる", async () => {
+  test("選択月の支払いから該当月の詳細へ移動できる", async () => {
     const { user } = render(<Default />)
-    const recent = await screen.findByLabelText("Recent payments")
-    await user.click(await within(recent).findByRole("button", { name: /Apr 1, 2025/ }))
+    const recent = await screen.findByLabelText("Payments for June")
+    await user.click(await within(recent).findByRole("button", { name: /Jun 2, 2025/ }))
     expect(await screen.findByRole("combobox", { name: "Year", hidden: true })).toHaveTextContent(
       "2025",
     )
-    expect(screen.getByRole("combobox", { name: "Month", hidden: true })).toHaveTextContent("April")
+    expect(screen.getByRole("combobox", { name: "Month", hidden: true })).toHaveTextContent("June")
     expect(await screen.findByRole("dialog", { name: /payment details/i })).toBeInTheDocument()
   })
 
-  test("空状態から追加すると案内が消え、直近一覧と月次集計が再取得される", async () => {
+  test("空状態から追加すると案内が消え、選択月の支払い欄と月次集計が再取得される", async () => {
     const created = {
       ...mapPaymentToRow(payments[0]),
       id: 999,
@@ -515,9 +550,9 @@ describe("HomePage", () => {
       ...createMonthlyBudgetHandlers(),
     )
     const { user } = render(<Default />)
-    const recent = await screen.findByLabelText("Recent payments")
+    const recent = await screen.findByLabelText("Payments for June")
     expect(
-      await within(recent).findByText("No payments yet. Use “Create payment” to record one."),
+      await within(recent).findByText("No payments for June. Use “Create payment” to record one."),
     ).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: /create payment/i }))
     const dialog = await screen.findByRole("dialog", { name: /create payment/i })
@@ -540,7 +575,7 @@ describe("HomePage", () => {
     })
     expect(await within(recent).findByText("追加した支払い")).toBeInTheDocument()
     expect(
-      within(recent).queryByText("No payments yet. Use “Create payment” to record one."),
+      within(recent).queryByText("No payments for June. Use “Create payment” to record one."),
     ).not.toBeInTheDocument()
     await waitFor(() => {
       expect(screen.getByLabelText("Total spending")).toHaveTextContent("¥1,080")

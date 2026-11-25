@@ -218,8 +218,9 @@ export const resources = {
       "payments.category.unknown": "Unknown category",
       "payments.note.label": "Note",
       "payments.note.placeholder": "No note",
-      "payments.recent": "Recent payments",
-      "payments.recent.empty": "No payments yet. Use “Create payment” to record one.",
+      "payments.recent": "Payments for {{targetDate, datetime(month: long)}}",
+      "payments.recent.empty":
+        "No payments for {{targetDate, datetime(month: long)}}. Use “Create payment” to record one.",
       "payments.list.label": "payment-list",
       "payments.list.empty": "No payments found.",
       "payments.list.clearFilter": "Clear filter",
@@ -565,8 +566,9 @@ export const resources = {
       "payments.category.unknown": "不明なカテゴリ",
       "payments.note.label": "メモ",
       "payments.note.placeholder": "メモなし",
-      "payments.recent": "直近の支払い",
-      "payments.recent.empty": "支払いはまだありません。「支払いを作成」から記録できます。",
+      "payments.recent": "{{targetDate, datetime(month: long)}}の支払い",
+      "payments.recent.empty":
+        "{{targetDate, datetime(month: long)}}の支払いはありません。「支払いを作成」から記録できます。",
       "payments.list.label": "支払い一覧",
       "payments.list.empty": "支払いが見つかりません。",
       "payments.list.clearFilter": "絞り込みを解除",
