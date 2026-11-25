@@ -149,7 +149,7 @@ Auditでは、確認できた検証漏れと、その発生・見逃しの原因
 
 ## 隔離と保存
 
-評価器はGoで実装し、実行には認証済みCodex CLIとNode.jsが必要で、利用料金・利用枠を消費する。buildにはGo 1.27以降を使う。
+評価器はGoで実装し、実行には認証済みCodex CLIとNode.jsが必要で、利用料金・利用枠を消費する。ビルドに必要なGoのバージョンは[評価器の `go.mod`](../../tools/harness/evals/go.mod)に従う。
 指定したcommit、または現在のworktreeからAGENTS.md、rule-mapが指す正本文書、Codex adapterとCore操作文書を使い捨てworkspaceへ複製する。スキル評価では対象の `SKILL.md` も同じcommitまたはworktreeから取得し、各試行には対象スキル1件だけを配置する。実際の定義全文と依頼文をモデルに渡し、適用判断と無許可の変更・検証・外部ツール利用の有無を採点する。対象定義の変更は実行中・比較時の鮮度検査に含まれる。
 worktreeでは未staged・staged・未追跡の文書も、現在のrule-mapから選択されるものを取り込む。削除された必須文書をHEADで補完しない。
 それ以外の未追跡ファイルやアプリコードを一括で取り込まず、原本へのstage・commit・stash・checkoutを行わない。

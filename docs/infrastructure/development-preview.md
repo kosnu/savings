@@ -193,7 +193,8 @@ DB password・host・CA PEMは登録せず、接続はCLIに任せる。debugロ
 
 ### バージョンと利用上限
 
-cf と Cloudflare Vite plugin は `apps/web/package.json` の固定版、Supabase CLI は `2.118.0` を使う。
+cf と Cloudflare Vite plugin は [Web の依存定義](../../apps/web/package.json)、DB 配信で使う Supabase CLI は
+[Dev DB 配信ワークフロー](../../.github/workflows/deploy_dev_database.yaml) の `Setup Supabase CLI` に従う。
 依存更新時はhelp・Preview context・Build Output・返却JSONを再検証する。
 main の検証スクリプトは、移行前のPRが生成する v0 と現行の v1 のうち、単一の Build Output を検証する。
 cfは信頼済みの `tools/dev-preview/deploy.mjs` から呼び出す。helpの構文を確認し、旧CLIには位置引数、新CLIには `--preview-name` で同じPR固有名を渡す。構文が不明・helpが失敗した場合は配信しない。`--prebuilt --mode development` と配信結果JSONを維持し、`--quiet` は指定しない。
