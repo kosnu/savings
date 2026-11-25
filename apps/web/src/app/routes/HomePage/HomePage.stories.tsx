@@ -674,14 +674,35 @@ function paymentFormStory(width: number, height: number, candidateCount: number)
       const date = form.getByLabelText(t("date.label"), { exact: false })
       const submit = form.getByRole("button", { name: t("common.create") })
       const cancel = form.getByRole("button", { name: t("common.cancel") })
+      const continueCreating = form
+        .getByRole("checkbox", { name: t("payments.create.continue") })
+        .closest("label")
+      if (!continueCreating) throw new globalThis.Error("続けて作成する操作のラベルがありません")
       const bounds = dialog.getBoundingClientRect()
       expect(bounds.width).toBe(width)
-      for (const control of [category, amount, note, date, cancel, submit]) {
+      for (const control of [category, amount, note, date, continueCreating, cancel, submit]) {
         const rect = control.getBoundingClientRect()
         expect(rect.left).toBeGreaterThanOrEqual(bounds.left)
         expect(rect.right).toBeLessThanOrEqual(bounds.right)
       }
-      expect(cancel.getBoundingClientRect().right).toBeLessThan(submit.getBoundingClientRect().left)
+      const actions = [continueCreating, cancel, submit].map((control) =>
+        control.getBoundingClientRect(),
+      )
+      const centerY = actions[2].top + actions[2].height / 2
+      for (const rect of actions) {
+        expect(rect.top + rect.height / 2).toBeCloseTo(centerY, 0)
+        expect(rect.height).toBeGreaterThanOrEqual(40)
+      }
+      expect(actions[1].left - actions[0].right).toBeGreaterThanOrEqual(12)
+      expect(actions[2].left - actions[1].right).toBeGreaterThanOrEqual(12)
+      expect(dialog.scrollWidth).toBe(dialog.clientWidth)
+      expect(document.documentElement.scrollWidth).toBe(width)
+
+      await userEvent.pointer({ keys: "[TouchA]", target: category })
+      await expect(category).toHaveAttribute("aria-expanded", "true")
+      const option = await body.findByRole("option", { name: "Entertainment" })
+      await userEvent.pointer({ keys: "[TouchA]", target: option })
+      await expect(category).toHaveTextContent("Entertainment")
 
       await userEvent.type(amount, "-1")
       await userEvent.click(submit)

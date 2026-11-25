@@ -165,13 +165,7 @@ export function CreatePaymentForm({
           )}
         </form.Subscribe>
       </Flex>
-      <Flex
-        mt="4"
-        gap="3"
-        direction={{ initial: "column", sm: "row" }}
-        align={{ initial: "stretch", sm: "center" }}
-        justify={onContinuousModeChange ? "between" : "end"}
-      >
+      <Flex mt="4" gap="3" align="center" justify={onContinuousModeChange ? "between" : "end"}>
         {onContinuousModeChange ? (
           <ContinueCreatingCheckbox
             checked={continuousMode ?? false}
@@ -180,7 +174,7 @@ export function CreatePaymentForm({
         ) : null}
         <form.Subscribe selector={(state) => state.isSubmitting}>
           {(isSubmitting) => (
-            <Flex gap="3" justify="end" wrap="wrap">
+            <Flex gap="3" flexShrink="0" justify="end">
               <CancelButton
                 size={{ initial: "3", sm: "2" }}
                 disabled={isSubmitting}
