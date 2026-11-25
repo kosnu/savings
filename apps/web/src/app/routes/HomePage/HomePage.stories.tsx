@@ -124,23 +124,22 @@ export const Default: Story = {
         name: t("summary.categoryBudgetProgress", { category: "Food" }),
       }),
     ).toHaveAttribute("aria-valuenow", "1000")
-    const recent = await canvas.findByLabelText(t("payments.recent"))
+    const recent = await canvas.findByLabelText(
+      t("payments.recent", { targetDate: new Date(2025, 5, 1) }),
+    )
     const category = canvas.getByRole("progressbar", {
       name: t("summary.categoryBudgetProgress", { category: "Food" }),
     })
     expect(total.compareDocumentPosition(graph) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(graph.compareDocumentPosition(category) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(category.compareDocumentPosition(recent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    await expect(await within(recent).findAllByRole("button")).toHaveLength(4)
+    await expect(await within(recent).findAllByRole("button")).toHaveLength(2)
     await expect(canvas.queryByText(/^(Across all dates|全期間)$/)).not.toBeInTheDocument()
     await expect(canvas.getByRole("button", { name: t("payments.create.trigger") })).toBeVisible()
     await expect(
       canvas.queryByRole("combobox", { name: t("payments.category.filter") }),
     ).not.toBeInTheDocument()
 
-    const recentRows = within(recent)
-      .getAllByRole("button")
-      .map((row) => row.textContent)
     await userEvent.click(summary.getByRole("button", { name: t("date.previousMonth") }))
     await expect(await summary.findByText(t("summary.spendingChart.past"))).toBeVisible()
     const forecastPrefixes = [
@@ -150,11 +149,18 @@ export const Default: Story = {
     await expect(
       summary.queryByText((label) => forecastPrefixes.some((prefix) => label.startsWith(prefix))),
     ).not.toBeInTheDocument()
+    const may = new Date(2025, 4, 1)
+    await expect(
+      await canvas.findByRole("heading", {
+        name: t("payments.recent", { targetDate: may }),
+      }),
+    ).toBeVisible()
+    await expect(
+      await canvas.findByText(t("payments.recent.empty", { targetDate: may })),
+    ).toBeVisible()
     expect(
-      within(recent)
-        .getAllByRole("button")
-        .map((row) => row.textContent),
-    ).toEqual(recentRows)
+      canvas.queryByLabelText(t("payments.recent", { targetDate: new Date(2025, 5, 1) })),
+    ).not.toBeInTheDocument()
   },
 }
 export const Empty: Story = {
@@ -171,7 +177,9 @@ export const Empty: Story = {
   play: async ({ canvasElement }) => {
     const { t } = i18next
     const canvas = within(canvasElement)
-    await expect(await canvas.findByText(t("payments.recent.empty"))).toBeVisible()
+    await expect(
+      await canvas.findByText(t("payments.recent.empty", { targetDate: new Date(2025, 5, 1) })),
+    ).toBeVisible()
     await expect(canvas.getByRole("button", { name: t("payments.create.trigger") })).toBeEnabled()
     await expect(
       await canvas.findByRole("figure", { name: t("summary.spendingChart.title") }),
@@ -345,10 +353,16 @@ function loadingTransitionStory(count: number, mobile = false): Story {
         expect(bounds.left).toBeGreaterThanOrEqual(0)
         expect(bounds.right).toBeLessThanOrEqual(window.innerWidth)
       }
-      const recent = canvas.getByLabelText(t("payments.recent"))
+      const recent = canvas.getByLabelText(
+        t("payments.recent", { targetDate: new Date(2025, 5, 1) }),
+      )
       expect(within(recent).queryAllByRole("button")).toHaveLength(count)
       if (count === 0) {
-        expect(within(recent).getByText(t("payments.recent.empty"))).toBeVisible()
+        expect(
+          within(recent).getByText(
+            t("payments.recent.empty", { targetDate: new Date(2025, 5, 1) }),
+          ),
+        ).toBeVisible()
       }
     },
   }
@@ -466,7 +480,9 @@ function headerActionStory(mobile: boolean): Story {
       expect(
         within(header).queryByRole("button", { name: /^(Theme toggle|テーマ切り替え)$/ }),
       ).not.toBeInTheDocument()
-      const recent = await canvas.findByLabelText(t("payments.recent"))
+      const recent = await canvas.findByLabelText(
+        t("payments.recent", { targetDate: new Date(2025, 5, 1) }),
+      )
       await within(recent).findAllByRole("button")
       const total = within(await canvas.findByLabelText(t("payments.total.label")))
       const spent = await total.findByText("¥5,000")

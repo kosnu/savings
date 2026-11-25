@@ -9,6 +9,7 @@ import { useSelectedBook } from "../../../features/books"
 import { CreatePaymentModal, PaymentCard, RecentPayments } from "../../../features/payments"
 import { MonthlySpendingChart, Summary } from "../../../features/summaryByMonth"
 import { useSupabaseSession } from "../../../providers/supabase/useSupabaseSession"
+import { useDateRange } from "../../../utils/useDateRange"
 import { AppLayout } from "../../AppLayout"
 import { useInitializeMonthSearch } from "../../useInitializeMonthSearch"
 import { TopPage } from "../TopPage"
@@ -59,6 +60,7 @@ export function HomePage() {
 
 function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cacheScope: string }) {
   const { book } = useSelectedBook(authUserId)
+  const { date } = useDateRange()
   const { t } = useTranslation()
 
   return (
@@ -84,7 +86,7 @@ function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cache
             chart={<MonthlySpendingChart bookId={book.id} />}
           />
           <Heading as="h2" size="4" weight="medium">
-            {t("payments.recent")}
+            {t("payments.recent", { targetDate: date })}
           </Heading>
           <RecentPayments bookId={book.id} cacheScope={cacheScope} />
         </Flex>
@@ -94,6 +96,7 @@ function HomePageContent({ authUserId, cacheScope }: { authUserId: string; cache
 }
 
 function HomePageLoading() {
+  const { date } = useDateRange()
   const { t } = useTranslation()
 
   return (
@@ -111,7 +114,7 @@ function HomePageLoading() {
         <Flex direction="column" gap="3" aria-busy="true" data-testid="home-loading">
           <Summary loading reserveSpace chart={<MonthlySpendingChart loading />} />
           <Heading as="h2" size="4" weight="medium">
-            {t("payments.recent")}
+            {t("payments.recent", { targetDate: date })}
           </Heading>
           <Flex direction="column" gap="2" aria-hidden>
             {[0, 1, 2, 3, 4].map((row) => (

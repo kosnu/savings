@@ -8,8 +8,16 @@ import { payments } from "../../../../test/data/payments"
 import { renderWithRouter } from "../../../../test/helpers/renderWithRouter"
 import { createPaymentHandlers } from "../../../../test/msw/handlers/payments"
 import { server } from "../../../../test/msw/server"
-import { render, screen, waitFor, within } from "../../../../test/test-utils"
+import {
+  act,
+  createTestQueryClient,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "../../../../test/test-utils"
 import { mapPaymentToRow } from "../../../../test/utils/mapPaymentToRow"
+import { paymentQueryKeys } from "../../queryKeys"
 import { paymentsSearchSchema } from "../paymentsSearchSchema"
 import { RecentPayments } from "./RecentPayments"
 import * as stories from "./RecentPayments.stories"
@@ -29,7 +37,7 @@ function renderRecoveryScenario() {
       </>
     )
   }
-  return renderWithRouter("/", (root) => [
+  return renderWithRouter("/?year=2025&month=6", (root) => [
     createRoute({ getParentRoute: () => root, path: "/", component: Scenario }),
   ])
 }
@@ -49,7 +57,7 @@ describe("RecentPayments", () => {
     render(<Loading />)
     expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(5)
     expect(
-      screen.queryByText("No payments yet. Use “Create payment” to record one."),
+      screen.queryByText("No payments for June. Use “Create payment” to record one."),
     ).not.toBeInTheDocument()
   })
 
@@ -57,23 +65,19 @@ describe("RecentPayments", () => {
     server.resetHandlers(...createPaymentHandlers({ initialRows: [] }))
     render(<Empty />)
     expect(
-      await screen.findByText("No payments yet. Use “Create payment” to record one."),
+      await screen.findByText("No payments for June. Use “Create payment” to record one."),
     ).toBeInTheDocument()
   })
 
-  test.each([
-    ["2025-06-15", "Jun 15, 2025", new Date(2026, 9, 15), "2025", "6"],
-    ["2021-12-31", "Dec 31, 2021", new Date(2026, 9, 15), "2026", "10"],
-    ["2033-01-01", "Jan 1, 2033", new Date(2026, 9, 15), "2026", "10"],
-    ["2021-12-31", "Dec 31, 2021", new Date(2021, 11, 31), "2022", "1"],
-    ["2033-01-01", "Jan 1, 2033", new Date(2033, 0, 1), "2032", "12"],
-  ])("保存日 %s の詳細を表示できる年月で開く", async (date, displayedDate, now, year, month) => {
-    vi.useFakeTimers({ toFake: ["Date"] })
-    vi.setSystemTime(now)
-    const row = { ...mapPaymentToRow(payments[0]), date, note: "保存日を保持する支出" }
+  test("選択月の支払いを詳細URLで開く", async () => {
+    const row = {
+      ...mapPaymentToRow(payments[0]),
+      date: "2025-06-15",
+      note: "保存日を保持する支出",
+    }
     server.resetHandlers(...createPaymentHandlers({ initialRows: [row] }))
     // 詳細URLとsearchの遷移を検証するため、Storyの固定routerではなく遷移先を持つrouterを使う。
-    const { router, user } = renderWithRouter("/", (root) => [
+    const { router, user } = renderWithRouter("/?year=2025&month=6", (root) => [
       createRoute({
         getParentRoute: () => root,
         path: "/",
@@ -87,13 +91,13 @@ describe("RecentPayments", () => {
       }),
     ])
     const payment = await screen.findByRole("button", { name: /保存日を保持する支出/ })
-    expect(payment).toHaveTextContent(displayedDate)
+    expect(payment).toHaveTextContent("Jun 15, 2025")
 
     await user.click(payment)
 
     expect(await screen.findByText("詳細の遷移先")).toBeInTheDocument()
     expect(router.state.location.pathname).toBe(`/payments/details/${row.id}`)
-    expect(router.state.location.search).toEqual({ year, month })
+    expect(router.state.location.search).toEqual({ year: "2025", month: "6" })
   })
 
   test("同じBookのまま再試行し、取得失敗から正常表示へ復帰する", async () => {
@@ -106,19 +110,79 @@ describe("RecentPayments", () => {
           return HttpResponse.json({ message: "failed" }, { status: 500 })
         }
         await delay(50)
-        return HttpResponse.json(payments.map(mapPaymentToRow))
+        return HttpResponse.json(payments.slice(0, 2).map(mapPaymentToRow))
       }),
     )
     const { user } = render(<ErrorStory />)
     expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
     await user.click(screen.getByRole("button", { name: "Try again" }))
     expect(await screen.findAllByLabelText("loading-payment-item")).toHaveLength(5)
-    expect(await screen.findByText("スーパー")).toBeInTheDocument()
+    expect(await screen.findByRole("button", { name: /Jun 2, 2025/ })).toBeInTheDocument()
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
     expect(requests).toHaveLength(2)
     for (const request of requests) {
       expect(request.searchParams.get("book_id")).toBe("eq.1")
     }
+  })
+
+  test("空のキャッシュの再取得が失敗するとエラーを表示し、再試行で復帰する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    server.resetHandlers(...createPaymentHandlers({ initialRows: [] }))
+    const queryClient = createTestQueryClient()
+    const { user } = render(<Empty />, { queryClient })
+    const emptyMessage = "No payments for June. Use “Create payment” to record one."
+    expect(await screen.findByText(emptyMessage)).toBeVisible()
+
+    server.resetHandlers(...createPaymentHandlers({ get: { error: true } }))
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: paymentQueryKeys.book(1) })
+    })
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
+    expect(screen.queryByText(emptyMessage)).not.toBeInTheDocument()
+
+    server.resetHandlers(...createPaymentHandlers({ initialRows: [] }))
+    await user.click(screen.getByRole("button", { name: "Try again" }))
+    expect(await screen.findByText(emptyMessage)).toBeVisible()
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+  })
+
+  test("10月の取得に失敗しても11月へ切り替えると月初の支払いを表示する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    const october = { ...mapPaymentToRow(payments[0]), date: "2025-10-31", note: "10月末の支払い" }
+    const november = { ...october, id: 2, date: "2025-11-01", note: "11月初の支払い" }
+    server.use(
+      http.get(
+        "*/rest/v1/payments",
+        ({ request }) => {
+          if (new URL(request.url).searchParams.getAll("date").includes("gte.2025-10-01")) {
+            return HttpResponse.json({ message: "failed" }, { status: 500 })
+          }
+        },
+        { once: true },
+      ),
+      ...createPaymentHandlers({ initialRows: [october, november] }),
+    )
+    const { router, user } = renderWithRouter("/?year=2025&month=10", (root) => [
+      createRoute({
+        getParentRoute: () => root,
+        path: "/",
+        component: () => <RecentPayments {...stories.default.args} />,
+      }),
+    ])
+    expect(await screen.findByRole("alert")).toBeVisible()
+    await act(async () => {
+      await router.navigate({ to: "/", search: { year: "2025", month: "11" } })
+    })
+    expect(await screen.findByText("11月初の支払い")).toBeVisible()
+    expect(screen.queryByText("10月末の支払い")).not.toBeInTheDocument()
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+
+    await act(async () => {
+      await router.navigate({ to: "/", search: { year: "2025", month: "10" } })
+    })
+    await user.click(await screen.findByRole("button", { name: "Try again" }))
+    expect(await screen.findByText("10月末の支払い")).toBeVisible()
+    expect(screen.queryByText("11月初の支払い")).not.toBeInTheDocument()
   })
 
   test("再試行にも失敗した場合はエラーを維持し、再び試せる", async () => {
@@ -137,7 +201,7 @@ describe("RecentPayments", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Could not load payments.")
     expect(screen.getByRole("button", { name: "Try again" })).toBeEnabled()
     expect(
-      screen.queryByText("No payments yet. Use “Create payment” to record one."),
+      screen.queryByText("No payments for June. Use “Create payment” to record one."),
     ).not.toBeInTheDocument()
   })
 
@@ -170,9 +234,9 @@ describe("RecentPayments", () => {
     expect(await screen.findByRole("alert")).toBeInTheDocument()
     server.resetHandlers(...createPaymentHandlers())
     await user.click(screen.getByRole("button", { name: "Change scope" }))
-    const recent = screen.getByLabelText("Recent payments")
+    const recent = screen.getByLabelText("Payments for June")
     await waitFor(() => {
-      expect(within(recent).getAllByRole("button")).toHaveLength(4)
+      expect(within(recent).getAllByRole("button")).toHaveLength(2)
     })
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   })

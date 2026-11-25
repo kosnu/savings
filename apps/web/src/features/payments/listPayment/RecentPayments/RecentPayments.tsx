@@ -5,7 +5,8 @@ import { Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
-import { resolveTargetMonth } from "../../../../domain/date"
+import { formatTargetMonthKey, resolveTargetMonth, toTargetMonth } from "../../../../domain/date"
+import { useDateRange } from "../../../../utils/useDateRange"
 import { paymentQueryKeys } from "../../queryKeys"
 import { fetchPayments } from "../fetchPayments"
 import { PaymentCard } from "../PaymentCard"
@@ -16,58 +17,68 @@ interface RecentPaymentsProps {
   cacheScope: string
 }
 
+const loadingPayments = [0, 1, 2, 3, 4].map((row) => <PaymentCard key={row} loading />)
+
 export function RecentPayments({ bookId, cacheScope }: RecentPaymentsProps) {
   const { t } = useTranslation()
+  const { date, dateRange } = useDateRange()
+  const monthKey = formatTargetMonthKey(toTargetMonth(date))
 
   return (
-    <Flex aria-label={t("payments.recent")} direction="column" gap="2">
-      <QueryErrorResetBoundary>
-        {({ reset }) => (
-          <ErrorBoundary
-            onReset={reset}
-            fallbackRender={({ resetErrorBoundary }) => (
-              <Flex direction="column" gap="2" align="start">
-                <Text color="red" role="alert">
-                  {t("payments.list.loadError")}
-                </Text>
-                <Button type="button" variant="soft" onClick={resetErrorBoundary}>
-                  {t("common.retry")}
-                </Button>
-              </Flex>
-            )}
-            resetKeys={[bookId, cacheScope]}
-          >
-            <Suspense
-              fallback={
-                <>
-                  <PaymentCard loading />
-                  <PaymentCard loading />
-                  <PaymentCard loading />
-                  <PaymentCard loading />
-                  <PaymentCard loading />
-                </>
-              }
+    <Flex asChild direction="column" gap="2">
+      <section aria-label={t("payments.recent", { targetDate: date })}>
+        <QueryErrorResetBoundary>
+          {({ reset }) => (
+            <ErrorBoundary
+              onReset={reset}
+              fallbackRender={({ resetErrorBoundary }) => (
+                <Flex direction="column" gap="2" align="start">
+                  <Text color="red" role="alert">
+                    {t("payments.list.loadError")}
+                  </Text>
+                  <Button type="button" variant="soft" onClick={resetErrorBoundary}>
+                    {t("common.retry")}
+                  </Button>
+                </Flex>
+              )}
+              resetKeys={[bookId, cacheScope, monthKey]}
             >
-              <RecentPaymentsResolved bookId={bookId} cacheScope={cacheScope} />
-            </Suspense>
-          </ErrorBoundary>
-        )}
-      </QueryErrorResetBoundary>
+              <Suspense key={monthKey} fallback={loadingPayments}>
+                <RecentPaymentsResolved
+                  bookId={bookId}
+                  cacheScope={cacheScope}
+                  month={date}
+                  monthKey={monthKey}
+                  dateRange={dateRange}
+                />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+        </QueryErrorResetBoundary>
+      </section>
     </Flex>
   )
 }
 
-function RecentPaymentsResolved({ bookId, cacheScope }: RecentPaymentsProps) {
+function RecentPaymentsResolved({
+  bookId,
+  cacheScope,
+  month,
+  monthKey,
+  dateRange,
+}: RecentPaymentsProps & { month: Date; monthKey: string; dateRange: [Date, Date] }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { data } = useSuspenseQuery({
-    queryKey: paymentQueryKeys.recent(bookId, cacheScope),
-    queryFn: async () => fetchPayments(bookId, [null, null], { limit: 5 }),
+  const { data, error, isFetching } = useSuspenseQuery({
+    queryKey: paymentQueryKeys.recent(bookId, cacheScope, monthKey),
+    queryFn: async () => fetchPayments(bookId, dateRange, { limit: 5 }),
     staleTime: 3000,
   })
 
   if (data.length === 0) {
-    return <Text color="gray">{t("payments.recent.empty")}</Text>
+    if (isFetching) return loadingPayments
+    if (error) throw error
+    return <Text color="gray">{t("payments.recent.empty", { targetDate: month })}</Text>
   }
 
   return data.slice(0, 5).map((payment) => {

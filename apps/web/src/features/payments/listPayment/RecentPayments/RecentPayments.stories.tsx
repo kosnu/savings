@@ -8,7 +8,7 @@ const meta = {
   title: "Features/Payments/RecentPayments",
   component: RecentPayments,
   args: { bookId: 1, cacheScope: "recent-story" },
-  decorators: [createStoryRouter("/")],
+  decorators: [createStoryRouter("/?year=2025&month=6")],
   parameters: { msw: { handlers: createPaymentHandlers() } },
 } satisfies Meta<typeof RecentPayments>
 

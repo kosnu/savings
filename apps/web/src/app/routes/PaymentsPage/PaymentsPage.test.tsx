@@ -624,7 +624,7 @@ describe("PaymentsPage", () => {
       expect(router.state.location.href).toBe("/?year=2025&month=6")
       expect(screen.queryByRole("dialog", { name: /payment details/i })).not.toBeInTheDocument()
     })
-    expect(await screen.findByLabelText("Recent payments")).toBeInTheDocument()
+    expect(await screen.findByLabelText("Payments for June")).toBeInTheDocument()
   })
 
   test("支払いを作成すると一覧に追加される", async () => {
