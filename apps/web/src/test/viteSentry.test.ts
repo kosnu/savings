@@ -45,10 +45,10 @@ test.each(["production", "development"])(
       org: "fixture-org",
       project: "fixture-project",
       sourcemaps: {
-        assets: ["./.cloudflare/output/v0/workers/default/assets/**"],
+        assets: ["./.cloudflare/output/v1/workers/default/assets/**"],
         filesToDeleteAfterUpload: [
-          "./.cloudflare/output/v0/workers/default/assets/**/*.js.map",
-          "./.cloudflare/output/v0/workers/default/assets/**/*.css.map",
+          "./.cloudflare/output/v1/workers/default/assets/**/*.js.map",
+          "./.cloudflare/output/v1/workers/default/assets/**/*.css.map",
         ],
       },
     })

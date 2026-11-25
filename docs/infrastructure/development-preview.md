@@ -193,8 +193,9 @@ DB password・host・CA PEMは登録せず、接続はCLIに任せる。debugロ
 
 ### バージョンと利用上限
 
-`cf 1.0.0-beta.1`、Cloudflare Vite plugin `2.0.0-beta.sha-c82c3efb3`、Supabase CLI `2.118.0` を使う。
+cf と Cloudflare Vite plugin は `apps/web/package.json` の固定版、Supabase CLI は `2.118.0` を使う。
 依存更新時はhelp・Preview context・Build Output・返却JSONを再検証する。
+main の検証スクリプトは、移行前のPRが生成する v0 と現行の v1 のうち、単一の Build Output を検証する。
 cfは信頼済みの `tools/dev-preview/deploy.mjs` から呼び出す。helpの構文を確認し、旧CLIには位置引数、新CLIには `--preview-name` で同じPR固有名を渡す。構文が不明・helpが失敗した場合は配信しない。`--prebuilt --mode development` と配信結果JSONを維持し、`--quiet` は指定しない。
 
 無料枠の空きと利用中planは設定時・変更時に管理画面と公式情報で確認する。

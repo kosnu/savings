@@ -193,7 +193,7 @@ pnpm --filter web exec cf deploy --prebuilt --mode production
 ```
 
 build は本番 Sentry の hidden map を upload/delete し、配信 assets 内の `.map` 不在と管理秘密の非混入を確認する。
-合成設定の検証成果物を本番へ使わず、本番設定で一度ビルドした `.cloudflare/output/v0/` を再ビルドせずに配信する。
+合成設定の検証成果物を本番へ使わず、本番設定で一度ビルドした `.cloudflare/output/v1/` を再ビルドせずに配信する。
 Supabase CLI・DB migration・Auth 設定の変更はこの経路に含まれない。
 
 反映後は domain、HTTPS とヘッダー、参照 JS/CSS の MIME・ETag・`Content-Encoding` を読み戻す。

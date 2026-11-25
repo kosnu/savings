@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto"
-import { readFileSync } from "node:fs"
+import { readdirSync, readFileSync } from "node:fs"
 import { pathToFileURL } from "node:url"
 
 export const workerName = "burneto-dev"
@@ -41,7 +41,8 @@ export function validateBuildOutput(root, worker) {
   if (
     root.buildContext?.mode !== "development" ||
     root.buildContext?.isPreview !== true ||
-    root.accountId
+    root.accountId ||
+    root.settings?.accountId
   ) {
     throw new Error("development Preview の Build Output が必要です。")
   }
@@ -61,7 +62,14 @@ export function validateBuildOutput(root, worker) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (process.argv[2] === "check-build") {
-    const root = new URL("apps/web/.cloudflare/output/v0/", pathToFileURL(`${process.cwd()}/`))
+    const output = new URL("apps/web/.cloudflare/output/", pathToFileURL(`${process.cwd()}/`))
+    // main の補助コードで検証するため、移行前の PR が生成する v0 も受け付ける。
+    const versions = readdirSync(output).filter((entry) => /^v\d+$/u.test(entry))
+    const [version] = versions
+    if (versions.length !== 1 || (version !== "v0" && version !== "v1")) {
+      throw new Error("単一の Build Output v0 または v1 が必要です。")
+    }
+    const root = new URL(`${version}/`, output)
     const read = (path) => JSON.parse(readFileSync(new URL(path, root), "utf8"))
     validateBuildOutput(read("config.json"), read("workers/default/worker.config.json"))
   } else if (process.argv[2] === "name") {

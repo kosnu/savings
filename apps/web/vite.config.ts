@@ -24,10 +24,10 @@ export default defineConfig(({ command, isPreview, mode }) => {
           org: buildEnv.SENTRY_ORG,
           project: buildEnv.SENTRY_PROJECT,
           sourcemaps: {
-            assets: ["./.cloudflare/output/v0/workers/default/assets/**"],
+            assets: ["./.cloudflare/output/v1/workers/default/assets/**"],
             filesToDeleteAfterUpload: [
-              "./.cloudflare/output/v0/workers/default/assets/**/*.js.map",
-              "./.cloudflare/output/v0/workers/default/assets/**/*.css.map",
+              "./.cloudflare/output/v1/workers/default/assets/**/*.js.map",
+              "./.cloudflare/output/v1/workers/default/assets/**/*.css.map",
             ],
           },
         })
