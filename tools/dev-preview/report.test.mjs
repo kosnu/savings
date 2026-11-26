@@ -5,6 +5,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { test } from "node:test"
 
+import { authorize, deploymentRequest } from "./authorize.mjs"
 import { prPreviewName } from "./preview.mjs"
 import { deploymentReport } from "./report.mjs"
 
@@ -89,7 +90,7 @@ test("長いbranchもサマリーに残し、status description は API 上限�
 })
 
 // 実CLIとworkflowから抽出したshellを実行し、fake ghへの要求を観測する。実APIには登録しない。
-test("CLI → outputs → report shell は PR SHA の成功 status 要求を生成し、古い通知を抑止する", () => {
+test("CLI → outputs → report shell は PR SHA の成功 status 要求を生成し、古い通知を抑止する", async () => {
   const dir = mkdtempSync(join(tmpdir(), "preview-report-"))
   try {
     const json = join(dir, "preview.json")
@@ -105,6 +106,26 @@ test("CLI → outputs → report shell は PR SHA の成功 status 要求を生�
       new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
       "utf8",
     )
+    const pr = {
+      state: "open",
+      base: { ref: "main" },
+      head: {
+        ref: env.PREVIEW_BRANCH,
+        sha: env.DEPLOYED_SHA,
+        repo: { full_name: env.GITHUB_REPOSITORY },
+      },
+      labels: [{ name: "preview" }],
+    }
+    const request = deploymentRequest(
+      { action: "synchronize", number: Number(env.PR_NUMBER), pull_request: pr },
+      "pull_request",
+      "refs/pull/1918/merge",
+      env.GITHUB_REPOSITORY,
+    )
+    const approved = await authorize(request, env.GITHUB_REPOSITORY, async () => pr)
+    assert.ok(workflow.includes("ref: ${{ steps.pr.outputs.sha }}"))
+    assert.ok(workflow.includes("DEPLOYED_SHA: ${{ steps.pr.outputs.sha }}"))
+    assert.ok(workflow.includes("sha: ${{ steps.pr.outputs.sha }}"))
     const job = workflow.split("\n  report:\n")[1]
     assert.ok(job.includes("needs: [deploy-web, cleanup]"))
     assert.ok(job.includes("statuses: write"))
@@ -129,8 +150,10 @@ test("CLI → outputs → report shell は PR SHA の成功 status 要求を生�
         ...process.env,
         ...env,
         GITHUB_SHA: "b".repeat(40),
-        GITHUB_EVENT_NAME: "workflow_dispatch",
-        GITHUB_REF: "refs/heads/main",
+        DEPLOYED_SHA: approved.sha,
+        PREVIEW_BRANCH: approved.branch,
+        GITHUB_EVENT_NAME: "pull_request",
+        GITHUB_REF: "refs/pull/1918/merge",
         GITHUB_RUN_NUMBER: runNumber,
         GITHUB_RUN_ATTEMPT: attempt,
         GITHUB_OUTPUT: output,

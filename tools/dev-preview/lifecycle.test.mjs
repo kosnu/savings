@@ -30,12 +30,14 @@ const get = (value) => async (path) => {
 
 // PR取得はfixture。配信・削除を実行せず、後続処理へ渡す判定と対象を検査する。
 test("信頼済み受付は event SHA を固定し、open PR の要求に deploy=true を返す", async () => {
-  assert.deepEqual(await resolveLifecycle(event, env, get(pr)), {
-    number: "1927",
-    branch: pr.head.ref,
-    sha,
-    deploy: true,
-  })
+  for (const action of ["labeled", "synchronize"]) {
+    assert.deepEqual(await resolveLifecycle({ ...event, action }, env, get(pr)), {
+      number: "1927",
+      branch: pr.head.ref,
+      sha,
+      deploy: true,
+    })
+  }
   for (const patch of [
     { head: { ...pr.head, sha: "b".repeat(40) } },
     { head: { ...pr.head, ref: "feature/renamed" } },
@@ -53,9 +55,10 @@ test("届いたclose・mergeで削除対象を解決し、古いlabel要求も�
     for (const [action, context] of [
       ["closed", closedEnv],
       ["labeled", env],
+      ["synchronize", env],
     ]) {
       const result = await resolveLifecycle(
-        { ...event, action, pull_request: closed },
+        { ...event, action, pull_request: action === "synchronize" ? pr : closed },
         context,
         get(closed),
       )
@@ -91,7 +94,7 @@ test("main 手動実行は現在 SHA を解決し、closedなら配信しない"
 test("fork・別base・別label・未対応event・出力注入を信頼済み受付で拒否", async () => {
   for (const invalid of [
     { ...event, number: "1927\nbranch=main" },
-    { ...event, action: "synchronize" },
+    { ...event, action: "synchronize", pull_request: { ...pr, labels: [] } },
     { ...event, label: { name: "other" } },
     { ...event, pull_request: { ...pr, base: { ref: "release" } } },
     {
@@ -129,13 +132,24 @@ test("配信はPR要求、削除は同じPRの終了通知と配信後確認か�
   )
   const deploy = yaml.split("\n  deploy-web:\n")[1].split("\n  cleanup:\n")[0]
   const cleanup = yaml.split("\n  cleanup:\n")[1].split("\n  report:\n")[0]
-  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled, closed\]/u)
+  assert.match(
+    yaml,
+    /pull_request:\n    branches: \[main\]\n    types: \[labeled, synchronize, closed\]/u,
+  )
   assert.doesNotMatch(yaml, /pull_request_target:|schedule:/u)
   assert.match(
     deploy,
     /github.event_name == 'workflow_dispatch' && github.ref == 'refs\/heads\/main'/u,
   )
-  assert.match(deploy, /github.event_name == 'pull_request' && github.event.action == 'labeled'/u)
+  assert.match(
+    deploy,
+    /github.event_name == 'pull_request' &&\s+\(\(github.event.action == 'labeled'/u,
+  )
+  assert.match(
+    deploy,
+    /github.event.action == 'synchronize' && github.event.pull_request.state == 'open'/u,
+  )
+  assert.match(deploy, /contains\(github.event.pull_request.labels\.\*\.name, 'preview'\)/u)
   assert.match(deploy, /github.event.label.name == 'preview'/u)
   assert.doesNotMatch(deploy, /github.event_name == 'pull_request_target'|needs.resolve/u)
   for (const job of [deploy, cleanup]) {
@@ -146,7 +160,7 @@ test("配信はPR要求、削除は同じPRの終了通知と配信後確認か�
     yaml,
     /group: dev-preview-pr-\$\{\{ github.event.pull_request.number \|\| inputs.pr_number \}\}/u,
   )
-  assert.match(yaml, /cancel-in-progress: false/u)
+  assert.match(yaml, /cancel-in-progress: false\n  queue: max/u)
   assert.match(cleanup, /needs: deploy-web/u)
   assert.match(cleanup, /always\(\) &&/u)
   assert.match(cleanup, /needs.deploy-web.result != 'skipped'/u)

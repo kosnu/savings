@@ -6,23 +6,32 @@ export const deploymentProfiles = {
   database: { label: "dev-db" },
 }
 
-// PR の明示操作時点の SHA を内部で固定する。入力としてコピーさせない。
+// PR イベント時点の SHA を内部で固定する。入力としてコピーさせない。
 export function deploymentRequest(event, eventName, ref, repository, kind = "preview") {
   const profile = deploymentProfiles[kind]
   if (!profile) throw new Error("Unsupported deployment kind")
   let number
   let sha
+  let branch
   if (eventName === "pull_request") {
+    const pr = event.pull_request
     number = event.number
-    sha = event.pull_request?.head?.sha
+    sha = pr?.head?.sha
+    const labeled = event.action === "labeled" && event.label?.name === profile.label
+    const synchronize =
+      event.action === "synchronize" &&
+      kind === "preview" &&
+      pr?.state === "open" &&
+      pr.labels?.some((label) => label.name === profile.label) &&
+      pr.head?.ref
     if (
-      event.action !== "labeled" ||
-      event.label?.name !== profile.label ||
-      event.pull_request?.head?.repo?.full_name !== repository ||
-      event.pull_request?.base?.ref !== "main"
+      !(labeled || synchronize) ||
+      pr?.head?.repo?.full_name !== repository ||
+      pr?.base?.ref !== "main"
     ) {
-      throw new Error("PR event is not an explicit request for this head SHA")
+      throw new Error("PR event is not a deployment request for this head SHA")
     }
+    if (synchronize) branch = pr.head.ref
   } else if (eventName === "workflow_dispatch" && ref === "refs/heads/main") {
     number = event.inputs?.pr_number
     sha = event.inputs?.head_sha
@@ -32,7 +41,8 @@ export function deploymentRequest(event, eventName, ref, repository, kind = "pre
   if (!/^[1-9][0-9]*$/.test(String(number)) || !/^[a-f0-9]{40}$/.test(sha ?? "")) {
     throw new Error("PR number and full head SHA are required")
   }
-  return { number: String(number), sha, labeled: eventName !== "workflow_dispatch", kind }
+  const request = { number: String(number), sha, labeled: eventName !== "workflow_dispatch", kind }
+  return branch ? { ...request, branch } : request
 }
 
 export async function authorize(request, repository, get) {
@@ -83,7 +93,7 @@ async function main() {
     GITHUB_REPOSITORY,
     process.env.DEPLOYMENT_KIND ?? "preview",
   )
-  request.branch = process.env.EXPECTED_BRANCH
+  request.branch ??= process.env.EXPECTED_BRANCH
   const approved = await authorize(request, GITHUB_REPOSITORY, get)
   if (process.env.EXPECTED_SHA && approved.sha !== process.env.EXPECTED_SHA) {
     throw new Error("Resolved SHA changed after resolution")
