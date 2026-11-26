@@ -71,16 +71,18 @@ URL表示の修復のために配信jobを再実行する必要はない。
 branch renameでも対象名は変わらない。導入前のbranch名方式のURLは次の配信時に切り替わる。
 同じリポジトリのmain宛てopen PRでは、`preview` ラベルが付いている間、headへのpushでWeb Previewを自動更新する。
 ラベルを付けたままpushするときも、push前にコード・workflow・依存install script・公開内容を確認する。
-自動更新を止めるにはラベルを外す。検証を通過済みの配信は完了し得る。既存PreviewはPRの終了時に削除する。
+自動更新を止めるにはラベルを外す。公開直前の再照合を通過済みの配信は完了し得る。既存PreviewはPRの終了時に削除する。
 更新の成否は、最新head SHAの `Dev Preview URL / PR #<番号>` がsuccessになり、SummaryのSHAとURLが一致することを確認する。
 main導入後はmainからworkflowを手動実行し、`operation: deploy`（既定）とPR番号を指定する方法も使える。
 CloudもこのActions経路を使うため、Cloudへの配信用Secret登録は不要。
 
 Actionsは各デプロイjobの開始時にPR状態と要求のSHA・branchを照合し、検証したSHAをcheckoutする。
 ラベル付与とhead更新はeventのSHA・branch、手動実行はその時点のPR headを使う。
-待機中にhead更新・branch rename・close・ラベル撤回があると、その要求の配信は停止する。
+Web Previewは成果物検証後、公開直前にも固定SHA・branchと現在のPR状態を照合する。
+再照合でhead更新・branch rename・closeを検出した場合や、ラベルによる配信でラベル撤回を検出した場合は公開を停止する。
 fork、main以外へのPR、main以外からの手動実行は受け付けない。
 同一PRの配信・終了通知・削除は直列化し、実行中の配信は中断しない。別PRは並行配信できる。
+別ラベルの付与と `preview` ラベルなしのhead更新はrun固有のgroupを使う。
 同じPRの待機runは `queue: max` で最大100件まで保持する。上限超過で取り消された場合は、
 open PRならmainから手動配信、終了済みPRなら手動削除で復旧する。古い要求でもPRが終了済みなら配信せず削除へ進む。
 

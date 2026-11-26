@@ -158,7 +158,11 @@ test("配信はPR要求、削除は同じPRの終了通知と配信後確認か�
   }
   assert.match(
     yaml,
-    /group: dev-preview-pr-\$\{\{ github.event.pull_request.number \|\| inputs.pr_number \}\}/u,
+    /format\('dev-preview-pr-\{0\}', github.event.pull_request.number \|\| inputs.pr_number\)/u,
+  )
+  assert.match(
+    yaml,
+    /\(\(github.event.action == 'labeled' && github.event.label.name != 'preview'\) \|\|\s+\(github.event.action == 'synchronize' && !contains\(github.event.pull_request.labels\.\*\.name, 'preview'\)\)\) &&\s+format\('dev-preview-skip-\{0\}', github.run_id\) \|\|/u,
   )
   assert.match(yaml, /cancel-in-progress: false\n  queue: max/u)
   assert.match(cleanup, /needs: deploy-web/u)
@@ -195,6 +199,7 @@ test("Prodを基準とする配信jobはPR確認・checkout・build・検査・�
     "Install dependencies",
     "Build Dev Preview",
     "Validate Workers Static Assets",
+    "Recheck PR before publishing Preview",
     "Deploy Dev Preview",
   ].map((name) => deploy.indexOf(`- name: ${name}\n`))
   assert.ok(
@@ -202,7 +207,7 @@ test("Prodを基準とする配信jobはPR確認・checkout・build・検査・�
   )
   assert.match(
     deploy,
-    /cp tools\/dev-preview\/preview.mjs tools\/dev-preview\/report.mjs tools\/dev-preview\/deploy.mjs "\$RUNNER_TEMP\/preview-control\/"/u,
+    /EXPECTED_BRANCH: \$\{\{ steps.pr.outputs.branch \}\}\s+EXPECTED_SHA: \$\{\{ steps.pr.outputs.sha \}\}\s+run: node "\$RUNNER_TEMP\/preview-control\/authorize.mjs"/u,
   )
   assert.match(deploy, /node "\$RUNNER_TEMP\/preview-control\/preview.mjs" check-build/u)
   assert.match(

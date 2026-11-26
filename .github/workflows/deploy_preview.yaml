@@ -23,8 +23,13 @@ run-name: Dev Preview PR ${{ github.event.pull_request.number || inputs.pr_numbe
 permissions: {}
 
 # 配信・終了通知・配信後の削除を同じ PR で直列化する。実行中は中断しない。
+# 別ラベルの付与と preview ラベルなしの head 更新は PR の待機枠を使わない。
 concurrency:
-  group: dev-preview-pr-${{ github.event.pull_request.number || inputs.pr_number }}
+  group: >-
+    ${{ ((github.event.action == 'labeled' && github.event.label.name != 'preview') ||
+         (github.event.action == 'synchronize' && !contains(github.event.pull_request.labels.*.name, 'preview'))) &&
+        format('dev-preview-skip-{0}', github.run_id) ||
+        format('dev-preview-pr-{0}', github.event.pull_request.number || inputs.pr_number) }}
   cancel-in-progress: false
   queue: max
 
@@ -67,7 +72,7 @@ jobs:
       - name: Preserve trusted Preview helpers
         run: |
           mkdir -p "$RUNNER_TEMP/preview-control"
-          cp tools/dev-preview/preview.mjs tools/dev-preview/report.mjs tools/dev-preview/deploy.mjs "$RUNNER_TEMP/preview-control/"
+          cp tools/dev-preview/{preview,report,deploy,authorize}.mjs "$RUNNER_TEMP/preview-control/"
 
       - name: Checkout validated commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -118,6 +123,13 @@ jobs:
 
       - name: Validate Workers Static Assets
         run: node "$RUNNER_TEMP/preview-control/preview.mjs" check-build
+
+      - name: Recheck PR before publishing Preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_BRANCH: ${{ steps.pr.outputs.branch }}
+          EXPECTED_SHA: ${{ steps.pr.outputs.sha }}
+        run: node "$RUNNER_TEMP/preview-control/authorize.mjs"
 
       - name: Deploy Dev Preview
         id: deployment
