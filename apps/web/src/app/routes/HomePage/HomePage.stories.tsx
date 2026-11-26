@@ -645,9 +645,15 @@ function paymentFormStory(
   return {
     beforeEach: async () => {
       const previousLanguage = i18next.language
+      const previousSavedLanguage = localStorage.getItem("appLanguage")
       await i18next.changeLanguage(language)
       return async () => {
         await i18next.changeLanguage(previousLanguage)
+        if (previousSavedLanguage === null) {
+          localStorage.removeItem("appLanguage")
+        } else {
+          localStorage.setItem("appLanguage", previousSavedLanguage)
+        }
       }
     },
     parameters: {
