@@ -8,8 +8,8 @@ allowBuilds:
   supabase: true
   workerd: true
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.6.0
-  vite-plus: 1.6.0
+  vite: npm:@voidzero-dev/vite-plus-core@8.3.8000
+  vite-plus: 1.7.0
   vitest: 5.1.0
   "@vitest/browser-playwright": 5.1.0
   "@vitest/coverage-v8": 5.1.0
@@ -21,11 +21,9 @@ overrides:
   vitest@*: "catalog:"
 peerDependencyRules:
   allowAny:
-    - vite
     - vite-plus
     - vitest
   allowedVersions:
-    vite: "*"
     vite-plus: "*"
     vitest: "*"
 savePrefix: ""
