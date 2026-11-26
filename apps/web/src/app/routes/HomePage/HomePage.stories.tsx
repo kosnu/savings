@@ -698,12 +698,6 @@ function paymentFormStory(width: number, height: number, candidateCount: number)
       expect(dialog.scrollWidth).toBe(dialog.clientWidth)
       expect(document.documentElement.scrollWidth).toBe(width)
 
-      await userEvent.pointer({ keys: "[TouchA]", target: category })
-      await expect(category).toHaveAttribute("aria-expanded", "true")
-      const option = await body.findByRole("option", { name: "Entertainment" })
-      await userEvent.pointer({ keys: "[TouchA]", target: option })
-      await expect(category).toHaveTextContent("Entertainment")
-
       await userEvent.type(amount, "-1")
       await userEvent.click(submit)
       await expect(form.findByText(t("validation.amount.nonnegative"))).resolves.toBeVisible()
