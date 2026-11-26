@@ -41,12 +41,12 @@ export function InlineForm({
   return (
     <form onKeyDownCapture={handleKeyDown} onSubmit={handleSubmit}>
       {submitLabel ? (
-        <Flex direction={{ initial: "column", sm: "row" }} gap="3">
+        <Flex direction={{ initial: "column", sm: "row" }} gap={{ initial: "3", sm: "2" }}>
           <Flex direction="column" gap="1" flexGrow="1" minWidth="0">
             {children}
             <FieldMessages error messages={messages} />
           </Flex>
-          <Flex gap="3" justify="end" align="start">
+          <Flex gap="3" justify="end" align="start" mt={{ sm: "1" }}>
             <Flex display={{ initial: "flex", sm: "none" }}>
               <CancelButton size="3" onClick={onCancel} disabled={saving} />
             </Flex>

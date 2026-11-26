@@ -243,6 +243,8 @@ function paymentDetailsEditingStory(width: number, height: number): Story {
       expect(window.innerHeight).toBe(height)
       const body = within(canvasElement.ownerDocument.body)
       const dialog = await body.findByRole("dialog", { name: /payment details/i })
+      // ダイアログを開くときの拡大が終わってから寸法を測る。
+      await Promise.all(dialog.getAnimations().map(async (animation) => animation.finished))
       const details = within(dialog)
       expect(dialog.getBoundingClientRect().width === width).toBe(mobile)
       const editNote = await details.findByRole("button", { name: /edit note/i })
@@ -264,6 +266,17 @@ function paymentDetailsEditingStory(width: number, height: number): Story {
         expect(details.getByText(longNote)).toBeVisible()
         await userEvent.click(details.getByRole("button", { name: /edit note/i }))
       } else {
+        // 入力欄の外枠を基準に、保存ボタンとの間隔を測る。
+        const fieldRoot = note.closest(".rt-TextFieldRoot")
+        if (!fieldRoot) throw new Error("メモ入力欄の外枠が見つかりません")
+        const inputBounds = fieldRoot.getBoundingClientRect()
+        const saveBounds = save.getBoundingClientRect()
+        expect(saveBounds.width).toBeCloseTo(32, 0)
+        expect(saveBounds.height).toBeCloseTo(32, 0)
+        expect(saveBounds.left - inputBounds.right).toBeCloseTo(8)
+        expect(saveBounds.top + saveBounds.height / 2).toBeCloseTo(
+          inputBounds.top + inputBounds.height / 2,
+        )
         await userEvent.tab()
         expect(save).toHaveFocus()
         await userEvent.keyboard("{Escape}")
@@ -283,6 +296,30 @@ function paymentDetailsEditingStory(width: number, height: number): Story {
       await userEvent.click(newSave)
       const updatedNote = await details.findByRole("button", { name: /edit note/i })
       expect(within(updatedNote).getByText("Updated note")).toBeVisible()
+
+      if (width === 320) {
+        await userEvent.click(details.getByRole("button", { name: /edit amount/i }))
+        const amount = details.getByLabelText("Amount", { exact: false, selector: "input" })
+        const saveAmount = details.getByRole("button", { name: /save amount/i })
+        const cancelAmount = details.getByRole("button", { name: "Cancel" })
+        await userEvent.clear(amount)
+        await userEvent.type(amount, "-1")
+        await userEvent.click(saveAmount)
+        const error = await details.findByText("Amount must be a non-negative integer")
+        expect(error).toBeVisible()
+        expect(error.getBoundingClientRect().bottom).toBeLessThan(
+          Math.min(
+            cancelAmount.getBoundingClientRect().top,
+            saveAmount.getBoundingClientRect().top,
+          ),
+        )
+        await userEvent.clear(amount)
+        await userEvent.type(amount, "4200")
+        await userEvent.click(saveAmount)
+        const updatedAmount = await details.findByRole("button", { name: /edit amount/i })
+        expect(within(updatedAmount).getByText("¥4,200")).toBeVisible()
+        expect(error).not.toBeInTheDocument()
+      }
     },
   }
 }

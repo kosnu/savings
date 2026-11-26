@@ -56,11 +56,11 @@ export const FrequentPaymentSuggestions = memo(function FrequentPaymentSuggestio
                 })}
                 onClick={() => onSelect(payment)}
               >
-                <Flex direction="column" align="start" gap="1">
+                <Flex direction="column" align="start" gap={{ initial: "1", sm: "2" }}>
                   <Text size="2" weight="medium" className={styles.value}>
                     {payment.note}
                   </Text>
-                  <Flex gap="1" wrap="wrap">
+                  <Flex gap={{ initial: "1", sm: "3" }} wrap="wrap">
                     <Text size="1" color="gray" className={styles.value}>
                       {amount}
                     </Text>

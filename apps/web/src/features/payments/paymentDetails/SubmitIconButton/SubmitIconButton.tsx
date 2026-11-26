@@ -1,6 +1,9 @@
 import { CheckIcon } from "@radix-ui/react-icons"
-import { Box, Button, IconButton, Spinner } from "@radix-ui/themes"
+import { Button, IconButton, Spinner } from "@radix-ui/themes"
 import { useTranslation } from "react-i18next"
+
+import { MOBILE_OVERLAY_MEDIA_QUERY } from "../../../../components/overlay/constants"
+import { useMediaQuery } from "../../../../utils/useMediaQuery"
 
 interface SubmitIconButtonProps {
   ariaLabel: string
@@ -16,23 +19,20 @@ export function SubmitIconButton({
   showMobileLabel = false,
 }: SubmitIconButtonProps) {
   const { t } = useTranslation()
+  const mobile = useMediaQuery(MOBILE_OVERLAY_MEDIA_QUERY)
   const icon = loading ? <Spinner aria-label="saving" /> : <CheckIcon />
 
-  if (showMobileLabel) {
+  if (showMobileLabel && mobile) {
     return (
       <Button
         aria-label={ariaLabel}
         disabled={disabled || loading}
-        size={{ initial: "3", sm: "2" }}
+        size="3"
         type="submit"
         variant="solid"
       >
-        <Box asChild display={loading ? "inline-block" : { initial: "none", sm: "inline-block" }}>
-          <span>{icon}</span>
-        </Box>
-        <Box asChild display={{ initial: "inline", sm: "none" }}>
-          <span>{t("common.save")}</span>
-        </Box>
+        {loading ? icon : null}
+        {t("common.save")}
       </Button>
     )
   }
