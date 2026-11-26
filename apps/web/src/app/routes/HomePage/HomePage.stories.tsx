@@ -624,3 +624,165 @@ function headerActionStory(mobile: boolean): Story {
 
 export const DesktopHeaderCreatePayment = headerActionStory(false)
 export const MobileHeaderCreatePayment = headerActionStory(true)
+
+function paymentFormStory(
+  width: number,
+  height: number,
+  candidateCount: number,
+  language: "ja" | "en" = "en",
+): Story {
+  const rows = Array.from({ length: candidateCount * 3 }, (_, index) => {
+    const candidate = Math.floor(index / 3) + 1
+    return {
+      ...mapPaymentToRow(samplePayments[0]),
+      id: 100 + index,
+      date: "2025-06-10",
+      note: `候補${candidate}長いメモの表示確認ABCDEFGHIJKLMNOPQRSTUVWXYZ`.slice(0, 30),
+      amount: 1000 * candidate,
+    }
+  })
+
+  return {
+    beforeEach: async () => {
+      const previousLanguage = i18next.language
+      const previousSavedLanguage = localStorage.getItem("appLanguage")
+      await i18next.changeLanguage(language)
+      return async () => {
+        await i18next.changeLanguage(previousLanguage)
+        if (previousSavedLanguage === null) {
+          localStorage.removeItem("appLanguage")
+        } else {
+          localStorage.setItem("appLanguage", previousSavedLanguage)
+        }
+      }
+    },
+    parameters: {
+      msw: {
+        handlers: [
+          ...createBookHandlers(),
+          ...createPaymentHandlers({ initialRows: rows, persistCreatedRows: true }),
+          ...createCategoryHandlers(),
+          ...createMonthlyBudgetHandlers(),
+        ],
+      },
+      viewport: {
+        options: {
+          paymentForm: {
+            name: "Payment form",
+            styles: { width: `${width}px`, height: `${height}px` },
+          },
+        },
+      },
+    },
+    globals: { viewport: { value: "paymentForm" } },
+    play: async ({ canvasElement }) => {
+      expect(window.innerWidth).toBe(width)
+      expect(window.innerHeight).toBe(height)
+      const t = i18next.getFixedT(language)
+      const canvas = within(canvasElement)
+      const body = within(canvasElement.ownerDocument.body)
+      await userEvent.click(
+        await canvas.findByRole("button", { name: t("payments.create.trigger") }),
+      )
+      const dialog = await body.findByRole("dialog", { name: t("payments.create.title") })
+      // 開くアニメーションの透明度と座標が検証に影響しないようにする。
+      await Promise.all(dialog.getAnimations().map(async (animation) => animation.finished))
+      const form = within(dialog)
+      const category = form.getByRole("combobox", { name: t("payments.category.label") })
+      const amount = form.getByLabelText(t("amount.label"), { exact: false, selector: "input" })
+      const note = form.getByRole("textbox", { name: t("payments.note.label") })
+      const date = form.getByLabelText(t("date.label"), { exact: false })
+      const submit = form.getByRole("button", { name: t("common.create") })
+      const cancel = form.getByRole("button", { name: t("common.cancel") })
+      const continueCreating = form
+        .getByRole("checkbox", { name: t("payments.create.continue") })
+        .closest("label")
+      if (!continueCreating) throw new globalThis.Error("続けて作成する操作のラベルがありません")
+      const bounds = dialog.getBoundingClientRect()
+      expect(bounds.width).toBe(width)
+      for (const control of [category, amount, note, date, continueCreating, cancel, submit]) {
+        const rect = control.getBoundingClientRect()
+        expect(rect.left).toBeGreaterThanOrEqual(bounds.left)
+        expect(rect.right).toBeLessThanOrEqual(bounds.right)
+      }
+      const actions = [continueCreating, cancel, submit].map((control) =>
+        control.getBoundingClientRect(),
+      )
+      const dialogStyle = getComputedStyle(dialog)
+      const contentLeft = bounds.left + dialog.clientLeft + parseFloat(dialogStyle.paddingLeft)
+      const contentRight =
+        bounds.left + dialog.clientLeft + dialog.clientWidth - parseFloat(dialogStyle.paddingRight)
+      const labelText = within(continueCreating).getByText(t("payments.create.continue")).lastChild
+      if (!(labelText instanceof Text)) {
+        throw new globalThis.Error("続けて作成する操作のラベル文字列がありません")
+      }
+      expect(continueCreating).toBeVisible()
+      const labelRange = document.createRange()
+      labelRange.selectNodeContents(labelText)
+      const labelLines = Array.from(labelRange.getClientRects())
+      expect(labelLines.length).toBeGreaterThan(0)
+      for (const line of labelLines) {
+        expect(line.width).toBeGreaterThan(0)
+        expect(line.height).toBeGreaterThan(0)
+        expect(line.left).toBeGreaterThanOrEqual(actions[0].left)
+        expect(line.right).toBeLessThanOrEqual(actions[0].right)
+        expect(line.top).toBeGreaterThanOrEqual(actions[0].top)
+        expect(line.bottom).toBeLessThanOrEqual(actions[0].bottom)
+      }
+      const centerY = actions[2].top + actions[2].height / 2
+      for (const rect of actions) {
+        expect(rect.left).toBeGreaterThanOrEqual(contentLeft)
+        expect(rect.right).toBeLessThanOrEqual(contentRight)
+        expect(rect.top + rect.height / 2).toBeCloseTo(centerY, 0)
+        expect(rect.height).toBeGreaterThanOrEqual(40)
+      }
+      expect(actions[1].left - actions[0].right).toBeGreaterThanOrEqual(12)
+      expect(actions[2].left - actions[1].right).toBeGreaterThanOrEqual(12)
+      expect(dialog.scrollWidth).toBe(dialog.clientWidth)
+      expect(document.documentElement.scrollWidth).toBe(width)
+
+      await userEvent.type(amount, "-1")
+      await userEvent.click(submit)
+      await expect(form.findByText(t("validation.amount.nonnegative"))).resolves.toBeVisible()
+      expect(amount).toHaveValue("-1")
+
+      if (candidateCount > 0) {
+        const group = await form.findByRole("group", { name: t("payments.create.frequent.label") })
+        const candidates = within(group).getAllByRole("button")
+        expect(candidates).toHaveLength(candidateCount)
+        expect(group.scrollWidth).toBe(group.clientWidth)
+        for (const candidate of candidates) {
+          expect(candidate.getBoundingClientRect().height).toBeGreaterThanOrEqual(44)
+        }
+        if (width === 320) {
+          const [first, second, third] = candidates.map((candidate) =>
+            candidate.getBoundingClientRect(),
+          )
+          expect(second.top).toBeCloseTo(first.top, 0)
+          expect(second.left).toBeGreaterThan(first.right)
+          expect(third.top).toBeGreaterThanOrEqual(Math.max(first.bottom, second.bottom))
+          expect(third.left).toBeCloseTo(first.left, 0)
+        }
+        if (!(date instanceof HTMLInputElement))
+          throw new globalThis.Error("日付の入力欄がありません")
+        const initialDate = date.value
+        await userEvent.click(candidates[candidates.length - 1])
+        expect(note).toHaveValue(rows[rows.length - 1].note)
+        expect(amount).toHaveValue(String(rows[rows.length - 1].amount))
+        expect(date).toHaveValue(initialDate)
+        expect(category).toHaveTextContent("Food")
+      } else {
+        expect(form.queryByRole("group", { name: t("payments.create.frequent.label") })).toBeNull()
+        await userEvent.clear(amount)
+        await userEvent.type(amount, "1200")
+      }
+      await userEvent.click(submit)
+      await waitFor(async () => expect(dialog).not.toBeInTheDocument())
+    },
+  }
+}
+
+export const NarrowPaymentForm = paymentFormStory(320, 568, 5, "en")
+export const NarrowPaymentFormJapanese = paymentFormStory(320, 568, 5, "ja")
+export const MobilePaymentForm = paymentFormStory(390, 844, 1)
+export const MobilePaymentFormWithoutCandidates = paymentFormStory(390, 844, 0)

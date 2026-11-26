@@ -18,7 +18,7 @@ export function NoteField({ error, messages, value, onChange }: NoteFieldProps) 
   return (
     <BaseField>
       <FieldLabel htmlFor={id}>{t("payments.note.label")}</FieldLabel>
-      <NoteInput id={id} value={value} onChange={onChange} />
+      <NoteInput size={{ initial: "3", sm: "2" }} id={id} value={value} onChange={onChange} />
       <FieldMessages error={error} messages={messages} />
     </BaseField>
   )

@@ -16,7 +16,7 @@ export function ContinueCreatingCheckbox({
 
   return (
     <Text as="label" size="2" htmlFor={checkboxId}>
-      <Flex gap="2" align="center">
+      <Flex gap="2" align="center" minHeight={{ initial: "var(--space-7)", sm: "0" }}>
         <Checkbox
           id={checkboxId}
           checked={checked}

@@ -14,10 +14,13 @@ import { PaymentsPage } from "./PaymentsPage"
 
 const paymentRows = payments.map(mapPaymentToRow)
 
-function createPageHandlers(initialRows = paymentRows) {
+function createPageHandlers(
+  initialRows = paymentRows,
+  update?: NonNullable<Parameters<typeof createPaymentHandlers>[0]>["update"],
+) {
   return [
     ...createBookHandlers(),
-    ...createPaymentHandlers({ initialRows }),
+    ...createPaymentHandlers({ initialRows, update }),
     ...createCategoryHandlers(),
     ...createMonthlyBudgetHandlers({
       get: { response: { ...monthlyBudgets[2], amount: 25000 } },
@@ -213,3 +216,114 @@ function searchFormStory(mobile: boolean): Story {
 
 export const MobileSearch: Story = searchFormStory(true)
 export const DesktopSearch: Story = searchFormStory(false)
+
+function paymentDetailsEditingStory(width: number, height: number): Story {
+  const mobile = width < 768
+  const longNote = "長いメモの表示確認ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  const rows = paymentRows.map((row) => (row.id === 2 ? { ...row, note: longNote } : row))
+
+  return {
+    decorators: [createStoryRouter("/payments/details/2?year=2025&month=6", paymentsRouteBuilder)],
+    beforeEach: ({ msw }) => {
+      msw.use(...createPageHandlers(rows, { persistFor: { id: 2, book_id: 1 } }))
+    },
+    parameters: {
+      viewport: {
+        options: {
+          paymentDetails: {
+            name: "Payment details",
+            styles: { width: `${width}px`, height: `${height}px` },
+          },
+        },
+      },
+    },
+    globals: { viewport: { value: "paymentDetails" } },
+    play: async ({ canvasElement }) => {
+      expect(window.innerWidth).toBe(width)
+      expect(window.innerHeight).toBe(height)
+      const body = within(canvasElement.ownerDocument.body)
+      const dialog = await body.findByRole("dialog", { name: /payment details/i })
+      // ダイアログを開くときの拡大が終わってから寸法を測る。
+      await Promise.all(dialog.getAnimations().map(async (animation) => animation.finished))
+      const details = within(dialog)
+      expect(dialog.getBoundingClientRect().width === width).toBe(mobile)
+      const editNote = await details.findByRole("button", { name: /edit note/i })
+      await waitFor(async () => {
+        await expect(within(editNote).getByText(longNote)).toBeVisible()
+        await expect(editNote.scrollWidth).toBe(editNote.clientWidth)
+      })
+
+      await userEvent.click(editNote)
+      const note = details.getByRole("textbox", { name: "Note" })
+      const save = details.getByRole("button", { name: /save note/i })
+      expect(note).toHaveFocus()
+      if (mobile) {
+        const cancel = details.getByRole("button", { name: "Cancel" })
+        expect(note.getBoundingClientRect().bottom).toBeLessThan(cancel.getBoundingClientRect().top)
+        expect(cancel.getBoundingClientRect().right).toBeLessThan(save.getBoundingClientRect().left)
+        await userEvent.clear(note)
+        await userEvent.click(cancel)
+        expect(details.getByText(longNote)).toBeVisible()
+        await userEvent.click(details.getByRole("button", { name: /edit note/i }))
+      } else {
+        // 入力欄の外枠を基準に、保存ボタンとの間隔を測る。
+        const fieldRoot = note.closest(".rt-TextFieldRoot")
+        if (!fieldRoot) throw new Error("メモ入力欄の外枠が見つかりません")
+        const inputBounds = fieldRoot.getBoundingClientRect()
+        const saveBounds = save.getBoundingClientRect()
+        expect(saveBounds.width).toBeCloseTo(32, 0)
+        expect(saveBounds.height).toBeCloseTo(32, 0)
+        expect(saveBounds.left - inputBounds.right).toBeCloseTo(8)
+        expect(saveBounds.top + saveBounds.height / 2).toBeCloseTo(
+          inputBounds.top + inputBounds.height / 2,
+        )
+        await userEvent.tab()
+        expect(save).toHaveFocus()
+        await userEvent.keyboard("{Escape}")
+        expect(details.getByText(longNote)).toBeVisible()
+        await userEvent.click(details.getByRole("button", { name: /edit note/i }))
+      }
+      const reopened = details.getByRole("textbox", { name: "Note" })
+      expect(reopened).toHaveValue(longNote)
+      const newSave = details.getByRole("button", { name: /save note/i })
+      await userEvent.type(reopened, "追加")
+      await userEvent.click(newSave)
+      await expect(details.findByText(/Note must be/)).resolves.toBeVisible()
+      expect(reopened).toHaveValue(`${longNote}追加`)
+      await userEvent.clear(reopened)
+      await userEvent.type(reopened, "Updated note")
+      await expect(reopened).toHaveValue("Updated note")
+      await userEvent.click(newSave)
+      const updatedNote = await details.findByRole("button", { name: /edit note/i })
+      expect(within(updatedNote).getByText("Updated note")).toBeVisible()
+
+      if (width === 320) {
+        await userEvent.click(details.getByRole("button", { name: /edit amount/i }))
+        const amount = details.getByLabelText("Amount", { exact: false, selector: "input" })
+        const saveAmount = details.getByRole("button", { name: /save amount/i })
+        const cancelAmount = details.getByRole("button", { name: "Cancel" })
+        await userEvent.clear(amount)
+        await userEvent.type(amount, "-1")
+        await userEvent.click(saveAmount)
+        const error = await details.findByText("Amount must be a non-negative integer")
+        expect(error).toBeVisible()
+        expect(error.getBoundingClientRect().bottom).toBeLessThan(
+          Math.min(
+            cancelAmount.getBoundingClientRect().top,
+            saveAmount.getBoundingClientRect().top,
+          ),
+        )
+        await userEvent.clear(amount)
+        await userEvent.type(amount, "4200")
+        await userEvent.click(saveAmount)
+        const updatedAmount = await details.findByRole("button", { name: /edit amount/i })
+        expect(within(updatedAmount).getByText("¥4,200")).toBeVisible()
+        expect(error).not.toBeInTheDocument()
+      }
+    },
+  }
+}
+
+export const NarrowPaymentDetailsEditing = paymentDetailsEditingStory(320, 568)
+export const MobilePaymentDetailsEditing = paymentDetailsEditingStory(390, 844)
+export const DesktopPaymentDetailsEditing = paymentDetailsEditingStory(1280, 900)

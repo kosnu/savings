@@ -174,9 +174,15 @@ export function CreatePaymentForm({
         ) : null}
         <form.Subscribe selector={(state) => state.isSubmitting}>
           {(isSubmitting) => (
-            <Flex gap="3">
-              <CancelButton disabled={isSubmitting} onClick={handleCancel} />
-              <SubmitButton loading={isSubmitting}>{t("common.create")}</SubmitButton>
+            <Flex gap="3" flexShrink="0" justify="end">
+              <CancelButton
+                size={{ initial: "3", sm: "2" }}
+                disabled={isSubmitting}
+                onClick={handleCancel}
+              />
+              <SubmitButton size={{ initial: "3", sm: "2" }} loading={isSubmitting}>
+                {t("common.create")}
+              </SubmitButton>
             </Flex>
           )}
         </form.Subscribe>

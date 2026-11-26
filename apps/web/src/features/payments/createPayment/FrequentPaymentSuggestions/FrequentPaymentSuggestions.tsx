@@ -33,49 +33,47 @@ export const FrequentPaymentSuggestions = memo(function FrequentPaymentSuggestio
       <Heading id={headingId} as="h3" size="2">
         {t("payments.create.frequent.label")}
       </Heading>
-      <Flex asChild gap="2" wrap="nowrap">
-        <fieldset aria-labelledby={headingId} className={styles.group}>
-          {payments.map((payment) => {
-            const amount = toCurrency(payment.amount)
-            const category = payment.categoryName ?? t("payments.category.none")
+      <fieldset aria-labelledby={headingId} className={styles.group}>
+        {payments.map((payment) => {
+          const amount = toCurrency(payment.amount)
+          const category = payment.categoryName ?? t("payments.category.none")
 
-            return (
-              <Card
-                key={JSON.stringify([payment.note, payment.amount, payment.categoryId])}
-                asChild
-                size="1"
-                variant="surface"
+          return (
+            <Card
+              key={JSON.stringify([payment.note, payment.amount, payment.categoryId])}
+              asChild
+              size="1"
+              variant="surface"
+            >
+              <button
+                type="button"
+                disabled={disabled}
+                className={styles.candidate}
+                aria-label={t("payments.create.frequent.select", {
+                  note: payment.note,
+                  amount,
+                  category,
+                })}
+                onClick={() => onSelect(payment)}
               >
-                <button
-                  type="button"
-                  disabled={disabled}
-                  className={styles.candidate}
-                  aria-label={t("payments.create.frequent.select", {
-                    note: payment.note,
-                    amount,
-                    category,
-                  })}
-                  onClick={() => onSelect(payment)}
-                >
-                  <Flex direction="column" align="start" gap="2">
-                    <Text size="2" weight="medium" className={styles.value}>
-                      {payment.note}
+                <Flex direction="column" align="start" gap={{ initial: "1", sm: "2" }}>
+                  <Text size="2" weight="medium" className={styles.value}>
+                    {payment.note}
+                  </Text>
+                  <Flex gap={{ initial: "1", sm: "3" }} wrap="wrap">
+                    <Text size="1" color="gray" className={styles.value}>
+                      {amount}
                     </Text>
-                    <Flex gap="3" wrap="wrap">
-                      <Text size="1" color="gray" className={styles.value}>
-                        {amount}
-                      </Text>
-                      <Text size="1" color="gray" className={styles.value}>
-                        {category}
-                      </Text>
-                    </Flex>
+                    <Text size="1" color="gray" className={styles.value}>
+                      {category}
+                    </Text>
                   </Flex>
-                </button>
-              </Card>
-            )
-          })}
-        </fieldset>
-      </Flex>
+                </Flex>
+              </button>
+            </Card>
+          )
+        })}
+      </fieldset>
     </Flex>
   )
 })

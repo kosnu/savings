@@ -1,5 +1,5 @@
 import { Pencil1Icon } from "@radix-ui/react-icons"
-import { Button, Flex } from "@radix-ui/themes"
+import { Box, Button, Flex } from "@radix-ui/themes"
 import type { ReactNode } from "react"
 
 import { BaseField, FieldLabel, FieldMessages } from "../../../../components/inputs/BaseField"
@@ -42,7 +42,7 @@ export function EditableField({
           <FieldMessages error={error} messages={messages} />
         </>
       ) : (
-        <Flex style={{ height: "32px" }}>
+        <Flex minHeight={{ initial: "44px", sm: "32px" }}>
           <Button
             type="button"
             variant="ghost"
@@ -53,16 +53,23 @@ export function EditableField({
             onClick={onEdit}
             style={{
               width: "100%",
+              boxSizing: "border-box",
               height: "auto",
               display: "inline-flex",
               textAlign: "left",
               justifyContent: "start",
               alignItems: "center",
-              padding: "3px 0.375rem",
+              padding: "var(--space-1) var(--space-2)",
+              margin: 0,
+              whiteSpace: "normal",
             }}
           >
-            {view}
-            <Pencil1Icon aria-hidden color="gray" />
+            <Flex as="span" flexGrow="1" minWidth="0" style={{ overflowWrap: "anywhere" }}>
+              {view}
+            </Flex>
+            <Box asChild flexShrink="0">
+              <Pencil1Icon aria-hidden color="gray" />
+            </Box>
           </Button>
         </Flex>
       )}

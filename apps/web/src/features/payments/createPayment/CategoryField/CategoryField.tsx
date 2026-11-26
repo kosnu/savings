@@ -30,9 +30,15 @@ export const CategoryField = memo(function CategoryField({
   usePrefetchCategories()
 
   return (
-    <BaseField width="300px">
+    <BaseField width="300px" maxWidth="100%">
       <FieldLabel htmlFor={id}>{t("payments.category.label")}</FieldLabel>
-      <CategorySelect id={id} value={value} onChange={onChange}>
+      <CategorySelect
+        size={{ initial: "3", sm: "2" }}
+        width="100%"
+        id={id}
+        value={value}
+        onChange={onChange}
+      >
         <ErrorBoundary fallback={<ErrorCategoryOption />}>
           <Suspense fallback={<LoadingCategoryOption />}>
             <CategoryOptions />
