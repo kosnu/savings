@@ -518,6 +518,24 @@
       "priority": 96
     },
     {
+      "id": "policy.trusted-review-auto-merge",
+      "file": "docs/harness/policies/trusted-review-auto-merge.md",
+      "applies_to": {
+        "paths": [
+          "docs/harness/policies/trusted-review-auto-merge.md",
+          ".github/CODEOWNERS",
+          ".github/workflows/harness_checker_ci.yaml",
+          ".github/workflows/vite_plus_sync.yaml"
+        ],
+        "domains": ["github"],
+        "activities": ["enable_auto_merge", "verify_required_status_checks"],
+        "topics": ["auto-merge", "codeowners", "required-status-checks"]
+      },
+      "depends_on": ["policy.git-workflow"],
+      "overrides": [],
+      "priority": 95
+    },
+    {
       "id": "policy.review-feedback-classification",
       "file": "docs/harness/policies/review-feedback-classification.md",
       "applies_to": {
