@@ -36,11 +36,8 @@ test("PR label resolves the immutable event head; dispatch remains main-only", (
   assert.throws(() => deploymentRequest(event, "workflow_dispatch", "refs/heads/feature", repo))
 })
 
-test("updates, unrelated labels, forks, wrong base and unsupported events cannot opt in", () => {
+test("Unrelated labels, forks, wrong base and unsupported events cannot opt in", () => {
   for (const mutate of [
-    (f) => {
-      f.event.action = "synchronize"
-    },
     (f) => {
       f.event.label.name = "other"
     },
@@ -72,6 +69,40 @@ test("updates, unrelated labels, forks, wrong base and unsupported events cannot
       repo,
     ),
   )
+})
+
+test("synchronize fixes the event SHA and branch and rechecks the current Web opt-in", async () => {
+  const f = fixture()
+  const event = { action: "synchronize", number: f.event.number, pull_request: f.pr }
+  const resolve = (pr, kind) =>
+    deploymentRequest(
+      { ...event, pull_request: pr },
+      "pull_request",
+      "refs/pull/1871/merge",
+      repo,
+      kind,
+    )
+  const update = resolve(f.pr)
+  assert.deepEqual(update, { ...request, branch: f.pr.head.ref })
+  assert.deepEqual(await authorize(update, repo, getter(f)), { branch: update.branch, sha })
+
+  for (const patch of [
+    { labels: [] },
+    { state: "closed" },
+    { head: { ...f.pr.head, repo: { full_name: "fork/savings" } } },
+    { base: { ref: "release" } },
+    { head: { ...f.pr.head, ref: "" } },
+  ]) {
+    const pr = { ...f.pr, ...patch }
+    assert.throws(() => resolve(pr))
+    await assert.rejects(authorize(update, repo, getter({ pr })))
+  }
+  for (const patch of [{ sha: "b".repeat(40) }, { ref: "feature/renamed" }]) {
+    await assert.rejects(
+      authorize(update, repo, getter({ pr: { ...f.pr, head: { ...f.pr.head, ...patch } } })),
+    )
+  }
+  assert.throws(() => resolve({ ...f.pr, labels: [{ name: "dev-db" }] }, "database"))
 })
 
 // PR取得はfixture。GitHubの実APIやEnvironmentの実設定確認は実行しない。
@@ -118,9 +149,12 @@ test("workflow text connects allowed requests to one PR check before checkout an
     new URL("../../.github/workflows/deploy_preview.yaml", import.meta.url),
     "utf8",
   )
-  assert.match(yaml, /pull_request:\n    branches: \[main\]\n    types: \[labeled, closed\]/)
+  assert.match(
+    yaml,
+    /pull_request:\n    branches: \[main\]\n    types: \[labeled, synchronize, closed\]/,
+  )
   assert.doesNotMatch(yaml, /pull_request_target:/)
-  assert.doesNotMatch(yaml, /types:.*synchronize|secrets: inherit/)
+  assert.doesNotMatch(yaml, /secrets: inherit/)
   assert.match(yaml, /environment: development/)
   assert.match(yaml, /ref: \$\{\{ steps.pr.outputs.sha \}\}/)
   assert.equal(yaml.match(/run: node tools\/dev-preview\/authorize.mjs/g)?.length, 1)
@@ -203,6 +237,7 @@ test("workflow text separates FE/DB secret references and connects checkout SHA 
   assert.match(ci, /VITE_SENTRY_DSN: https:\/\/public@sentry\.invalid\/1/)
   assert.match(ci, /VITE_SENTRY_ENVIRONMENT: development/)
   assert.doesNotMatch(ci, /secrets\.|SENTRY_AUTH_TOKEN/)
+  assert.doesNotMatch(database, /synchronize/u)
   assert.match(database, /^  group: burneto-shared-dev-database$/m)
   assert.match(database, /^  deploy-api:$/m)
   assert.doesNotMatch(database, /^  resolve:|needs:|EXPECTED_SHA:/m)

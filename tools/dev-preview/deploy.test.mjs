@@ -115,7 +115,7 @@ test("workflowはhelperを信頼済みcheckoutで保存し、PR checkout後も�
     "utf8",
   )
   const copy = yaml.indexOf(
-    'cp tools/dev-preview/preview.mjs tools/dev-preview/report.mjs tools/dev-preview/deploy.mjs "$RUNNER_TEMP/preview-control/"',
+    'cp tools/dev-preview/{preview,report,deploy,authorize}.mjs "$RUNNER_TEMP/preview-control/"',
   )
   const checkout = yaml.indexOf("- name: Checkout validated commit")
   const deploy = yaml.indexOf(

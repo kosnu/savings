@@ -29,21 +29,15 @@ export async function resolveLifecycle(event, env, get) {
   const operation = event.inputs?.operation ?? "deploy"
   if (!pullRequest && !["deploy", "cleanup"].includes(operation))
     throw new Error("配信または削除を指定してください。")
+  let request
   if (pullRequest) {
     validatePR(event.pull_request, repository)
-    if (
-      !(
-        event.action === "closed" ||
-        (env.GITHUB_EVENT_NAME === "pull_request" &&
-          event.action === "labeled" &&
-          event.label?.name === "preview")
-      )
-    ) {
-      throw new Error("Preview の要求または PR 終了 event が必要です。")
+    if (event.action !== "closed") {
+      request = deploymentRequest(event, env.GITHUB_EVENT_NAME, env.GITHUB_REF, repository)
     }
   }
   const pr = validatePR(await get(`/repos/${repository}/pulls/${number}`), repository)
-  // 古い配信要求が終了通知を置き換えても、終了済みなら配信せず削除へ進める。
+  // 待機中に終了した PR は配信せず削除へ進める。
   const branch = pullRequest ? event.pull_request.head.ref : pr.head.ref
   previewName(branch)
   if (
@@ -53,13 +47,13 @@ export async function resolveLifecycle(event, env, get) {
   ) {
     return { number, branch, sha: pr.head.sha, deploy: false }
   }
-  const request = deploymentRequest(
-    pullRequest ? event : { ...event, inputs: { ...event.inputs, head_sha: pr.head.sha } },
+  request ??= deploymentRequest(
+    { ...event, inputs: { ...event.inputs, head_sha: pr.head.sha } },
     env.GITHUB_EVENT_NAME,
     env.GITHUB_REF,
     repository,
   )
-  request.branch = branch
+  request.branch ??= branch
   const approved = await authorize(request, repository, async () => pr)
   return { number, ...approved, deploy: true }
 }

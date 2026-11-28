@@ -69,16 +69,22 @@ URL表示の修復のために配信jobを再実行する必要はない。
 
 同じPRは `pr-<PR番号>` の同じURLへ更新され、別PRは同じブランチでも別URLになる。
 branch renameでも対象名は変わらない。導入前のbranch名方式のURLは次の配信時に切り替わる。
-pushだけでは再配信されない。更新時は `preview` ラベルを外して付け直す。
+同じリポジトリのmain宛てopen PRでは、`preview` ラベルが付いている間、headへのpushでWeb Previewを自動更新する。
+ラベルを付けたままpushするときも、push前にコード・workflow・依存install script・公開内容を確認する。
+自動更新を止めるにはラベルを外す。公開直前の再照合を通過済みの配信は完了し得る。既存PreviewはPRの終了時に削除する。
+更新の成否は、最新head SHAの `Dev Preview URL / PR #<番号>` がsuccessになり、SummaryのSHAとURLが一致することを確認する。
 main導入後はmainからworkflowを手動実行し、`operation: deploy`（既定）とPR番号を指定する方法も使える。
 CloudもこのActions経路を使うため、Cloudへの配信用Secret登録は不要。
 
 Actionsは各デプロイjobの開始時にPR状態と要求のSHA・branchを照合し、検証したSHAをcheckoutする。
-ラベル要求はeventのSHA・branch、手動実行はその時点のPR headを使う。
-head更新・branch rename・close・ラベル撤回で停止したら、新しい状態で要求し直す。
+ラベル付与とhead更新はeventのSHA・branch、手動実行はその時点のPR headを使う。
+Web Previewは成果物検証後、公開直前にも固定SHA・branchと現在のPR状態を照合する。
+再照合でhead更新・branch rename・closeを検出した場合や、ラベルによる配信でラベル撤回を検出した場合は公開を停止する。
 fork、main以外へのPR、main以外からの手動実行は受け付けない。
 同一PRの配信・終了通知・削除は直列化し、実行中の配信は中断しない。別PRは並行配信できる。
-置き換えられた配信待ち要求は再要求する。古い要求でもPRが終了済みなら配信せず削除へ進む。
+別ラベルの付与と `preview` ラベルなしのhead更新はrun固有のgroupを使う。
+同じPRの待機runは `queue: max` で最大100件まで保持する。上限超過で取り消された場合は、
+open PRならmainから手動配信、終了済みPRなら手動削除で復旧する。古い要求でもPRが終了済みなら配信せず削除へ進む。
 
 FE配信ではmigration・seed・reset・Auth設定を変更しない。
 `Dev Preview CI` は実Dev URLとダミーキーでビルド・成果物を検査する。
@@ -244,13 +250,13 @@ Preview名・削除成功／不在／保護／失敗を確認する。不在は�
 失敗時は原因を確認し、同じrunを再実行できる。PRをreopen済みなら削除せず、再配信を要求できる。
 
 配信と終了通知は同じPRのconcurrency groupで直列化する。closeが配信・実行待ち中に到着しても、
-配信終了後の状態確認から削除する。置き換わった待ちrunや終了後の古い配信runの再実行も、
+配信終了後の状態確認から削除する。待機中だった配信runや終了後の古い配信runの再実行も、
 現在のclosed状態を確認して配信せず削除へ進む。配信途中の失敗でも状態確認を行う。
 open PRの正常配信では削除stepを実行せず、既存のChecks URL登録を維持する。
 導入前の旧workflowで開始した配信はこの後処理を持たないため、導入時に完了・停止を確認する。
 runの手動キャンセルやAPI障害では残存し得るため、対象の終了runを再実行して確認する。
 
-配信要求は同一repository限定の `pull_request` の `labeled` で受け付け、workflow定義もPRの検証・レビュー対象とする。
+配信要求は同一repository限定の `pull_request` の `labeled` と `synchronize` で受け付け、workflow定義もPRの検証・レビュー対象とする。
 終了通知も `pull_request` の `closed` で受け付ける。`pull_request_target` は使わない。
 競合PRではworkflowが起動しない。必要なPR情報が通知に含まれない場合も自動削除しない。
 削除runが作成されなかった場合は、Actionsの `Deploy Dev Preview` → Run workflow で
