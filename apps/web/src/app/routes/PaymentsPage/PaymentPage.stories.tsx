@@ -327,3 +327,138 @@ function paymentDetailsEditingStory(width: number, height: number): Story {
 export const NarrowPaymentDetailsEditing = paymentDetailsEditingStory(320, 568)
 export const MobilePaymentDetailsEditing = paymentDetailsEditingStory(390, 844)
 export const DesktopPaymentDetailsEditing = paymentDetailsEditingStory(1280, 900)
+
+function createPaymentCategoryResizeStory(resize: "visual" | "layout"): Story {
+  const viewportWidth = resize === "visual" ? 411 : 390
+  const initialViewportHeight = resize === "visual" ? 777 : 680
+  return {
+    decorators: [createStoryRouter("/payments?year=2025&month=6", paymentsRouteBuilder)],
+    parameters: {
+      viewport: {
+        options: {
+          keyboardOpen: {
+            name: "Keyboard open",
+            styles: { width: `${viewportWidth}px`, height: `${initialViewportHeight}px` },
+          },
+        },
+      },
+    },
+    globals: { viewport: { value: "keyboardOpen" } },
+    play: async ({ canvasElement }) => {
+      const viewport = window.visualViewport
+      const frame = window.frameElement?.closest("iframe")
+      const initialFrameHeight = frame?.style.height
+      const resizeListener = new AbortController()
+      const tap = async (target: HTMLElement) => {
+        const { x, y, width, height } = target.getBoundingClientRect()
+        await userEvent.pointer({
+          keys: "[TouchA]",
+          target,
+          coords: { clientX: x + width / 2, clientY: y + height / 2 },
+        })
+      }
+      const canvas = within(canvasElement)
+      const body = within(canvasElement.ownerDocument.body)
+      const waitForListboxToClose = async () =>
+        waitFor(async () =>
+          expect(body.queryByRole("listbox", { hidden: true })).not.toBeInTheDocument(),
+        )
+      const createPayment = await canvas.findByRole("button", { name: /create payment/i })
+
+      await expect(window.innerWidth).toBe(viewportWidth)
+      await expect(window.innerHeight).toBe(initialViewportHeight)
+      await tap(createPayment)
+      const dialog = await body.findByRole("dialog", { name: /create payment/i })
+      const form = within(dialog)
+      const amount = form.getByLabelText("Amount", { exact: false, selector: "input" })
+      const category = form.getByRole("combobox", { name: "Category" })
+      await waitFor(async () => expect(amount).toHaveFocus())
+      await expect(amount).toHaveValue("")
+
+      let visualHeight = 437
+      try {
+        if (resize === "visual") {
+          if (!viewport) {
+            throw new Error("visualViewport がありません")
+          }
+          Object.defineProperty(viewport, "height", { configurable: true, get: () => visualHeight })
+        }
+        await tap(category)
+        await body.findByRole("option", { name: "Food" })
+        await expect(amount).not.toHaveFocus()
+
+        if (resize === "visual") {
+          // Pixel で観測した順序で Visual Viewport と window の resize を送る。
+          visualHeight = 778
+          viewport?.dispatchEvent(new Event("resize"))
+          window.dispatchEvent(new Event("resize"))
+        } else {
+          if (!frame) {
+            throw new Error("プレビュー iframe がありません")
+          }
+          const resized = new Promise<void>((resolve) => {
+            window.addEventListener("resize", () => resolve(), {
+              once: true,
+              signal: resizeListener.signal,
+            })
+          })
+          frame.style.height = "844px"
+          await resized
+        }
+        // resize による React の更新を描画に反映させてから開閉状態を確認する。
+        await new Promise<void>((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+        })
+        await expect(window.innerHeight).toBe(resize === "visual" ? initialViewportHeight : 844)
+        await expect(window.innerWidth).toBe(viewportWidth)
+        await expect(category).toHaveAttribute("aria-expanded", "true")
+        const food = await body.findByRole("option", { name: "Food" })
+        const { x, y, width, height } = food.getBoundingClientRect()
+        const coords = { clientX: x + width / 2, clientY: y + height / 2 }
+        const hit = food.ownerDocument.elementFromPoint(coords.clientX, coords.clientY)
+        expect(food.contains(hit)).toBe(true)
+        await userEvent.pointer({ keys: "[TouchA]", target: food, coords })
+        await expect(category).toHaveTextContent("Food")
+        await waitForListboxToClose()
+        await expect(amount).toHaveValue("")
+
+        if (resize === "layout") return
+
+        await userEvent.click(category)
+        await body.findByRole("listbox")
+        await userEvent.keyboard("{Escape}")
+        await waitForListboxToClose()
+        await waitFor(async () => expect(category).toHaveFocus())
+        await expect(category).toHaveTextContent("Food")
+
+        await userEvent.click(category)
+        await body.findByRole("listbox")
+        await userEvent.click(canvasElement.ownerDocument.documentElement)
+        await waitForListboxToClose()
+        await waitFor(async () => expect(category).toHaveFocus())
+        await expect(category).toHaveTextContent("Food")
+
+        await userEvent.click(category)
+        await userEvent.click(await body.findByRole("option", { name: "Daily Necessities" }))
+        await expect(category).toHaveTextContent("Daily Necessities")
+        await waitForListboxToClose()
+
+        await tap(category)
+        await tap(await body.findByRole("option", { name: "None" }))
+        await expect(category).toHaveTextContent("None")
+      } finally {
+        resizeListener.abort()
+        if (resize === "visual" && viewport) {
+          Reflect.deleteProperty(viewport, "height")
+        }
+        if (resize === "layout" && frame && initialFrameHeight !== undefined) {
+          frame.style.height = initialFrameHeight
+        }
+      }
+    },
+  }
+}
+
+export const CreatePaymentCategoryAfterKeyboardCloses = createPaymentCategoryResizeStory("visual")
+export const CreatePaymentCategoryAfterLayoutHeightIncreases =
+  createPaymentCategoryResizeStory("layout")

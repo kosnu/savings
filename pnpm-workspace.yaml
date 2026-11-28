@@ -30,3 +30,5 @@ savePrefix: ""
 minimumReleaseAgeExclude:
   # Renovate security update: esbuild@0.28.1
   - esbuild@0.28.1
+patchedDependencies:
+  "@radix-ui/react-select@2.3.0": patches/@radix-ui__react-select@2.3.0.patch
