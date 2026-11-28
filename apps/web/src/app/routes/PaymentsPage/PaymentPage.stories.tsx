@@ -387,7 +387,12 @@ export const CreatePaymentCategoryAfterKeyboardCloses: Story = {
       await expect(window.innerHeight).toBe(844)
       await expect(window.innerWidth).toBe(390)
       await expect(category).toHaveAttribute("aria-expanded", "true")
-      await tap(await body.findByRole("option", { name: "Food" }))
+      const food = await body.findByRole("option", { name: "Food" })
+      const { x, y, width, height } = food.getBoundingClientRect()
+      const coords = { clientX: x + width / 2, clientY: y + height / 2 }
+      const hit = food.ownerDocument.elementFromPoint(coords.clientX, coords.clientY)
+      expect(food.contains(hit)).toBe(true)
+      await userEvent.pointer({ keys: "[TouchA]", target: food, coords })
       await expect(category).toHaveTextContent("Food")
       await waitForListboxToClose()
       await expect(amount).toHaveValue("")
