@@ -1,4 +1,4 @@
-import { memo, Suspense, useEffect, useId, useRef } from "react"
+import { memo, Suspense, useId } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +11,6 @@ import {
   useCategories,
   usePrefetchCategories,
 } from "../../../categories"
-import { traceCategorySelect } from "./traceCategorySelect"
 
 interface CategoryFieldProps {
   error?: boolean
@@ -29,18 +28,6 @@ export const CategoryField = memo(function CategoryField({
   const id = useId()
   const { t } = useTranslation()
   usePrefetchCategories()
-  const trace = useRef<ReturnType<typeof traceCategorySelect>>(null)
-
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("debug") !== "category-select") return
-
-    const currentTrace = traceCategorySelect(id)
-    trace.current = currentTrace
-    return () => {
-      currentTrace.dispose()
-      trace.current = null
-    }
-  }, [id])
 
   return (
     <BaseField width="300px" maxWidth="100%">
@@ -52,7 +39,6 @@ export const CategoryField = memo(function CategoryField({
         keepOpenOnHeightIncrease
         value={value}
         onChange={onChange}
-        onOpenChange={(open) => trace.current?.onOpenChange(open)}
       >
         <ErrorBoundary fallback={<ErrorCategoryOption />}>
           <Suspense fallback={<LoadingCategoryOption />}>

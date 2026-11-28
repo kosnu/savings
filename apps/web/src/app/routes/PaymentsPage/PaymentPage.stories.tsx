@@ -333,15 +333,15 @@ export const CreatePaymentCategoryAfterKeyboardCloses: Story = {
   parameters: {
     viewport: {
       options: {
-        keyboardOpen: { name: "Keyboard open", styles: { width: "390px", height: "680px" } },
+        pixel: { name: "Pixel", styles: { width: "411px", height: "777px" } },
       },
     },
   },
-  globals: { viewport: { value: "keyboardOpen" } },
+  globals: { viewport: { value: "pixel" } },
   play: async ({ canvasElement }) => {
-    const frame = window.frameElement?.closest("iframe")
-    if (!frame) {
-      throw new Error("レイアウトの高さを変更するためのプレビュー iframe が見つかりません")
+    const viewport = window.visualViewport
+    if (!viewport) {
+      throw new Error("visualViewport がありません")
     }
     const tap = async (target: HTMLElement) => {
       const { x, y, width, height } = target.getBoundingClientRect()
@@ -351,7 +351,6 @@ export const CreatePaymentCategoryAfterKeyboardCloses: Story = {
         coords: { clientX: x + width / 2, clientY: y + height / 2 },
       })
     }
-    const initialHeight = frame.style.height
     const canvas = within(canvasElement)
     const body = within(canvasElement.ownerDocument.body)
     const waitForListboxToClose = async () =>
@@ -360,8 +359,8 @@ export const CreatePaymentCategoryAfterKeyboardCloses: Story = {
       )
     const createPayment = await canvas.findByRole("button", { name: /create payment/i })
 
-    await expect(window.innerWidth).toBe(390)
-    await expect(window.innerHeight).toBe(680)
+    await expect(window.innerWidth).toBe(411)
+    await expect(window.innerHeight).toBe(777)
     await tap(createPayment)
     const dialog = await body.findByRole("dialog", { name: /create payment/i })
     const form = within(dialog)
@@ -370,22 +369,23 @@ export const CreatePaymentCategoryAfterKeyboardCloses: Story = {
     await waitFor(async () => expect(amount).toHaveFocus())
     await expect(amount).toHaveValue("")
 
-    // キーボードが表示された高さでタップし、一覧が開いてからキーボードの閉鎖を模擬する。
-    await tap(category)
-    await body.findByRole("option", { name: "Food" })
-    await expect(amount).not.toHaveFocus()
+    // Pixel と同じ順序で、レイアウトを変えずに visualViewport の高さだけを戻す。
+    let visualHeight = 437
+    Object.defineProperty(viewport, "height", { configurable: true, get: () => visualHeight })
     try {
-      const resized = new Promise<void>((resolve) => {
-        window.addEventListener("resize", () => resolve(), { once: true })
-      })
-      frame.style.height = "844px"
-      await resized
+      await tap(category)
+      await body.findByRole("option", { name: "Food" })
+      await expect(amount).not.toHaveFocus()
+
+      visualHeight = 778
+      viewport.dispatchEvent(new Event("resize"))
+      window.dispatchEvent(new Event("resize"))
       // resize による React の更新を描画に反映させてから開閉状態を確認する。
       await new Promise<void>((resolve) => {
         requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
       })
-      await expect(window.innerHeight).toBe(844)
-      await expect(window.innerWidth).toBe(390)
+      await expect(window.innerHeight).toBe(777)
+      await expect(window.innerWidth).toBe(411)
       await expect(category).toHaveAttribute("aria-expanded", "true")
       const food = await body.findByRole("option", { name: "Food" })
       const { x, y, width, height } = food.getBoundingClientRect()
@@ -420,7 +420,7 @@ export const CreatePaymentCategoryAfterKeyboardCloses: Story = {
       await tap(await body.findByRole("option", { name: "None" }))
       await expect(category).toHaveTextContent("None")
     } finally {
-      frame.style.height = initialHeight
+      Reflect.deleteProperty(viewport, "height")
     }
   },
 }
