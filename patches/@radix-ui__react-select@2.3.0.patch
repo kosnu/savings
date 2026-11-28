@@ -1,0 +1,80 @@
+diff --git a/dist/index.js b/dist/index.js
+index b673ed843f6db20625c3432a7821461b7fcb913d..02d64887ac678cf00d94e63ec88d0c267b342724 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -367,6 +367,7 @@ var SelectContentImpl = React.forwardRef(
+     const { __scopeSelect } = props;
+     const {
+       position = "item-aligned",
++      "data-keep-open-on-height-increase": keepOpenOnHeightIncrease,
+       onCloseAutoFocus,
+       onEscapeKeyDown,
+       onPointerDownOutside,
+@@ -458,13 +459,24 @@ var SelectContentImpl = React.forwardRef(
+     }, [content, onOpenChange, triggerPointerDownPosRef]);
+     React.useEffect(() => {
+       const close = () => onOpenChange(false);
++      let previousHeight = window.innerHeight;
++      const initialWidth = window.innerWidth;
++      const handleResize = () => {
++        const height = window.innerHeight;
++        // キーボードが閉じる間は、幅を保ったまま高さが段階的に戻る。
++        if (keepOpenOnHeightIncrease && window.innerWidth === initialWidth && height > previousHeight) {
++          previousHeight = height;
++          return;
++        }
++        close();
++      };
+       window.addEventListener("blur", close);
+-      window.addEventListener("resize", close);
++      window.addEventListener("resize", handleResize);
+       return () => {
+         window.removeEventListener("blur", close);
+-        window.removeEventListener("resize", close);
++        window.removeEventListener("resize", handleResize);
+       };
+-    }, [onOpenChange]);
++    }, [keepOpenOnHeightIncrease, onOpenChange]);
+     const [searchRef, handleTypeaheadSearch] = useTypeaheadSearch((search) => {
+       const enabledItems = getItems().filter((item) => !item.disabled);
+       const currentItem = enabledItems.find((item) => item.ref.current === document.activeElement);
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 4478ffd8411e212f502ca70bca406a23c01c08fd..4cac5e8a3c2205288a66c96ec5ea5c072f6f1683 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -296,6 +296,7 @@ var SelectContentImpl = React.forwardRef(
+     const { __scopeSelect } = props;
+     const {
+       position = "item-aligned",
++      "data-keep-open-on-height-increase": keepOpenOnHeightIncrease,
+       onCloseAutoFocus,
+       onEscapeKeyDown,
+       onPointerDownOutside,
+@@ -387,13 +388,24 @@ var SelectContentImpl = React.forwardRef(
+     }, [content, onOpenChange, triggerPointerDownPosRef]);
+     React.useEffect(() => {
+       const close = () => onOpenChange(false);
++      let previousHeight = window.innerHeight;
++      const initialWidth = window.innerWidth;
++      const handleResize = () => {
++        const height = window.innerHeight;
++        // キーボードが閉じる間は、幅を保ったまま高さが段階的に戻る。
++        if (keepOpenOnHeightIncrease && window.innerWidth === initialWidth && height > previousHeight) {
++          previousHeight = height;
++          return;
++        }
++        close();
++      };
+       window.addEventListener("blur", close);
+-      window.addEventListener("resize", close);
++      window.addEventListener("resize", handleResize);
+       return () => {
+         window.removeEventListener("blur", close);
+-        window.removeEventListener("resize", close);
++        window.removeEventListener("resize", handleResize);
+       };
+-    }, [onOpenChange]);
++    }, [keepOpenOnHeightIncrease, onOpenChange]);
+     const [searchRef, handleTypeaheadSearch] = useTypeaheadSearch((search) => {
+       const enabledItems = getItems().filter((item) => !item.disabled);
+       const currentItem = enabledItems.find((item) => item.ref.current === document.activeElement);

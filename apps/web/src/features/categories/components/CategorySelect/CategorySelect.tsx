@@ -10,6 +10,7 @@ interface CategorySelectProps {
   autoFocus?: boolean
   disabled?: boolean
   id?: string
+  keepOpenOnHeightIncrease?: boolean
   size?: ComponentProps<typeof Select.Root>["size"]
   width?: string
   value?: string
@@ -24,6 +25,7 @@ export function CategorySelect({
   autoFocus = false,
   disabled = false,
   id,
+  keepOpenOnHeightIncrease = false,
   size,
   width,
   value,
@@ -62,7 +64,11 @@ export function CategorySelect({
         placeholder={t("payments.category.pick")}
         style={{ width }}
       />
-      <Select.Content>
+      {/* 高さが戻った後も、一覧をトリガーに追従させる。 */}
+      <Select.Content
+        data-keep-open-on-height-increase={keepOpenOnHeightIncrease || undefined}
+        position={keepOpenOnHeightIncrease ? "popper" : undefined}
+      >
         <NoneCategoryOption />
         {children}
       </Select.Content>

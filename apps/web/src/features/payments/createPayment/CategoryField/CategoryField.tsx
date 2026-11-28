@@ -36,6 +36,7 @@ export const CategoryField = memo(function CategoryField({
         size={{ initial: "3", sm: "2" }}
         width="100%"
         id={id}
+        keepOpenOnHeightIncrease
         value={value}
         onChange={onChange}
       >

@@ -327,3 +327,95 @@ function paymentDetailsEditingStory(width: number, height: number): Story {
 export const NarrowPaymentDetailsEditing = paymentDetailsEditingStory(320, 568)
 export const MobilePaymentDetailsEditing = paymentDetailsEditingStory(390, 844)
 export const DesktopPaymentDetailsEditing = paymentDetailsEditingStory(1280, 900)
+
+export const CreatePaymentCategoryAfterKeyboardCloses: Story = {
+  decorators: [createStoryRouter("/payments?year=2025&month=6", paymentsRouteBuilder)],
+  parameters: {
+    viewport: {
+      options: {
+        keyboardOpen: { name: "Keyboard open", styles: { width: "390px", height: "680px" } },
+      },
+    },
+  },
+  globals: { viewport: { value: "keyboardOpen" } },
+  play: async ({ canvasElement }) => {
+    const frame = window.frameElement?.closest("iframe")
+    if (!frame) {
+      throw new Error("レイアウトの高さを変更するためのプレビュー iframe が見つかりません")
+    }
+    const tap = async (target: HTMLElement) => {
+      const { x, y, width, height } = target.getBoundingClientRect()
+      await userEvent.pointer({
+        keys: "[TouchA]",
+        target,
+        coords: { clientX: x + width / 2, clientY: y + height / 2 },
+      })
+    }
+    const initialHeight = frame.style.height
+    const canvas = within(canvasElement)
+    const body = within(canvasElement.ownerDocument.body)
+    const waitForListboxToClose = async () =>
+      waitFor(async () =>
+        expect(body.queryByRole("listbox", { hidden: true })).not.toBeInTheDocument(),
+      )
+    const createPayment = await canvas.findByRole("button", { name: /create payment/i })
+
+    await expect(window.innerWidth).toBe(390)
+    await expect(window.innerHeight).toBe(680)
+    await tap(createPayment)
+    const dialog = await body.findByRole("dialog", { name: /create payment/i })
+    const form = within(dialog)
+    const amount = form.getByLabelText("Amount", { exact: false, selector: "input" })
+    const category = form.getByRole("combobox", { name: "Category" })
+    await waitFor(async () => expect(amount).toHaveFocus())
+    await expect(amount).toHaveValue("")
+
+    // キーボードが表示された高さでタップし、一覧が開いてからキーボードの閉鎖を模擬する。
+    await tap(category)
+    await body.findByRole("option", { name: "Food" })
+    await expect(amount).not.toHaveFocus()
+    try {
+      const resized = new Promise<void>((resolve) => {
+        window.addEventListener("resize", () => resolve(), { once: true })
+      })
+      frame.style.height = "844px"
+      await resized
+      // resize による React の更新を描画に反映させてから開閉状態を確認する。
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+      })
+      await expect(window.innerHeight).toBe(844)
+      await expect(window.innerWidth).toBe(390)
+      await expect(category).toHaveAttribute("aria-expanded", "true")
+      await tap(await body.findByRole("option", { name: "Food" }))
+      await expect(category).toHaveTextContent("Food")
+      await waitForListboxToClose()
+      await expect(amount).toHaveValue("")
+
+      await userEvent.click(category)
+      await body.findByRole("listbox")
+      await userEvent.keyboard("{Escape}")
+      await waitForListboxToClose()
+      await waitFor(async () => expect(category).toHaveFocus())
+      await expect(category).toHaveTextContent("Food")
+
+      await userEvent.click(category)
+      await body.findByRole("listbox")
+      await userEvent.click(canvasElement.ownerDocument.documentElement)
+      await waitForListboxToClose()
+      await waitFor(async () => expect(category).toHaveFocus())
+      await expect(category).toHaveTextContent("Food")
+
+      await userEvent.click(category)
+      await userEvent.click(await body.findByRole("option", { name: "Daily Necessities" }))
+      await expect(category).toHaveTextContent("Daily Necessities")
+      await waitForListboxToClose()
+
+      await tap(category)
+      await tap(await body.findByRole("option", { name: "None" }))
+      await expect(category).toHaveTextContent("None")
+    } finally {
+      frame.style.height = initialHeight
+    }
+  },
+}
